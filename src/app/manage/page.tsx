@@ -333,7 +333,7 @@ export default function ManagePage() {
                 value={formData.frequency}
                 onChange={(e) => setFormData(prev => ({ 
                   ...prev, 
-                  frequency: e.target.value as any,
+                  frequency: e.target.value as 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY',
                   weekdays: e.target.value === 'WEEKLY' ? [1] : [],
                   month_day: e.target.value === 'MONTHLY' ? 1 : 1
                 }))}

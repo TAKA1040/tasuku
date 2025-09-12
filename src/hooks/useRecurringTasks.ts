@@ -138,7 +138,8 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     startDate?: string,
     endDate?: string,
     importance?: number,
-    durationMin?: number
+    durationMin?: number,
+    urls?: string[]
   ) => {
     try {
       const newRecurringTask: RecurringTask = {
@@ -151,6 +152,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         month_day: frequency === 'MONTHLY' ? monthDay : undefined,
         importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
         duration_min: durationMin || undefined,
+        urls: urls || undefined,
         start_date: startDate || getTodayJST(),
         end_date: endDate,
         max_occurrences: undefined,

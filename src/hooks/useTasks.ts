@@ -167,7 +167,8 @@ export function useTasks(isDbInitialized: boolean = false) {
     dueDate?: string, 
     category?: string, 
     importance?: number,
-    durationMin?: number
+    durationMin?: number,
+    urls?: string[]
   ) => {
     try {
       const newTask: Task = {
@@ -178,6 +179,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         category: category?.trim() || undefined,
         importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
         duration_min: durationMin || undefined,
+        urls: urls || undefined,
         completed: false,
         archived: false,
         completed_at: undefined,
@@ -195,7 +197,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   }
 
   // Update an existing task
-  const updateTask = async (taskId: string, updates: Partial<Pick<Task, 'title' | 'memo' | 'due_date' | 'category' | 'importance' | 'duration_min'>>) => {
+  const updateTask = async (taskId: string, updates: Partial<Pick<Task, 'title' | 'memo' | 'due_date' | 'category' | 'importance' | 'duration_min' | 'urls'>>) => {
     try {
       const task = tasks.find(t => t.id === taskId)
       if (!task) throw new Error('Task not found')
@@ -207,6 +209,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         memo: updates.memo?.trim() || task.memo,
         category: updates.category?.trim() || task.category,
         importance: updates.importance || task.importance,
+        urls: updates.urls !== undefined ? updates.urls : task.urls,
         updated_at: new Date().toISOString()
       }
 

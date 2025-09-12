@@ -1,7 +1,7 @@
 'use client'
 
 import { QuickMoves } from '@/lib/utils/date-jst'
-import type { TaskWithUrgency } from '@/lib/db/schema'
+import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
 
@@ -13,7 +13,7 @@ interface TaskTableProps {
   onComplete: (taskId: string) => void
   onRecurringComplete: (taskId: string) => void
   onQuickMove: (taskId: string, newDueDate: string) => void
-  onEdit?: (task: any) => void
+  onEdit?: (task: Task) => void
 }
 
 export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onQuickMove, onEdit }: TaskTableProps) {
@@ -58,6 +58,34 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     return date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
   }
 
+  const renderUrlIcon = (urls?: string[]) => {
+    if (!urls || urls.length === 0) return '-'
+    
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          const confirmMessage = `${urls.length}個のURLを開きますか？`
+          if (confirm(confirmMessage)) {
+            urls.forEach(url => {
+              window.open(url, '_blank', 'noopener,noreferrer')
+            })
+          }
+        }}
+        style={{
+          border: 'none',
+          background: 'none',
+          fontSize: '16px',
+          cursor: 'pointer',
+          padding: '2px'
+        }}
+        title={`${urls.length}個のURLを一括で開く`}
+      >
+        🌍
+      </button>
+    )
+  }
+
   // Combine and sort all tasks
   const activeItems = [
     ...tasks.map(item => ({
@@ -67,6 +95,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       dueDate: item.task.due_date,
       category: item.task.category,
       importance: item.task.importance,
+      urls: item.task.urls,
       type: '単発' as const,
       urgency: item.urgency,
       days: item.days_from_today,
@@ -82,12 +111,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       dueDate: undefined, // Recurring tasks don't have due dates
       category: undefined, // Recurring tasks don't have categories yet
       importance: undefined, // Recurring tasks don't have importance yet
+      urls: item.task.urls,
       type: item.displayName,
       urgency: 'Normal' as const, // Recurring tasks are normal priority by default
       days: 0, // Today
       isRecurring: true,
       isCompleted: false,
-      task: null as any,
+      task: null as unknown as Task,
       recurringTask: item
     }))
   ].sort((a, b) => {
@@ -113,6 +143,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       dueDate: item.task.due_date,
       category: item.task.category,
       importance: item.task.importance,
+      urls: item.task.urls,
       type: '単発' as const,
       urgency: item.urgency,
       days: item.days_from_today,
@@ -128,12 +159,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       dueDate: undefined, // Recurring tasks don't have due dates
       category: undefined, // Recurring tasks don't have categories yet
       importance: undefined, // Recurring tasks don't have importance yet
+      urls: item.task.urls,
       type: item.displayName,
       urgency: 'Normal' as const, // Recurring tasks are normal priority by default
       days: 0, // Today
       isRecurring: true,
       isCompleted: true,
-      task: null as any,
+      task: null as unknown as Task,
       recurringTask: item
     }))
   ]
@@ -148,6 +180,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
             <tr style={{ backgroundColor: '#f9fafb' }}>
               <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
               <th style={{ padding: '4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
+              <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
               <th style={{ padding: '4px', textAlign: 'left', width: '80px', fontSize: '11px' }}>期日</th>
               <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>タイプ</th>
               <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
@@ -157,7 +190,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           </thead>
           <tbody>
             <tr style={{ borderTop: '1px solid #e5e7eb' }}>
-              <td colSpan={7} style={{ 
+              <td colSpan={8} style={{ 
                 padding: '16px', 
                 textAlign: 'center', 
                 color: '#6b7280' 
@@ -178,6 +211,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           <tr style={{ backgroundColor: '#f9fafb' }}>
             <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
             <th style={{ padding: '4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
+            <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '80px', fontSize: '11px' }}>期日</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>タイプ</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
@@ -267,6 +301,9 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     {item.memo}
                   </div>
                 )}
+              </td>
+              <td style={{ padding: '4px', textAlign: 'center' }}>
+                {renderUrlIcon(item.urls)}
               </td>
               <td style={{ padding: '4px' }}>
                 {item.isRecurring ? '今日' : formatDueDate(item.dueDate)}

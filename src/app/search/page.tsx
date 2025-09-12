@@ -8,6 +8,7 @@ import { useTaskFilter } from '@/hooks/useTaskFilter'
 import { TaskSearchFilter, type SearchFilterOptions } from '@/components/TaskSearchFilter'
 import { TaskTable } from '@/components/TaskTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
+import { Task } from '@/lib/db/schema'
 
 export default function SearchPage() {
   const { isInitialized, error } = useDatabase()
@@ -35,7 +36,7 @@ export default function SearchPage() {
 
   // タスク編集用の状態
   const [showEditForm, setShowEditForm] = useState(false)
-  const [editingTask, setEditingTask] = useState<any>(null)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
 
   // TaskWithUrgencyに変換
   const tasksWithUrgency = allTasks.map(task => ({
@@ -74,13 +75,13 @@ export default function SearchPage() {
     })
   }
 
-  const handleEditTask = (task: any) => {
+  const handleEditTask = (task: Task) => {
     setEditingTask(task)
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance })
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
+    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
   }
 
   const handleCancelEdit = () => {

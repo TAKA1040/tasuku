@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { getTodayJST } from '@/lib/utils/date-jst'
+import { URL_LIMITS } from '@/lib/db/schema'
 
 interface RecurringSettings {
   pattern: string
@@ -14,8 +15,8 @@ interface RecurringSettings {
 
 interface TaskCreateForm2Props {
   isVisible: boolean
-  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number) => void
+  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[]) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -33,10 +34,12 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   const [dayOfMonth, setDayOfMonth] = useState<number>(1)
   const [monthOfYear, setMonthOfYear] = useState<number>(1)
   const [dayOfYear, setDayOfYear] = useState<number>(1)
+  const [urls, setUrls] = useState<string[]>([])
+  const [newUrl, setNewUrl] = useState('')
 
   const handleRegularSubmit = () => {
     if (!title.trim()) return
-    onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined)
+    onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
     resetForm()
   }
 
@@ -49,7 +52,7 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
       dayOfMonth,
       monthOfYear,
       dayOfYear
-    }, importance, durationMin || undefined)
+    }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
     resetForm()
   }
 
@@ -73,6 +76,8 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     setDayOfMonth(1)
     setMonthOfYear(1)
     setDayOfYear(1)
+    setUrls([])
+    setNewUrl('')
   }
 
   const toggleWeekday = (day: number) => {
@@ -86,6 +91,34 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   const handleCancel = () => {
     resetForm()
     onCancel()
+  }
+
+  const handleAddUrl = () => {
+    if (newUrl.trim() && urls.length < URL_LIMITS.MAX_ALLOWED) {
+      // 簡易URL検証
+      try {
+        new URL(newUrl.trim())
+        setUrls([...urls, newUrl.trim()])
+        setNewUrl('')
+      } catch {
+        alert('有効なURLを入力してください')
+      }
+    }
+  }
+
+  const handleRemoveUrl = (index: number) => {
+    setUrls(urls.filter((_, i) => i !== index))
+  }
+
+  const handleOpenAllUrls = () => {
+    if (urls.length === 0) return
+    
+    const confirmMessage = `${urls.length}個のURLを開きますか？`
+    if (confirm(confirmMessage)) {
+      urls.forEach(url => {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      })
+    }
   }
 
   if (!isVisible) return null
@@ -156,6 +189,135 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
               resize: 'vertical'
             }}
           />
+        </div>
+
+        {/* URL管理セクション */}
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '4px',
+            fontSize: '12px',
+            fontWeight: '500',
+            color: '#374151'
+          }}>
+            関連URL（最大5個）
+            {urls.length > URL_LIMITS.RECOMMENDED && (
+              <span style={{ color: '#f59e0b', fontSize: '10px', marginLeft: '6px' }}>
+                推奨数（{URL_LIMITS.RECOMMENDED}個）を超えています
+              </span>
+            )}
+          </label>
+          
+          {/* URL入力エリア */}
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+            <input
+              type="url"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              placeholder="https://example.com"
+              style={{
+                flex: 1,
+                padding: '4px 6px',
+                border: '1px solid #d1d5db',
+                borderRadius: '3px',
+                fontSize: '12px',
+                boxSizing: 'border-box'
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
+            />
+            <button
+              type="button"
+              onClick={handleAddUrl}
+              disabled={!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED}
+              style={{
+                padding: '4px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '3px',
+                backgroundColor: 'white',
+                color: '#374151',
+                fontSize: '12px',
+                cursor: 'pointer',
+                opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1
+              }}
+            >
+              追加
+            </button>
+          </div>
+
+          {/* URL一覧 */}
+          {urls.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                  {urls.length}個のURL
+                </span>
+                <button
+                  type="button"
+                  onClick={handleOpenAllUrls}
+                  style={{
+                    padding: '2px 4px',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '3px',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    fontSize: '10px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  🚀 全て開く
+                </button>
+              </div>
+              <div style={{ 
+                border: '1px solid #e5e7eb',
+                borderRadius: '3px',
+                maxHeight: '80px',
+                overflowY: 'auto'
+              }}>
+                {urls.map((url, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '4px 6px',
+                      borderBottom: index < urls.length - 1 ? '1px solid #f3f4f6' : 'none'
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: '10px',
+                        color: '#374151',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {url}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveUrl(index)}
+                      style={{
+                        marginLeft: '4px',
+                        padding: '2px',
+                        border: 'none',
+                        borderRadius: '2px',
+                        backgroundColor: '#fee2e2',
+                        color: '#dc2626',
+                        fontSize: '10px',
+                        cursor: 'pointer',
+                        lineHeight: 1
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* やることリストに追加ボタン */}

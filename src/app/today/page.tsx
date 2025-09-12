@@ -13,6 +13,7 @@ import { TaskEditForm } from '@/components/TaskEditForm'
 import { TaskCreateForm2 } from '@/components/TaskCreateForm2'
 import { IdeaBox } from '@/components/IdeaBox'
 import { useIdeas } from '@/hooks/useIdeas'
+import { Task } from '@/lib/db/schema'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -37,7 +38,7 @@ export default function TodayPage() {
   
   // タスク編集フォーム表示制御
   const [showEditForm, setShowEditForm] = useState(false)
-  const [editingTask, setEditingTask] = useState<any>(null)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
   
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
@@ -94,7 +95,7 @@ export default function TodayPage() {
         id: item.task.id,
         title: item.task.title,
         due_date: item.nextDate
-      } as any,
+      } as Task,
       urgency: 'Normal' as const,
       days_from_today: item.daysFromToday
     }))
@@ -104,8 +105,8 @@ export default function TodayPage() {
     quickMoveTask(taskId, getTodayJST())
   }
 
-  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number) => {
-    await createTask(title, memo, dueDate, category, importance, durationMin)
+  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => {
+    await createTask(title, memo, dueDate, category, importance, durationMin, urls)
   }
 
   const handleCreateRecurring = async (title: string, memo: string, settings: {
@@ -115,7 +116,7 @@ export default function TodayPage() {
     dayOfMonth: number
     monthOfYear: number
     dayOfYear: number
-  }, importance?: number, durationMin?: number) => {
+  }, importance?: number, durationMin?: number, urls?: string[]) => {
     const { pattern, intervalDays, selectedWeekdays, dayOfMonth } = settings
     
     // パターンをスキーマ形式に変換
@@ -144,16 +145,16 @@ export default function TodayPage() {
         frequency = 'DAILY'
     }
     
-    await createRecurringTask(title, memo, frequency, intervalN, weekdays, monthDay, undefined, undefined, importance, durationMin)
+    await createRecurringTask(title, memo, frequency, intervalN, weekdays, monthDay, undefined, undefined, importance, durationMin, urls)
   }
 
-  const handleEditTask = (task: any) => {
+  const handleEditTask = (task: Task) => {
     setEditingTask(task)
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin })
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
+    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
   }
 
   const handleCancelEdit = () => {

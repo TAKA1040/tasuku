@@ -24,6 +24,7 @@ export interface Task {
   duration_min?: number // 想定所要時間（分）
   importance?: 1 | 2 | 3 | 4 | 5 // 重要度
   category?: string // カテゴリ（仕事、プライベート、勉強など）
+  urls?: string[] // 関連URL（最大5個）
   location_tag_id?: string
 }
 
@@ -45,6 +46,7 @@ export interface RecurringTask {
   // PHASE 4.2 - 拡張フィールド
   duration_min?: number
   importance?: 1 | 2 | 3 | 4 | 5
+  urls?: string[] // 関連URL（最大5個）
   location_tag_id?: string
 }
 
@@ -157,6 +159,13 @@ export const TASK_IMPORTANCE_LABELS = {
 } as const
 
 export type TaskImportance = typeof TASK_IMPORTANCE[keyof typeof TASK_IMPORTANCE]
+
+// URL設定
+export const URL_LIMITS = {
+  RECOMMENDED: 3,
+  MAX_ALLOWED: 5,
+  WARNING_THRESHOLD: 3
+} as const
 
 // Helper type for task display
 export interface TaskWithUrgency {
