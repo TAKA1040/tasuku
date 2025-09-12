@@ -33,7 +33,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
   }
 
   // Swingdo風スマート優先度計算
-  const getSmartPriority = (item: any) => {
+  const getSmartPriority = (item: { isRecurring?: boolean; urgency?: string; importance?: number; days?: number }) => {
     if (item.isRecurring) return '習慣'
     
     const urgencyScores: Record<string, number> = {
@@ -171,8 +171,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     
     if (!a.isRecurring && !b.isRecurring) {
       // 2. 期限切れ・重要度の複合スコア算出
-      const getSmartPriorityScore = (item: any) => {
-        let score = 0
+      const getSmartPriorityScore = (item: { urgency?: string; importance?: number; days?: number }) => {
+        const score = 0
         
         // 緊急度ベーススコア（高いほど優先）
         const urgencyScores: Record<string, number> = {

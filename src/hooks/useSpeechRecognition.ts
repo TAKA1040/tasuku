@@ -21,16 +21,16 @@ export function useSpeechRecognition({
   const [transcript, setTranscript] = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
   const [isSupported, setIsSupported] = useState(false)
-  const recognitionRef = useRef<any>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   // ブラウザ対応チェック
   useEffect(() => {
-    const SpeechRecognition = 
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognitionClass = 
+      window.SpeechRecognition || window.webkitSpeechRecognition
     
-    if (SpeechRecognition) {
+    if (SpeechRecognitionClass) {
       setIsSupported(true)
-      const recognition = new SpeechRecognition()
+      const recognition = new SpeechRecognitionClass()
       
       recognition.continuous = continuous
       recognition.interimResults = interimResults
@@ -42,7 +42,7 @@ export function useSpeechRecognition({
         console.log('音声認識開始')
       }
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         let finalTranscript = ''
         let currentInterimTranscript = ''
 
@@ -66,7 +66,7 @@ export function useSpeechRecognition({
         }
       }
 
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         const errorMessage = `音声認識エラー: ${event.error}`
         console.error(errorMessage)
         if (onError) onError(errorMessage)
