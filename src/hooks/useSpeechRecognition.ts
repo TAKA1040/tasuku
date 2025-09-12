@@ -21,7 +21,7 @@ export function useSpeechRecognition({
   const [transcript, setTranscript] = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
   const [isSupported, setIsSupported] = useState(false)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
 
   // ブラウザ対応チェック
   useEffect(() => {
