@@ -1,7 +1,8 @@
 'use client'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function AuthCodeErrorPage() {
+function AuthCodeErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
 
@@ -50,5 +51,17 @@ export default function AuthCodeErrorPage() {
         </a>
       </div>
     </div>
+  )
+}
+
+export default function AuthCodeErrorPage() {
+  return (
+    <Suspense fallback={
+      <div style={{display:'flex',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
+        <div>読み込み中...</div>
+      </div>
+    }>
+      <AuthCodeErrorContent />
+    </Suspense>
   )
 }
