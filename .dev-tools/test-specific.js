@@ -66,5 +66,5 @@ const testDates = [
 
 testDates.forEach(dateStr => {
   const targetDate = parseDateJST(dateStr);
-  const result = occursOnWeekly(targetDate, startDate, 1, weekdays);
+  occursOnWeekly(targetDate, startDate, 1, weekdays);
 });

@@ -32,7 +32,7 @@ export async function deleteDatabase(): Promise<void> {
  */
 export function setupDevTools() {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    // @ts-ignore
+    // @ts-expect-error Development tools: Adding global function for debugging
     window.resetTasukuDB = async () => {
       await deleteDatabase()
       window.location.reload()

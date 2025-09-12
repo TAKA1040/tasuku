@@ -2,7 +2,7 @@
 // 段階的機能有効化とデバッグ用
 
 import { db } from './db/database'
-import type { Settings } from './db/schema'
+// import type { Settings } from './db/schema' // 将来使用予定
 
 /**
  * フィーチャーフラグの型定義

@@ -1,7 +1,486 @@
-まずは相談
-追加して欲しい機能
-タスクにURLを追加
-さらに、複数のURLを追加して、そのURLボタンを押したら、登録している複数のURLが起動するみたいな機能って作れる？
-もしできるなら、それを搭載することで起きるデメリットを
-もしできないなら、出来ないと言って。
+表示はされてるけどエラーも出てる
 
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:17 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useRecurringTasks.ts:26 Database not yet initialized, skipping recurring data loading
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:33 Database initialized
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:36 Dev features initialized
+C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:40 Dev tools setup
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:44 Checking for dummy data...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:47 Database state: {tasks: 4, recurringTasks: 3, recurringLogs: 0}
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:56 Database initialization completed successfully
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:311 In HTML, <tr> cannot be a child of <div>.
+This will cause a hydration error.
+
+  ...
+    <SegmentViewNode type="page" pagePath="today/page...">
+      <SegmentTrieNode>
+      <ClientPageRoot Component={function TodayPage} searchParams={{}} params={{}}>
+        <TodayPage params={Promise} searchParams={Promise}>
+          <ThemedContainer>
+            <div style={{...}} className={undefined}>
+              <div style={{padding:"8px", ...}}>
+                <header>
+                <main>
+                  <section style={{...}}>
+                    <TaskTable tasks={[...]} recurringTasks={[...]} completedTasks={[...]} ...>
+                      <div>
+                        <table style={{width:"100%", ...}}>
+                          <thead>
+                          <tbody>
+                            <SwipeableTaskRow onSwipeComplete={function onSwipeComplete} isCompleted={false} ...>
+                              <div ref={{current:null}} style={{position:"...", ...}} ...>
+                                <div>
+>                               <div
+>                                 style={{transform:"translateX...",transition:"transform ...",backgroundColor:"inherit",position:"...", ...}}
+>                               >
+>                                 <tr
+>                                   style={{borderTop:"none",minHeight:"32px",opacity:1,backgroundColor:"transparent",transition:"backg..."}}
+>                                   onMouseEnter={function onMouseEnter}
+>                                   onMouseLeave={function onMouseLeave}
+>                                 >
+                                ...
+                            ...
+                  ...
+                ...
+    ...
+
+error @ intercept-console-error.js:57
+validateDOMNesting @ react-dom-client.development.js:2655
+completeWork @ react-dom-client.development.js:11638
+runWithFiberInDEV @ react-dom-client.development.js:872
+completeUnitOfWork @ react-dom-client.development.js:15863
+performUnitOfWork @ react-dom-client.development.js:15744
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<tr>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+eval @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:311
+TaskTable @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:298
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TaskTable>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+TodayPage @ C:\Windsurf\tasuku\src\app\today\page.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TodayPage>
+exports.jsx @ react-jsx-runtime.development.js:323
+ClientPageRoot @ client-page.js:20
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10807
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopConcurrentByScheduler @ react-dom-client.development.js:15721
+renderRootConcurrent @ react-dom-client.development.js:15696
+performWorkOnRoot @ react-dom-client.development.js:14990
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+"use client"
+Function.all @ <anonymous>:1
+Function.all @ <anonymous>:1
+initializeElement @ react-server-dom-webpack-client.browser.development.js:1343
+eval @ react-server-dom-webpack-client.browser.development.js:3066
+initializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246
+resolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101
+processFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899
+processFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766
+processBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969
+progress @ react-server-dom-webpack-client.browser.development.js:3233
+"use server"
+ResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041
+createResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094
+exports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478
+eval @ app-index.js:130
+(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1757687480069:160
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+fn @ webpack.js:1
+eval @ app-next-dev.js:14
+eval @ app-bootstrap.js:59
+loadScriptsInSequence @ app-bootstrap.js:24
+appBootstrap @ app-bootstrap.js:53
+eval @ app-next-dev.js:13
+(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1757687480069:182
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+__webpack_exec__ @ main-app.js?v=1757687480069:1878
+（匿名） @ main-app.js?v=1757687480069:1879
+webpackJsonpCallback @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+C:\Windsurf\tasuku\src\components\SwipeableTaskRow.tsx:243 <div> cannot contain a nested <tr>.
+See this log for the ancestor stack trace.
+error @ intercept-console-error.js:57
+eval @ react-dom-client.development.js:2675
+runWithFiberInDEV @ react-dom-client.development.js:872
+validateDOMNesting @ react-dom-client.development.js:2674
+completeWork @ react-dom-client.development.js:11638
+runWithFiberInDEV @ react-dom-client.development.js:872
+completeUnitOfWork @ react-dom-client.development.js:15863
+performUnitOfWork @ react-dom-client.development.js:15744
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<div>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+SwipeableTaskRow @ C:\Windsurf\tasuku\src\components\SwipeableTaskRow.tsx:243
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<SwipeableTaskRow>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+eval @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:299
+TaskTable @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:298
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TaskTable>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+TodayPage @ C:\Windsurf\tasuku\src\app\today\page.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TodayPage>
+exports.jsx @ react-jsx-runtime.development.js:323
+ClientPageRoot @ client-page.js:20
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10807
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopConcurrentByScheduler @ react-dom-client.development.js:15721
+renderRootConcurrent @ react-dom-client.development.js:15696
+performWorkOnRoot @ react-dom-client.development.js:14990
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+"use client"
+Function.all @ <anonymous>:1
+Function.all @ <anonymous>:1
+initializeElement @ react-server-dom-webpack-client.browser.development.js:1343
+eval @ react-server-dom-webpack-client.browser.development.js:3066
+initializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246
+resolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101
+processFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899
+processFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766
+processBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969
+progress @ react-server-dom-webpack-client.browser.development.js:3233
+"use server"
+ResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041
+createResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094
+exports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478
+eval @ app-index.js:130
+(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1757687480069:160
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+fn @ webpack.js:1
+eval @ app-next-dev.js:14
+eval @ app-bootstrap.js:59
+loadScriptsInSequence @ app-bootstrap.js:24
+appBootstrap @ app-bootstrap.js:53
+eval @ app-next-dev.js:13
+(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1757687480069:182
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+__webpack_exec__ @ main-app.js?v=1757687480069:1878
+（匿名） @ main-app.js?v=1757687480069:1879
+webpackJsonpCallback @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+C:\Windsurf\tasuku\src\components\SwipeableTaskRow.tsx:204 In HTML, <div> cannot be a child of <tbody>.
+This will cause a hydration error.
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <InnerLayoutRouter url="/today" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+        <SegmentViewNode type="page" pagePath="today/page...">
+          <SegmentTrieNode>
+          <ClientPageRoot Component={function TodayPage} searchParams={{}} params={{}}>
+            <TodayPage params={Promise} searchParams={Promise}>
+              <ThemedContainer>
+                <div style={{...}} className={undefined}>
+                  <div style={{padding:"8px", ...}}>
+                    <header>
+                    <main>
+                      <section style={{...}}>
+                        <TaskTable tasks={[...]} recurringTasks={[...]} completedTasks={[...]} ...>
+                          <div>
+                            <table style={{width:"100%", ...}}>
+                              <thead>
+>                             <tbody>
+                                <SwipeableTaskRow onSwipeComplete={function onSwipeComplete} isCompleted={false} ...>
+>                                 <div
+>                                   ref={{current:null}}
+>                                   style={{position:"relative",overflow:"hidden",touchAction:"pan-y",cursor:"grab"}}
+>                                   onTouchStart={function handleTouchStart}
+>                                   onTouchMove={function handleTouchMove}
+>                                   onTouchEnd={function handleTouchEnd}
+>                                   onMouseDown={function handleMouseDown}
+>                                 >
+                                ...
+                      ...
+                    ...
+        ...
+      ...
+
+error @ intercept-console-error.js:57
+validateDOMNesting @ react-dom-client.development.js:2655
+completeWork @ react-dom-client.development.js:11638
+runWithFiberInDEV @ react-dom-client.development.js:872
+completeUnitOfWork @ react-dom-client.development.js:15863
+performUnitOfWork @ react-dom-client.development.js:15744
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<div>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+SwipeableTaskRow @ C:\Windsurf\tasuku\src\components\SwipeableTaskRow.tsx:204
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<SwipeableTaskRow>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+eval @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:299
+TaskTable @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:298
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TaskTable>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+TodayPage @ C:\Windsurf\tasuku\src\app\today\page.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TodayPage>
+exports.jsx @ react-jsx-runtime.development.js:323
+ClientPageRoot @ client-page.js:20
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10807
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopConcurrentByScheduler @ react-dom-client.development.js:15721
+renderRootConcurrent @ react-dom-client.development.js:15696
+performWorkOnRoot @ react-dom-client.development.js:14990
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+"use client"
+Function.all @ <anonymous>:1
+Function.all @ <anonymous>:1
+initializeElement @ react-server-dom-webpack-client.browser.development.js:1343
+eval @ react-server-dom-webpack-client.browser.development.js:3066
+initializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246
+resolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101
+processFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899
+processFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766
+processBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969
+progress @ react-server-dom-webpack-client.browser.development.js:3233
+"use server"
+ResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041
+createResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094
+exports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478
+eval @ app-index.js:130
+(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1757687480069:160
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+fn @ webpack.js:1
+eval @ app-next-dev.js:14
+eval @ app-bootstrap.js:59
+loadScriptsInSequence @ app-bootstrap.js:24
+appBootstrap @ app-bootstrap.js:53
+eval @ app-next-dev.js:13
+(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1757687480069:182
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+__webpack_exec__ @ main-app.js?v=1757687480069:1878
+（匿名） @ main-app.js?v=1757687480069:1879
+webpackJsonpCallback @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:264 <tbody> cannot contain a nested <div>.
+See this log for the ancestor stack trace.
+error @ intercept-console-error.js:57
+eval @ react-dom-client.development.js:2675
+runWithFiberInDEV @ react-dom-client.development.js:872
+validateDOMNesting @ react-dom-client.development.js:2674
+completeWork @ react-dom-client.development.js:11638
+runWithFiberInDEV @ react-dom-client.development.js:872
+completeUnitOfWork @ react-dom-client.development.js:15863
+performUnitOfWork @ react-dom-client.development.js:15744
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<tbody>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+TaskTable @ C:\Windsurf\tasuku\src\components\TaskTable.tsx:264
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TaskTable>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:323
+TodayPage @ C:\Windsurf\tasuku\src\app\today\page.tsx:316
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10858
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopSync @ react-dom-client.development.js:15547
+renderRootSync @ react-dom-client.development.js:15527
+performWorkOnRoot @ react-dom-client.development.js:14991
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+<TodayPage>
+exports.jsx @ react-jsx-runtime.development.js:323
+ClientPageRoot @ client-page.js:20
+react_stack_bottom_frame @ react-dom-client.development.js:23584
+renderWithHooksAgain @ react-dom-client.development.js:6893
+renderWithHooks @ react-dom-client.development.js:6805
+updateFunctionComponent @ react-dom-client.development.js:9247
+beginWork @ react-dom-client.development.js:10807
+runWithFiberInDEV @ react-dom-client.development.js:872
+performUnitOfWork @ react-dom-client.development.js:15727
+workLoopConcurrentByScheduler @ react-dom-client.development.js:15721
+renderRootConcurrent @ react-dom-client.development.js:15696
+performWorkOnRoot @ react-dom-client.development.js:14990
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816
+performWorkUntilDeadline @ scheduler.development.js:45
+"use client"
+Function.all @ <anonymous>:1
+Function.all @ <anonymous>:1
+initializeElement @ react-server-dom-webpack-client.browser.development.js:1343
+eval @ react-server-dom-webpack-client.browser.development.js:3066
+initializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246
+resolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101
+processFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899
+processFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766
+processBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969
+progress @ react-server-dom-webpack-client.browser.development.js:3233
+"use server"
+ResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041
+createResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094
+exports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478
+eval @ app-index.js:130
+(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1757687480069:160
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+fn @ webpack.js:1
+eval @ app-next-dev.js:14
+eval @ app-bootstrap.js:59
+loadScriptsInSequence @ app-bootstrap.js:24
+appBootstrap @ app-bootstrap.js:53
+eval @ app-next-dev.js:13
+(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1757687480069:182
+options.factory @ webpack.js:1
+__webpack_require__ @ webpack.js:1
+__webpack_exec__ @ main-app.js?v=1757687480069:1878
+（匿名） @ main-app.js?v=1757687480069:1879
+webpackJsonpCallback @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1
+（匿名） @ webpack.js:1

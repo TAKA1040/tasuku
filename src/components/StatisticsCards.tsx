@@ -156,7 +156,7 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
           padding: '8px 12px'
         }}>
           {Object.entries(stats.urgencyStats)
-            .filter(([_, stat]) => stat.total > 0)
+            .filter(([, stat]) => stat.total > 0)
             .map(([urgency, stat]) => (
               <ProgressBar
                 key={urgency}
@@ -184,7 +184,7 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
           padding: '8px 12px'
         }}>
           {Object.entries(stats.categoryStats)
-            .filter(([_, stat]) => stat.total > 0)
+            .filter(([, stat]) => stat.total > 0)
             .map(([category, stat]) => (
               <ProgressBar
                 key={category}
@@ -212,7 +212,7 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
           padding: '8px 12px'
         }}>
           {Object.entries(stats.importanceStats)
-            .filter(([_, stat]) => stat.total > 0)
+            .filter(([, stat]) => stat.total > 0)
             .sort(([a], [b]) => Number(b) - Number(a)) // 重要度の高い順
             .map(([importance, stat]) => (
               <ProgressBar
@@ -284,7 +284,7 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
             gap: '4px',
             marginBottom: '8px'
           }}>
-            {Object.values(stats.weeklyStats).map((day, index) => (
+            {Object.values(stats.weeklyStats).map((day) => (
               <div key={day.date} style={{
                 textAlign: 'center',
                 padding: '4px 2px',

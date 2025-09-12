@@ -105,7 +105,7 @@ export function testRecurringRules() {
  */
 export function setupRecurringDevTools() {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    // @ts-ignore
+    // @ts-expect-error Development tools: Adding global function for testing
     window.testRecurringRules = testRecurringRules
     console.log('Development tools: window.testRecurringRules()')
   }

@@ -32,6 +32,49 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }
   }
 
+  // Swingdo風スマート優先度計算
+  const getSmartPriority = (item: any) => {
+    if (item.isRecurring) return '習慣'
+    
+    const urgencyScores: Record<string, number> = {
+      'Overdue': 100,
+      'Soon': 80,
+      'Next7': 60,
+      'Next30': 40,
+      'Normal': 20
+    }
+    const urgencyScore = urgencyScores[item.urgency] || 20
+    
+    const importanceBonus = (item.importance || 1) * 8
+    const daysBonus = Math.max(0, 30 - Math.abs(item.days)) / 2
+    const totalScore = urgencyScore + importanceBonus + daysBonus
+    
+    if (totalScore >= 120) return '最優先'
+    if (totalScore >= 100) return '優先'
+    if (totalScore >= 70) return '普通'
+    return '低'
+  }
+
+  const getPriorityStyle = (priority: string) => {
+    const styles = {
+      '最優先': { backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' },
+      '優先': { backgroundColor: '#fef3c7', color: '#d97706', border: '1px solid #fcd34d' },
+      '普通': { backgroundColor: '#e0f2fe', color: '#0284c7', border: '1px solid #7dd3fc' },
+      '低': { backgroundColor: '#f3f4f6', color: '#6b7280', border: '1px solid #d1d5db' },
+      '習慣': { backgroundColor: '#f0fdf4', color: '#059669', border: '1px solid #86efac' }
+    }
+    return { 
+      ...styles[priority as keyof typeof styles], 
+      padding: '1px 4px', 
+      borderRadius: '4px', 
+      fontSize: '11px',
+      fontWeight: '500',
+      display: 'inline-block',
+      minWidth: '36px',
+      textAlign: 'center' as const
+    }
+  }
+
   const getImportanceStyle = (importance?: number) => {
     if (!importance) return { backgroundColor: '#f9fafb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
     
@@ -121,14 +164,42 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       recurringTask: item
     }))
   ].sort((a, b) => {
-    // Sort: recurring tasks first (today), then by urgency, then by days
+    // Swingdo風インテリジェント優先順位ソート
+    // 1. 繰り返しタスク優先
     if (a.isRecurring && !b.isRecurring) return -1
     if (!a.isRecurring && b.isRecurring) return 1
     
     if (!a.isRecurring && !b.isRecurring) {
-      const urgencyOrder = ['Overdue', 'Soon', 'Next7', 'Next30', 'Normal']
-      const urgencyDiff = urgencyOrder.indexOf(a.urgency) - urgencyOrder.indexOf(b.urgency)
-      if (urgencyDiff !== 0) return urgencyDiff
+      // 2. 期限切れ・重要度の複合スコア算出
+      const getSmartPriorityScore = (item: any) => {
+        let score = 0
+        
+        // 緊急度ベーススコア（高いほど優先）
+        const urgencyScores: Record<string, number> = {
+          'Overdue': 100,    // 期限切れは最優先
+          'Soon': 80,        // 近日中
+          'Next7': 60,       // 1週間以内
+          'Next30': 40,      // 1ヶ月以内
+          'Normal': 20       // 通常
+        }
+        const urgencyScore = urgencyScores[item.urgency] || 20
+        
+        // 重要度ボーナス（1-5 → 0-40点）
+        const importanceBonus = (item.importance || 1) * 8
+        
+        // 締切近接度ボーナス（日数が少ないほど高スコア）
+        const daysBonus = Math.max(0, 30 - Math.abs(item.days)) / 2
+        
+        return urgencyScore + importanceBonus + daysBonus
+      }
+      
+      const scoreA = getSmartPriorityScore(a)
+      const scoreB = getSmartPriorityScore(b)
+      
+      // 3. スコア順にソート（降順）
+      if (scoreA !== scoreB) return scoreB - scoreA
+      
+      // 4. 同スコアなら期日順
       return a.days - b.days
     }
     
@@ -186,6 +257,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
               <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
               <th style={{ padding: '4px', textAlign: 'left', width: '70px', fontSize: '11px' }}>緊急度</th>
               <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>重要度</th>
+              <th style={{ padding: '4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
             </tr>
           </thead>
           <tbody>
@@ -217,13 +289,14 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
             <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '70px', fontSize: '11px' }}>緊急度</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>重要度</th>
+            <th style={{ padding: '4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
             <th style={{ padding: '4px', textAlign: 'left', width: '120px', fontSize: '11px' }}>操作</th>
           </tr>
         </thead>
         <tbody>
           {allItems.map((item, index) => (
-            <tr 
-              key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`}
+            <tr
+              key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`} 
               style={{ 
                 borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
                 minHeight: '32px',
@@ -325,6 +398,11 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                 </span>
               </td>
               <td style={{ padding: '4px' }}>
+                <span style={getPriorityStyle(getSmartPriority(item))}>
+                  {getSmartPriority(item)}
+                </span>
+              </td>
+              <td style={{ padding: '4px' }}>
                 {item.isCompleted ? (
                   <span style={{ fontSize: '12px', color: '#10b981' }}>完了済み</span>
                 ) : item.isRecurring ? (
@@ -336,25 +414,24 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     flexWrap: 'wrap',
                     alignItems: 'center'
                   }}>
-                    {onEdit && (
-                      <button
-                        onClick={() => onEdit(item.task)}
-                        style={{
-                          padding: '3px 6px',
-                          fontSize: '11px',
-                          border: '1px solid #3b82f6',
-                          borderRadius: '3px',
-                          backgroundColor: '#3b82f6',
-                          color: 'white',
-                          cursor: 'pointer',
-                          minWidth: '32px',
-                          fontWeight: '500'
-                        }}
-                        title="タスクを編集"
-                      >
-                        編集
-                      </button>
-                    )}
+                    <a
+                      href="/manage"
+                      style={{
+                        padding: '3px 8px',
+                        fontSize: '16px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '3px',
+                        backgroundColor: 'white',
+                        color: '#6b7280',
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        lineHeight: '1'
+                      }}
+                      title="管理ページで編集"
+                    >
+                      …
+                    </a>
                     <button
                       onClick={() => onQuickMove(item.id, QuickMoves.tomorrow())}
                       style={{
@@ -404,6 +481,31 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                       title="3日後に移動"
                     >
                       +3日
+                    </button>
+                    <button
+                      onClick={() => onQuickMove(item.id, QuickMoves.endOfMonth())}
+                      style={{
+                        padding: '3px 6px',
+                        fontSize: '11px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '3px',
+                        backgroundColor: '#fff',
+                        color: '#374151',
+                        cursor: 'pointer',
+                        minWidth: '42px',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f3f4f6'
+                        e.currentTarget.style.borderColor = '#9ca3af'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fff'
+                        e.currentTarget.style.borderColor = '#d1d5db'
+                      }}
+                      title="今月末に移動"
+                    >
+                      月末
                     </button>
                   </div>
                 )}

@@ -113,7 +113,7 @@ export async function clearAllData(): Promise<void> {
     
     const allItems = await db.getAll(storeName)
     for (const item of allItems) {
-      const key = Array.isArray(item) ? item : (item as any).id
+      const key = Array.isArray(item) ? item : (item as { id: string }).id
       await db.delete(storeName, key)
     }
   }

@@ -3,6 +3,8 @@ export const metadata = {
   description: 'シンプルな日次タスク管理',
 }
 
+import { ThemeProvider } from '@/components/ThemeProvider'
+
 export default function RootLayout({
   children,
 }: {
@@ -12,10 +14,11 @@ export default function RootLayout({
     <html lang="ja">
       <body style={{ 
         margin: 0, 
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 
-        backgroundColor: '#f8fafc' 
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
       }}>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

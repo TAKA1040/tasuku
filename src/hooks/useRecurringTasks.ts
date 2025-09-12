@@ -1,7 +1,7 @@
 'use client'
 
 // Recurring tasks management hook
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { db, STORE_NAMES } from '@/lib/db/database'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { occursOn, getRecurringDisplayName } from '@/lib/utils/recurring'
@@ -21,7 +21,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   const [error, setError] = useState<string | null>(null)
 
   // Load recurring tasks and logs
-  const loadRecurringData = async () => {
+  const loadRecurringData = useCallback(async () => {
     if (!isDbInitialized) {
       console.log('Database not yet initialized, skipping recurring data loading')
       setLoading(false) // Important: Set loading to false even when not initialized
@@ -44,7 +44,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isDbInitialized])
 
   // Get today's recurring tasks with completion status
   const getTodayRecurringTasks = (): RecurringTaskWithStatus[] => {
@@ -240,7 +240,6 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     nextDate: string
     daysFromToday: number
   }> => {
-    const today = getTodayJST()
     const result = []
     
     for (const task of recurringTasks.filter(t => t.active)) {
@@ -274,7 +273,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   // Load data when database is initialized or component mounts
   useEffect(() => {
     loadRecurringData()
-  }, [isDbInitialized])
+  }, [isDbInitialized, loadRecurringData])
 
   return {
     recurringTasks,

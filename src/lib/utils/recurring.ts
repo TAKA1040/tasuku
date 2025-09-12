@@ -5,7 +5,7 @@ import {
   parseDateJST, 
   formatDateJST, 
   getDaysDifference,
-  getWeekdayJST,
+  // getWeekdayJST, // 将来使用予定
   clampToMonthEnd 
 } from './date-jst'
 import type { RecurringTask } from '../db/schema'

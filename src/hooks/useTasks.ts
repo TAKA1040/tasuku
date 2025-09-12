@@ -1,7 +1,7 @@
 'use client'
 
 // Tasks data management hook
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { db, STORE_NAMES } from '@/lib/db/database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
@@ -12,7 +12,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   const [error, setError] = useState<string | null>(null)
 
   // Load tasks from database
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     if (!isDbInitialized) {
       console.log('Database not yet initialized, skipping task loading')
       setLoading(false) // Important: Set loading to false even when not initialized
@@ -30,7 +30,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isDbInitialized])
 
   // Get today's tasks with urgency
   const getTodayTasks = (): TaskWithUrgency[] => {
@@ -87,6 +87,32 @@ export function useTasks(isDbInitialized: boolean = false) {
       })
       .sort((a, b) => {
         // Sort by completion order (recently completed first)
+        return new Date(b.task.updated_at).getTime() - new Date(a.task.updated_at).getTime()
+      })
+  }
+
+  // Get all completed tasks (for Done page)
+  const getAllCompletedTasks = (): TaskWithUrgency[] => {
+    return tasks
+      .filter(task => task.completed && !task.archived)
+      .map(task => {
+        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : 999
+        const urgency = task.due_date ? getUrgencyLevel(task.due_date) : 'Normal'
+        
+        return {
+          task,
+          urgency,
+          days_from_today
+        }
+      })
+      .sort((a, b) => {
+        // Sort by completion date (newest first)
+        if (a.task.completed_at && b.task.completed_at) {
+          return b.task.completed_at.localeCompare(a.task.completed_at)
+        }
+        if (a.task.completed_at) return -1
+        if (b.task.completed_at) return 1
+        // Fallback to updated_at if no completed_at
         return new Date(b.task.updated_at).getTime() - new Date(a.task.updated_at).getTime()
       })
   }
@@ -221,10 +247,24 @@ export function useTasks(isDbInitialized: boolean = false) {
     }
   }
 
+  // Delete a task
+  const deleteTask = async (taskId: string) => {
+    try {
+      const task = tasks.find(t => t.id === taskId)
+      if (!task) throw new Error('Task not found')
+
+      await db.delete(STORE_NAMES.TASKS, taskId)
+      await loadTasks() // Reload tasks
+    } catch (err) {
+      console.error('Failed to delete task:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    }
+  }
+
   // Load tasks when database is initialized or component mounts
   useEffect(() => {
     loadTasks()
-  }, [isDbInitialized])
+  }, [isDbInitialized, loadTasks])
 
   return {
     tasks,
@@ -233,11 +273,13 @@ export function useTasks(isDbInitialized: boolean = false) {
     error,
     getTodayTasks,
     getTodayCompletedTasks,
+    getAllCompletedTasks,
     getUpcomingTasks,
     completeTask,
     quickMoveTask,
     createTask,
     updateTask,
+    deleteTask,
     reload: loadTasks
   }
 }

@@ -7,10 +7,15 @@ import {
   STORE_NAMES,
   INDEXES,
   type Settings,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type Task,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type RecurringTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type RecurringLog,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type LocationTag,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type UnifiedItem
 } from './schema'
 

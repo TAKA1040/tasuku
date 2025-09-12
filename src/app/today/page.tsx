@@ -14,6 +14,9 @@ import { TaskCreateForm2 } from '@/components/TaskCreateForm2'
 import { IdeaBox } from '@/components/IdeaBox'
 import { useIdeas } from '@/hooks/useIdeas'
 import { Task } from '@/lib/db/schema'
+import { ThemedContainer } from '@/components/ThemedContainer'
+import { ThemeToggle } from '@/components/ThemeToggle'
+import { VoiceInputButton } from '@/components/VoiceInputButton'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -28,7 +31,7 @@ export default function TodayPage() {
     rolloverDisplayText, 
     isRollingOver, 
     executeRollover 
-  } = useRollover(allTasks, allRecurringTasks, isInitialized)
+  } = useRollover(allTasks, allRecurringTasks, isInitialized, true)
   
   // 繰り越しプロンプト表示制御
   const [showRolloverPrompt, setShowRolloverPrompt] = useState(false)
@@ -162,14 +165,23 @@ export default function TodayPage() {
     setEditingTask(null)
   }
 
+  const handleVoiceInput = async (voiceText: string) => {
+    // 音声からタスクを自動作成
+    const today = getTodayJST()
+    await createTask(voiceText, '', today) // タイトル=音声入力、メモ=空、期日=今日
+    console.log('音声でタスクを作成:', voiceText)
+  }
+
   return (
-    <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0' }}>
-            今日 - {formatDateForDisplay(getTodayJST())}
-          </h1>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+    <ThemedContainer>
+      <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto' }}>
+        <header style={{ marginBottom: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0' }}>
+              今日 - {formatDateForDisplay(getTodayJST())}
+            </h1>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <ThemeToggle />
             <a
               href="/search"
               style={{
@@ -206,24 +218,48 @@ export default function TodayPage() {
             >
               📊 統計
             </a>
-            <button
-              onClick={() => setShowCreateForm(true)}
+            <a
+              href="/done"
               style={{
-                background: '#3b82f6',
+                background: '#10b981',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                padding: '4px 12px',
+                padding: '4px 8px',
                 fontSize: '12px',
                 fontWeight: '500',
-                cursor: 'pointer',
+                textDecoration: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px'
               }}
             >
-              + タスク追加
-            </button>
+              🎉 Done
+            </a>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <VoiceInputButton 
+                onResult={handleVoiceInput}
+                size="medium"
+              />
+              <button
+                onClick={() => setShowCreateForm(true)}
+                style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 12px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                + タスク追加
+              </button>
+            </div>
           </div>
         </div>
         
@@ -332,6 +368,7 @@ export default function TodayPage() {
         onSubmit={handleUpdateTask}
         onCancel={handleCancelEdit}
       />
-    </div>
+      </div>
+    </ThemedContainer>
   )
 }

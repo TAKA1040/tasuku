@@ -21,7 +21,7 @@ export default async function AuthStatusPage() {
   // プロフィールが存在しない場合は作成
   if (error && error.code === 'PGRST116') {
     const isAdmin = AUTH_CONFIG.ADMIN_EMAILS.includes(user.email || '')
-    const isPreApproved = AUTH_CONFIG.PRE_APPROVED_EMAILS.includes(user.email || '')
+    // const isPreApproved = AUTH_CONFIG.PRE_APPROVED_EMAILS.includes(user.email || '') // 将来使用予定
     
     const newProfile = {
       id: user.id,

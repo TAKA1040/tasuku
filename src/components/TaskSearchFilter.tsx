@@ -289,7 +289,7 @@ export function TaskSearchFilter({ filters, onFiltersChange, onClear }: TaskSear
               borderRadius: '4px',
               fontSize: '12px'
             }}>
-              検索: "{filters.searchQuery}"
+              検索: &quot;{filters.searchQuery}&quot;
             </span>
           )}
           {filters.status && (

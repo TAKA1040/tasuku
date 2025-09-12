@@ -27,19 +27,19 @@ export default function TestDbPage() {
         const request = indexedDB.open('TestDB', 1)
         
         request.onerror = (event) => {
-          addLog(`ERROR: Failed to open database - ${(event.target as any)?.error}`)
+          addLog(`ERROR: Failed to open database - ${(event.target as IDBRequest)?.error}`)
         }
         
         request.onsuccess = (event) => {
-          const db = (event.target as any).result
+          const db = (event.target as IDBRequest).result as IDBDatabase
           addLog(`SUCCESS: Test database opened - ${db.name} v${db.version}`)
           db.close()
         }
         
         request.onupgradeneeded = (event) => {
           addLog('Database upgrade needed - creating test store')
-          const db = (event.target as any).result
-          const store = db.createObjectStore('testStore', { keyPath: 'id' })
+          const db = (event.target as IDBRequest).result as IDBDatabase
+          db.createObjectStore('testStore', { keyPath: 'id' })
           addLog('Test store created')
         }
       } catch (error) {

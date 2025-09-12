@@ -14,7 +14,8 @@ import { db, STORE_NAMES } from '@/lib/db/database'
 export function useRollover(
   singleTasks: Task[],
   recurringTasks: RecurringTask[],
-  isDbInitialized: boolean
+  isDbInitialized: boolean,
+  autoRollover: boolean = false
 ) {
   const [rolloverData, setRolloverData] = useState<{
     incompleteSingle: Task[]
@@ -45,6 +46,13 @@ export function useRollover(
         
         const incomplete = findIncompleTasks(singleTasks, recurringTasks, recurringLogs)
         setRolloverData(incomplete)
+        
+        // 自動繰り越し実行
+        if (autoRollover && incomplete.incompleteSingle.length > 0) {
+          setTimeout(() => {
+            executeAutoRollover(incomplete.incompleteSingle)
+          }, 1000) // 1秒後に自動実行
+        }
       } catch (error) {
         console.error('Rollover detection error:', error)
         setRolloverData({
@@ -67,7 +75,34 @@ export function useRollover(
   const rolloverDisplayText = rolloverData ? 
     getRolloverDisplayText(rolloverData.incompleteSingle, rolloverData.incompleteRecurring) : ''
 
-  // 繰り越し実行
+  // 自動繰り越し実行（単発タスクのみ）
+  const executeAutoRollover = async (incompleteTasks: Task[]) => {
+    if (isRollingOver || incompleteTasks.length === 0) return
+
+    setIsRollingOver(true)
+    console.log(`Auto rollover: Processing ${incompleteTasks.length} incomplete tasks`)
+
+    try {
+      for (const task of incompleteTasks) {
+        const rolledOverTask = rolloverSingleTask(task)
+        await db.put(STORE_NAMES.TASKS, rolledOverTask)
+      }
+
+      // 繰り越し後にデータをリフレッシュ
+      setRolloverData(prev => prev ? {
+        ...prev,
+        incompleteSingle: []
+      } : null)
+      
+      console.log('Auto rollover completed successfully')
+    } catch (error) {
+      console.error('Auto rollover error:', error)
+    } finally {
+      setIsRollingOver(false)
+    }
+  }
+
+  // 手動繰り越し実行
   const executeRollover = async (options: {
     rolloverSingle?: boolean
     rolloverRecurring?: boolean

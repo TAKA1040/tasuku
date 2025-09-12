@@ -1,7 +1,7 @@
 'use client'
 
 import type { TaskWithUrgency } from '@/lib/db/schema'
-import { QuickMoves } from '@/lib/utils/date-jst'
+// import { QuickMoves } from '@/lib/utils/date-jst' // 将来使用予定
 
 interface UpcomingPreviewProps {
   upcomingTasks: TaskWithUrgency[]

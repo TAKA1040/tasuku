@@ -10,7 +10,7 @@ export default function DebugPage() {
   const { loading: tasksLoading, tasks, error: tasksError } = useTasks(isInitialized)
   const { loading: recurringLoading, recurringTasks, error: recurringError } = useRecurringTasks(isInitialized)
   
-  const [debugInfo, setDebugInfo] = useState<any>({})
+  const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({})
   
   useEffect(() => {
     setDebugInfo({
