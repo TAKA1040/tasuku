@@ -43,7 +43,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       'Next30': 40,
       'Normal': 20
     }
-    const urgencyScore = urgencyScores[item.urgency] || 20
+    const urgencyScore = urgencyScores[item.urgency || 'Normal'] || 20
     
     const importanceBonus = (item.importance || 1) * 8
     const daysBonus = Math.max(0, 30 - Math.abs(item.days)) / 2
@@ -182,7 +182,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           'Next30': 40,      // 1ヶ月以内
           'Normal': 20       // 通常
         }
-        const urgencyScore = urgencyScores[item.urgency] || 20
+        const urgencyScore = urgencyScores[item.urgency || 'Normal'] || 20
         
         // 重要度ボーナス（1-5 → 0-40点）
         const importanceBonus = (item.importance || 1) * 8
