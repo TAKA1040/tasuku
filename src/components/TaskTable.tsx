@@ -46,7 +46,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     const urgencyScore = urgencyScores[item.urgency || 'Normal'] || 20
     
     const importanceBonus = (item.importance || 1) * 8
-    const daysBonus = Math.max(0, 30 - Math.abs(item.days)) / 2
+    const daysBonus = Math.max(0, 30 - Math.abs(item.days || 0)) / 2
     const totalScore = urgencyScore + importanceBonus + daysBonus
     
     if (totalScore >= 120) return '最優先'
@@ -188,7 +188,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         const importanceBonus = (item.importance || 1) * 8
         
         // 締切近接度ボーナス（日数が少ないほど高スコア）
-        const daysBonus = Math.max(0, 30 - Math.abs(item.days)) / 2
+        const daysBonus = Math.max(0, 30 - Math.abs(item.days || 0)) / 2
         
         return urgencyScore + importanceBonus + daysBonus
       }
