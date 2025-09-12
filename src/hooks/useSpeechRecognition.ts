@@ -43,7 +43,8 @@ export function useSpeechRecognition({
         console.log('音声認識開始')
       }
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onresult = (event: any) => {
         let finalTranscript = ''
         let currentInterimTranscript = ''
 
@@ -67,7 +68,8 @@ export function useSpeechRecognition({
         }
       }
 
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onerror = (event: any) => {
         const errorMessage = `音声認識エラー: ${event.error}`
         console.error(errorMessage)
         if (onError) onError(errorMessage)
