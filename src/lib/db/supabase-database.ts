@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 import { URGENCY_THRESHOLDS } from '@/lib/constants'
+import { ERROR_MESSAGES } from '@/lib/messages'
 import {
   type Settings,
   type Task,
@@ -27,7 +28,7 @@ class SupabaseTasukuDatabase {
   private async getCurrentUserId(): Promise<string> {
     const { data: { user }, error } = await this.supabase.auth.getUser()
     if (error || !user) {
-      throw new Error('Authentication required')
+      throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
     }
     return user.id
   }
@@ -307,7 +308,7 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createLocationTag(tag: Omit<LocationTag, 'id' | 'created_at'>): Promise<LocationTag> {
-    throw new Error('Location tags feature not implemented in current database schema')
+    throw new Error(ERROR_MESSAGES.LOCATION_TAGS_NOT_IMPLEMENTED)
   }
 
   async getAllLocationTags(): Promise<LocationTag[]> {
@@ -315,7 +316,7 @@ class SupabaseTasukuDatabase {
   }
 
   async deleteLocationTag(id: string): Promise<void> {
-    throw new Error('Location tags feature not implemented in current database schema')
+    throw new Error(ERROR_MESSAGES.LOCATION_TAGS_NOT_IMPLEMENTED)
   }
 
   // ===================================
@@ -323,7 +324,7 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createUnifiedItem(item: Omit<UnifiedItem, 'read_only'> & { id?: never; created_at?: never }): Promise<UnifiedItem> {
-    throw new Error('Unified items feature not implemented in current database schema')
+    throw new Error(ERROR_MESSAGES.UNIFIED_ITEMS_NOT_IMPLEMENTED)
   }
 
   async getAllUnifiedItems(): Promise<UnifiedItem[]> {
@@ -331,7 +332,7 @@ class SupabaseTasukuDatabase {
   }
 
   async deleteUnifiedItem(source: string, sourceId: string): Promise<void> {
-    throw new Error('Unified items feature not implemented in current database schema')
+    throw new Error(ERROR_MESSAGES.UNIFIED_ITEMS_NOT_IMPLEMENTED)
   }
 
   // ===================================

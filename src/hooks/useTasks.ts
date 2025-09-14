@@ -6,6 +6,7 @@ import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
 import { TIME_CONSTANTS } from '@/lib/constants'
+import { ERROR_MESSAGES, getErrorMessage } from '@/lib/messages'
 
 export function useTasks(isDbInitialized: boolean = false) {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -29,10 +30,10 @@ export function useTasks(isDbInitialized: boolean = false) {
       console.error('Failed to load tasks:', err)
       // Handle authentication errors specifically
       if (err instanceof Error && err.message.includes('Authentication required')) {
-        setError('認証が必要です。ログインしてください。')
+        setError(ERROR_MESSAGES.AUTH_REQUIRED)
         // Redirect to login or handle auth error appropriately
       } else {
-        setError(err instanceof Error ? err.message : 'Unknown error')
+        setError(getErrorMessage(err))
       }
     } finally {
       setLoading(false)
@@ -156,13 +157,13 @@ export function useTasks(isDbInitialized: boolean = false) {
   const completeTask = async (taskId: string) => {
     try {
       const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error('Task not found')
+      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
 
       await db.updateTask(taskId, { completed: true, completed_at: getTodayJST() })
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to complete task:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(getErrorMessage(err))
     }
   }
 
@@ -170,13 +171,13 @@ export function useTasks(isDbInitialized: boolean = false) {
   const quickMoveTask = async (taskId: string, newDueDate: string) => {
     try {
       const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error('Task not found')
+      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
 
       await db.updateTask(taskId, { due_date: newDueDate })
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to move task:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(getErrorMessage(err))
     }
   }
 
@@ -212,7 +213,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to create task:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(getErrorMessage(err))
     }
   }
 
@@ -220,7 +221,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   const updateTask = async (taskId: string, updates: Partial<Pick<Task, 'title' | 'memo' | 'due_date' | 'category' | 'importance' | 'duration_min' | 'urls'>>) => {
     try {
       const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error('Task not found')
+      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
 
       const cleanedUpdates = {
         ...updates,
@@ -233,7 +234,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to update task:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(getErrorMessage(err))
     }
   }
 
@@ -241,13 +242,13 @@ export function useTasks(isDbInitialized: boolean = false) {
   const deleteTask = async (taskId: string) => {
     try {
       const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error('Task not found')
+      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
 
       await db.deleteTask(taskId)
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to delete task:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(getErrorMessage(err))
     }
   }
 
