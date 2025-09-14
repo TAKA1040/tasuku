@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { QuickMoves } from '@/lib/utils/date-jst'
 import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
@@ -146,8 +147,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     )
   }
 
-  // Combine and sort all tasks
-  const activeItems = [
+  // Combine and sort all tasks - memoized for performance
+  const activeItems = useMemo(() => [
     ...tasks.map(item => ({
       id: item.task.id,
       title: item.task.title,
@@ -189,8 +190,6 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     if (!a.isRecurring && !b.isRecurring) {
       // 2. 期限切れ・重要度の複合スコア算出
       const getSmartPriorityScore = (item: { urgency?: string; importance?: number; days?: number }) => {
-        const score = 0
-        
         // 緊急度ベーススコア（高いほど優先）
         const urgencyScores: Record<string, number> = {
           'Overdue': 100,    // 期限切れは最優先
@@ -221,9 +220,9 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }
     
     return 0
-  })
+  }), [tasks, recurringTasks])
 
-  const completedItems = [
+  const completedItems = useMemo(() => [
     ...completedTasks.map(item => ({
       id: item.task.id,
       title: item.task.title,
@@ -256,9 +255,9 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       task: null, // Properly handle null task for completed recurring items
       recurringTask: item
     }))
-  ]
+  ], [completedTasks, completedRecurringTasks])
 
-  const allItems = [...activeItems, ...completedItems]
+  const allItems = useMemo(() => [...activeItems, ...completedItems], [activeItems, completedItems])
 
   if (allItems.length === 0) {
     return (
