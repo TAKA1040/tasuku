@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
+import { TIME_CONSTANTS } from '@/lib/constants'
 
 export function useTasks(isDbInitialized: boolean = false) {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -50,7 +51,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         task.due_date === today
       )
       .map(task => {
-        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : 999
+        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : TIME_CONSTANTS.MAX_DAYS_FROM_TODAY_FALLBACK
         const urgency = task.due_date ? getUrgencyLevel(task.due_date) : 'Normal'
         
         return {
@@ -82,7 +83,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         task.completed_at === today
       )
       .map(task => {
-        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : 999
+        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : TIME_CONSTANTS.MAX_DAYS_FROM_TODAY_FALLBACK
         const urgency = task.due_date ? getUrgencyLevel(task.due_date) : 'Normal'
         
         return {
@@ -102,7 +103,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     return tasks
       .filter(task => task.completed && !task.archived)
       .map(task => {
-        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : 999
+        const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : TIME_CONSTANTS.MAX_DAYS_FROM_TODAY_FALLBACK
         const urgency = task.due_date ? getUrgencyLevel(task.due_date) : 'Normal'
         
         return {

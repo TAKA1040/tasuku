@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
+import { URGENCY_THRESHOLDS } from '@/lib/constants'
 import {
   type Settings,
   type Task,
@@ -271,7 +272,11 @@ class SupabaseTasukuDatabase {
     const defaultSettings: Settings = {
       id: 'main',
       timezone: 'Asia/Tokyo' as const,
-      urgency_thresholds: { soon: 3, next7: 7, next30: 30 },
+      urgency_thresholds: { 
+        soon: URGENCY_THRESHOLDS.SOON, 
+        next7: URGENCY_THRESHOLDS.NEXT_7, 
+        next30: URGENCY_THRESHOLDS.NEXT_30 
+      },
       features: {
         connectors_readonly: false,
         plan_suggestion: false,

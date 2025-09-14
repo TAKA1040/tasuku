@@ -1,6 +1,8 @@
 // JST (Asia/Tokyo) Date utilities
 // 設計図に厳密準拠した日付操作（日単位、夏時間なし前提）
 
+import { TIME_CONSTANTS, URGENCY_THRESHOLDS } from '@/lib/constants'
+
 const JST_TIMEZONE = 'Asia/Tokyo'
 
 /**
@@ -35,7 +37,7 @@ export function getDaysDifference(date1: string, date2: string): number {
   const d1 = parseDateJST(date1)
   const d2 = parseDateJST(date2)
   const diffTime = d2.getTime() - d1.getTime()
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  return Math.floor(diffTime / TIME_CONSTANTS.MILLISECONDS_PER_DAY)
 }
 
 /**
@@ -61,9 +63,9 @@ export function getUrgencyLevel(dueDate: string): 'Overdue' | 'Soon' | 'Next7' |
   const days = getDaysFromToday(dueDate)
   
   if (days < 0) return 'Overdue'
-  if (days <= 3) return 'Soon'
-  if (days <= 7) return 'Next7'
-  if (days <= 30) return 'Next30'
+  if (days <= URGENCY_THRESHOLDS.SOON) return 'Soon'
+  if (days <= URGENCY_THRESHOLDS.NEXT_7) return 'Next7'
+  if (days <= URGENCY_THRESHOLDS.NEXT_30) return 'Next30'
   return 'Normal'
 }
 

@@ -5,6 +5,7 @@ import { QuickMoves } from '@/lib/utils/date-jst'
 import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
+import { PRIORITY_SCORES } from '@/lib/constants'
 
 interface TaskTableProps {
   tasks: TaskWithUrgency[]
@@ -191,20 +192,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       // 2. 期限切れ・重要度の複合スコア算出
       const getSmartPriorityScore = (item: { urgency?: string; importance?: number; days?: number }) => {
         // 緊急度ベーススコア（高いほど優先）
-        const urgencyScores: Record<string, number> = {
-          'Overdue': 100,    // 期限切れは最優先
-          'Soon': 80,        // 近日中
-          'Next7': 60,       // 1週間以内
-          'Next30': 40,      // 1ヶ月以内
-          'Normal': 20       // 通常
-        }
-        const urgencyScore = urgencyScores[item.urgency || 'Normal'] || 20
+        const urgencyScore = PRIORITY_SCORES.URGENCY[item.urgency as keyof typeof PRIORITY_SCORES.URGENCY] || PRIORITY_SCORES.URGENCY.NORMAL
         
         // 重要度ボーナス（1-5 → 0-40点）
-        const importanceBonus = (item.importance || 1) * 8
+        const importanceBonus = (item.importance || 1) * PRIORITY_SCORES.IMPORTANCE_MULTIPLIER
         
         // 締切近接度ボーナス（日数が少ないほど高スコア）
-        const daysBonus = Math.max(0, 30 - Math.abs(item.days || 0)) / 2
+        const daysBonus = Math.max(0, PRIORITY_SCORES.MAX_DAYS_BONUS - Math.abs(item.days || 0)) / PRIORITY_SCORES.DAYS_BONUS_DIVISOR
         
         return urgencyScore + importanceBonus + daysBonus
       }
