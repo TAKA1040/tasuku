@@ -1,8 +1,1 @@
-（インデックス）:1  Failed to load resource: the server responded with a status of 404 ()
-あ（インデックス）:1  Failed to load resource: the server responded with a status of 404 ()
-
-404: NOT_FOUND
-Code: NOT_FOUND
-ID: kix1::6vwc6-1757823739555-4237e5906e38
-
-Read our documentation to learn more about this error.
+tasuku.apaf.me/:1  GET https://tasuku.apaf.me/ 404 (Not Found)
