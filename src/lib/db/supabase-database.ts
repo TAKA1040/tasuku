@@ -3,6 +3,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/supabase'
 import {
   type Settings,
   type Task,
@@ -13,44 +14,6 @@ import {
   type TaskWithUrgency,
   type UrgencyLevel
 } from './schema'
-
-// Database types for Supabase
-export interface Database {
-  public: {
-    Tables: {
-      tasks: {
-        Row: Task & { user_id: string }
-        Insert: Omit<Task & { user_id: string }, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<Task, 'id' | 'user_id' | 'created_at'>>
-      }
-      recurring_tasks: {
-        Row: RecurringTask & { user_id: string }
-        Insert: Omit<RecurringTask & { user_id: string }, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<RecurringTask, 'id' | 'user_id' | 'created_at'>>
-      }
-      recurring_logs: {
-        Row: RecurringLog & { user_id: string; id: string }
-        Insert: Omit<RecurringLog & { user_id: string }, 'id'>
-        Update: never
-      }
-      settings: {
-        Row: Settings & { user_id: string }
-        Insert: Omit<Settings, 'id'> & { user_id: string }
-        Update: Partial<Omit<Settings, 'user_id'>>
-      }
-      location_tags: {
-        Row: LocationTag & { user_id: string }
-        Insert: Omit<LocationTag & { user_id: string }, 'id' | 'created_at'>
-        Update: Partial<Omit<LocationTag, 'id' | 'user_id' | 'created_at'>>
-      }
-      unified_items: {
-        Row: UnifiedItem & { user_id: string; id: string; created_at: string }
-        Insert: Omit<UnifiedItem & { user_id: string }, 'id' | 'created_at'>
-        Update: Partial<Omit<UnifiedItem, 'id' | 'user_id' | 'created_at' | 'read_only'>>
-      }
-    }
-  }
-}
 
 class SupabaseTasukuDatabase {
   private supabase: SupabaseClient<Database>
@@ -126,37 +89,8 @@ class SupabaseTasukuDatabase {
     return data.map(({ user_id, ...task }) => task as Task)
   }
 
-  async getTasksWithUrgency(): Promise<TaskWithUrgency[]> {
-    const { data, error } = await this.supabase
-      .from('tasks_with_urgency')
-      .select()
-      .order('due_date', { ascending: true, nullsFirst: false })
-      
-    if (error) throw error
-    
-    return data.map(item => ({
-      task: {
-        id: item.id,
-        title: item.title,
-        memo: item.memo,
-        due_date: item.due_date,
-        completed: item.completed,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        completed_at: item.completed_at,
-        rollover_count: item.rollover_count,
-        archived: item.archived,
-        snoozed_until: item.snoozed_until,
-        duration_min: item.duration_min,
-        importance: item.importance,
-        category: item.category,
-        urls: item.urls,
-        location_tag_id: item.location_tag_id
-      } as Task,
-      urgency: item.urgency as UrgencyLevel,
-      days_from_today: item.days_from_today
-    }))
-  }
+  // Remove this method as the view doesn't exist
+  // Use getAllTasks() and compute urgency on client side instead
 
   async updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>): Promise<Task> {
     const { data, error } = await this.supabase
@@ -287,7 +221,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => log as RecurringLog)
   }
 
   async getRecurringLogsByDate(date: string): Promise<RecurringLog[]> {
@@ -298,7 +232,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => log as RecurringLog)
   }
 
   async getAllRecurringLogs(): Promise<RecurringLog[]> {
@@ -309,7 +243,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => log as RecurringLog)
   }
 
   async deleteRecurringLog(recurringId: string, date: string): Promise<void> {
@@ -323,38 +257,19 @@ class SupabaseTasukuDatabase {
   }
 
   // ===================================
-  // SETTINGS Operations
+  // SETTINGS Operations (Simplified - stored in localStorage for now)
   // ===================================
 
   async getSettings(): Promise<Settings> {
-    const userId = await this.getCurrentUserId()
-    const { data, error } = await this.supabase
-      .from('settings')
-      .select()
-      .eq('user_id', userId)
-      .single()
-      
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No settings found, create default
-        return this.createDefaultSettings()
-      }
-      throw error
+    // Simplified implementation using localStorage
+    const storedSettings = localStorage.getItem('tasuku-settings')
+    if (storedSettings) {
+      return JSON.parse(storedSettings)
     }
     
-    return {
-      id: 'main', // Keep compatibility with IndexedDB schema
-      timezone: data.timezone,
-      urgency_thresholds: data.urgency_thresholds,
-      features: data.features,
-      updated_at: data.updated_at
-    } as Settings
-  }
-
-  private async createDefaultSettings(): Promise<Settings> {
-    const userId = await this.getCurrentUserId()
-    const defaultSettings = {
-      user_id: userId,
+    // Return default settings
+    const defaultSettings: Settings = {
+      id: 'main',
       timezone: 'Asia/Tokyo' as const,
       urgency_thresholds: { soon: 3, next7: 7, next30: 30 },
       features: {
@@ -362,127 +277,56 @@ class SupabaseTasukuDatabase {
         plan_suggestion: false,
         ml_ranking: false,
         geolocation: false
-      }
+      },
+      updated_at: new Date().toISOString()
     }
     
-    const { data, error } = await this.supabase
-      .from('settings')
-      .insert(defaultSettings)
-      .select()
-      .single()
-      
-    if (error) throw error
-    
-    return {
-      id: 'main',
-      timezone: data.timezone,
-      urgency_thresholds: data.urgency_thresholds,
-      features: data.features,
-      updated_at: data.updated_at
-    } as Settings
+    localStorage.setItem('tasuku-settings', JSON.stringify(defaultSettings))
+    return defaultSettings
   }
 
   async updateSettings(updates: Partial<Omit<Settings, 'id' | 'updated_at'>>): Promise<Settings> {
-    const userId = await this.getCurrentUserId()
-    const { data, error } = await this.supabase
-      .from('settings')
-      .update(updates)
-      .eq('user_id', userId)
-      .select()
-      .single()
-      
-    if (error) throw error
+    const currentSettings = await this.getSettings()
+    const updatedSettings: Settings = {
+      ...currentSettings,
+      ...updates,
+      updated_at: new Date().toISOString()
+    }
     
-    return {
-      id: 'main',
-      timezone: data.timezone,
-      urgency_thresholds: data.urgency_thresholds,
-      features: data.features,
-      updated_at: data.updated_at
-    } as Settings
+    localStorage.setItem('tasuku-settings', JSON.stringify(updatedSettings))
+    return updatedSettings
   }
 
   // ===================================
-  // LOCATION TAGS Operations
+  // LOCATION TAGS Operations (Not implemented - tables don't exist)
   // ===================================
 
   async createLocationTag(tag: Omit<LocationTag, 'id' | 'created_at'>): Promise<LocationTag> {
-    const userId = await this.getCurrentUserId()
-    const { data, error } = await this.supabase
-      .from('location_tags')
-      .insert({ ...tag, user_id: userId })
-      .select()
-      .single()
-      
-    if (error) throw error
-    
-    const { user_id, ...tagData } = data
-    return tagData as LocationTag
+    throw new Error('Location tags feature not implemented in current database schema')
   }
 
   async getAllLocationTags(): Promise<LocationTag[]> {
-    const { data, error } = await this.supabase
-      .from('location_tags')
-      .select()
-      .order('created_at', { ascending: false })
-      
-    if (error) throw error
-    
-    return data.map(({ user_id, ...tag }) => tag as LocationTag)
+    return [] // Return empty array for now
   }
 
   async deleteLocationTag(id: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('location_tags')
-      .delete()
-      .eq('id', id)
-      
-    if (error) throw error
+    throw new Error('Location tags feature not implemented in current database schema')
   }
 
   // ===================================
-  // UNIFIED ITEMS Operations
+  // UNIFIED ITEMS Operations (Not implemented - tables don't exist)
   // ===================================
 
   async createUnifiedItem(item: Omit<UnifiedItem, 'read_only'> & { id?: never; created_at?: never }): Promise<UnifiedItem> {
-    const userId = await this.getCurrentUserId()
-    const { data, error } = await this.supabase
-      .from('unified_items')
-      .insert({ ...item, user_id: userId, read_only: true })
-      .select()
-      .single()
-      
-    if (error) throw error
-    
-    const { user_id, id, created_at, ...itemData } = data
-    return {
-      ...itemData,
-      read_only: true
-    } as UnifiedItem
+    throw new Error('Unified items feature not implemented in current database schema')
   }
 
   async getAllUnifiedItems(): Promise<UnifiedItem[]> {
-    const { data, error } = await this.supabase
-      .from('unified_items')
-      .select()
-      .order('created_at', { ascending: false })
-      
-    if (error) throw error
-    
-    return data.map(({ user_id, id, created_at, ...item }) => ({
-      ...item,
-      read_only: true
-    } as UnifiedItem))
+    return [] // Return empty array for now
   }
 
   async deleteUnifiedItem(source: string, sourceId: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('unified_items')
-      .delete()
-      .eq('source', source)
-      .eq('source_id', sourceId)
-      
-    if (error) throw error
+    throw new Error('Unified items feature not implemented in current database schema')
   }
 
   // ===================================
@@ -498,8 +342,8 @@ class SupabaseTasukuDatabase {
   async clearAllData(): Promise<void> {
     const userId = await this.getCurrentUserId()
     
-    // 関連データを削除（CASCADE設定により自動削除されるが、明示的に削除）
-    const tables = ['unified_items', 'recurring_logs', 'tasks', 'recurring_tasks', 'location_tags', 'settings']
+    // Only clear tables that exist
+    const tables = ['recurring_logs', 'tasks', 'recurring_tasks'] as const
     
     for (const table of tables) {
       const { error } = await this.supabase
@@ -509,6 +353,9 @@ class SupabaseTasukuDatabase {
         
       if (error) throw error
     }
+    
+    // Clear localStorage settings
+    localStorage.removeItem('tasuku-settings')
   }
 }
 

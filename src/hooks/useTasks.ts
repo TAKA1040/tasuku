@@ -26,7 +26,13 @@ export function useTasks(isDbInitialized: boolean = false) {
       setError(null)
     } catch (err) {
       console.error('Failed to load tasks:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      // Handle authentication errors specifically
+      if (err instanceof Error && err.message.includes('Authentication required')) {
+        setError('認証が必要です。ログインしてください。')
+        // Redirect to login or handle auth error appropriately
+      } else {
+        setError(err instanceof Error ? err.message : 'Unknown error')
+      }
     } finally {
       setLoading(false)
     }
@@ -247,7 +253,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   // Load tasks when database is initialized or component mounts
   useEffect(() => {
     loadTasks()
-  }, [isDbInitialized, loadTasks])
+  }, [isDbInitialized]) // Remove loadTasks from dependencies to prevent infinite loops
 
   return {
     tasks,

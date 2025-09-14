@@ -101,6 +101,16 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     return date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
   }
 
+  const isValidUrl = (url: string): boolean => {
+    try {
+      const urlObject = new URL(url)
+      // Only allow http and https protocols
+      return urlObject.protocol === 'http:' || urlObject.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+
   const renderUrlIcon = (urls?: string[]) => {
     if (!urls || urls.length === 0) return '-'
     
@@ -108,9 +118,16 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       <button
         type="button"
         onClick={() => {
-          const confirmMessage = `${urls.length}個のURLを開きますか？`
+          // Validate URLs before opening
+          const validUrls = urls.filter(isValidUrl)
+          if (validUrls.length === 0) {
+            alert('有効なURLが見つかりませんでした。')
+            return
+          }
+          
+          const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
           if (confirm(confirmMessage)) {
-            urls.forEach(url => {
+            validUrls.forEach(url => {
               window.open(url, '_blank', 'noopener,noreferrer')
             })
           }
@@ -160,7 +177,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       days: 0, // Today
       isRecurring: true,
       isCompleted: false,
-      task: null as unknown as Task,
+      task: null, // Properly handle null task for recurring items
       recurringTask: item
     }))
   ].sort((a, b) => {
@@ -236,7 +253,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       days: 0, // Today
       isRecurring: true,
       isCompleted: true,
-      task: null as unknown as Task,
+      task: null, // Properly handle null task for completed recurring items
       recurringTask: item
     }))
   ]
