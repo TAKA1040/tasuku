@@ -2,7 +2,7 @@
 
 // Tasks data management hook
 import { useState, useEffect, useCallback } from 'react'
-import { db, STORE_NAMES } from '@/lib/db/database'
+import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
 
@@ -21,7 +21,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     
     try {
       setLoading(true)
-      const allTasks = await db.getAll<Task>(STORE_NAMES.TASKS)
+      const allTasks = await db.getAllTasks()
       setTasks(allTasks)
       setError(null)
     } catch (err) {
@@ -151,14 +151,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       const task = tasks.find(t => t.id === taskId)
       if (!task) throw new Error('Task not found')
 
-      const updatedTask: Task = {
-        ...task,
-        completed: true,
-        completed_at: getTodayJST(),
-        updated_at: new Date().toISOString()
-      }
-
-      await db.put(STORE_NAMES.TASKS, updatedTask)
+      await db.updateTask(taskId, { completed: true, completed_at: getTodayJST() })
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to complete task:', err)
@@ -172,13 +165,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       const task = tasks.find(t => t.id === taskId)
       if (!task) throw new Error('Task not found')
 
-      const updatedTask: Task = {
-        ...task,
-        due_date: newDueDate,
-        updated_at: new Date().toISOString()
-      }
-
-      await db.put(STORE_NAMES.TASKS, updatedTask)
+      await db.updateTask(taskId, { due_date: newDueDate })
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to move task:', err)
@@ -214,7 +201,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         updated_at: new Date().toISOString()
       }
 
-      await db.put(STORE_NAMES.TASKS, newTask)
+      await db.createTask(newTask)
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to create task:', err)
@@ -228,18 +215,14 @@ export function useTasks(isDbInitialized: boolean = false) {
       const task = tasks.find(t => t.id === taskId)
       if (!task) throw new Error('Task not found')
 
-      const updatedTask: Task = {
-        ...task,
+      const cleanedUpdates = {
         ...updates,
-        title: updates.title?.trim() || task.title,
-        memo: updates.memo?.trim() || task.memo,
-        category: updates.category?.trim() || task.category,
-        importance: updates.importance || task.importance,
-        urls: updates.urls !== undefined ? updates.urls : task.urls,
-        updated_at: new Date().toISOString()
+        title: updates.title?.trim(),
+        memo: updates.memo?.trim(),
+        category: updates.category?.trim()
       }
 
-      await db.put(STORE_NAMES.TASKS, updatedTask)
+      await db.updateTask(taskId, cleanedUpdates)
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to update task:', err)
@@ -253,7 +236,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       const task = tasks.find(t => t.id === taskId)
       if (!task) throw new Error('Task not found')
 
-      await db.delete(STORE_NAMES.TASKS, taskId)
+      await db.deleteTask(taskId)
       await loadTasks() // Reload tasks
     } catch (err) {
       console.error('Failed to delete task:', err)

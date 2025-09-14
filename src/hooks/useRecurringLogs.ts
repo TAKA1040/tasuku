@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { db, STORE_NAMES } from '@/lib/db/database'
+import { supabaseDb as db } from '@/lib/db/supabase-database'
 import type { RecurringLog } from '@/lib/db/schema'
 import { getTodayJST } from '@/lib/utils/date-jst'
 
@@ -19,7 +19,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
 
     try {
       setLoading(true)
-      const allLogs = await db.getAll<RecurringLog>(STORE_NAMES.RECURRING_LOGS)
+      const allLogs = await db.getAllRecurringLogs()
       setLogs(allLogs)
       setError(null)
     } catch (err) {
@@ -51,7 +51,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
         logged_at: new Date().toISOString()
       }
 
-      await db.put(STORE_NAMES.RECURRING_LOGS, newLog)
+      await db.logRecurringTask(recurringTaskId, logDate)
       await loadLogs() // Reload logs
       return newLog
     } catch (err) {
@@ -75,7 +75,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
         return
       }
 
-      await db.delete(STORE_NAMES.RECURRING_LOGS, [recurringTaskId, logDate])
+      await db.deleteRecurringLog(recurringTaskId, logDate)
       await loadLogs() // Reload logs
     } catch (err) {
       console.error('Failed to remove recurring log:', err)

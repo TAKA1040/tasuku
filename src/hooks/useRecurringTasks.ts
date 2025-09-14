@@ -2,7 +2,7 @@
 
 // Recurring tasks management hook
 import { useState, useEffect, useCallback } from 'react'
-import { db, STORE_NAMES } from '@/lib/db/database'
+import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { occursOn, getRecurringDisplayName } from '@/lib/utils/recurring'
 import type { RecurringTask, RecurringLog } from '@/lib/db/schema'
@@ -31,8 +31,8 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     try {
       setLoading(true)
       const [tasks, logs] = await Promise.all([
-        db.getAll<RecurringTask>(STORE_NAMES.RECURRING_TASKS),
-        db.getAll<RecurringLog>(STORE_NAMES.RECURRING_LOGS)
+        db.getAllRecurringTasks(),
+        db.getAllRecurringLogs()
       ])
       
       setRecurringTasks(tasks)
@@ -119,7 +119,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         logged_at: new Date().toISOString()
       }
 
-      await db.put(STORE_NAMES.RECURRING_LOGS, newLog)
+      await db.logRecurringTask(taskId, today)
       await loadRecurringData() // Reload data
     } catch (err) {
       console.error('Failed to complete recurring task:', err)
@@ -161,7 +161,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         updated_at: new Date().toISOString()
       }
 
-      await db.put(STORE_NAMES.RECURRING_TASKS, newRecurringTask)
+      await db.createRecurringTask(newRecurringTask)
       await loadRecurringData() // Reload data
     } catch (err) {
       console.error('Failed to create recurring task:', err)
@@ -180,13 +180,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         throw new Error('Recurring task not found')
       }
 
-      const updatedTask: RecurringTask = {
-        ...existingTask,
-        ...updates,
-        updated_at: new Date().toISOString()
-      }
-
-      await db.put(STORE_NAMES.RECURRING_TASKS, updatedTask)
+      await db.updateRecurringTask(taskId, updates)
       await loadRecurringData()
     } catch (err) {
       console.error('Failed to update recurring task:', err)
@@ -197,13 +191,9 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   // Delete a recurring task
   const deleteRecurringTask = async (taskId: string) => {
     try {
-      await db.delete(STORE_NAMES.RECURRING_TASKS, taskId)
+      await db.deleteRecurringTask(taskId)
       
-      // Also delete all associated logs
-      const logsToDelete = recurringLogs.filter(log => log.recurring_id === taskId)
-      for (const log of logsToDelete) {
-        await db.delete(STORE_NAMES.RECURRING_LOGS, [log.recurring_id, log.date])
-      }
+      // Logs will be automatically deleted due to CASCADE constraint
       
       await loadRecurringData()
     } catch (err) {
@@ -220,13 +210,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         throw new Error('Recurring task not found')
       }
 
-      const updatedTask: RecurringTask = {
-        ...existingTask,
-        active: !existingTask.active,
-        updated_at: new Date().toISOString()
-      }
-
-      await db.put(STORE_NAMES.RECURRING_TASKS, updatedTask)
+      await db.updateRecurringTask(taskId, { active: !existingTask.active })
       await loadRecurringData()
     } catch (err) {
       console.error('Failed to toggle recurring task:', err)

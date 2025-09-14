@@ -1,7 +1,7 @@
 // ダミーデータ生成（開発・テスト用）
 // PHASE 0 合格条件：ダミーデータ読込可
 
-import { db, STORE_NAMES } from './database'
+import { supabaseDb as db } from './supabase-database'
 import { getTodayJST, addDays, getWeekStartJST } from '../utils/date-jst'
 import type { Task, RecurringTask } from './schema'
 
@@ -91,11 +91,13 @@ export async function seedDummyData(): Promise<void> {
   
   // データベースに投入
   for (const task of dummyTasks) {
-    await db.put(STORE_NAMES.TASKS, task)
+    const { id, created_at, updated_at, ...taskData } = task
+    await db.createTask(taskData)
   }
   
   for (const recurringTask of dummyRecurringTasks) {
-    await db.put(STORE_NAMES.RECURRING_TASKS, recurringTask)
+    const { id, created_at, updated_at, ...taskData } = recurringTask
+    await db.createRecurringTask(taskData)
   }
   
   console.log(`Seeded ${dummyTasks.length} tasks and ${dummyRecurringTasks.length} recurring tasks`)
@@ -107,16 +109,8 @@ export async function seedDummyData(): Promise<void> {
 export async function clearAllData(): Promise<void> {
   console.log('Clearing all data...')
   
-  const storeNames = Object.values(STORE_NAMES)
-  for (const storeName of storeNames) {
-    if (storeName === STORE_NAMES.SETTINGS) continue // 設定は保持
-    
-    const allItems = await db.getAll(storeName)
-    for (const item of allItems) {
-      const key = Array.isArray(item) ? item : (item as { id: string }).id
-      await db.delete(storeName, key)
-    }
-  }
+  // Use Supabase clearAllData method
+  await db.clearAllData()
   
   console.log('All data cleared')
 }
@@ -129,9 +123,9 @@ export async function checkDatabaseState(): Promise<{
   recurringTasks: number
   recurringLogs: number
 }> {
-  const tasks = await db.getAll(STORE_NAMES.TASKS)
-  const recurringTasks = await db.getAll(STORE_NAMES.RECURRING_TASKS)
-  const recurringLogs = await db.getAll(STORE_NAMES.RECURRING_LOGS)
+  const tasks = await db.getAllTasks()
+  const recurringTasks = await db.getAllRecurringTasks()
+  const recurringLogs = await db.getAllRecurringLogs()
   
   return {
     tasks: tasks.length,

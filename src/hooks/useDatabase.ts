@@ -2,7 +2,7 @@
 
 // React Hook for database initialization
 import { useState, useEffect } from 'react'
-import { initializeDatabase, db } from '@/lib/db/database'
+import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { initializeDevFeatures } from '@/lib/features'
 import { setupDevTools } from '@/lib/db/reset'
 import { setupRecurringDevTools } from '@/lib/utils/recurring-test'
@@ -12,7 +12,7 @@ export function useDatabase() {
   const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
-    // Ensure we're on the client side before attempting IndexedDB operations
+    // Ensure we're on the client side before attempting Supabase operations
     if (typeof window === 'undefined') {
       console.log('Server side rendering detected, skipping database initialization')
       return
@@ -24,13 +24,9 @@ export function useDatabase() {
       try {
         console.log('Starting database initialization...')
         
-        // Check IndexedDB availability
-        if (!('indexedDB' in window)) {
-          throw new Error('IndexedDB is not available in this browser')
-        }
-        
-        await initializeDatabase()
-        console.log('Database initialized')
+        // Initialize Supabase connection
+        await db.init()
+        console.log('Supabase Database initialized')
         
         await initializeDevFeatures()
         console.log('Dev features initialized')

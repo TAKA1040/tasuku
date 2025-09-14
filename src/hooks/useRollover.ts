@@ -9,7 +9,7 @@ import {
   getRolloverDisplayText
 } from '@/lib/utils/rollover'
 import type { Task, RecurringTask, RecurringLog } from '@/lib/db/schema'
-import { db, STORE_NAMES } from '@/lib/db/database'
+import { supabaseDb as db } from '@/lib/db/supabase-database'
 
 export function useRollover(
   singleTasks: Task[],
@@ -41,8 +41,7 @@ export function useRollover(
     const loadRolloverData = async () => {
       try {
         // RecurringLogデータを取得
-        const recurringLogsResult = await db.getAll(STORE_NAMES.RECURRING_LOGS)
-        const recurringLogs: RecurringLog[] = (recurringLogsResult as RecurringLog[]) || []
+        const recurringLogs = await db.getAllRecurringLogs()
         
         const incomplete = findIncompleTasks(singleTasks, recurringTasks, recurringLogs)
         setRolloverData(incomplete)
@@ -85,7 +84,7 @@ export function useRollover(
     try {
       for (const task of incompleteTasks) {
         const rolledOverTask = rolloverSingleTask(task)
-        await db.put(STORE_NAMES.TASKS, rolledOverTask)
+        await db.createTask(rolledOverTask)
       }
 
       // 繰り越し後にデータをリフレッシュ
@@ -130,15 +129,13 @@ export function useRollover(
         for (const task of tasksToRollover) {
           const rolledOverTask = rolloverSingleTask(task)
           
-          await db.put('tasks', rolledOverTask)
+          await db.createTask(rolledOverTask)
           
           // 元のタスクを完了済みにマーク
-          const updatedTask = { 
-            ...task,
+          await db.updateTask(task.id, {
             completed: true, 
             completed_at: new Date().toLocaleDateString('ja-CA')
-          }
-          await db.put('tasks', updatedTask)
+          })
         }
       }
 
@@ -152,7 +149,7 @@ export function useRollover(
           const rolledOverTasks = rolloverRecurringTask(task, missedDates)
           
           for (const rolledOverTask of rolledOverTasks) {
-            await db.put('tasks', rolledOverTask)
+            await db.createTask(rolledOverTask)
           }
         }
       }
