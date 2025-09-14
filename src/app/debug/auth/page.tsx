@@ -1,19 +1,27 @@
 'use client'
 import { createClient } from '@/lib/supabase/client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import type { User } from '@supabase/supabase-js'
+
+interface Profile {
+  id: string
+  email: string | null
+  status: string
+  role: string
+  approved_at: string | null
+  approved_by: string | null
+  created_at?: string
+  updated_at?: string
+}
 
 export default function AuthDebugPage() {
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadAuthData()
-  }, [])
-
-  const loadAuthData = async () => {
+  const loadAuthData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -44,7 +52,11 @@ export default function AuthDebugPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    loadAuthData()
+  }, [loadAuthData])
 
   const handleLogin = async () => {
     try {
