@@ -1,0 +1,6 @@
+{
+  "deploymentProtection": null,
+  "protectionBypass": {
+    "action": "bypass"
+  }
+}
