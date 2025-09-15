@@ -16,7 +16,8 @@ export default function SearchPage() {
     allTasks,
     loading: tasksLoading,
     completeTask,
-    updateTask
+    updateTask,
+    uncompleteTask
   } = useTasks(isInitialized)
   const { 
     allRecurringTasks, 
@@ -274,6 +275,7 @@ export default function SearchPage() {
         isVisible={showEditForm}
         onSubmit={handleUpdateTask}
         onCancel={handleCancelEdit}
+        onUncomplete={uncompleteTask}
       />
     </div>
   )

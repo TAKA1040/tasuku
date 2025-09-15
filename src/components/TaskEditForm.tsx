@@ -9,10 +9,11 @@ interface TaskEditFormProps {
   task: Task | null
   onSubmit: (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => Promise<void>
   onCancel: () => void
+  onUncomplete?: (taskId: string) => Promise<void>
   isVisible: boolean
 }
 
-export function TaskEditForm({ task, onSubmit, onCancel, isVisible }: TaskEditFormProps) {
+export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible }: TaskEditFormProps) {
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -82,12 +83,25 @@ export function TaskEditForm({ task, onSubmit, onCancel, isVisible }: TaskEditFo
 
   const handleOpenAllUrls = () => {
     if (urls.length === 0) return
-    
+
     const confirmMessage = `${urls.length}個のURLを開きますか？`
     if (confirm(confirmMessage)) {
       urls.forEach(url => {
         window.open(url, '_blank', 'noopener,noreferrer')
       })
+    }
+  }
+
+  const handleUncomplete = async () => {
+    if (!task || !onUncomplete) return
+
+    if (confirm('このタスクを未完了に戻しますか？')) {
+      try {
+        await onUncomplete(task.id)
+        onCancel()
+      } catch (error) {
+        console.error('Failed to uncomplete task:', error)
+      }
     }
   }
 
@@ -507,42 +521,79 @@ export function TaskEditForm({ task, onSubmit, onCancel, isVisible }: TaskEditFo
           <div style={{
             display: 'flex',
             gap: '8px',
-            justifyContent: 'flex-end'
+            justifyContent: task?.completed ? 'space-between' : 'flex-end'
           }}>
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              style={{
-                padding: '8px 16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                backgroundColor: 'white',
-                color: '#374151',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                opacity: isSubmitting ? 0.6 : 1
-              }}
-            >
-              キャンセル
-            </button>
-            <button
-              type="submit"
-              disabled={!title.trim() || isSubmitting}
-              style={{
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '6px',
-                backgroundColor: title.trim() && !isSubmitting ? '#3b82f6' : '#9ca3af',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: title.trim() && !isSubmitting ? 'pointer' : 'not-allowed'
-              }}
-            >
-              {isSubmitting ? '保存中...' : '保存'}
-            </button>
+            {/* 未完了に戻すボタン（完了済みタスクのみ表示） */}
+            {task?.completed && onUncomplete && (
+              <button
+                type="button"
+                onClick={handleUncomplete}
+                disabled={isSubmitting}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #f59e0b',
+                  borderRadius: '6px',
+                  backgroundColor: '#fffbeb',
+                  color: '#f59e0b',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  opacity: isSubmitting ? 0.6 : 1,
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.backgroundColor = '#f59e0b'
+                    e.currentTarget.style.color = 'white'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.backgroundColor = '#fffbeb'
+                    e.currentTarget.style.color = '#f59e0b'
+                  }
+                }}
+              >
+                ↩️ 未完了に戻す
+              </button>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  opacity: isSubmitting ? 0.6 : 1
+                }}
+              >
+                キャンセル
+              </button>
+              <button
+                type="submit"
+                disabled={!title.trim() || isSubmitting}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  backgroundColor: title.trim() && !isSubmitting ? '#3b82f6' : '#9ca3af',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: title.trim() && !isSubmitting ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {isSubmitting ? '保存中...' : '保存'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

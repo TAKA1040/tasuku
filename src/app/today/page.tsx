@@ -393,6 +393,7 @@ export default function TodayPage() {
         isVisible={showEditForm}
         onSubmit={handleUpdateTask}
         onCancel={handleCancelEdit}
+        onUncomplete={uncompleteTask}
       />
 
       {/* 繰り返しタスク編集フォーム */}
