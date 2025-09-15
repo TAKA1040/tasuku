@@ -41,7 +41,29 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
         alignItems: 'center',
         marginBottom: '8px'
       }}>
+        <h2 style={{
+          fontSize: '16px',
+          fontWeight: '600',
+          margin: '0',
+          color: '#1f2937'
+        }}>
+          💡 やることリスト
+        </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setIsAdding(!isAdding)}
+            style={{
+              background: '#059669',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            {isAdding ? '✕' : '+ 追加'}
+          </button>
           <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -53,29 +75,7 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
               表示する
             </span>
           </label>
-          <h2 style={{
-            fontSize: '16px',
-            fontWeight: '600',
-            margin: '0',
-            color: '#1f2937'
-          }}>
-            💡 やることリスト
-          </h2>
         </div>
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          style={{
-            background: '#059669',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '12px',
-            cursor: 'pointer'
-          }}
-        >
-          {isAdding ? '✕' : '+ 追加'}
-        </button>
       </div>
 
       {isAdding && (
