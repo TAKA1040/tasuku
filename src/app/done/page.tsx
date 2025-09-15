@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 
 export default function DonePage() {
   const { isInitialized, error } = useDatabase()
-  const { loading: tasksLoading, getAllCompletedTasks, updateTask, uncompleteTask } = useTasks(isInitialized)
+  const { loading: tasksLoading, getAllCompletedTasks, updateTask, uncompleteTask, deleteTask } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayCompletedRecurringTasks } = useRecurringTasks(isInitialized)
 
   
@@ -50,22 +50,38 @@ export default function DonePage() {
     }
 
     const allCompleted = getAllCompletedTasks()
-    const today = new Date().toLocaleDateString('ja-CA')
+    console.log('Period filter debug:', {
+      period,
+      totalCompleted: allCompleted.length,
+      sampleCompletedAt: allCompleted.slice(0, 3).map(t => ({
+        title: t.task.title,
+        completed_at: t.task.completed_at,
+        completed: t.task.completed
+      }))
+    })
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD形式に統一
+    console.log('Today for comparison (fixed):', today)
     
     switch (period) {
       case 'today':
-        return allCompleted.filter(item => item.task.completed_at === today)
+        const todayFiltered = allCompleted.filter(item => {
+          const matches = item.task.completed_at === today
+          console.log('Today filter:', { title: item.task.title, completed_at: item.task.completed_at, today, matches })
+          return matches
+        })
+        console.log('Today filtered result:', todayFiltered.length)
+        return todayFiltered
       case 'week':
         const weekAgo = new Date()
         weekAgo.setDate(weekAgo.getDate() - 7)
-        const weekAgoStr = weekAgo.toLocaleDateString('ja-CA')
+        const weekAgoStr = weekAgo.toISOString().split('T')[0]
         return allCompleted.filter(item => 
           item.task.completed_at && item.task.completed_at >= weekAgoStr
         )
       case 'month':
         const monthAgo = new Date()
         monthAgo.setMonth(monthAgo.getMonth() - 1)
-        const monthAgoStr = monthAgo.toLocaleDateString('ja-CA')
+        const monthAgoStr = monthAgo.toISOString().split('T')[0]
         return allCompleted.filter(item => 
           item.task.completed_at && item.task.completed_at >= monthAgoStr
         )
@@ -219,6 +235,7 @@ export default function DonePage() {
             onComplete={() => {}} // 完了済みなのでアクションなし
             onRecurringComplete={() => {}} // 完了済みなのでアクションなし
             onEdit={handleEditTask}
+            onDelete={deleteTask}
           />
         )}
       </main>

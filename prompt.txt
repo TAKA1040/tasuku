@@ -9,9 +9,65 @@ C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: {tasks: 8, recurringTasks: 5, recurringLogs: 1}
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
-C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 0, period: 'today', sampleCompleted: Array(0)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 0, period: 'today', sampleCompleted: Array(0)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:24 Database initialized, forcing re-render for done page
-C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 4, period: 'today', sampleCompleted: Array(2)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 4, period: 'today', sampleCompleted: Array(2)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:24 Database initialized, forcing re-render for done page
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 0, sampleCompletedAt: Array(0)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 0, sampleCompletedAt: Array(0)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'all', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'all', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f3e3c483-ef89-47be-8bfb-39c58a5012b2', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f4b73506-d8ff-4481-9b3d-c548b31523b8', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '106b047e-4216-4f63-bd95-01349296fe1e', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '7cb8c53c-e45b-4cc8-91dd-5a9f49c7581d', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f3e3c483-ef89-47be-8bfb-39c58a5012b2', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f4b73506-d8ff-4481-9b3d-c548b31523b8', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '106b047e-4216-4f63-bd95-01349296fe1e', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '7cb8c53c-e45b-4cc8-91dd-5a9f49c7581d', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
+C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
