@@ -7,6 +7,7 @@ export const metadata = {
 }
 
 import { ThemeProvider } from '@/components/ThemeProvider'
+import './globals.css'
 
 export default function RootLayout({
   children,
@@ -15,9 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body style={{ 
-        margin: 0, 
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+      <body style={{
+        margin: 0,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        overflowX: 'hidden'
       }}>
         <ThemeProvider>
           {children}

@@ -2,10 +2,10 @@
 
 import { useMemo } from 'react'
 import { QuickMoves } from '@/lib/utils/date-jst'
-import type { TaskWithUrgency, Task } from '@/lib/db/schema'
+import type { TaskWithUrgency, Task, RecurringTask } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
-import { TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
 import { PRIORITY_SCORES } from '@/lib/constants'
+import { ImportanceDot } from '@/components/ImportanceDot'
 
 interface TaskTableProps {
   tasks: TaskWithUrgency[]
@@ -16,9 +16,14 @@ interface TaskTableProps {
   onRecurringComplete: (taskId: string) => void
   onQuickMove: (taskId: string, newDueDate: string) => void
   onEdit?: (task: Task) => void
+  onEditRecurring?: (task: RecurringTask) => void
+  onUncomplete?: (taskId: string) => void
+  onRecurringUncomplete?: (taskId: string) => void
+  onDelete?: (taskId: string) => void
+  onDeleteRecurring?: (taskId: string) => void
 }
 
-export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onQuickMove, onEdit }: TaskTableProps) {
+export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onQuickMove, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
   const getUrgencyStyle = (urgency: string) => {
     switch (urgency) {
       case 'Overdue':
@@ -77,30 +82,23 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }
   }
 
-  const getImportanceStyle = (importance?: number) => {
-    if (!importance) return { backgroundColor: '#f9fafb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-    
-    switch (importance) {
-      case 5: // Very High
-        return { backgroundColor: '#fef2f2', color: '#dc2626', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }
-      case 4: // High
-        return { backgroundColor: '#fef3c7', color: '#d97706', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontWeight: '500' }
-      case 3: // Medium
-        return { backgroundColor: '#dbeafe', color: '#2563eb', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      case 2: // Low
-        return { backgroundColor: '#f0f9ff', color: '#0ea5e9', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      case 1: // Very Low
-        return { backgroundColor: '#f9fafb', color: '#9ca3af', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      default:
-        return { backgroundColor: '#f9fafb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-    }
-  }
 
   const formatDueDate = (dueDate?: string) => {
     if (!dueDate) return '-'
-    
+
     const date = new Date(dueDate + 'T00:00:00')
     return date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
+  }
+
+  // 期日とタイプを統合した表示
+  const getDateTypeDisplay = (item: any) => {
+    if (item.isRecurring) {
+      // 繰り返しタスクの場合はパターンを表示
+      return item.type // 「毎日」「毎週金曜日」など
+    } else {
+      // 単発タスクの場合は期日を表示
+      return item.dueDate ? formatDueDate(item.dueDate) : '今日'
+    }
   }
 
   const isValidUrl = (url: string): boolean => {
@@ -120,16 +118,30 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       <button
         type="button"
         onClick={() => {
+          console.log('All URLs:', urls)
+
           // Validate URLs before opening
           const validUrls = urls.filter(isValidUrl)
+          const invalidUrls = urls.filter(url => !isValidUrl(url))
+
+          console.log('Valid URLs:', validUrls)
+          console.log('Invalid URLs:', invalidUrls)
+
           if (validUrls.length === 0) {
             alert('有効なURLが見つかりませんでした。')
             return
           }
-          
+
+          // Show invalid URLs if any
+          if (invalidUrls.length > 0) {
+            alert(`無効なURL: ${invalidUrls.join(', ')}`)
+          }
+
           const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
           if (confirm(confirmMessage)) {
-            validUrls.forEach(url => {
+            console.log('Opening URLs:', validUrls)
+            validUrls.forEach((url, index) => {
+              console.log(`Opening URL ${index + 1}:`, url)
               window.open(url, '_blank', 'noopener,noreferrer')
             })
           }
@@ -171,8 +183,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       title: item.task.title,
       memo: item.task.memo,
       dueDate: undefined, // Recurring tasks don't have due dates
-      category: undefined, // Recurring tasks don't have categories yet
-      importance: undefined, // Recurring tasks don't have importance yet
+      category: item.task.category,
+      importance: item.task.importance,
       urls: item.task.urls,
       type: item.displayName,
       urgency: 'Normal' as const, // Recurring tasks are normal priority by default
@@ -216,6 +228,25 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     return 0
   }), [tasks, recurringTasks])
 
+  // 緊急度に応じた行の背景色を取得
+  const getUrgencyRowColor = (urgency: string, isCompleted: boolean, isRecurring: boolean = false) => {
+    if (isCompleted) return '#f9fafb' // 完了済みは薄いグレー
+    if (isRecurring) return '#f0fdf4' // 繰り返しタスクは薄い緑
+
+    switch (urgency) {
+      case 'Overdue':
+        return '#fef2f2' // 薄い赤 - 期限切れ
+      case 'Soon':
+        return '#fef3c7' // 薄い黄 - まもなく期限
+      case 'Next7':
+        return '#eff6ff' // 薄い青 - 今日すべき作業
+      case 'Next30':
+        return '#f0f9ff' // より薄い青
+      default:
+        return 'transparent' // 通常は背景色なし
+    }
+  }
+
   const completedItems = useMemo(() => [
     ...completedTasks.map(item => ({
       id: item.task.id,
@@ -238,8 +269,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       title: item.task.title,
       memo: item.task.memo,
       dueDate: undefined, // Recurring tasks don't have due dates
-      category: undefined, // Recurring tasks don't have categories yet
-      importance: undefined, // Recurring tasks don't have importance yet
+      category: item.task.category,
+      importance: item.task.importance,
       urls: item.task.urls,
       type: item.displayName,
       urgency: 'Normal' as const, // Recurring tasks are normal priority by default
@@ -259,23 +290,21 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#f9fafb' }}>
-              <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
-              <th style={{ padding: '4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '80px', fontSize: '11px' }}>期日</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>タイプ</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '70px', fontSize: '11px' }}>緊急度</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>重要度</th>
-              <th style={{ padding: '4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderTop: '1px solid #e5e7eb' }}>
-              <td colSpan={8} style={{ 
-                padding: '16px', 
-                textAlign: 'center', 
-                color: '#6b7280' 
+              <td colSpan={7} style={{
+                padding: '16px',
+                textAlign: 'center',
+                color: '#6b7280'
               }}>
                 今日のタスクはありません
               </td>
@@ -291,44 +320,57 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ backgroundColor: '#f9fafb' }}>
-            <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
-            <th style={{ padding: '4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '80px', fontSize: '11px' }}>期日</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>タイプ</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '70px', fontSize: '11px' }}>緊急度</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>重要度</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
-            <th style={{ padding: '4px', textAlign: 'left', width: '120px', fontSize: '11px' }}>操作</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
           </tr>
         </thead>
         <tbody>
           {allItems.map((item, index) => (
             <tr
-              key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`} 
-              style={{ 
+              key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`}
+              style={{
                 borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
-                minHeight: '32px',
+                height: '28px',
                 opacity: item.isCompleted ? 0.6 : 1,
-                backgroundColor: item.isCompleted ? '#f9fafb' : 'transparent',
+                backgroundColor: getUrgencyRowColor(item.urgency, item.isCompleted, item.isRecurring),
                 transition: 'background-color 0.15s ease'
               }}
               onMouseEnter={(e) => {
                 if (!item.isCompleted) {
-                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  // ホバー時は元の色より少し濃くする
+                  const baseColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
+                  if (baseColor === 'transparent') {
+                    e.currentTarget.style.backgroundColor = '#f8fafc'
+                  } else {
+                    e.currentTarget.style.backgroundColor = baseColor
+                    e.currentTarget.style.filter = 'brightness(0.95)'
+                  }
                 }
               }}
               onMouseLeave={(e) => {
                 if (!item.isCompleted) {
-                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.backgroundColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
+                  e.currentTarget.style.filter = 'none'
                 }
               }}
             >
-              <td style={{ padding: '4px', textAlign: 'center' }}>
+              <td style={{ padding: '2px', textAlign: 'center' }}>
                 <button
                   onClick={() => {
-                    if (!item.isCompleted) {
+                    if (item.isCompleted) {
+                      // チェック解除
+                      if (item.isRecurring && onRecurringUncomplete) {
+                        onRecurringUncomplete(item.id)
+                      } else if (!item.isRecurring && onUncomplete) {
+                        onUncomplete(item.id)
+                      }
+                    } else {
+                      // チェック
                       if (item.isRecurring) {
                         onRecurringComplete(item.id)
                       } else {
@@ -336,14 +378,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                       }
                     }
                   }}
-                  disabled={item.isCompleted}
                   style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '18px',
+                    height: '18px',
                     border: item.isCompleted ? '2px solid #10b981' : '2px solid #d1d5db',
                     borderRadius: '4px',
                     backgroundColor: item.isCompleted ? '#10b981' : 'transparent',
-                    cursor: item.isCompleted ? 'default' : 'pointer',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -351,13 +392,21 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    if (!item.isCompleted) {
+                    if (item.isCompleted) {
+                      e.currentTarget.style.borderColor = '#ef4444'
+                      e.currentTarget.style.backgroundColor = '#fef2f2'
+                      e.currentTarget.style.color = '#ef4444'
+                    } else {
                       e.currentTarget.style.borderColor = '#3b82f6'
                       e.currentTarget.style.backgroundColor = '#eff6ff'
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!item.isCompleted) {
+                    if (item.isCompleted) {
+                      e.currentTarget.style.borderColor = '#10b981'
+                      e.currentTarget.style.backgroundColor = '#10b981'
+                      e.currentTarget.style.color = 'white'
+                    } else {
                       e.currentTarget.style.borderColor = '#d1d5db'
                       e.currentTarget.style.backgroundColor = 'transparent'
                     }
@@ -366,83 +415,218 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   {item.isCompleted && '✓'}
                 </button>
               </td>
-              <td style={{ padding: '4px' }}>
-                <div style={{ 
-                  fontWeight: '500', 
+              <td style={{ padding: '2px 4px' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '14px',
+                  lineHeight: '1.2',
                   textDecoration: item.isCompleted ? 'line-through' : 'none',
                   color: item.isCompleted ? '#9ca3af' : 'inherit'
                 }}>
-                  {item.title}
+                  <ImportanceDot importance={item.importance} size={10} showTooltip />
+                  <span style={{ fontWeight: '500' }}>
+                    {item.title}
+                  </span>
+                  {item.memo && (
+                    <span style={{
+                      color: '#6b7280',
+                      fontSize: '13px'
+                    }}>
+                      - {item.memo}
+                    </span>
+                  )}
                 </div>
-                {item.memo && (
-                  <div style={{ 
-                    fontSize: '14px', 
-                    color: '#6b7280', 
-                    marginTop: '2px',
-                    textDecoration: item.isCompleted ? 'line-through' : 'none'
-                  }}>
-                    {item.memo}
-                  </div>
-                )}
               </td>
-              <td style={{ padding: '4px', textAlign: 'center' }}>
+              <td style={{ padding: '2px', textAlign: 'center' }}>
                 {renderUrlIcon(item.urls)}
               </td>
-              <td style={{ padding: '4px' }}>
-                {item.isRecurring ? '今日' : formatDueDate(item.dueDate)}
+              <td style={{ padding: '2px 4px', fontSize: '13px' }}>
+                {getDateTypeDisplay(item)}
               </td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>
-                {item.type}
-              </td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>
+              <td style={{ padding: '2px 4px', fontSize: '13px', color: '#6b7280' }}>
                 {item.category || '-'}
               </td>
-              <td style={{ padding: '4px' }}>
-                <span style={getUrgencyStyle(item.urgency)}>
-                  {item.urgency}
-                </span>
-              </td>
-              <td style={{ padding: '4px' }}>
-                <span style={getImportanceStyle(item.importance)}>
-                  {item.importance ? TASK_IMPORTANCE_LABELS[item.importance] || '-' : '-'}
-                </span>
-              </td>
-              <td style={{ padding: '4px' }}>
+              <td style={{ padding: '2px' }}>
                 <span style={getPriorityStyle(getSmartPriority(item))}>
                   {getSmartPriority(item)}
                 </span>
               </td>
-              <td style={{ padding: '4px' }}>
-                {item.isCompleted ? (
-                  <span style={{ fontSize: '12px', color: '#10b981' }}>完了済み</span>
-                ) : item.isRecurring ? (
-                  <span style={{ fontSize: '12px', color: '#6b7280' }}>繰り返し</span>
-                ) : (
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '4px', 
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                  }}>
-                    <a
-                      href="/manage"
-                      style={{
-                        padding: '3px 8px',
-                        fontSize: '16px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '3px',
-                        backgroundColor: 'white',
-                        color: '#6b7280',
-                        textDecoration: 'none',
-                        cursor: 'pointer',
-                        display: 'inline-block',
-                        lineHeight: '1'
-                      }}
-                      title="管理ページで編集"
-                    >
-                      …
-                    </a>
+              <td style={{ padding: '2px' }}>
+                <div style={{
+                  display: 'flex',
+                  gap: '4px',
+                  flexWrap: 'wrap',
+                  alignItems: 'center'
+                }}>
+                  {/* 編集ボタン（アイコン） */}
+                  {item.isRecurring && item.recurringTask && onEditRecurring ? (
                     <button
+                      onClick={() => item.recurringTask && onEditRecurring(item.recurringTask.task)}
+                      style={{
+                        padding: '4px',
+                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '3px',
+                        backgroundColor: 'transparent',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '24px',
+                        height: '24px',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f3f4f6'
+                        e.currentTarget.style.color = '#059669'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.color = '#6b7280'
+                      }}
+                      title="繰り返しタスクを編集"
+                    >
+                      ✏️
+                    </button>
+                  ) : item.task && onEdit && (
+                    <button
+                      onClick={() => onEdit(item.task)}
+                      style={{
+                        padding: '4px',
+                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '3px',
+                        backgroundColor: 'transparent',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '24px',
+                        height: '24px',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f3f4f6'
+                        e.currentTarget.style.color = '#3b82f6'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.color = '#6b7280'
+                      }}
+                      title="タスクを編集"
+                    >
+                      ✏️
+                    </button>
+                  )}
+
+                  {/* 削除ボタン（ゴミ箱アイコン） */}
+                  {(() => {
+                    if (item.isRecurring) {
+                      console.log('繰り返しタスクの削除ボタン表示判定:', {
+                        itemId: item.id,
+                        title: item.title,
+                        isRecurring: item.isRecurring,
+                        hasRecurringTask: !!item.recurringTask,
+                        hasOnDeleteRecurring: !!onDeleteRecurring
+                      })
+                    } else {
+                      console.log('通常タスクの削除ボタン表示判定:', {
+                        itemId: item.id,
+                        title: item.title,
+                        hasTask: !!item.task,
+                        hasOnDelete: !!onDelete
+                      })
+                    }
+                    return null
+                  })()}
+                  {item.isRecurring && item.recurringTask && onDeleteRecurring ? (
+                    <button
+                      onClick={() => {
+                        console.log('繰り返しタスク削除ボタンがクリックされました:', item.id, item.title)
+                        if (confirm('この繰り返しタスクを削除しますか？')) {
+                          console.log('繰り返しタスクの削除が確認されました:', item.id)
+                          onDeleteRecurring(item.id)
+                        } else {
+                          console.log('繰り返しタスクの削除がキャンセルされました:', item.id)
+                        }
+                      }}
+                      style={{
+                        padding: '4px',
+                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '3px',
+                        backgroundColor: 'transparent',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '24px',
+                        height: '24px',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fef2f2'
+                        e.currentTarget.style.color = '#ef4444'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.color = '#6b7280'
+                      }}
+                      title="繰り返しタスクを削除"
+                    >
+                      🗑️
+                    </button>
+                  ) : item.task && onDelete && (
+                    <button
+                      onClick={() => {
+                        console.log('削除ボタンがクリックされました:', item.id, item.title)
+                        if (confirm('このタスクを削除しますか？')) {
+                          console.log('削除が確認されました:', item.id)
+                          onDelete(item.id)
+                        } else {
+                          console.log('削除がキャンセルされました:', item.id)
+                        }
+                      }}
+                      style={{
+                        padding: '4px',
+                        fontSize: '14px',
+                        border: 'none',
+                        borderRadius: '3px',
+                        backgroundColor: 'transparent',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '24px',
+                        height: '24px',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fef2f2'
+                        e.currentTarget.style.color = '#ef4444'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.color = '#6b7280'
+                      }}
+                      title="タスクを削除"
+                    >
+                      🗑️
+                    </button>
+                  )}
+
+                  {/* 状態・クイック移動ボタン */}
+                  {item.isCompleted ? (
+                    <span style={{ fontSize: '12px', color: '#10b981' }}>完了済み</span>
+                  ) : !item.isRecurring && (
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <button
                       onClick={() => onQuickMove(item.id, QuickMoves.tomorrow())}
                       style={{
                         padding: '3px 6px',
@@ -518,7 +702,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                       月末
                     </button>
                   </div>
-                )}
+                  )}
+                </div>
               </td>
             </tr>
           ))}

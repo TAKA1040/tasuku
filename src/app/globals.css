@@ -1,0 +1,36 @@
+/* Mobile responsive design */
+@media (max-width: 768px) {
+  /* Header layout for mobile */
+  .today-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .today-title {
+    font-size: 18px !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+  }
+
+  .today-buttons {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+
+  .today-button {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .today-actions {
+    justify-content: center !important;
+    margin-top: 6px !important;
+  }
+
+  .task-add-button {
+    flex: 1 !important;
+    padding: 8px 16px !important;
+  }
+}

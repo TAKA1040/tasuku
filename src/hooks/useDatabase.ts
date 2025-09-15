@@ -23,18 +23,32 @@ export function useDatabase() {
     async function init() {
       try {
         console.log('Starting database initialization...')
-        
+
+        // Check if user is authenticated before initializing database
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+          console.log('No authenticated user found, skipping database initialization')
+          if (mounted) {
+            setIsInitialized(false)
+            setError(null) // Clear any previous errors
+          }
+          return
+        }
+
         // Initialize Supabase connection
         await db.init()
         console.log('Supabase Database initialized')
-        
+
         await initializeDevFeatures()
         console.log('Dev features initialized')
-        
+
         setupDevTools()
         setupRecurringDevTools()
         console.log('Dev tools setup')
-        
+
         // Development: Add dummy data if no tasks exist
         if (process.env.NODE_ENV === 'development') {
           console.log('Checking for dummy data...')
@@ -46,7 +60,7 @@ export function useDatabase() {
             console.log('Seeded dummy data for development')
           }
         }
-        
+
         if (mounted) {
           setIsInitialized(true)
           console.log('Database initialization completed successfully')

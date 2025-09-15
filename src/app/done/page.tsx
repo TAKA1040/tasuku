@@ -65,7 +65,13 @@ export default function DonePage() {
   const completedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
 
   return (
-    <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{
+      padding: '8px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
       <header style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0' }}>

@@ -166,8 +166,15 @@ export function getRecurringDisplayName(rule: RecurringTask): string {
     case 'WEEKLY': {
       const weekdayNames = ['月', '火', '水', '木', '金', '土', '日']
       const days = (weekdays || []).map(w => weekdayNames[w]).join('・')
-      const prefix = interval_n === 1 ? '毎週' : `${interval_n}週おき`
-      return `${prefix} ${days}`
+
+      // 複数曜日がある場合は「指定曜日」、単一曜日の場合は従来通り
+      if ((weekdays || []).length > 1) {
+        const prefix = interval_n === 1 ? '' : `${interval_n}週おき `
+        return `${prefix}指定曜日`
+      } else {
+        const prefix = interval_n === 1 ? '毎週' : `${interval_n}週おき`
+        return `${prefix} ${days}`
+      }
     }
       
     case 'MONTHLY':

@@ -79,21 +79,52 @@ export function useRollover(
     if (isRollingOver || incompleteTasks.length === 0) return
 
     setIsRollingOver(true)
-    console.log(`Auto rollover: Processing ${incompleteTasks.length} incomplete tasks`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Auto rollover: Processing ${incompleteTasks.length} incomplete tasks`)
+    }
 
     try {
       for (const task of incompleteTasks) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Auto rollover: Processing task:', task.title)
+        }
         const rolledOverTask = rolloverSingleTask(task)
-        await db.createTask(rolledOverTask)
+
+        // createTask用にid, created_at, updated_atを除く
+        const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+
+        try {
+          await db.createTask(taskForCreate)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Auto rollover: Successfully created task:', task.title)
+          }
+
+          // 元のタスクを完了済みにマーク（重複表示を防ぐ）
+          await db.updateTask(task.id, {
+            completed: true,
+            completed_at: new Date().toLocaleDateString('ja-CA')
+          })
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Auto rollover: Marked original task as completed:', task.title)
+          }
+        } catch (createError) {
+          console.error('Auto rollover: Failed to create task:', {
+            title: task.title,
+            error: createError instanceof Error ? createError.message : String(createError)
+          })
+          throw createError
+        }
       }
 
-      // 繰り越し後にデータをリフレッシュ
-      setRolloverData(prev => prev ? {
-        ...prev,
-        incompleteSingle: []
-      } : null)
-      
-      console.log('Auto rollover completed successfully')
+      // 繰り越し後にデータをリフレッシュ（完全に初期化）
+      setRolloverData({
+        incompleteSingle: [],
+        incompleteRecurring: []
+      })
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Auto rollover completed successfully')
+      }
     } catch (error) {
       console.error('Auto rollover error:', error)
     } finally {
@@ -128,12 +159,14 @@ export function useRollover(
 
         for (const task of tasksToRollover) {
           const rolledOverTask = rolloverSingleTask(task)
-          
-          await db.createTask(rolledOverTask)
-          
+
+          // createTask用にid, created_at, updated_atを除く
+          const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+          await db.createTask(taskForCreate)
+
           // 元のタスクを完了済みにマーク
           await db.updateTask(task.id, {
-            completed: true, 
+            completed: true,
             completed_at: new Date().toLocaleDateString('ja-CA')
           })
         }
@@ -147,9 +180,11 @@ export function useRollover(
 
         for (const { task, missedDates } of recurringToRollover) {
           const rolledOverTasks = rolloverRecurringTask(task, missedDates)
-          
+
           for (const rolledOverTask of rolledOverTasks) {
-            await db.createTask(rolledOverTask)
+            // createTask用にid, created_at, updated_atを除く
+            const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+            await db.createTask(taskForCreate)
           }
         }
       }

@@ -21,6 +21,8 @@ export function Navigation() {
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

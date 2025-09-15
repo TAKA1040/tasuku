@@ -127,10 +127,31 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     }
   }
 
+  // Uncomplete a recurring task
+  const uncompleteRecurringTask = async (taskId: string) => {
+    try {
+      const todayJST = getTodayJST()
+
+      // Find today's log in the already loaded recurringLogs
+      const todayLog = recurringLogs.find(
+        log => log.recurring_id === taskId && log.date === todayJST
+      )
+
+      if (todayLog) {
+        // Delete the completion log using database function
+        await db.deleteRecurringLog(taskId, todayJST)
+        await loadRecurringData()
+      }
+    } catch (err) {
+      console.error('Failed to uncomplete recurring task:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    }
+  }
+
   // Create a new recurring task
   const createRecurringTask = async (
-    title: string, 
-    memo?: string, 
+    title: string,
+    memo?: string,
     frequency: 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY' = 'DAILY',
     intervalN: number = 1,
     weekdays?: number[],
@@ -139,13 +160,15 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     endDate?: string,
     importance?: number,
     durationMin?: number,
-    urls?: string[]
+    urls?: string[],
+    category?: string
   ) => {
     try {
       const newRecurringTask: RecurringTask = {
         id: crypto.randomUUID(),
         title: title.trim(),
         memo: memo?.trim() || undefined,
+        category: category?.trim() || undefined,
         frequency,
         interval_n: intervalN,
         weekdays: frequency === 'WEEKLY' ? weekdays : undefined,
@@ -161,6 +184,8 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         updated_at: new Date().toISOString()
       }
 
+      console.log('useRecurringTasks: Creating recurring task with category:', category, '-> processed:', newRecurringTask.category)
+
       await db.createRecurringTask(newRecurringTask)
       await loadRecurringData() // Reload data
     } catch (err) {
@@ -172,7 +197,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   // Update a recurring task
   const updateRecurringTask = async (
     taskId: string,
-    updates: Partial<Pick<RecurringTask, 'title' | 'memo' | 'frequency' | 'interval_n' | 'weekdays' | 'month_day' | 'start_date' | 'end_date' | 'active' | 'importance' | 'duration_min'>>
+    updates: Partial<Pick<RecurringTask, 'title' | 'memo' | 'frequency' | 'interval_n' | 'weekdays' | 'month_day' | 'start_date' | 'end_date' | 'active' | 'importance' | 'duration_min' | 'category' | 'urls'>>
   ) => {
     try {
       const existingTask = recurringTasks.find(t => t.id === taskId)
@@ -272,6 +297,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     updateRecurringTask,
     deleteRecurringTask,
     toggleRecurringTaskActive,
+    uncompleteRecurringTask,
     reload: loadRecurringData
   }
 }

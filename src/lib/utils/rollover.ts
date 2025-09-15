@@ -23,7 +23,17 @@ export function findIncompleTasks(
   // 1. 単発タスクの未完了チェック（今日より前の日付で未完了）
   singleTasks.forEach(task => {
     if (!task.completed && task.due_date && getDaysDifference(task.due_date, today) < 0) {
-      incompleteSingle.push(task)
+      // 最近更新されたタスク（1時間以内）は自動繰り越し対象から除外
+      const now = new Date()
+      const updatedAt = new Date(task.updated_at)
+      const hoursSinceUpdate = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60)
+
+      if (hoursSinceUpdate > 1) {
+        // 1時間以上前に更新されたタスクのみ自動繰り越し対象
+        incompleteSingle.push(task)
+      } else {
+        console.log('自動繰り越しをスキップ（最近更新されたタスク）:', task.title, `${hoursSinceUpdate.toFixed(1)}時間前`)
+      }
     }
   })
 
@@ -64,31 +74,61 @@ export function findIncompleTasks(
  * 単発タスクを今日に繰り越し
  */
 export function rolloverSingleTask(task: Task): Task {
-  return {
-    ...task,
+  // 安全なデータクリーニング
+  const cleanedTask = {
     id: `${task.id}-rollover-${Date.now()}`, // 新しいIDで複製
+    title: task.title || '',
+    memo: task.memo || undefined,
     due_date: getTodayJST(),
+    completed: false,
+    completed_at: undefined,
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    rollover_count: (task.rollover_count || 0) + 1,
+    archived: false,
+    snoozed_until: undefined,
+    duration_min: task.duration_min || undefined,
+    importance: task.importance || undefined,
+    category: task.category || undefined,
+    urls: Array.isArray(task.urls) && task.urls.length > 0 ? task.urls : undefined,
+    location_tag_id: task.location_tag_id || undefined
   }
+
+  // 必須フィールドを保証して型安全に返す
+  return cleanedTask as Task
 }
 
 /**
  * 繰り返しタスクの未完了分を今日に繰り越し
  */
 export function rolloverRecurringTask(
-  recurring: RecurringTask, 
+  recurring: RecurringTask,
   missedDates: string[]
 ): Task[] {
-  return missedDates.map(missedDate => ({
-    id: `rollover-${recurring.id}-${missedDate}-${Date.now()}`,
-    title: `${recurring.title} (${missedDate}から繰り越し)`,
-    due_date: getTodayJST(),
-    completed: false,
-    completed_at: undefined,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }))
+  return missedDates.map(missedDate => {
+    // 安全なデータクリーニング
+    const cleanedTask = {
+      id: `rollover-${recurring.id}-${missedDate}-${Date.now()}`,
+      title: `${recurring.title} (${missedDate}から繰り越し)`,
+      memo: recurring.memo || undefined,
+      due_date: getTodayJST(),
+      completed: false,
+      completed_at: undefined,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      rollover_count: 1,
+      archived: false,
+      snoozed_until: undefined,
+      duration_min: recurring.duration_min || undefined,
+      importance: recurring.importance || undefined,
+      category: recurring.category || undefined,
+      urls: Array.isArray(recurring.urls) && recurring.urls.length > 0 ? recurring.urls : undefined,
+      location_tag_id: undefined
+    }
+
+    // 必須フィールドを保証して型安全に返す
+    return cleanedTask as Task
+  })
 }
 
 /**

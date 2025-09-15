@@ -46,6 +46,7 @@ export interface RecurringTask {
   // PHASE 4.2 - 拡張フィールド
   duration_min?: number
   importance?: 1 | 2 | 3 | 4 | 5
+  category?: string // カテゴリ（仕事、プライベート、勉強など）
   urls?: string[] // 関連URL（最大5個）
   location_tag_id?: string
 }

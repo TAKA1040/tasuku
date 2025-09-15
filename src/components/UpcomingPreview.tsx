@@ -5,10 +5,12 @@ import type { TaskWithUrgency } from '@/lib/db/schema'
 
 interface UpcomingPreviewProps {
   upcomingTasks: TaskWithUrgency[]
-  onMoveToToday: (taskId: string) => void
+  onComplete: (taskId: string) => void
+  onEdit: (task: any) => void
+  onDelete: (taskId: string) => void
 }
 
-export function UpcomingPreview({ upcomingTasks, onMoveToToday }: UpcomingPreviewProps) {
+export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }: UpcomingPreviewProps) {
   if (upcomingTasks.length === 0) {
     return (
       <section>
@@ -50,26 +52,107 @@ export function UpcomingPreview({ upcomingTasks, onMoveToToday }: UpcomingPrevie
               borderBottom: upcomingTasks[upcomingTasks.length - 1].task.id !== task.id ? '1px solid #e2e8f0' : 'none'
             }}
           >
-            <div style={{ flex: 1 }}>
-              <span style={{ fontWeight: '500' }}>{task.title}</span>
-              <span style={{ color: '#6b7280', marginLeft: '8px' }}>
-                {days_from_today === 1 ? '明日' : `${days_from_today}日後`}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+              <button
+                onClick={() => onComplete(task.id)}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6'
+                  e.currentTarget.style.backgroundColor = '#eff6ff'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#d1d5db'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
+                title="タスクを完了する"
+              >
+              </button>
+              <div>
+                <span style={{ fontWeight: '500' }}>{task.title}</span>
+                <span style={{ color: '#6b7280', marginLeft: '8px' }}>
+                  {days_from_today === 1 ? '明日' : `${days_from_today}日後`}
+                </span>
+              </div>
             </div>
-            <button
-              onClick={() => onMoveToToday(task.id)}
-              style={{
-                padding: '4px 8px',
-                fontSize: '12px',
-                backgroundColor: '#2563eb',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              今日に
-            </button>
+            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              {/* 編集ボタン */}
+              <button
+                onClick={() => onEdit(task)}
+                style={{
+                  padding: '4px',
+                  fontSize: '14px',
+                  border: 'none',
+                  borderRadius: '3px',
+                  backgroundColor: 'transparent',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6'
+                  e.currentTarget.style.color = '#3b82f6'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = '#6b7280'
+                }}
+                title="タスクを編集"
+              >
+                ✏️
+              </button>
+
+              {/* 削除ボタン */}
+              <button
+                onClick={() => {
+                  if (confirm('このタスクを削除しますか？')) {
+                    onDelete(task.id)
+                  }
+                }}
+                style={{
+                  padding: '4px',
+                  fontSize: '14px',
+                  border: 'none',
+                  borderRadius: '3px',
+                  backgroundColor: 'transparent',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fef2f2'
+                  e.currentTarget.style.color = '#ef4444'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = '#6b7280'
+                }}
+                title="タスクを削除"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
         ))}
       </div>

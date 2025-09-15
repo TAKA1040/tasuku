@@ -11,11 +11,14 @@ export default function LoginPage() {
     try {
       setLoading(true)
       setError(null)
-      
+
       console.log('Starting Google OAuth...')
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('Redirect URL:', `${window.location.origin}/auth/callback`)
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { 
+        options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
@@ -23,7 +26,7 @@ export default function LoginPage() {
           }
         },
       })
-      
+
       if (error) {
         console.error('OAuth error:', error)
         setError(`ログインエラー: ${error.message}`)
@@ -32,7 +35,7 @@ export default function LoginPage() {
       // 成功時はリダイレクトが発生するのでloadingは自動でfalseになる
     } catch (err) {
       console.error('Unexpected error:', err)
-      setError('Google認証でエラーが発生しました。再試行してください。')
+      setError(`予期しないエラー: ${err instanceof Error ? err.message : String(err)}`)
       setLoading(false)
     }
   }

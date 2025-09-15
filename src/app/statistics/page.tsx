@@ -30,7 +30,29 @@ export default function StatisticsPage() {
     )
   }
 
-  if (!isInitialized || tasksLoading || recurringLoading) {
+  // Check if user is authenticated
+  if (!isInitialized && !error) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1 style={{ color: '#f59e0b' }}>認証が必要です</h1>
+        <p>統計を確認するにはログインしてください。</p>
+        <a href="/login" style={{
+          display: 'inline-block',
+          marginTop: '16px',
+          padding: '12px 24px',
+          background: '#2563eb',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '8px',
+          fontWeight: '500'
+        }}>
+          ログイン
+        </a>
+      </div>
+    )
+  }
+
+  if (tasksLoading || recurringLoading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
@@ -40,7 +62,13 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div style={{ padding: '8px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{
+      padding: '8px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
       <header style={{ marginBottom: '12px' }}>
         <div style={{ 
           display: 'flex', 

@@ -49,7 +49,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         !task.completed && 
         !task.archived &&
         (!task.snoozed_until || task.snoozed_until <= today) &&
-        task.due_date === today
+        task.due_date && task.due_date <= today  // Show tasks due today or earlier
       )
       .map(task => {
         const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : TIME_CONSTANTS.MAX_DAYS_FROM_TODAY_FALLBACK
@@ -167,6 +167,23 @@ export function useTasks(isDbInitialized: boolean = false) {
     }
   }
 
+  // Uncomplete a task (mark as not completed)
+  const uncompleteTask = async (taskId: string) => {
+    try {
+      const task = tasks.find(t => t.id === taskId)
+      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+
+      await db.updateTask(taskId, {
+        completed: false,
+        completed_at: undefined
+      })
+      await loadTasks() // Reload tasks
+    } catch (err) {
+      console.error('Failed to uncomplete task:', err)
+      setError(getErrorMessage(err))
+    }
+  }
+
   // Quick move task
   const quickMoveTask = async (taskId: string, newDueDate: string) => {
     try {
@@ -209,6 +226,8 @@ export function useTasks(isDbInitialized: boolean = false) {
         updated_at: new Date().toISOString()
       }
 
+      console.log('useTasks: Creating task with category:', category, '-> processed:', newTask.category)
+
       await db.createTask(newTask)
       await loadTasks() // Reload tasks
     } catch (err) {
@@ -241,13 +260,20 @@ export function useTasks(isDbInitialized: boolean = false) {
   // Delete a task
   const deleteTask = async (taskId: string) => {
     try {
+      console.log('useTasks: deleteTask called with ID:', taskId)
       const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+      if (!task) {
+        console.error('useTasks: Task not found:', taskId)
+        throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+      }
 
+      console.log('useTasks: Deleting task:', task.title)
       await db.deleteTask(taskId)
+      console.log('useTasks: Task deleted successfully, reloading tasks...')
       await loadTasks() // Reload tasks
+      console.log('useTasks: Tasks reloaded after deletion')
     } catch (err) {
-      console.error('Failed to delete task:', err)
+      console.error('useTasks: Failed to delete task:', err)
       setError(getErrorMessage(err))
     }
   }
@@ -271,6 +297,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     createTask,
     updateTask,
     deleteTask,
+    uncompleteTask,
     reload: loadTasks
   }
 }

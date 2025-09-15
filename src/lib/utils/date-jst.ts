@@ -16,9 +16,15 @@ export function getTodayJST(): string {
  * Date オブジェクトを YYYY-MM-DD 形式（JST）に変換
  */
 export function formatDateJST(date: Date): string {
-  return date.toLocaleDateString('ja-CA', { // ja-CA は YYYY-MM-DD 形式
-    timeZone: JST_TIMEZONE
-  })
+  // JST タイムゾーンで日付を取得
+  const jstDate = new Date(date.toLocaleString("en-US", { timeZone: JST_TIMEZONE }))
+
+  // YYYY-MM-DD 形式で手動フォーマット
+  const year = jstDate.getFullYear()
+  const month = String(jstDate.getMonth() + 1).padStart(2, '0')
+  const day = String(jstDate.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 /**

@@ -39,14 +39,31 @@ class SupabaseTasukuDatabase {
   
   async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task> {
     const userId = await this.getCurrentUserId()
+
+    // 開発環境でのみデバッグログを出力
+    if (process.env.NODE_ENV === 'development') {
+      console.log('createTask: Creating task:', task.title)
+    }
+
     const { data, error } = await this.supabase
       .from('tasks')
       .insert({ ...task, user_id: userId })
       .select()
       .single()
-      
-    if (error) throw error
-    
+
+    if (error) {
+      console.error('createTask: Failed to create task:', {
+        title: task.title,
+        error: error.message,
+        code: error.code
+      })
+      throw error
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('createTask: Successfully created task:', task.title)
+    }
+
     // user_idを除いてTaskを返す
     const { user_id, ...taskData } = data
     return taskData as Task
@@ -175,15 +192,35 @@ class SupabaseTasukuDatabase {
   }
 
   async updateRecurringTask(id: string, updates: Partial<Omit<RecurringTask, 'id' | 'created_at' | 'updated_at'>>): Promise<RecurringTask> {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('updateRecurringTask: Updating task:', updates.title || id)
+    }
+
     const { data, error } = await this.supabase
       .from('recurring_tasks')
-      .update(updates)
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', id)
       .select()
       .single()
-      
-    if (error) throw error
-    
+
+    if (error) {
+      console.error('Supabase updateRecurringTask error:', {
+        error,
+        id,
+        updates,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      })
+      throw error
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('updateRecurringTask: Successfully updated task')
+    }
     const { user_id, ...taskData } = data
     return taskData as RecurringTask
   }

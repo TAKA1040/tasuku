@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { URL_LIMITS } from '@/lib/db/schema'
+import { ImportanceDot } from '@/components/ImportanceDot'
 
 interface RecurringSettings {
   pattern: string
@@ -16,7 +17,7 @@ interface RecurringSettings {
 interface TaskCreateForm2Props {
   isVisible: boolean
   onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[]) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -29,6 +30,7 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   const [importance, setImportance] = useState<number>(3)
   const [durationMin, setDurationMin] = useState<number>(0)
   const [recurringPattern, setRecurringPattern] = useState('daily')
+  const [taskType, setTaskType] = useState<'once' | 'recurring' | 'deadline'>('once')
   const [intervalDays, setIntervalDays] = useState<number>(1)
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([1]) // 月曜日がデフォルト
   const [dayOfMonth, setDayOfMonth] = useState<number>(1)
@@ -36,24 +38,39 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   const [dayOfYear, setDayOfYear] = useState<number>(1)
   const [urls, setUrls] = useState<string[]>([])
   const [newUrl, setNewUrl] = useState('')
+  const [saveAsIdea, setSaveAsIdea] = useState(false)
 
-  const handleRegularSubmit = () => {
-    if (!title.trim()) return
-    onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
-    resetForm()
-  }
+  const handleSubmit = () => {
+    console.log('TaskCreateForm2: handleSubmit called')
+    console.log('TaskCreateForm2: title:', title)
+    console.log('TaskCreateForm2: taskType:', taskType)
+    console.log('TaskCreateForm2: saveAsIdea:', saveAsIdea)
+    console.log('TaskCreateForm2: category:', category)
 
-  const handleRecurringSubmit = () => {
-    if (!title.trim()) return
-    onSubmitRecurring(title, memo, {
-      pattern: recurringPattern,
-      intervalDays,
-      selectedWeekdays,
-      dayOfMonth,
-      monthOfYear,
-      dayOfYear
-    }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
-    resetForm()
+    if (!title.trim()) {
+      console.log('TaskCreateForm2: No title, returning early')
+      return
+    }
+
+    if (saveAsIdea) {
+      console.log('TaskCreateForm2: Saving as idea')
+      handleAddToIdeas()
+    } else if (taskType === 'once' || taskType === 'deadline') {
+      console.log('TaskCreateForm2: Submitting regular task with category:', category)
+      onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
+      resetForm()
+    } else {
+      console.log('TaskCreateForm2: Submitting recurring task')
+      onSubmitRecurring(title, memo, {
+        pattern: recurringPattern,
+        intervalDays,
+        selectedWeekdays,
+        dayOfMonth,
+        monthOfYear,
+        dayOfYear
+      }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category)
+      resetForm()
+    }
   }
 
   const handleAddToIdeas = () => {
@@ -78,6 +95,8 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     setDayOfYear(1)
     setUrls([])
     setNewUrl('')
+    setSaveAsIdea(false)
+    setTaskType('once')
   }
 
   const toggleWeekday = (day: number) => {
@@ -189,6 +208,106 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
               resize: 'vertical'
             }}
           />
+        </div>
+
+        {/* 共通設定項目 */}
+        <div style={{ marginBottom: '10px' }}>
+          <h3 style={{
+            fontSize: '13px',
+            fontWeight: '600',
+            color: '#374151',
+            marginBottom: '6px'
+          }}>
+            タスク設定
+          </h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '90px 80px 110px', gap: '4px', marginBottom: '6px' }}>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <ImportanceDot importance={importance} size={10} />
+                  重要度
+                </div>
+              </label>
+              <select
+                value={importance}
+                onChange={(e) => setImportance(Number(e.target.value))}
+                style={{
+                  width: '100%',
+                  padding: '4px 2px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              >
+                <option value={1}>🔵 最低</option>
+                <option value={2}>🟡 低</option>
+                <option value={3}>🟡 普通</option>
+                <option value={4}>🟠 高</option>
+                <option value={5}>🔴 最高</option>
+              </select>
+            </div>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                所要時間
+              </label>
+              <input
+                type="number"
+                placeholder="分"
+                value={durationMin || ''}
+                onChange={(e) => setDurationMin(Number(e.target.value) || 0)}
+                style={{
+                  width: '100%',
+                  padding: '4px 4px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                カテゴリ
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '4px 2px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              >
+                <option value="">カテゴリ</option>
+                <option value="仕事">仕事</option>
+                <option value="プライベート">プライベート</option>
+                <option value="勉強">勉強</option>
+                <option value="健康">健康</option>
+                <option value="家事">家事</option>
+                <option value="買い物">買い物</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* URL管理セクション */}
@@ -320,326 +439,312 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
           )}
         </div>
 
-        {/* やることリストに追加ボタン */}
-        <div style={{ marginBottom: '8px' }}>
-          <button
-            onClick={handleAddToIdeas}
-            disabled={!title.trim()}
-            style={{
-              width: '100%',
-              padding: '6px',
-              backgroundColor: title.trim() ? '#6b7280' : '#9ca3af',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '13px',
-              fontWeight: '500',
-              cursor: title.trim() ? 'pointer' : 'not-allowed',
-              marginBottom: '4px'
-            }}
-          >
-            📝 やることリストに追加
-          </button>
-          <div style={{ 
-            fontSize: '10px', 
-            color: '#6b7280', 
-            textAlign: 'center',
-            marginBottom: '8px'
+        {/* 期限なしメモ オプション */}
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            fontSize: '13px',
+            color: '#374151'
           }}>
-            期限なしでメモとして保存
-          </div>
+            <input
+              type="checkbox"
+              checked={saveAsIdea}
+              onChange={(e) => setSaveAsIdea(e.target.checked)}
+              style={{
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer'
+              }}
+            />
+            <span>期限なしでメモとして保存</span>
+          </label>
         </div>
 
-        {/* 作成ボタン群 */}
-        <div style={{
-          display: 'grid',
-          gap: '8px',
-          marginBottom: '10px'
-        }}>
-          {/* 一回だけタスク */}
-          <div style={{
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            padding: '8px'
-          }}>
-            <h3 style={{
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#374151',
-              marginBottom: '6px'
-            }}>
-              一回だけのタスク
-            </h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 80px 110px', gap: '4px', marginBottom: '6px' }}>
-              <div>
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '4px 6px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '13px'
-                  }}
-                />
-              </div>
-              <div>
-                <select
-                  value={importance}
-                  onChange={(e) => setImportance(Number(e.target.value))}
-                  style={{
-                    width: '100%',
-                    padding: '4px 2px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '13px'
-                  }}
-                >
-                  <option value={1}>最低</option>
-                  <option value={2}>低</option>
-                  <option value={3}>普通</option>
-                  <option value={4}>高</option>
-                  <option value={5}>最高</option>
-                </select>
-              </div>
-              <div>
-                <input
-                  type="number"
-                  placeholder="分"
-                  value={durationMin || ''}
-                  onChange={(e) => setDurationMin(Number(e.target.value) || 0)}
-                  style={{
-                    width: '100%',
-                    padding: '4px 4px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '13px'
-                  }}
-                />
-              </div>
-              <div>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '4px 2px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '13px'
-                  }}
-                >
-                  <option value="">カテゴリ</option>
-                  <option value="仕事">仕事</option>
-                  <option value="プライベート">プライベート</option>
-                  <option value="勉強">勉強</option>
-                  <option value="健康">健康</option>
-                  <option value="家事">家事</option>
-                  <option value="買い物">買い物</option>
-                </select>
-              </div>
-            </div>
-
+        {/* タスクタイプ選択 */}
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
             <button
-              onClick={handleRegularSubmit}
-              disabled={!title.trim()}
+              type="button"
+              onClick={() => setTaskType('once')}
               style={{
-                width: '100%',
+                flex: 1,
                 padding: '6px',
-                backgroundColor: title.trim() ? '#3b82f6' : '#9ca3af',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                fontSize: '13px',
-                fontWeight: '500',
-                cursor: title.trim() ? 'pointer' : 'not-allowed'
+                border: `2px solid ${taskType === 'once' ? '#3b82f6' : '#e5e7eb'}`,
+                borderRadius: '6px',
+                backgroundColor: taskType === 'once' ? '#eff6ff' : 'white',
+                color: taskType === 'once' ? '#3b82f6' : '#6b7280',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer'
               }}
             >
-              この日にやる
+              指定日にやる
+            </button>
+            <button
+              type="button"
+              onClick={() => setTaskType('deadline')}
+              style={{
+                flex: 1,
+                padding: '6px',
+                border: `2px solid ${taskType === 'deadline' ? '#f59e0b' : '#e5e7eb'}`,
+                borderRadius: '6px',
+                backgroundColor: taskType === 'deadline' ? '#fffbeb' : 'white',
+                color: taskType === 'deadline' ? '#f59e0b' : '#6b7280',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              期限を決める
+            </button>
+            <button
+              type="button"
+              onClick={() => setTaskType('recurring')}
+              style={{
+                flex: 1,
+                padding: '6px',
+                border: `2px solid ${taskType === 'recurring' ? '#059669' : '#e5e7eb'}`,
+                borderRadius: '6px',
+                backgroundColor: taskType === 'recurring' ? '#ecfdf5' : 'white',
+                color: taskType === 'recurring' ? '#059669' : '#6b7280',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              繰り返しやる
             </button>
           </div>
 
-          {/* 繰り返しタスク */}
-          <div style={{
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            padding: '8px'
-          }}>
-            <h3 style={{
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#374151',
-              marginBottom: '6px'
-            }}>
-              繰り返しタスク
-            </h3>
+          {/* 指定日タスク設定 */}
+          {taskType === 'once' && (
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                実行日
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '4px 6px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              />
+            </div>
+          )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '4px', marginBottom: '8px' }}>
-              <div>
-                <select
-                  value={recurringPattern}
-                  onChange={(e) => setRecurringPattern(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '4px 2px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '13px'
-                  }}
-                >
-                  <option value="daily">毎日</option>
-                  <option value="interval">X日おき</option>
-                  <option value="weekly">毎週</option>
-                  <option value="monthly">毎月</option>
-                  <option value="yearly">毎年</option>
-                </select>
-              </div>
-              <div>
-                {/* 動的設定エリア */}
-                {recurringPattern === 'interval' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <input
-                      type="number"
-                      min="1"
-                      max="365"
-                      value={intervalDays}
-                      onChange={(e) => setIntervalDays(Number(e.target.value))}
-                      style={{
-                        width: '60px',
-                        padding: '6px 4px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '4px',
-                        fontSize: '14px'
-                      }}
-                    />
-                    <span style={{ fontSize: '14px', color: '#374151' }}>日おき</span>
-                  </div>
-                )}
-                {recurringPattern === 'monthly' && (
+          {/* 期限設定 */}
+          {taskType === 'deadline' && (
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                期限日
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '4px 6px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              />
+            </div>
+          )}
+
+          {/* 繰り返しタスク設定 */}
+          {taskType === 'recurring' && (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '4px', marginBottom: '8px' }}>
+                <div>
                   <select
-                    value={dayOfMonth}
-                    onChange={(e) => setDayOfMonth(Number(e.target.value))}
+                    value={recurringPattern}
+                    onChange={(e) => setRecurringPattern(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '6px 8px',
+                      padding: '4px 2px',
                       border: '1px solid #d1d5db',
-                      borderRadius: '4px',
-                      fontSize: '14px'
+                      borderRadius: '3px',
+                      fontSize: '13px'
                     }}
                   >
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                      <option key={day} value={day}>毎月{day}日</option>
-                    ))}
+                    <option value="daily">毎日</option>
+                    <option value="interval">X日おき</option>
+                    <option value="weekly">毎週</option>
+                    <option value="monthly">毎月</option>
+                    <option value="yearly">毎年</option>
                   </select>
-                )}
-                {recurringPattern === 'yearly' && (
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                </div>
+                <div>
+                  {/* 動的設定エリア */}
+                  {recurringPattern === 'interval' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={intervalDays}
+                        onChange={(e) => setIntervalDays(Number(e.target.value))}
+                        style={{
+                          width: '60px',
+                          padding: '6px 4px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                      <span style={{ fontSize: '14px', color: '#374151' }}>日おき</span>
+                    </div>
+                  )}
+                  {recurringPattern === 'monthly' && (
                     <select
-                      value={monthOfYear}
-                      onChange={(e) => setMonthOfYear(Number(e.target.value))}
+                      value={dayOfMonth}
+                      onChange={(e) => setDayOfMonth(Number(e.target.value))}
                       style={{
-                        width: '70px',
-                        padding: '6px 4px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '4px',
-                        fontSize: '14px'
-                      }}
-                    >
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                        <option key={month} value={month}>{month}月</option>
-                      ))}
-                    </select>
-                    <select
-                      value={dayOfYear}
-                      onChange={(e) => setDayOfYear(Number(e.target.value))}
-                      style={{
-                        width: '70px',
-                        padding: '6px 4px',
+                        width: '100%',
+                        padding: '6px 8px',
                         border: '1px solid #d1d5db',
                         borderRadius: '4px',
                         fontSize: '14px'
                       }}
                     >
                       {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                        <option key={day} value={day}>{day}日</option>
+                        <option key={day} value={day}>毎月{day}日</option>
                       ))}
+                      <option value={32}>毎月末日</option>
                     </select>
-                  </div>
-                )}
-              </div>
-            </div>
-
-
-            {/* 曜日選択（複数可能） */}
-            {recurringPattern === 'weekly' && (
-              <div style={{ marginBottom: '6px' }}>
-                <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>
-                  曜日（複数選択可）
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
-                  {dayNames.map((day, index) => {
-                    const dayValue = index + 1
-                    const isSelected = selectedWeekdays.includes(dayValue)
-                    return (
-                      <button
-                        key={dayValue}
-                        type="button"
-                        onClick={() => toggleWeekday(dayValue)}
+                  )}
+                  {recurringPattern === 'yearly' && (
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <select
+                        value={monthOfYear}
+                        onChange={(e) => setMonthOfYear(Number(e.target.value))}
                         style={{
-                          padding: '4px 2px',
-                          fontSize: '10px',
+                          width: '70px',
+                          padding: '6px 4px',
                           border: '1px solid #d1d5db',
-                          borderRadius: '3px',
-                          backgroundColor: isSelected ? '#059669' : '#f9fafb',
-                          borderColor: isSelected ? '#059669' : '#d1d5db',
-                          color: isSelected ? 'white' : '#374151',
-                          cursor: 'pointer',
-                          fontWeight: isSelected ? '600' : '400'
+                          borderRadius: '4px',
+                          fontSize: '14px'
                         }}
                       >
-                        {day}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div style={{ fontSize: '9px', color: '#6b7280', marginTop: '2px' }}>
-                  {selectedWeekdays.length === 0 ? '曜日を選択' : 
-                   selectedWeekdays.length === 7 ? '毎日' :
-                   `${selectedWeekdays.map(d => dayNames[d-1]).join('、')}曜日`}
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                          <option key={month} value={month}>{month}月</option>
+                        ))}
+                      </select>
+                      <select
+                        value={dayOfYear}
+                        onChange={(e) => setDayOfYear(Number(e.target.value))}
+                        style={{
+                          width: '70px',
+                          padding: '6px 4px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                          <option key={day} value={day}>{day}日</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
 
-
-            <button
-              onClick={handleRecurringSubmit}
-              disabled={!title.trim() || (recurringPattern === 'weekly' && selectedWeekdays.length === 0)}
-              style={{
-                width: '100%',
-                padding: '6px',
-                backgroundColor: (title.trim() && !(recurringPattern === 'weekly' && selectedWeekdays.length === 0)) ? '#059669' : '#9ca3af',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                fontSize: '13px',
-                fontWeight: '500',
-                cursor: (title.trim() && !(recurringPattern === 'weekly' && selectedWeekdays.length === 0)) ? 'pointer' : 'not-allowed'
-              }}
-            >
-              {recurringPattern === 'daily' ? '毎日やる' : 
-               recurringPattern === 'interval' ? `${intervalDays}日おきにやる` :
-               recurringPattern === 'weekly' ? (selectedWeekdays.length === 0 ? '曜日を選択' : 
-                 selectedWeekdays.length === 7 ? '毎日やる' : '毎週やる') :
-               recurringPattern === 'monthly' ? '毎月やる' :
-               recurringPattern === 'yearly' ? '毎年やる' : '作成'}
-            </button>
-          </div>
+              {/* 曜日選択（複数可能） */}
+              {recurringPattern === 'weekly' && (
+                <div style={{ marginBottom: '6px' }}>
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>
+                    曜日（複数選択可）
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+                    {dayNames.map((day, index) => {
+                      const dayValue = index + 1
+                      const isSelected = selectedWeekdays.includes(dayValue)
+                      return (
+                        <button
+                          key={dayValue}
+                          type="button"
+                          onClick={() => toggleWeekday(dayValue)}
+                          style={{
+                            padding: '4px 2px',
+                            fontSize: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '3px',
+                            backgroundColor: isSelected ? '#059669' : '#f9fafb',
+                            borderColor: isSelected ? '#059669' : '#d1d5db',
+                            color: isSelected ? 'white' : '#374151',
+                            cursor: 'pointer',
+                            fontWeight: isSelected ? '600' : '400'
+                          }}
+                        >
+                          {day}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div style={{ fontSize: '9px', color: '#6b7280', marginTop: '2px' }}>
+                    {selectedWeekdays.length === 0 ? '曜日を選択' :
+                     selectedWeekdays.length === 7 ? '毎日' :
+                     `${selectedWeekdays.map(d => dayNames[d-1]).join('、')}曜日`}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* キャンセルボタン */}
+        {/* 実行ボタン */}
+        <div style={{ marginBottom: '8px' }}>
+          <button
+            onClick={handleSubmit}
+            disabled={!title.trim() || (!saveAsIdea && taskType === 'recurring' && recurringPattern === 'weekly' && selectedWeekdays.length === 0)}
+            style={{
+              width: '100%',
+              padding: '10px',
+              backgroundColor: (() => {
+                if (!title.trim()) return '#9ca3af'
+                if (saveAsIdea) return '#6b7280'
+                if (taskType === 'once') return '#3b82f6'
+                if (taskType === 'deadline') return '#f59e0b'
+                return '#059669'
+              })(),
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: (title.trim() && !(!saveAsIdea && taskType === 'recurring' && recurringPattern === 'weekly' && selectedWeekdays.length === 0)) ? 'pointer' : 'not-allowed'
+            }}
+          >
+            {saveAsIdea ? '📝 やることリストに追加' :
+             taskType === 'once' ? '指定日のタスクを作成' :
+             taskType === 'deadline' ? '期限付きタスクを作成' : '繰り返しタスクを作成'}
+          </button>
+        </div>
+
+        {/* 閉じるボタン */}
         <button
           onClick={handleCancel}
           style={{
@@ -653,7 +758,7 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
             cursor: 'pointer'
           }}
         >
-          キャンセル
+          閉じる
         </button>
       </div>
     </div>
