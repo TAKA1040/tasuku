@@ -2,6 +2,9 @@
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 
+// Dynamic import to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export default function LoginPage() {
   const supabase = createClient()
   const [error, setError] = useState<string | null>(null)

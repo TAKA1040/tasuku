@@ -7,6 +7,9 @@ import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { formatDateForDisplay } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
 
+// Dynamic import to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export default function DonePage() {
   const { isInitialized, error } = useDatabase()
   const { loading: tasksLoading, getAllCompletedTasks } = useTasks(isInitialized)
