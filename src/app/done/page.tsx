@@ -6,17 +6,23 @@ import { useTasks } from '@/hooks/useTasks'
 import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { formatDateForDisplay } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
+import { TaskEditForm } from '@/components/TaskEditForm'
+import type { Task } from '@/lib/db/schema'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
 
 export default function DonePage() {
   const { isInitialized, error } = useDatabase()
-  const { loading: tasksLoading, getAllCompletedTasks } = useTasks(isInitialized)
+  const { loading: tasksLoading, getAllCompletedTasks, updateTask, uncompleteTask } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayCompletedRecurringTasks } = useRecurringTasks(isInitialized)
   
   // 期間フィルタリング
   const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'all'>('today')
+
+  // 編集状態管理
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
   
   if (error) {
     return (
@@ -66,6 +72,21 @@ export default function DonePage() {
 
   const completedTasks = getCompletedTasksByPeriod()
   const completedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
+
+  // 編集関数
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task)
+    setShowEditForm(true)
+  }
+
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
+    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingTask(null)
+    setShowEditForm(false)
+  }
 
   return (
     <div style={{
@@ -192,10 +213,19 @@ export default function DonePage() {
             completedRecurringTasks={[]}
             onComplete={() => {}} // 完了済みなのでアクションなし
             onRecurringComplete={() => {}} // 完了済みなのでアクションなし
-            onEdit={() => {}} // 完了済みなので編集なし
+            onEdit={handleEditTask}
           />
         )}
       </main>
+
+      {/* タスク編集フォーム */}
+      <TaskEditForm
+        task={editingTask}
+        isVisible={showEditForm}
+        onSubmit={handleUpdateTask}
+        onCancel={handleCancelEdit}
+        onUncomplete={uncompleteTask}
+      />
     </div>
   )
 }
