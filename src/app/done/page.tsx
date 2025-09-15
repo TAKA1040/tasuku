@@ -41,7 +41,7 @@ export default function DonePage() {
     )
   }
   
-  if (!isInitialized || tasksLoading || recurringLoading || !getAllCompletedTasks) {
+  if (!isInitialized || tasksLoading || recurringLoading || typeof getAllCompletedTasks !== 'function') {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
@@ -50,7 +50,7 @@ export default function DonePage() {
           状態: DB初期化{isInitialized ? '済' : '中'} /
           タスク読み込み{tasksLoading ? '中' : '完了'} /
           繰り返し読み込み{recurringLoading ? '中' : '完了'} /
-          関数利用{getAllCompletedTasks ? '可' : '不可'}
+          関数利用{typeof getAllCompletedTasks === 'function' ? '可' : '不可'}
         </div>
       </div>
     )
@@ -58,7 +58,7 @@ export default function DonePage() {
 
   // 期間別完了タスク取得
   const getCompletedTasksByPeriod = () => {
-    if (!getAllCompletedTasks || !isInitialized) {
+    if (typeof getAllCompletedTasks !== 'function' || !isInitialized) {
       console.log('Done Page: getAllCompletedTasks not available yet')
       return []
     }
