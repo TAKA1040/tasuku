@@ -1,7 +1,172 @@
-期日とタイプの項目を同期
+（インデックス）:1  Failed to load resource: the server responded with a status of 500 ()
 
-今日となってるところに毎日と表示
-おなじく曜日指定などは毎週金曜日とか
-あと、期限があるもは単発ではなく期日を表示。
 
-このようなルール変更をすれば、１項目減らせるはず。
+[16:02:12.372] Running build in Washington, D.C., USA (East) – iad1
+[16:02:12.373] Build machine configuration: 2 cores, 8 GB
+[16:02:12.403] Retrieving list of deployment files...
+[16:02:12.515] Previous build caches not available
+[16:02:12.942] Downloading 116 deployment files...
+[16:02:14.680] Running "vercel build"
+[16:02:15.502] Vercel CLI 47.1.1
+[16:02:16.157] Installing dependencies...
+[16:02:27.839] 
+[16:02:27.841] added 326 packages in 11s
+[16:02:27.842] 
+[16:02:27.842] 133 packages are looking for funding
+[16:02:27.842]   run `npm fund` for details
+[16:02:27.898] Detected Next.js version: 15.5.3
+[16:02:27.901] Running "npm run build"
+[16:02:28.015] 
+[16:02:28.015] > tasuku@0.1.0 build
+[16:02:28.016] > next build
+[16:02:28.016] 
+[16:02:28.707] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[16:02:28.707] This information is used to shape Next.js' roadmap and prioritize features.
+[16:02:28.708] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[16:02:28.708] https://nextjs.org/telemetry
+[16:02:28.708] 
+[16:02:28.765]    ▲ Next.js 15.5.3
+[16:02:28.766] 
+[16:02:28.884]    Creating an optimized production build ...
+[16:02:39.161] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[16:02:39.349]  ⚠ Compiled with warnings in 2.2s
+[16:02:39.349] 
+[16:02:39.349] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[16:02:39.350] A Node.js API is used (process.versions at line: 35) which is not supported in the Edge Runtime.
+[16:02:39.350] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[16:02:39.350] 
+[16:02:39.350] Import trace for requested module:
+[16:02:39.350] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[16:02:39.350] ./node_modules/@supabase/realtime-js/dist/module/index.js
+[16:02:39.350] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[16:02:39.350] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[16:02:39.350] ./node_modules/@supabase/ssr/dist/module/index.js
+[16:02:39.350] 
+[16:02:39.350] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[16:02:39.351] A Node.js API is used (process.version at line: 24) which is not supported in the Edge Runtime.
+[16:02:39.351] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[16:02:39.351] 
+[16:02:39.351] Import trace for requested module:
+[16:02:39.351] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[16:02:39.351] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[16:02:39.351] ./node_modules/@supabase/ssr/dist/module/index.js
+[16:02:39.352] 
+[16:02:44.668]  ✓ Compiled successfully in 13.1s
+[16:02:44.673]    Linting and checking validity of types ...
+[16:02:53.869] 
+[16:02:53.870] ./src/app/done/page.tsx
+[16:02:53.870] 3:20  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.870] 7:10  Warning: 'formatDateForDisplay' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.871] 
+[16:02:53.871] ./src/app/manage/page.tsx
+[16:02:53.871] 32:10  Warning: 'showCreateTaskForm' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.871] 
+[16:02:53.871] ./src/components/SwipeableTaskRow.tsx
+[16:02:53.872] 99:9  Warning: 'handleMouseMove' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.872] 180:6  Warning: React Hook useEffect has a missing dependency: 'handleMouseUp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[16:02:53.872] 
+[16:02:53.872] ./src/components/TaskTable.tsx
+[16:02:53.873] 27:9  Warning: 'getUrgencyStyle' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.873] 
+[16:02:53.873] ./src/components/VoiceInputButton.tsx
+[16:02:53.873] 17:5  Warning: 'transcript' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.873] 
+[16:02:53.873] ./src/hooks/useRecurringTasks.ts
+[16:02:53.874] 116:13  Warning: 'newLog' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.874] 
+[16:02:53.874] ./src/hooks/useRollover.ts
+[16:02:53.874] 11:36  Warning: 'RecurringLog' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.875] 65:6  Warning: React Hook useEffect has missing dependencies: 'autoRollover' and 'executeAutoRollover'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[16:02:53.875] 94:17  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.875] 94:21  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.875] 94:33  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.875] 164:19  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.876] 164:23  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.877] 164:35  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.877] 186:21  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.878] 186:25  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.878] 186:37  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.881] 
+[16:02:53.887] ./src/hooks/useStatistics.ts
+[16:02:53.887] 220:10  Warning: 'getNextDate' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.887] 
+[16:02:53.888] ./src/hooks/useTasks.ts
+[16:02:53.888] 284:6  Warning: React Hook useEffect has a missing dependency: 'loadTasks'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[16:02:53.888] 
+[16:02:53.890] ./src/lib/db/seed.ts
+[16:02:53.890] 94:13  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.890] 94:17  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.891] 94:29  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.891] 99:13  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.891] 99:17  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.891] 99:29  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.891] 
+[16:02:53.891] ./src/lib/db/supabase-database.ts
+[16:02:53.892] 16:8  Warning: 'TaskWithUrgency' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.892] 17:8  Warning: 'UrgencyLevel' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.892] 68:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.892] 84:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.892] 96:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.898] 108:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.898] 124:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 151:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 167:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 179:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 191:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 224:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 263:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.899] 274:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 285:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 347:27  Warning: 'tag' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 355:27  Warning: 'id' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 363:27  Warning: 'item' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 371:27  Warning: 'source' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 371:43  Warning: 'sourceId' is defined but never used.  @typescript-eslint/no-unused-vars
+[16:02:53.900] 
+[16:02:53.901] info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+[16:02:56.146]    Collecting page data ...
+[16:02:58.461]    Generating static pages (0/3) ...
+[16:02:59.096]  ✓ Generating static pages (3/3)
+[16:02:59.840]    Finalizing page optimization ...
+[16:02:59.842]    Collecting build traces ...
+[16:03:06.628] 
+[16:03:06.640] Route (app)                                 Size  First Load JS
+[16:03:06.641] ┌ ƒ /                                      133 B         102 kB
+[16:03:06.641] ├ ƒ /_not-found                            994 B         103 kB
+[16:03:06.641] ├ ƒ /api/fix-profiles                      133 B         102 kB
+[16:03:06.641] ├ ƒ /auth/auth-code-error                  987 B         103 kB
+[16:03:06.641] ├ ƒ /auth/callback                         133 B         102 kB
+[16:03:06.641] ├ ƒ /auth/status                           280 B         102 kB
+[16:03:06.641] ├ ƒ /debug                                 739 B         152 kB
+[16:03:06.641] ├ ƒ /debug/auth                          1.59 kB         146 kB
+[16:03:06.641] ├ ƒ /done                                1.69 kB         157 kB
+[16:03:06.641] ├ ƒ /login                               1.72 kB         146 kB
+[16:03:06.641] ├ ƒ /manage                              3.83 kB         155 kB
+[16:03:06.641] ├ ƒ /search                              3.24 kB         161 kB
+[16:03:06.641] ├ ƒ /simple                                133 B         102 kB
+[16:03:06.641] ├ ƒ /simple-today                        1.95 kB         104 kB
+[16:03:06.641] ├ ƒ /statistics                          3.69 kB         155 kB
+[16:03:06.641] ├ ƒ /stats                               2.42 kB         154 kB
+[16:03:06.641] ├ ƒ /test                                  133 B         102 kB
+[16:03:06.641] ├ ƒ /test-db                               931 B         103 kB
+[16:03:06.642] └ ƒ /today                               14.9 kB         172 kB
+[16:03:06.642] + First Load JS shared by all             102 kB
+[16:03:06.642]   ├ chunks/255-40634877ae3e8e9d.js       45.7 kB
+[16:03:06.642]   ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+[16:03:06.642]   └ other shared chunks (total)          1.96 kB
+[16:03:06.642] 
+[16:03:06.642] 
+[16:03:06.642] ƒ Middleware                               70 kB
+[16:03:06.642] 
+[16:03:06.642] ƒ  (Dynamic)  server-rendered on demand
+[16:03:06.642] 
+[16:03:06.796] Traced Next.js server files in: 87.26ms
+[16:03:07.149] Created all serverless functions in: 352.029ms
+[16:03:07.215] Collected static files (public/, static/, .next/static): 5.644ms
+[16:03:07.298] Build Completed in /vercel/output [51s]
+[16:03:07.463] Deploying outputs...
+[16:03:20.389] Deployment completed
+[16:03:21.221] Creating build cache...
+[16:03:33.071] Created build cache: 11.849s
+[16:03:33.074] Uploading build cache [162.27 MB]
+[16:03:36.022] Build cache uploaded: 2.948s

@@ -12,12 +12,11 @@ import { Task } from '@/lib/db/schema'
 
 export default function SearchPage() {
   const { isInitialized, error } = useDatabase()
-  const { 
-    allTasks, 
-    loading: tasksLoading, 
-    completeTask, 
-    quickMoveTask,
-    updateTask 
+  const {
+    allTasks,
+    loading: tasksLoading,
+    completeTask,
+    updateTask
   } = useTasks(isInitialized)
   const { 
     allRecurringTasks, 
@@ -263,7 +262,6 @@ export default function SearchPage() {
               completedRecurringTasks={[]}
               onComplete={completeTask}
               onRecurringComplete={completeRecurringTask}
-              onQuickMove={quickMoveTask}
               onEdit={handleEditTask}
             />
           </section>

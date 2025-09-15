@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { QuickMoves } from '@/lib/utils/date-jst'
 import type { TaskWithUrgency, Task, RecurringTask } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
@@ -14,7 +13,6 @@ interface TaskTableProps {
   completedRecurringTasks?: RecurringTaskWithStatus[]
   onComplete: (taskId: string) => void
   onRecurringComplete: (taskId: string) => void
-  onQuickMove: (taskId: string, newDueDate: string) => void
   onEdit?: (task: Task) => void
   onEditRecurring?: (task: RecurringTask) => void
   onUncomplete?: (taskId: string) => void
@@ -23,7 +21,7 @@ interface TaskTableProps {
   onDeleteRecurring?: (taskId: string) => void
 }
 
-export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onQuickMove, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
+export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
   const getUrgencyStyle = (urgency: string) => {
     switch (urgency) {
       case 'Overdue':
@@ -621,87 +619,11 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     </button>
                   )}
 
-                  {/* 状態・クイック移動ボタン */}
+                  {/* 状態表示 */}
                   {item.isCompleted ? (
                     <span style={{ fontSize: '12px', color: '#10b981' }}>完了済み</span>
                   ) : !item.isRecurring && (
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <button
-                      onClick={() => onQuickMove(item.id, QuickMoves.tomorrow())}
-                      style={{
-                        padding: '3px 6px',
-                        fontSize: '11px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '3px',
-                        backgroundColor: '#fff',
-                        color: '#374151',
-                        cursor: 'pointer',
-                        minWidth: '32px',
-                        transition: 'all 0.15s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6'
-                        e.currentTarget.style.borderColor = '#9ca3af'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fff'
-                        e.currentTarget.style.borderColor = '#d1d5db'
-                      }}
-                      title="明日に移動"
-                    >
-                      明日
-                    </button>
-                    <button
-                      onClick={() => onQuickMove(item.id, QuickMoves.plus3Days())}
-                      style={{
-                        padding: '3px 6px',
-                        fontSize: '11px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '3px',
-                        backgroundColor: '#fff',
-                        color: '#374151',
-                        cursor: 'pointer',
-                        minWidth: '36px',
-                        transition: 'all 0.15s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6'
-                        e.currentTarget.style.borderColor = '#9ca3af'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fff'
-                        e.currentTarget.style.borderColor = '#d1d5db'
-                      }}
-                      title="3日後に移動"
-                    >
-                      +3日
-                    </button>
-                    <button
-                      onClick={() => onQuickMove(item.id, QuickMoves.endOfMonth())}
-                      style={{
-                        padding: '3px 6px',
-                        fontSize: '11px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '3px',
-                        backgroundColor: '#fff',
-                        color: '#374151',
-                        cursor: 'pointer',
-                        minWidth: '42px',
-                        transition: 'all 0.15s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6'
-                        e.currentTarget.style.borderColor = '#9ca3af'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fff'
-                        e.currentTarget.style.borderColor = '#d1d5db'
-                      }}
-                      title="今月末に移動"
-                    >
-                      月末
-                    </button>
-                  </div>
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>-</span>
                   )}
                 </div>
               </td>

@@ -192,7 +192,6 @@ export default function DonePage() {
             completedRecurringTasks={[]}
             onComplete={() => {}} // 完了済みなのでアクションなし
             onRecurringComplete={() => {}} // 完了済みなのでアクションなし
-            onQuickMove={() => {}} // 完了済みなのでアクションなし
             onEdit={() => {}} // 完了済みなので編集なし
           />
         )}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { Task } from '@/lib/db/schema'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
+import { QuickMoves } from '@/lib/utils/date-jst'
 
 interface TaskEditFormProps {
   task: Task | null
@@ -290,6 +291,88 @@ export function TaskEditForm({ task, onSubmit, onCancel, isVisible }: TaskEditFo
                 boxSizing: 'border-box'
               }}
             />
+
+            {/* クイック移動ボタン */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '8px',
+              alignItems: 'center'
+            }}>
+              <span style={{ fontSize: '12px', color: '#6b7280' }}>クイック設定:</span>
+              <button
+                type="button"
+                onClick={() => setDueDate(QuickMoves.tomorrow())}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6'
+                  e.currentTarget.style.borderColor = '#9ca3af'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff'
+                  e.currentTarget.style.borderColor = '#d1d5db'
+                }}
+              >
+                明日
+              </button>
+              <button
+                type="button"
+                onClick={() => setDueDate(QuickMoves.plus3Days())}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6'
+                  e.currentTarget.style.borderColor = '#9ca3af'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff'
+                  e.currentTarget.style.borderColor = '#d1d5db'
+                }}
+              >
+                +3日
+              </button>
+              <button
+                type="button"
+                onClick={() => setDueDate(QuickMoves.endOfMonth())}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6'
+                  e.currentTarget.style.borderColor = '#9ca3af'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff'
+                  e.currentTarget.style.borderColor = '#d1d5db'
+                }}
+              >
+                月末
+              </button>
+            </div>
           </div>
 
           {/* URL管理セクション */}

@@ -22,7 +22,7 @@ import { AuthStatus } from '@/components/AuthStatus'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
-  const { loading: tasksLoading, getTodayTasks, getTodayCompletedTasks, getUpcomingTasks, completeTask, quickMoveTask, createTask, updateTask, uncompleteTask, deleteTask, allTasks } = useTasks(isInitialized)
+  const { loading: tasksLoading, getTodayTasks, getTodayCompletedTasks, getUpcomingTasks, completeTask, createTask, updateTask, uncompleteTask, deleteTask, allTasks } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayRecurringTasks, getTodayCompletedRecurringTasks, getUpcomingRecurringTasks, completeRecurringTask, createRecurringTask, uncompleteRecurringTask, updateRecurringTask, deleteRecurringTask, allRecurringTasks } = useRecurringTasks(isInitialized)
   const { ideas, addIdea, toggleIdea, deleteIdea } = useIdeas()
   
@@ -343,7 +343,6 @@ export default function TodayPage() {
             completedRecurringTasks={todayCompletedRecurringTasks}
             onComplete={completeTask}
             onRecurringComplete={completeRecurringTask}
-            onQuickMove={quickMoveTask}
             onEdit={handleEditTask}
             onEditRecurring={handleEditRecurringTask}
             onUncomplete={uncompleteTask}
