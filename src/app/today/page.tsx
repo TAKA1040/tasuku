@@ -92,7 +92,7 @@ export default function TodayPage() {
   const upcomingTasks = isInitialized ? getUpcomingTasks() : []
   const upcomingRecurringTasks = isInitialized ? getUpcomingRecurringTasks() : []
   
-  // Combine upcoming tasks for preview
+  // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
   const allUpcoming = [
     ...upcomingTasks,
     ...upcomingRecurringTasks.map(item => ({
@@ -104,7 +104,7 @@ export default function TodayPage() {
       urgency: 'Normal' as const,
       days_from_today: item.daysFromToday
     }))
-  ].sort((a, b) => a.days_from_today - b.days_from_today).slice(0, 3)
+  ].sort((a, b) => a.days_from_today - b.days_from_today)
 
 
   const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => {

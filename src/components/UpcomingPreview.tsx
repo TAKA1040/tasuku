@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 // import { QuickMoves } from '@/lib/utils/date-jst' // 将来使用予定
 
@@ -11,20 +12,44 @@ interface UpcomingPreviewProps {
 }
 
 export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }: UpcomingPreviewProps) {
-  if (upcomingTasks.length === 0) {
+  // 表示期間フィルター状態
+  const [showDays, setShowDays] = useState<number>(7)
+
+  // 選択した日数でフィルタリング
+  const filteredTasks = upcomingTasks.filter(task => task.days_from_today <= showDays)
+
+  if (filteredTasks.length === 0) {
     return (
       <section>
-        <h2 style={{ fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}>
-          近々の予告（7日以内）
-        </h2>
-        <div style={{ 
-          background: '#f8fafc', 
-          padding: '16px', 
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: '500', margin: '0' }}>
+            近々の予告（{showDays}日以内）
+          </h2>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12px' }}>
+            <span style={{ color: '#6b7280' }}>表示期間:</span>
+            {[7, 14, 30].map(days => (
+              <label key={days} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="showDays"
+                  value={days}
+                  checked={showDays === days}
+                  onChange={() => setShowDays(days)}
+                  style={{ margin: '0', cursor: 'pointer' }}
+                />
+                {days}日
+              </label>
+            ))}
+          </div>
+        </div>
+        <div style={{
+          background: '#f8fafc',
+          padding: '16px',
           borderRadius: '6px',
           fontSize: '14px',
           color: '#6b7280'
         }}>
-          予告はありません
+          {showDays}日以内に予告はありません
         </div>
       </section>
     )
@@ -32,16 +57,34 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
 
   return (
     <section>
-      <h2 style={{ fontSize: '16px', fontWeight: '500', marginBottom: '12px' }}>
-        近々の予告（7日以内）
-      </h2>
-      <div style={{ 
-        background: '#f8fafc', 
-        padding: '16px', 
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '500', margin: '0' }}>
+          近々の予告（{showDays}日以内・{filteredTasks.length}件）
+        </h2>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12px' }}>
+          <span style={{ color: '#6b7280' }}>表示期間:</span>
+          {[7, 14, 30].map(days => (
+            <label key={days} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="showDays"
+                value={days}
+                checked={showDays === days}
+                onChange={() => setShowDays(days)}
+                style={{ margin: '0', cursor: 'pointer' }}
+              />
+              {days}日
+            </label>
+          ))}
+        </div>
+      </div>
+      <div style={{
+        background: '#f8fafc',
+        padding: '16px',
         borderRadius: '6px',
         fontSize: '14px'
       }}>
-        {upcomingTasks.map(({ task, days_from_today }) => (
+        {filteredTasks.map(({ task, days_from_today }) => (
           <div 
             key={task.id}
             style={{ 
@@ -49,7 +92,7 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
               justifyContent: 'space-between', 
               alignItems: 'center',
               padding: '8px 0',
-              borderBottom: upcomingTasks[upcomingTasks.length - 1].task.id !== task.id ? '1px solid #e2e8f0' : 'none'
+              borderBottom: filteredTasks[filteredTasks.length - 1].task.id !== task.id ? '1px solid #e2e8f0' : 'none'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
