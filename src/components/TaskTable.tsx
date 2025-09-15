@@ -249,13 +249,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-              <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px', display: 'none' }} className="date-type-desktop-only">期日/タイプ</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderTop: '1px solid #e5e7eb' }}>
-              <td colSpan={5} style={{
+              <td colSpan={4} className="mobile-colspan" style={{
                 padding: '16px',
                 textAlign: 'center',
                 color: '#6b7280'
@@ -277,7 +277,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
+            <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px', display: 'none' }} className="date-type-desktop-only">期日/タイプ</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
           </tr>
         </thead>
@@ -384,8 +384,10 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   {item.memo && (
                     <span style={{
                       color: '#6b7280',
-                      fontSize: '13px'
-                    }}>
+                      fontSize: '13px',
+                      display: 'none'
+                    }}
+                    className="memo-desktop-only">
                       - {item.memo}
                     </span>
                   )}
@@ -394,7 +396,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
               <td style={{ padding: '2px', textAlign: 'center' }}>
                 {renderUrlIcon(item.urls)}
               </td>
-              <td style={{ padding: '2px 4px', fontSize: '13px' }}>
+              <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
                 {getDateTypeDisplay(item)}
               </td>
               <td style={{ padding: '2px' }}>

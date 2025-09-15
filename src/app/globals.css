@@ -33,4 +33,33 @@
     flex: 1 !important;
     padding: 8px 16px !important;
   }
+
+  /* TaskTable mobile optimizations */
+  .memo-desktop-only {
+    display: none !important;
+  }
+
+  .date-type-desktop-only {
+    display: none !important;
+  }
+
+  .mobile-colspan {
+    /* Adjust colspan for mobile - hide date/type column */
+    /* Using CSS to handle responsive colspan */
+  }
+}
+
+/* Desktop display for memo and date/type */
+@media (min-width: 769px) {
+  .memo-desktop-only {
+    display: inline !important;
+  }
+
+  .date-type-desktop-only {
+    display: table-cell !important;
+  }
+
+  .mobile-colspan {
+    /* Desktop uses full colspan */
+  }
 }
