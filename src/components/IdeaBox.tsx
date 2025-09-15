@@ -19,6 +19,7 @@ interface IdeaBoxProps {
 export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
   const [newIdea, setNewIdea] = useState('')
   const [isAdding, setIsAdding] = useState(false)
+  const [showIdeaBox, setShowIdeaBox] = useState(false) // デフォルトは非表示
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,37 +35,49 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
 
   return (
     <div style={{ backgroundColor: '#f8fafc', padding: '12px' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '8px' 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '8px'
       }}>
-        <h2 style={{ 
-          fontSize: '16px', 
-          fontWeight: '600', 
-          margin: '0',
-          color: '#1f2937'
-        }}>
-          💡 やることリスト
-        </h2>
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          style={{
-            background: '#059669',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '12px',
-            cursor: 'pointer'
-          }}
-        >
-          {isAdding ? '✕' : '+ 追加'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showIdeaBox}
+              onChange={(e) => setShowIdeaBox(e.target.checked)}
+              style={{ margin: '0', cursor: 'pointer' }}
+            />
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              margin: '0',
+              color: '#1f2937'
+            }}>
+              💡 やることリスト
+            </h2>
+          </label>
+        </div>
+        {showIdeaBox && (
+          <button
+            onClick={() => setIsAdding(!isAdding)}
+            style={{
+              background: '#059669',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            {isAdding ? '✕' : '+ 追加'}
+          </button>
+        )}
       </div>
 
-      {isAdding && (
+      {showIdeaBox && isAdding && (
         <form onSubmit={handleSubmit} style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <input
@@ -100,16 +113,18 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
         </form>
       )}
 
-      <div style={{ 
-        fontSize: '12px', 
-        color: '#6b7280', 
-        marginBottom: '8px' 
-      }}>
-        期限なし・自由なアイデア帳
-      </div>
+      {showIdeaBox && (
+        <>
+          <div style={{
+            fontSize: '12px',
+            color: '#6b7280',
+            marginBottom: '8px'
+          }}>
+            期限なし・自由なアイデア帳
+          </div>
 
-      {/* 未完了のアイデア */}
-      {pendingIdeas.length > 0 && (
+          {/* 未完了のアイデア */}
+          {pendingIdeas.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           {pendingIdeas.map((idea) => (
             <div
@@ -162,10 +177,10 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
             </div>
           ))}
         </div>
-      )}
+          )}
 
-      {/* 完了したアイデア */}
-      {completedIdeas.length > 0 && (
+          {/* 完了したアイデア */}
+          {completedIdeas.length > 0 && (
         <details style={{ marginTop: '12px' }}>
           <summary style={{ 
             fontSize: '12px', 
@@ -229,18 +244,20 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
             </div>
           ))}
         </details>
-      )}
+          )}
 
-      {ideas.length === 0 && !isAdding && (
-        <div style={{ 
-          textAlign: 'center', 
-          color: '#9ca3af', 
-          fontSize: '14px',
-          padding: '16px'
-        }}>
-          まだアイデアがありません<br />
-          「+ 追加」でやりたいことを追加しましょう！
-        </div>
+          {ideas.length === 0 && !isAdding && (
+            <div style={{
+              textAlign: 'center',
+              color: '#9ca3af',
+              fontSize: '14px',
+              padding: '16px'
+            }}>
+              まだアイデアがありません<br />
+              「+ 追加」でやりたいことを追加しましょう！
+            </div>
+          )}
+        </>
       )}
     </div>
   )
