@@ -6,6 +6,9 @@ export const metadata = {
   }
 }
 
+// Disable static optimization for all pages to prevent Supabase client issues during build
+export const dynamic = 'force-dynamic'
+
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
