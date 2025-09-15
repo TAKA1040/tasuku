@@ -6,7 +6,7 @@ import type { TaskWithUrgency } from '@/lib/db/schema'
 interface UpcomingPreviewProps {
   upcomingTasks: TaskWithUrgency[]
   onComplete: (taskId: string) => void
-  onEdit: (task: any) => void
+  onEdit: (task: { id: string; title: string; memo?: string; due_date?: string; category?: string; importance?: number; duration_min?: number; urls?: string[] }) => void
   onDelete: (taskId: string) => void
 }
 

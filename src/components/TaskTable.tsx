@@ -91,7 +91,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
   }
 
   // 期日とタイプを統合した表示
-  const getDateTypeDisplay = (item: any) => {
+  const getDateTypeDisplay = (item: { isRecurring?: boolean; type?: string; dueDate?: string }) => {
     if (item.isRecurring) {
       // 繰り返しタスクの場合はパターンを表示
       return item.type // 「毎日」「毎週金曜日」など
