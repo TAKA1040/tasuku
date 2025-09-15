@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/client'
 import { useState, useEffect, useCallback } from 'react'
 import type { User } from '@supabase/supabase-js'
 
+// Dynamic import to prevent static generation
+export const dynamic = 'force-dynamic'
+
 interface Profile {
   id: string
   email: string | null
