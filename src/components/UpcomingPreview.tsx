@@ -15,29 +15,36 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
   // 表示期間フィルター状態
   const [showDays, setShowDays] = useState<number>(7)
 
-  // 選択した日数でフィルタリング
-  const filteredTasks = upcomingTasks.filter(task => task.days_from_today <= showDays)
+  // 選択した日数でフィルタリング（全期間の場合は制限なし）
+  const filteredTasks = showDays === 99999
+    ? upcomingTasks
+    : upcomingTasks.filter(task => task.days_from_today <= showDays)
 
   if (filteredTasks.length === 0) {
     return (
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: '500', margin: '0' }}>
-            近々の予告（{showDays}日以内）
+            近々の予告（{showDays === 99999 ? '全期間' : `${showDays}日以内`}）
           </h2>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12px' }}>
             <span style={{ color: '#6b7280' }}>表示期間:</span>
-            {[7, 14, 30].map(days => (
-              <label key={days} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
+            {[
+              { value: 7, label: '7日' },
+              { value: 30, label: '30日' },
+              { value: 90, label: '3ヶ月' },
+              { value: 99999, label: '全期間' }
+            ].map(({ value, label }) => (
+              <label key={value} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
                 <input
                   type="radio"
                   name="showDays"
-                  value={days}
-                  checked={showDays === days}
-                  onChange={() => setShowDays(days)}
+                  value={value}
+                  checked={showDays === value}
+                  onChange={() => setShowDays(value)}
                   style={{ margin: '0', cursor: 'pointer' }}
                 />
-                {days}日
+                {label}
               </label>
             ))}
           </div>
@@ -49,7 +56,7 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
           fontSize: '14px',
           color: '#6b7280'
         }}>
-          {showDays}日以内に予告はありません
+          {showDays === 99999 ? '予告はありません' : `${showDays}日以内に予告はありません`}
         </div>
       </section>
     )
@@ -59,21 +66,26 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
     <section>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: '500', margin: '0' }}>
-          近々の予告（{showDays}日以内・{filteredTasks.length}件）
+          近々の予告（{showDays === 99999 ? '全期間' : `${showDays}日以内`}・{filteredTasks.length}件）
         </h2>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12px' }}>
           <span style={{ color: '#6b7280' }}>表示期間:</span>
-          {[7, 14, 30].map(days => (
-            <label key={days} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
+          {[
+            { value: 7, label: '7日' },
+            { value: 30, label: '30日' },
+            { value: 90, label: '3ヶ月' },
+            { value: 99999, label: '全期間' }
+          ].map(({ value, label }) => (
+            <label key={value} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#374151', cursor: 'pointer' }}>
               <input
                 type="radio"
                 name="showDays"
-                value={days}
-                checked={showDays === days}
-                onChange={() => setShowDays(days)}
+                value={value}
+                checked={showDays === value}
+                onChange={() => setShowDays(value)}
                 style={{ margin: '0', cursor: 'pointer' }}
               />
-              {days}日
+              {label}
             </label>
           ))}
         </div>
