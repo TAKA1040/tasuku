@@ -41,25 +41,15 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
         alignItems: 'center',
         marginBottom: '8px'
       }}>
+        <h2 style={{
+          fontSize: '16px',
+          fontWeight: '600',
+          margin: '0',
+          color: '#1f2937'
+        }}>
+          💡 やることリスト
+        </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={showIdeaBox}
-              onChange={(e) => setShowIdeaBox(e.target.checked)}
-              style={{ margin: '0', cursor: 'pointer' }}
-            />
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              margin: '0',
-              color: '#1f2937'
-            }}>
-              💡 やることリスト
-            </h2>
-          </label>
-        </div>
-        {showIdeaBox && (
           <button
             onClick={() => setIsAdding(!isAdding)}
             style={{
@@ -74,10 +64,26 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
           >
             {isAdding ? '✕' : '+ 追加'}
           </button>
-        )}
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showIdeaBox}
+              onChange={(e) => setShowIdeaBox(e.target.checked)}
+              style={{ margin: '0', cursor: 'pointer' }}
+            />
+            <span style={{
+              marginLeft: '4px',
+              fontSize: '14px',
+              color: showIdeaBox ? '#059669' : '#9ca3af',
+              fontWeight: '500'
+            }}>
+              ✓
+            </span>
+          </label>
+        </div>
       </div>
 
-      {showIdeaBox && isAdding && (
+      {isAdding && (
         <form onSubmit={handleSubmit} style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <input
