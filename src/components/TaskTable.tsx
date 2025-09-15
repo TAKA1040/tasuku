@@ -37,48 +37,6 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }
   }
 
-  // Swingdo風スマート優先度計算
-  const getSmartPriority = (item: { isRecurring?: boolean; urgency?: string; importance?: number; days?: number }) => {
-    if (item.isRecurring) return '習慣'
-    
-    const urgencyScores: Record<string, number> = {
-      'Overdue': 100,
-      'Soon': 80,
-      'Next7': 60,
-      'Next30': 40,
-      'Normal': 20
-    }
-    const urgencyScore = urgencyScores[item.urgency || 'Normal'] || 20
-    
-    const importanceBonus = (item.importance || 1) * 8
-    const daysBonus = Math.max(0, 30 - Math.abs(item.days || 0)) / 2
-    const totalScore = urgencyScore + importanceBonus + daysBonus
-    
-    if (totalScore >= 120) return '最優先'
-    if (totalScore >= 100) return '優先'
-    if (totalScore >= 70) return '普通'
-    return '低'
-  }
-
-  const getPriorityStyle = (priority: string) => {
-    const styles = {
-      '最優先': { backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' },
-      '優先': { backgroundColor: '#fef3c7', color: '#d97706', border: '1px solid #fcd34d' },
-      '普通': { backgroundColor: '#e0f2fe', color: '#0284c7', border: '1px solid #7dd3fc' },
-      '低': { backgroundColor: '#f3f4f6', color: '#6b7280', border: '1px solid #d1d5db' },
-      '習慣': { backgroundColor: '#f0fdf4', color: '#059669', border: '1px solid #86efac' }
-    }
-    return { 
-      ...styles[priority as keyof typeof styles], 
-      padding: '1px 4px', 
-      borderRadius: '4px', 
-      fontSize: '11px',
-      fontWeight: '500',
-      display: 'inline-block',
-      minWidth: '36px',
-      textAlign: 'center' as const
-    }
-  }
 
 
   const formatDueDate = (dueDate?: string) => {
@@ -292,14 +250,12 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
               <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
-              <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
-              <th style={{ padding: '2px 4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderTop: '1px solid #e5e7eb' }}>
-              <td colSpan={7} style={{
+              <td colSpan={5} style={{
                 padding: '16px',
                 textAlign: 'center',
                 color: '#6b7280'
@@ -322,8 +278,6 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
             <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日/タイプ</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>カテゴリ</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '50px', fontSize: '11px' }}>優先度</th>
             <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
           </tr>
         </thead>
@@ -442,14 +396,6 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
               </td>
               <td style={{ padding: '2px 4px', fontSize: '13px' }}>
                 {getDateTypeDisplay(item)}
-              </td>
-              <td style={{ padding: '2px 4px', fontSize: '13px', color: '#6b7280' }}>
-                {item.category || '-'}
-              </td>
-              <td style={{ padding: '2px' }}>
-                <span style={getPriorityStyle(getSmartPriority(item))}>
-                  {getSmartPriority(item)}
-                </span>
               </td>
               <td style={{ padding: '2px' }}>
                 <div style={{
