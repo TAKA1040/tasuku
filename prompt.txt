@@ -1,10 +1,5 @@
-react-dom-client.development.js:25631 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
 C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
 C:\Windsurf\tasuku\src\hooks\useRecurringTasks.ts:26 Database not yet initialized, skipping recurring data loading
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:43 Supabase Database initialized
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:46 Dev features initialized
@@ -12,13 +7,11 @@ C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.re
 C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: Object
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: {tasks: 8, recurringTasks: 5, recurringLogs: 1}
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
-C:\Windsurf\tasuku\src\app\done\page.tsx:48 Done Page Debug: Object
+C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 0, period: 'today', sampleCompleted: Array(0)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 0, period: 'today', sampleCompleted: Array(0)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:24 Database initialized, forcing re-render for done page
+C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 4, period: 'today', sampleCompleted: Array(2)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:67 Done Page Debug: {isInitialized: true, getAllCompletedTasksExists: true, allCompletedLength: 4, period: 'today', sampleCompleted: Array(2)}
+C:\Windsurf\tasuku\src\app\done\page.tsx:24 Database initialized, forcing re-render for done page

@@ -17,13 +17,6 @@ export default function DonePage() {
   const { loading: tasksLoading, getAllCompletedTasks, updateTask, uncompleteTask } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayCompletedRecurringTasks } = useRecurringTasks(isInitialized)
 
-  // データ再読み込み用のeffect
-  useEffect(() => {
-    // データベース初期化後に再レンダリングを強制
-    if (isInitialized && !tasksLoading && !recurringLoading) {
-      console.log('Database initialized, forcing re-render for done page')
-    }
-  }, [isInitialized, tasksLoading, recurringLoading])
   
   // 期間フィルタリング
   const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'all'>('today')
@@ -46,12 +39,6 @@ export default function DonePage() {
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
         <p>完了済みタスクを準備しています</p>
-        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-          状態: DB初期化{isInitialized ? '済' : '中'} /
-          タスク読み込み{tasksLoading ? '中' : '完了'} /
-          繰り返し読み込み{recurringLoading ? '中' : '完了'} /
-          関数利用{typeof getAllCompletedTasks === 'function' ? '可' : '不可'}
-        </div>
       </div>
     )
   }
@@ -59,23 +46,10 @@ export default function DonePage() {
   // 期間別完了タスク取得
   const getCompletedTasksByPeriod = () => {
     if (typeof getAllCompletedTasks !== 'function' || !isInitialized) {
-      console.log('Done Page: getAllCompletedTasks not available yet')
       return []
     }
 
     const allCompleted = getAllCompletedTasks()
-    console.log('Done Page Debug:', {
-      isInitialized,
-      getAllCompletedTasksExists: !!getAllCompletedTasks,
-      allCompletedLength: allCompleted.length,
-      period,
-      sampleCompleted: allCompleted.slice(0, 2).map(t => ({
-        id: t.task.id,
-        title: t.task.title,
-        completed_at: t.task.completed_at,
-        completed: t.task.completed
-      }))
-    })
     const today = new Date().toLocaleDateString('ja-CA')
     
     switch (period) {
