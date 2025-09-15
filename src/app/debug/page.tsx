@@ -5,6 +5,9 @@ import { useDatabase } from '@/hooks/useDatabase'
 import { useTasks } from '@/hooks/useTasks'
 import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 
+// Dynamic import to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export default function DebugPage() {
   const { isInitialized, error } = useDatabase()
   const { loading: tasksLoading, tasks, error: tasksError } = useTasks(isInitialized)
