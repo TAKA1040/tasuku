@@ -9,65 +9,107 @@ C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: {tasks: 8, recurringTasks: 5, recurringLogs: 1}
 C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 0, sampleCompletedAt: Array(0)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 0, sampleCompletedAt: Array(0)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'all', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'all', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f3e3c483-ef89-47be-8bfb-39c58a5012b2', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f4b73506-d8ff-4481-9b3d-c548b31523b8', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '106b047e-4216-4f63-bd95-01349296fe1e', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '7cb8c53c-e45b-4cc8-91dd-5a9f49c7581d', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f3e3c483-ef89-47be-8bfb-39c58a5012b2', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'f4b73506-d8ff-4481-9b3d-c548b31523b8', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '106b047e-4216-4f63-bd95-01349296fe1e', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '7cb8c53c-e45b-4cc8-91dd-5a9f49c7581d', title: 'ストレッチ', hasTask: true, hasOnDelete: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'month', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'week', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
-C:\Windsurf\tasuku\src\app\done\page.tsx:53 Period filter debug: {period: 'today', totalCompleted: 4, sampleCompletedAt: Array(3)}
-C:\Windsurf\tasuku\src\app\done\page.tsx:63 Today for comparison: 2025/9/16
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'ストレッチ', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:69 Today filter: {title: 'プロジェクト提案書を作成', completed_at: '2025-09-15', today: '2025/9/16', matches: false}
-C:\Windsurf\tasuku\src\app\done\page.tsx:72 Today filtered result: 0
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:83 Auto rollover: Processing 1 incomplete tasks
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:89 Auto rollover: Processing task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:83 Auto rollover: Processing 1 incomplete tasks
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:89 Auto rollover: Processing task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\lib\db\supabase-database.ts:45 createTask: Creating task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\lib\db\supabase-database.ts:45 createTask: Creating task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\lib\db\supabase-database.ts:64 createTask: Successfully created task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:99 Auto rollover: Successfully created task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\lib\db\supabase-database.ts:64 createTask: Successfully created task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:99 Auto rollover: Successfully created task: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:108 Auto rollover: Marked original task as completed: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:126 Auto rollover completed successfully
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:108 Auto rollover: Marked original task as completed: プロジェクト提案書を作成
+C:\Windsurf\tasuku\src\hooks\useRollover.ts:126 Auto rollover completed successfully
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '97016dea-7915-41cb-85a5-ae97d4b3b243', title: 'ジャンプ夜', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1a271a50-3f00-4108-b8b6-85ea0e7b288f', title: 'X投稿＆交流', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '1cfcb911-56e6-404e-93d4-547e0cb1974e', title: 'ジャンプ昼', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: {itemId: '2a468f47-dd3b-40bb-bd86-a05b0fcd75ac', title: 'ジャンプ朝', isRecurring: true, hasRecurringTask: true, hasOnDeleteRecurring: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '8054e114-03a7-4c3d-aa56-6ff730325413', title: 'プロジェクト提案書を作成', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: '57722293-d260-45bd-93ce-79cdc351a882', title: 'ストレッチ', hasTask: true, hasOnDelete: true}
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: {itemId: 'e1589434-aa16-4070-81f4-f6900010ee7c', title: 'ストレッチ', hasTask: true, hasOnDelete: true}

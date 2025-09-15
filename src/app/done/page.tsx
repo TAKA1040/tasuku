@@ -50,27 +50,11 @@ export default function DonePage() {
     }
 
     const allCompleted = getAllCompletedTasks()
-    console.log('Period filter debug:', {
-      period,
-      totalCompleted: allCompleted.length,
-      sampleCompletedAt: allCompleted.slice(0, 3).map(t => ({
-        title: t.task.title,
-        completed_at: t.task.completed_at,
-        completed: t.task.completed
-      }))
-    })
     const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD形式に統一
-    console.log('Today for comparison (fixed):', today)
     
     switch (period) {
       case 'today':
-        const todayFiltered = allCompleted.filter(item => {
-          const matches = item.task.completed_at === today
-          console.log('Today filter:', { title: item.task.title, completed_at: item.task.completed_at, today, matches })
-          return matches
-        })
-        console.log('Today filtered result:', todayFiltered.length)
-        return todayFiltered
+        return allCompleted.filter(item => item.task.completed_at === today)
       case 'week':
         const weekAgo = new Date()
         weekAgo.setDate(weekAgo.getDate() - 7)
