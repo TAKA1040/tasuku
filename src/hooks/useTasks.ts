@@ -125,18 +125,17 @@ export function useTasks(isDbInitialized: boolean = false) {
       })
   }
 
-  // Get upcoming tasks (within 7 days, not today)
+  // Get upcoming tasks (all future tasks, not today)
   const getUpcomingTasks = (): TaskWithUrgency[] => {
     const today = getTodayJST()
-    
+
     return tasks
-      .filter(task => 
-        !task.completed && 
+      .filter(task =>
+        !task.completed &&
         !task.archived &&
         (!task.snoozed_until || task.snoozed_until <= today) &&
         task.due_date &&
         task.due_date !== today &&
-        getDaysFromToday(task.due_date) <= 7 &&
         getDaysFromToday(task.due_date) > 0
       )
       .map(task => {

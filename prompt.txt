@@ -1,4 +1,138 @@
-スマホの表示のみ変更
-スマホの画面ではメモは表示しない
-期日/タイプも表示しない
-これでスマホ画面だけ変更して
+ Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+ Database not yet initialized, skipping task loading
+ Database not yet initialized, skipping recurring data loading
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ Starting database initialization...
+ Supabase Database initialized
+ Dev features initialized
+ Development tools available: window.resetTasukuDB()
+ Development tools: window.testRecurringRules()
+ Dev tools setup
+ Checking for dummy data...
+ Database state: Object
+ Database initialization completed successfully
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ UpcomingPreview Debug: Object
+ Filtered result: Object
+ 繰り返しタスクの削除ボタン表示判定: Object
+ 繰り返しタスクの削除ボタン表示判定: Object
+ 繰り返しタスクの削除ボタン表示判定: Object
+ 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\lib\utils\rollover.ts:35 自動繰り越しをスキップ（最近更新されたタスク）: プロジェクト提案書を作成 0.3時間前
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\lib\utils\rollover.ts:35 自動繰り越しをスキップ（最近更新されたタスク）: プロジェクト提案書を作成 0.3時間前
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:483 通常タスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\TaskTable.tsx:475 繰り返しタスクの削除ボタン表示判定: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:19 UpcomingPreview Debug: Object
+C:\Windsurf\tasuku\src\components\UpcomingPreview.tsx:33 Filtered result: Object
