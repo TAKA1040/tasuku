@@ -1,12 +1,12 @@
 'use client'
 
-import type { TaskWithUrgency } from '@/lib/db/schema'
+import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 // import { QuickMoves } from '@/lib/utils/date-jst' // 将来使用予定
 
 interface UpcomingPreviewProps {
   upcomingTasks: TaskWithUrgency[]
   onComplete: (taskId: string) => void
-  onEdit: (task: { id: string; title: string; memo?: string; due_date?: string; category?: string; importance?: number; duration_min?: number; urls?: string[] }) => void
+  onEdit: (task: Task) => void
   onDelete: (taskId: string) => void
 }
 
