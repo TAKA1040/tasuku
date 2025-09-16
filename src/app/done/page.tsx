@@ -466,7 +466,7 @@ export default function DonePage() {
                     }
                     .mobile-header-row {
                       display: grid;
-                      grid-template-columns: 80px repeat(15, 14px) 50px 60px 40px;
+                      grid-template-columns: 60px repeat(15, 12px) 40px 50px 35px;
                       gap: 1px;
                       padding: 4px 0;
                     }
@@ -477,7 +477,7 @@ export default function DonePage() {
                     }
                     .mobile-task-row {
                       display: grid;
-                      grid-template-columns: 80px repeat(15, 14px) 50px 60px 40px;
+                      grid-template-columns: 60px repeat(15, 12px) 40px 50px 35px;
                       gap: 1px;
                       padding: 4px 0;
                     }
@@ -611,9 +611,9 @@ export default function DonePage() {
                           </div>
                         )
                       })}
-                      <div className="achievement-text-light achievement-border" style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>直近率</div>
-                      <div className="achievement-text-light achievement-border" style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>総達成率</div>
-                      <div className="achievement-text-light achievement-border" style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>連続</div>
+                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>直近</div>
+                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>総計</div>
+                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>連続</div>
                     </div>
                     {/* 第2行：後半15日 */}
                     <div className="mobile-header-row achievement-border" style={{ borderTop: '1px solid #d1d5db' }}>
@@ -679,9 +679,9 @@ export default function DonePage() {
                           </div>
                         ))}
                         <div style={{
-                          padding: '6px 2px',
+                          padding: '4px 1px',
                           textAlign: 'center',
-                          fontSize: '9px',
+                          fontSize: '8px',
                           fontWeight: '600',
                           color: taskData.recentAchievementRate >= 80 ? '#10b981' :
                                  taskData.recentAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
@@ -690,9 +690,9 @@ export default function DonePage() {
                           {taskData.recentAchievementRate}%
                         </div>
                         <div style={{
-                          padding: '6px 2px',
+                          padding: '4px 1px',
                           textAlign: 'center',
-                          fontSize: '9px',
+                          fontSize: '8px',
                           fontWeight: '600',
                           color: taskData.totalAchievementRate >= 80 ? '#10b981' :
                                  taskData.totalAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
@@ -701,9 +701,9 @@ export default function DonePage() {
                           {taskData.totalAchievementRate}%
                         </div>
                         <div style={{
-                          padding: '6px 2px',
+                          padding: '4px 1px',
                           textAlign: 'center',
-                          fontSize: '9px',
+                          fontSize: '8px',
                           fontWeight: '600',
                           color: taskData.consecutiveDays >= 7 ? '#10b981' :
                                  taskData.consecutiveDays >= 3 ? '#f59e0b' : '#6b7280',
@@ -714,7 +714,7 @@ export default function DonePage() {
                       </div>
                       {/* 第2行：空白 + 後半15日 + 空白 */}
                       <div className="mobile-task-row" style={{ borderTop: '1px solid #e5e7eb' }}>
-                        <div style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '4px 2px', borderRight: '1px solid #e5e7eb' }}></div>
                         {taskData.completions.slice(15, 30).map((achieved: boolean, index: number) => (
                           <div
                             key={index + 15}
@@ -730,9 +730,9 @@ export default function DonePage() {
                             {achieved ? '✓' : ''}
                           </div>
                         ))}
-                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
-                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
-                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
                       </div>
                     </div>
                   ))}
