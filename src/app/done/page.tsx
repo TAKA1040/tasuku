@@ -405,15 +405,60 @@ export default function DonePage() {
                 border: '1px solid #e5e7eb',
                 overflow: 'hidden'
               }}>
+                <style jsx>{`
+                  .achievement-grid-header {
+                    display: grid;
+                    grid-template-columns: 150px repeat(30, 18px) 80px 90px 60px;
+                    gap: 1px;
+                    background-color: #f3f4f6;
+                    font-size: 10px;
+                    font-weight: 500;
+                  }
+                  .achievement-grid-row {
+                    display: grid;
+                    grid-template-columns: 150px repeat(30, 18px) 80px 90px 60px;
+                    gap: 1px;
+                    border-top: 1px solid #e5e7eb;
+                  }
+                  .mobile-grid {
+                    display: none;
+                  }
+                  @media (max-width: 768px) {
+                    .achievement-grid-header,
+                    .achievement-grid-row {
+                      display: none;
+                    }
+                    .mobile-grid {
+                      display: block;
+                    }
+                    .mobile-achievement-header {
+                      display: flex;
+                      flex-direction: column;
+                      background-color: #f3f4f6;
+                      font-size: 10px;
+                      font-weight: 500;
+                    }
+                    .mobile-header-row {
+                      display: grid;
+                      grid-template-columns: 80px repeat(15, 14px) 50px 60px 40px;
+                      gap: 1px;
+                      padding: 4px 0;
+                    }
+                    .mobile-achievement-row {
+                      display: flex;
+                      flex-direction: column;
+                      border-top: 1px solid #e5e7eb;
+                    }
+                    .mobile-task-row {
+                      display: grid;
+                      grid-template-columns: 80px repeat(15, 14px) 50px 60px 40px;
+                      gap: 1px;
+                      padding: 4px 0;
+                    }
+                  }
+                `}</style>
                 {/* ヘッダー（日付） */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '150px repeat(30, 18px) 80px 90px 60px',
-                  gap: '1px',
-                  backgroundColor: '#f3f4f6',
-                  fontSize: '10px',
-                  fontWeight: '500'
-                }}>
+                <div className="achievement-grid-header">
                   <div style={{ padding: '8px', borderRight: '1px solid #e5e7eb' }}>タスク</div>
                   {dailyTasksData[0]?.dates.map((date, index) => {
                     const day = new Date(date + 'T00:00:00').getDate()
@@ -441,12 +486,9 @@ export default function DonePage() {
                 {dailyTasksData.map((taskData, taskIndex) => (
                   <div
                     key={taskData.taskId}
+                    className="achievement-grid-row"
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '150px repeat(30, 18px) 80px 90px 60px',
-                      gap: '1px',
-                      backgroundColor: taskIndex % 2 === 0 ? '#ffffff' : '#f9fafb',
-                      borderTop: '1px solid #e5e7eb'
+                      backgroundColor: taskIndex % 2 === 0 ? '#ffffff' : '#f9fafb'
                     }}
                   >
                     {/* タスク名 */}
@@ -517,6 +559,155 @@ export default function DonePage() {
                     </div>
                   </div>
                 ))}
+
+                {/* モバイル向け2段表示 */}
+                <div className="mobile-grid">
+                  {/* モバイルヘッダー（2段） */}
+                  <div className="mobile-achievement-header">
+                    {/* 第1行：前半15日 */}
+                    <div className="mobile-header-row">
+                      <div style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}>タスク</div>
+                      {dailyTasksData[0]?.dates.slice(0, 15).map((date, index) => {
+                        const day = new Date(date + 'T00:00:00').getDate()
+                        return (
+                          <div
+                            key={date}
+                            style={{
+                              padding: '4px 1px',
+                              textAlign: 'center',
+                              color: '#6b7280',
+                              fontSize: '8px'
+                            }}
+                          >
+                            {day}
+                          </div>
+                        )
+                      })}
+                      <div style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>直近率</div>
+                      <div style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>総達成率</div>
+                      <div style={{ padding: '6px 2px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '8px' }}>連続</div>
+                    </div>
+                    {/* 第2行：後半15日 */}
+                    <div className="mobile-header-row" style={{ borderTop: '1px solid #d1d5db' }}>
+                      <div style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}></div>
+                      {dailyTasksData[0]?.dates.slice(15, 30).map((date, index) => {
+                        const day = new Date(date + 'T00:00:00').getDate()
+                        return (
+                          <div
+                            key={date}
+                            style={{
+                              padding: '4px 1px',
+                              textAlign: 'center',
+                              color: '#6b7280',
+                              fontSize: '8px'
+                            }}
+                          >
+                            {day}
+                          </div>
+                        )
+                      })}
+                      <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                      <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                      <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                    </div>
+                  </div>
+
+                  {/* モバイルタスク行（2段） */}
+                  {dailyTasksData.map((taskData, taskIndex) => (
+                    <div
+                      key={taskData.taskId}
+                      className="mobile-achievement-row"
+                      style={{
+                        backgroundColor: taskIndex % 2 === 0 ? '#ffffff' : '#f9fafb'
+                      }}
+                    >
+                      {/* 第1行：タスク名 + 前半15日 + 統計情報 */}
+                      <div className="mobile-task-row">
+                        <div style={{
+                          padding: '6px 4px',
+                          fontSize: '10px',
+                          fontWeight: '500',
+                          borderRight: '1px solid #e5e7eb',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {taskData.taskTitle}
+                        </div>
+                        {taskData.achievements.slice(0, 15).map((achieved, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              padding: '3px 1px',
+                              textAlign: 'center',
+                              backgroundColor: achieved ? '#10b981' : '#e5e7eb',
+                              color: achieved ? '#ffffff' : '#6b7280',
+                              fontSize: '8px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {achieved ? '✓' : ''}
+                          </div>
+                        ))}
+                        <div style={{
+                          padding: '6px 2px',
+                          textAlign: 'center',
+                          fontSize: '9px',
+                          fontWeight: '600',
+                          color: taskData.recentAchievementRate >= 80 ? '#10b981' :
+                                 taskData.recentAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
+                          borderLeft: '1px solid #e5e7eb'
+                        }}>
+                          {taskData.recentAchievementRate}%
+                        </div>
+                        <div style={{
+                          padding: '6px 2px',
+                          textAlign: 'center',
+                          fontSize: '9px',
+                          fontWeight: '600',
+                          color: taskData.totalAchievementRate >= 80 ? '#10b981' :
+                                 taskData.totalAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
+                          borderLeft: '1px solid #e5e7eb'
+                        }}>
+                          {taskData.totalAchievementRate}%
+                        </div>
+                        <div style={{
+                          padding: '6px 2px',
+                          textAlign: 'center',
+                          fontSize: '9px',
+                          fontWeight: '600',
+                          color: taskData.consecutiveDays >= 7 ? '#10b981' :
+                                 taskData.consecutiveDays >= 3 ? '#f59e0b' : '#6b7280',
+                          borderLeft: '1px solid #e5e7eb'
+                        }}>
+                          {taskData.consecutiveDays}
+                        </div>
+                      </div>
+                      {/* 第2行：空白 + 後半15日 + 空白 */}
+                      <div className="mobile-task-row" style={{ borderTop: '1px solid #e5e7eb' }}>
+                        <div style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}></div>
+                        {taskData.achievements.slice(15, 30).map((achieved, index) => (
+                          <div
+                            key={index + 15}
+                            style={{
+                              padding: '3px 1px',
+                              textAlign: 'center',
+                              backgroundColor: achieved ? '#10b981' : '#e5e7eb',
+                              color: achieved ? '#ffffff' : '#6b7280',
+                              fontSize: '8px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {achieved ? '✓' : ''}
+                          </div>
+                        ))}
+                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                        <div style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
