@@ -663,7 +663,7 @@ export default function DonePage() {
                         }}>
                           {taskData.taskTitle}
                         </div>
-                        {taskData.achievements.slice(0, 15).map((achieved, index) => (
+                        {taskData.completions.slice(0, 15).map((achieved: boolean, index: number) => (
                           <div
                             key={index}
                             style={{
@@ -715,7 +715,7 @@ export default function DonePage() {
                       {/* 第2行：空白 + 後半15日 + 空白 */}
                       <div className="mobile-task-row" style={{ borderTop: '1px solid #e5e7eb' }}>
                         <div style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}></div>
-                        {taskData.achievements.slice(15, 30).map((achieved, index) => (
+                        {taskData.completions.slice(15, 30).map((achieved: boolean, index: number) => (
                           <div
                             key={index + 15}
                             style={{
