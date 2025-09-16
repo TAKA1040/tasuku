@@ -535,24 +535,19 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   </span>
                   {(item.task?.attachment || item.recurringTask?.task?.attachment) && renderFileIcon(item.task?.attachment || item.recurringTask?.task?.attachment)}
 
-                  {/* 買い物カテゴリーの場合は買い物リストチェックボックスを表示 */}
+                  {/* 買い物カテゴリーの場合は買い物リストの件数を表示 */}
                   {item.category === TASK_CATEGORIES.SHOPPING ? (
-                    <label style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '12px',
-                      color: '#6b7280',
-                      cursor: 'pointer'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={showShoppingLists[item.id] || false}
-                        onChange={() => toggleShoppingList(item.id)}
-                        style={{ cursor: 'pointer' }}
-                      />
-                      買うものリスト表示
-                    </label>
+                    <span
+                      onClick={() => toggleShoppingList(item.id)}
+                      style={{
+                        fontSize: '12px',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      タスク（{subTasks[item.id]?.length || 0}件）
+                    </span>
                   ) : (
                     /* 通常のタスクはメモを表示 */
                     item.memo && (

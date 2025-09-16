@@ -507,22 +507,17 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                     <span style={{ fontWeight: '500' }}>
                       {item.title}
                     </span>
-                    <label style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '12px',
-                      color: '#6b7280',
-                      cursor: 'pointer'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={showShoppingLists[item.id] || false}
-                        onChange={() => toggleShoppingList(item.id)}
-                        style={{ cursor: 'pointer' }}
-                      />
-                      買うものリスト表示
-                    </label>
+                    <span
+                      onClick={() => toggleShoppingList(item.id)}
+                      style={{
+                        fontSize: '12px',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      タスク（{subTasks[item.id]?.length || 0}件）
+                    </span>
                     {item.memo && (
                       <span style={{
                         color: '#6b7280',
