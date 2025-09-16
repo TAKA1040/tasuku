@@ -109,9 +109,9 @@ export interface Settings {
   id: 'main' // Single record
   timezone: 'Asia/Tokyo'
   urgency_thresholds: {
-    soon: 3 // days
-    next7: 7 // days
-    next30: 30 // days
+    soon: number // days
+    next7: number // days
+    next30: number // days
   }
   // PHASE 0 - フィーチャーフラグ
   features: {

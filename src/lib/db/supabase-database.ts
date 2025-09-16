@@ -515,8 +515,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds as any,
-        features: data.features as any,
+        urgency_thresholds: data.urgency_thresholds as { soon: number; next7: number; next30: number },
+        features: data.features as { connectors_readonly: boolean; plan_suggestion: boolean; ml_ranking: boolean; geolocation: boolean },
         updated_at: data.updated_at
       }
     } catch (err) {
@@ -558,8 +558,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds as any,
-        features: data.features as any,
+        urgency_thresholds: data.urgency_thresholds as { soon: number; next7: number; next30: number },
+        features: data.features as { connectors_readonly: boolean; plan_suggestion: boolean; ml_ranking: boolean; geolocation: boolean },
         updated_at: data.updated_at
       }
     } catch (err) {
@@ -640,8 +640,8 @@ class SupabaseTasukuDatabase {
           return {
             id: 'main',
             timezone: newData.timezone as 'Asia/Tokyo',
-            urgency_thresholds: newData.urgency_thresholds as any,
-            features: newData.features as any,
+            urgency_thresholds: newData.urgency_thresholds as { soon: number; next7: number; next30: number },
+            features: newData.features as { connectors_readonly: boolean; plan_suggestion: boolean; ml_ranking: boolean; geolocation: boolean },
             updated_at: newData.updated_at
           }
         }
@@ -651,8 +651,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds as any,
-        features: data.features as any,
+        urgency_thresholds: data.urgency_thresholds as { soon: number; next7: number; next30: number },
+        features: data.features as { connectors_readonly: boolean; plan_suggestion: boolean; ml_ranking: boolean; geolocation: boolean },
         updated_at: data.updated_at
       }
     } catch (err) {
