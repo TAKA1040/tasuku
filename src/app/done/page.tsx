@@ -448,6 +448,18 @@ export default function DonePage() {
                   [data-theme="dark"] .achievement-bg-gray {
                     background-color: #111827;
                   }
+                  [data-theme="dark"] .achievement-stats-good {
+                    color: #34d399 !important;
+                  }
+                  [data-theme="dark"] .achievement-stats-medium {
+                    color: #fbbf24 !important;
+                  }
+                  [data-theme="dark"] .achievement-stats-poor {
+                    color: #f87171 !important;
+                  }
+                  [data-theme="dark"] .achievement-stats-neutral {
+                    color: #9ca3af !important;
+                  }
 
                   @media (max-width: 768px) {
                     .achievement-grid-header,
@@ -547,7 +559,10 @@ export default function DonePage() {
                     ))}
 
                     {/* 直近の達成率 */}
-                    <div style={{
+                    <div className={`achievement-border ${
+                      taskData.recentAchievementRate >= 80 ? 'achievement-stats-good' :
+                      taskData.recentAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
+                    }`} style={{
                       padding: '8px',
                       textAlign: 'center',
                       fontSize: '12px',
@@ -560,7 +575,10 @@ export default function DonePage() {
                     </div>
 
                     {/* 総達成率 */}
-                    <div style={{
+                    <div className={`achievement-border ${
+                      taskData.totalAchievementRate >= 80 ? 'achievement-stats-good' :
+                      taskData.totalAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
+                    }`} style={{
                       padding: '8px',
                       textAlign: 'center',
                       fontSize: '12px',
@@ -573,7 +591,10 @@ export default function DonePage() {
                     </div>
 
                     {/* 連続達成日数 */}
-                    <div style={{
+                    <div className={`achievement-border ${
+                      taskData.consecutiveDays >= 7 ? 'achievement-stats-good' :
+                      taskData.consecutiveDays >= 3 ? 'achievement-stats-medium' : 'achievement-stats-neutral'
+                    }`} style={{
                       padding: '8px',
                       textAlign: 'center',
                       fontSize: '12px',
@@ -678,7 +699,10 @@ export default function DonePage() {
                             {achieved ? '✓' : ''}
                           </div>
                         ))}
-                        <div style={{
+                        <div className={`achievement-border ${
+                          taskData.recentAchievementRate >= 80 ? 'achievement-stats-good' :
+                          taskData.recentAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
+                        }`} style={{
                           padding: '4px 1px',
                           textAlign: 'center',
                           fontSize: '8px',
@@ -689,7 +713,10 @@ export default function DonePage() {
                         }}>
                           {taskData.recentAchievementRate}%
                         </div>
-                        <div style={{
+                        <div className={`achievement-border ${
+                          taskData.totalAchievementRate >= 80 ? 'achievement-stats-good' :
+                          taskData.totalAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
+                        }`} style={{
                           padding: '4px 1px',
                           textAlign: 'center',
                           fontSize: '8px',
@@ -700,7 +727,10 @@ export default function DonePage() {
                         }}>
                           {taskData.totalAchievementRate}%
                         </div>
-                        <div style={{
+                        <div className={`achievement-border ${
+                          taskData.consecutiveDays >= 7 ? 'achievement-stats-good' :
+                          taskData.consecutiveDays >= 3 ? 'achievement-stats-medium' : 'achievement-stats-neutral'
+                        }`} style={{
                           padding: '4px 1px',
                           textAlign: 'center',
                           fontSize: '8px',
