@@ -17,7 +17,6 @@ import { useIdeas } from '@/hooks/useIdeas'
 import { Task, RecurringTask } from '@/lib/db/schema'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { VoiceInputButton } from '@/components/VoiceInputButton'
 import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
 
@@ -214,13 +213,6 @@ export default function TodayPage() {
     setEditingRecurringTask(null)
   }
 
-  const handleVoiceInput = async (voiceText: string) => {
-    // 音声からタスクを自動作成
-    const today = getTodayJST()
-    await createTask(voiceText, '', today) // タイトル=音声入力、メモ=空、期日=今日
-    console.log('音声でタスクを作成:', voiceText)
-  }
-
 
   const handleMoveToIdeas = async (taskId: string) => {
     try {
@@ -351,10 +343,6 @@ export default function TodayPage() {
               🎉 Done
             </a>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-actions">
-              <VoiceInputButton 
-                onResult={handleVoiceInput}
-                size="medium"
-              />
               <button
                 onClick={() => setShowCreateForm(true)}
                 style={{
