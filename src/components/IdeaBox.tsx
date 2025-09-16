@@ -13,10 +13,12 @@ interface IdeaBoxProps {
   ideas: IdeaItem[]
   onAdd: (text: string) => void
   onToggle: (id: string) => void
+  onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
+  onUpgradeToTask?: (idea: IdeaItem) => void
 }
 
-export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
+export function IdeaBox({ ideas, onAdd, onToggle, onEdit, onDelete, onUpgradeToTask }: IdeaBoxProps) {
   const [newIdea, setNewIdea] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [showIdeaBox, setShowIdeaBox] = useState(false) // デフォルトは非表示
@@ -29,6 +31,7 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
     setNewIdea('')
     setIsAdding(false)
   }
+
 
   const pendingIdeas = ideas.filter(idea => !idea.completed)
   const completedIdeas = ideas.filter(idea => idea.completed)
@@ -152,28 +155,50 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
                   justifyContent: 'center',
                   fontSize: '10px'
                 }}
+                title="完了にする"
               >
               </button>
-              <span style={{ 
-                flex: 1, 
-                fontSize: '14px',
-                color: '#374151'
-              }}>
+
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: '14px',
+                  color: '#374151'
+                }}
+              >
                 {idea.text}
               </span>
               <button
-                onClick={() => onDelete(idea.id)}
+                onClick={() => onUpgradeToTask && onUpgradeToTask(idea)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#9ca3af',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  padding: '2px'
+                }}
+                title="タスクに昇格"
+              >
+                📋
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('このアイデアを削除しますか？')) {
+                    onDelete(idea.id)
+                  }
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ef4444',
                   cursor: 'pointer',
                   fontSize: '12px',
                   padding: '2px'
                 }}
                 title="削除"
               >
-                ✕
+                🗑️
               </button>
             </div>
           ))}
@@ -220,27 +245,48 @@ export function IdeaBox({ ideas, onAdd, onToggle, onDelete }: IdeaBoxProps) {
               >
                 ✓
               </button>
-              <span style={{ 
-                flex: 1, 
-                fontSize: '14px',
-                color: '#6b7280',
-                textDecoration: 'line-through'
-              }}>
+
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: '14px',
+                  color: '#6b7280',
+                  textDecoration: 'line-through'
+                }}
+              >
                 {idea.text}
               </span>
               <button
-                onClick={() => onDelete(idea.id)}
+                onClick={() => onUpgradeToTask && onUpgradeToTask(idea)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#9ca3af',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  padding: '2px'
+                }}
+                title="タスクに昇格"
+              >
+                📋
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('このアイデアを削除しますか？')) {
+                    onDelete(idea.id)
+                  }
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ef4444',
                   cursor: 'pointer',
                   fontSize: '12px',
                   padding: '2px'
                 }}
                 title="削除"
               >
-                ✕
+                🗑️
               </button>
             </div>
           ))}

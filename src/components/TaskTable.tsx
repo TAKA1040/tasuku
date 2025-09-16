@@ -1,10 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import type { TaskWithUrgency, Task, RecurringTask } from '@/lib/db/schema'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
+import type { TaskWithUrgency, Task, RecurringTask, SubTask } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
 import { ImportanceDot } from '@/components/ImportanceDot'
+import { TASK_CATEGORIES } from '@/lib/db/schema'
+import { subTaskService } from '@/lib/db/supabase-subtasks'
 
 interface TaskTableProps {
   tasks: TaskWithUrgency[]
@@ -24,6 +26,12 @@ interface TaskTableProps {
 export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
   const [showFilePopup, setShowFilePopup] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ file_name: string; file_type: string; file_data: string } | null>(null)
+
+  // 買い物リスト機能の状態
+  const [subTasks, setSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
+  const [showShoppingLists, setShowShoppingLists] = useState<{ [taskId: string]: boolean }>({})
+  const [newItemInputs, setNewItemInputs] = useState<{ [taskId: string]: string }>({})
+  const [editingSubTask, setEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
 
   // ファイル表示機能
   const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
@@ -111,7 +119,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
 
   const renderUrlIcon = (urls?: string[]) => {
     if (!urls || urls.length === 0) return '-'
-    
+
     return (
       <button
         type="button"
@@ -156,6 +164,108 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         🌍
       </button>
     )
+  }
+
+  // 買い物リスト機能
+  const loadSubTasks = useCallback(async () => {
+    const shoppingTaskIds = [...tasks, ...completedTasks]
+      .filter(taskWithUrgency => taskWithUrgency.task.category === TASK_CATEGORIES.SHOPPING)
+      .map(taskWithUrgency => taskWithUrgency.task.id)
+
+    const newSubTasks: { [taskId: string]: SubTask[] } = {}
+
+    for (const taskId of shoppingTaskIds) {
+      try {
+        const taskSubTasks = await subTaskService.getSubTasksByParentId(taskId)
+        newSubTasks[taskId] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+      } catch (error) {
+        console.error('Failed to load subtasks for task:', taskId, error)
+      }
+    }
+
+    setSubTasks(newSubTasks)
+  }, [tasks, completedTasks])
+
+  useEffect(() => {
+    loadSubTasks()
+  }, [loadSubTasks])
+
+  const toggleShoppingList = (taskId: string) => {
+    setShowShoppingLists(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }))
+  }
+
+  const handleToggleSubTask = async (subTaskId: string, taskId: string) => {
+    try {
+      await subTaskService.toggleSubTaskCompletion(subTaskId)
+      await loadSubTasks()
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error)
+    }
+  }
+
+  const handleDeleteSubTask = async (subTaskId: string, taskId: string) => {
+    try {
+      await subTaskService.deleteSubTask(subTaskId)
+      await loadSubTasks()
+    } catch (error) {
+      console.error('Failed to delete subtask:', error)
+    }
+  }
+
+  const handleAddSubTask = async (taskId: string) => {
+    const newItemText = newItemInputs[taskId]?.trim()
+    if (!newItemText) return
+
+    try {
+      const existingSubTasks = subTasks[taskId] || []
+      const nextSortOrder = existingSubTasks.length
+
+      await subTaskService.createSubTask(taskId, newItemText, nextSortOrder)
+
+      setNewItemInputs(prev => ({
+        ...prev,
+        [taskId]: ''
+      }))
+
+      await loadSubTasks()
+    } catch (error) {
+      console.error('Failed to add subtask:', error)
+    }
+  }
+
+  const handleInputChange = (taskId: string, value: string) => {
+    setNewItemInputs(prev => ({
+      ...prev,
+      [taskId]: value
+    }))
+  }
+
+  const handleStartEditSubTask = (taskId: string, subTaskId: string, title: string) => {
+    setEditingSubTask({ taskId, subTaskId, title })
+  }
+
+  const handleCancelEditSubTask = () => {
+    setEditingSubTask(null)
+  }
+
+  const handleSaveEditSubTask = async () => {
+    if (!editingSubTask) return
+
+    try {
+      await subTaskService.updateSubTaskTitle(editingSubTask.subTaskId, editingSubTask.title)
+      await loadSubTasks()
+      setEditingSubTask(null)
+    } catch (error) {
+      console.error('Failed to update subtask:', error)
+    }
+  }
+
+  const handleEditInputChange = (value: string) => {
+    if (!editingSubTask) return
+    setEditingSubTask({ ...editingSubTask, title: value })
   }
 
   // Combine and sort all tasks - memoized for performance
@@ -325,34 +435,34 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         </thead>
         <tbody>
           {allItems.map((item, index) => (
-            <tr
-              key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`}
-              style={{
-                borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
-                height: '28px',
-                opacity: item.isCompleted ? 0.6 : 1,
-                backgroundColor: getUrgencyRowColor(item.urgency, item.isCompleted, item.isRecurring),
-                transition: 'background-color 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (!item.isCompleted) {
-                  // ホバー時は元の色より少し濃くする
-                  const baseColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
-                  if (baseColor === 'transparent') {
-                    e.currentTarget.style.backgroundColor = '#f8fafc'
-                  } else {
-                    e.currentTarget.style.backgroundColor = baseColor
-                    e.currentTarget.style.filter = 'brightness(0.95)'
+            <React.Fragment key={`${item.isRecurring ? 'recurring' : 'task'}-${item.id}`}>
+              <tr
+                style={{
+                  borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
+                  height: '28px',
+                  opacity: item.isCompleted ? 0.6 : 1,
+                  backgroundColor: getUrgencyRowColor(item.urgency, item.isCompleted, item.isRecurring),
+                  transition: 'background-color 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!item.isCompleted) {
+                    // ホバー時は元の色より少し濃くする
+                    const baseColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
+                    if (baseColor === 'transparent') {
+                      e.currentTarget.style.backgroundColor = '#f8fafc'
+                    } else {
+                      e.currentTarget.style.backgroundColor = baseColor
+                      e.currentTarget.style.filter = 'brightness(0.95)'
+                    }
                   }
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!item.isCompleted) {
-                  e.currentTarget.style.backgroundColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
-                  e.currentTarget.style.filter = 'none'
-                }
-              }}
-            >
+                }}
+                onMouseLeave={(e) => {
+                  if (!item.isCompleted) {
+                    e.currentTarget.style.backgroundColor = getUrgencyRowColor(item.urgency, false, item.isRecurring)
+                    e.currentTarget.style.filter = 'none'
+                  }
+                }}
+              >
               <td style={{ padding: '2px', textAlign: 'center' }}>
                 <button
                   onClick={() => {
@@ -424,15 +534,37 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     {item.title}
                   </span>
                   {(item.task?.attachment || item.recurringTask?.task?.attachment) && renderFileIcon(item.task?.attachment || item.recurringTask?.task?.attachment)}
-                  {item.memo && (
-                    <span style={{
+
+                  {/* 買い物カテゴリーの場合は買い物リストチェックボックスを表示 */}
+                  {item.category === TASK_CATEGORIES.SHOPPING ? (
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '12px',
                       color: '#6b7280',
-                      fontSize: '13px',
-                      display: 'none'
-                    }}
-                    className="memo-desktop-only">
-                      - {item.memo}
-                    </span>
+                      cursor: 'pointer'
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={showShoppingLists[item.id] || false}
+                        onChange={() => toggleShoppingList(item.id)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      買うものリスト表示
+                    </label>
+                  ) : (
+                    /* 通常のタスクはメモを表示 */
+                    item.memo && (
+                      <span style={{
+                        color: '#6b7280',
+                        fontSize: '13px',
+                        display: 'none'
+                      }}
+                      className="memo-desktop-only">
+                        - {item.memo}
+                      </span>
+                    )
                   )}
                 </div>
               </td>
@@ -592,6 +724,165 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                 </div>
               </td>
             </tr>
+
+            {/* 買い物リスト表示行 */}
+            {item.category === TASK_CATEGORIES.SHOPPING && showShoppingLists[item.id] && (
+              <tr style={{ backgroundColor: '#f8fffe' }}>
+                <td colSpan={5} style={{ padding: '8px 16px' }}>
+                  <div style={{ marginLeft: '24px' }}>
+                    {/* 既存のサブタスク */}
+                    {subTasks[item.id] && subTasks[item.id].length > 0 && (
+                      <div style={{ marginBottom: '8px' }}>
+                        {subTasks[item.id].map((subTask) => (
+                          <div
+                            key={subTask.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '2px 0',
+                              fontSize: '13px'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={subTask.completed}
+                              onChange={() => handleToggleSubTask(subTask.id, item.id)}
+                              style={{ cursor: 'pointer' }}
+                            />
+
+                            {editingSubTask?.subTaskId === subTask.id ? (
+                              // 編集モード
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                                <input
+                                  type="text"
+                                  value={editingSubTask.title}
+                                  onChange={(e) => handleEditInputChange(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleSaveEditSubTask()
+                                    } else if (e.key === 'Escape') {
+                                      handleCancelEditSubTask()
+                                    }
+                                  }}
+                                  autoFocus
+                                  style={{
+                                    flex: 1,
+                                    padding: '2px 4px',
+                                    fontSize: '13px',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '3px'
+                                  }}
+                                />
+                                <button
+                                  onClick={handleSaveEditSubTask}
+                                  style={{
+                                    padding: '2px 6px',
+                                    fontSize: '10px',
+                                    backgroundColor: '#10b981',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={handleCancelEditSubTask}
+                                  style={{
+                                    padding: '2px 6px',
+                                    fontSize: '10px',
+                                    backgroundColor: '#6b7280',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              // 表示モード
+                              <>
+                                <span
+                                  onClick={() => handleStartEditSubTask(item.id, subTask.id, subTask.title)}
+                                  style={{
+                                    flex: 1,
+                                    color: subTask.completed ? '#9ca3af' : '#6b7280',
+                                    textDecoration: subTask.completed ? 'line-through' : 'none',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {subTask.title}
+                                </span>
+                                <button
+                                  onClick={() => handleDeleteSubTask(subTask.id, item.id)}
+                                  style={{
+                                    padding: '2px 4px',
+                                    fontSize: '10px',
+                                    backgroundColor: 'transparent',
+                                    color: '#ef4444',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                  }}
+                                  title="削除"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* サブタスク追加フォーム */}
+                    <div style={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center'
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="買うものを追加"
+                        value={newItemInputs[item.id] || ''}
+                        onChange={(e) => handleInputChange(item.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleAddSubTask(item.id)
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px'
+                        }}
+                      />
+                      <button
+                        onClick={() => handleAddSubTask(item.id)}
+                        disabled={!newItemInputs[item.id]?.trim()}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: newItemInputs[item.id]?.trim() ? '#10b981' : '#d1d5db',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: newItemInputs[item.id]?.trim() ? 'pointer' : 'not-allowed'
+                        }}
+                      >
+                        追加
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </React.Fragment>
           ))}
         </tbody>
       </table>

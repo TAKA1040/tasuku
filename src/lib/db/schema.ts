@@ -2,7 +2,7 @@
 // 設計図に厳密準拠したデータベース構造
 
 export const DB_NAME = 'TasukuDB'
-export const DB_VERSION = 1
+export const DB_VERSION = 2
 
 // Entity Types
 export interface Task {
@@ -48,25 +48,49 @@ export interface RecurringTask {
   active: boolean
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
-  
-  // PHASE 4.2 - 拡張フィールド
-  duration_min?: number
-  importance?: 1 | 2 | 3 | 4 | 5
-  category?: string // カテゴリ（仕事、プライベート、勉強など）
-  urls?: string[] // 関連URL（最大5個）
-  attachment?: {
-    file_name: string
-    file_type: string
-    file_size: number
-    file_data: string // Base64エンコードされたファイルデータ
-  }
-  location_tag_id?: string
+}
+
+// サブタスク（買い物リスト等で使用）
+export interface SubTask {
+  id: string
+  parent_task_id: string // 親タスクのID
+  title: string
+  completed: boolean
+  sort_order: number // 表示順序
+  created_at: string // ISO string (JST)
+}
+
+// 買い物リスト
+export interface ShoppingList {
+  id: string
+  store_name: string // 店舗名（セブンイレブン等）
+  created_at: string // ISO string (JST)
+  updated_at: string // ISO string (JST)
+}
+
+// 買い物アイテム
+export interface ShoppingItem {
+  id: string
+  shopping_list_id: string // 買い物リストのID
+  item_name: string // 商品名
+  completed: boolean // 購入済みかどうか
+  sort_order: number // 表示順序
+  created_at: string // ISO string (JST)
 }
 
 export interface RecurringLog {
   recurring_id: string
   date: string // YYYY-MM-DD format (JST)
   logged_at: string // ISO string (JST)
+}
+
+// Ideas (やることリスト)
+export interface Idea {
+  id: string
+  text: string
+  completed: boolean
+  created_at: string // ISO string (JST)
+  updated_at: string // ISO string (JST)
 }
 
 export interface Settings {
@@ -115,9 +139,13 @@ export interface UnifiedItem {
 export const STORE_NAMES = {
   TASKS: 'tasks',
   RECURRING_TASKS: 'recurring_tasks',
-  RECURRING_LOGS: 'recurring_logs', 
+  RECURRING_LOGS: 'recurring_logs',
+  IDEAS: 'ideas',
   SETTINGS: 'settings',
   LOCATION_TAGS: 'location_tags',
+  SUB_TASKS: 'sub_tasks',
+  SHOPPING_LISTS: 'shopping_lists',
+  SHOPPING_ITEMS: 'shopping_items',
   UNIFIED_ITEMS: 'unified_items'
 } as const
 

@@ -39,6 +39,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ideas: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recurring_logs: {
         Row: {
           date: string
@@ -78,6 +105,8 @@ export type Database = {
       recurring_tasks: {
         Row: {
           active: boolean | null
+          attachment: Json | null
+          category: string | null
           created_at: string | null
           duration_min: number | null
           end_date: string | null
@@ -85,6 +114,7 @@ export type Database = {
           id: string
           importance: number | null
           interval_n: number | null
+          max_occurrences: number | null
           memo: string | null
           month_day: number | null
           start_date: string
@@ -96,6 +126,8 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          attachment?: Json | null
+          category?: string | null
           created_at?: string | null
           duration_min?: number | null
           end_date?: string | null
@@ -103,6 +135,7 @@ export type Database = {
           id?: string
           importance?: number | null
           interval_n?: number | null
+          max_occurrences?: number | null
           memo?: string | null
           month_day?: number | null
           start_date?: string
@@ -114,6 +147,8 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          attachment?: Json | null
+          category?: string | null
           created_at?: string | null
           duration_min?: number | null
           end_date?: string | null
@@ -121,6 +156,7 @@ export type Database = {
           id?: string
           importance?: number | null
           interval_n?: number | null
+          max_occurrences?: number | null
           memo?: string | null
           month_day?: number | null
           start_date?: string
@@ -132,9 +168,40 @@ export type Database = {
         }
         Relationships: []
       }
+      subtasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          parent_task_id: string
+          sort_order: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          parent_task_id: string
+          sort_order?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          parent_task_id?: string
+          sort_order?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           archived: boolean | null
+          attachment: Json | null
           category: string | null
           completed: boolean | null
           completed_at: string | null
@@ -143,7 +210,9 @@ export type Database = {
           duration_min: number | null
           id: string
           importance: number | null
+          location_tag_id: string | null
           memo: string | null
+          rollover_count: number | null
           snoozed_until: string | null
           title: string
           updated_at: string | null
@@ -152,6 +221,7 @@ export type Database = {
         }
         Insert: {
           archived?: boolean | null
+          attachment?: Json | null
           category?: string | null
           completed?: boolean | null
           completed_at?: string | null
@@ -160,7 +230,9 @@ export type Database = {
           duration_min?: number | null
           id?: string
           importance?: number | null
+          location_tag_id?: string | null
           memo?: string | null
+          rollover_count?: number | null
           snoozed_until?: string | null
           title: string
           updated_at?: string | null
@@ -169,6 +241,7 @@ export type Database = {
         }
         Update: {
           archived?: boolean | null
+          attachment?: Json | null
           category?: string | null
           completed?: boolean | null
           completed_at?: string | null
@@ -177,11 +250,43 @@ export type Database = {
           duration_min?: number | null
           id?: string
           importance?: number | null
+          location_tag_id?: string | null
           memo?: string | null
+          rollover_count?: number | null
           snoozed_until?: string | null
           title?: string
           updated_at?: string | null
           urls?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          timezone: string
+          updated_at: string
+          urgency_thresholds: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id?: string
+          timezone?: string
+          updated_at?: string
+          urgency_thresholds?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          timezone?: string
+          updated_at?: string
+          urgency_thresholds?: Json
           user_id?: string
         }
         Relationships: []

@@ -45,11 +45,11 @@ export function useTasks(isDbInitialized: boolean = false) {
     const today = getTodayJST()
     
     return tasks
-      .filter(task => 
-        !task.completed && 
+      .filter(task =>
+        !task.completed &&
         !task.archived &&
         (!task.snoozed_until || task.snoozed_until <= today) &&
-        task.due_date && task.due_date <= today  // Show tasks due today or earlier
+        task.due_date && task.due_date === today  // Show only tasks due today
       )
       .map(task => {
         const days_from_today = task.due_date ? getDaysFromToday(task.due_date) : TIME_CONSTANTS.MAX_DAYS_FROM_TODAY_FALLBACK
@@ -150,6 +150,32 @@ export function useTasks(isDbInitialized: boolean = false) {
       })
       .sort((a, b) => a.days_from_today - b.days_from_today)
       .slice(0, 3) // Max 3 items for preview
+  }
+
+  // Get overdue tasks (past due date, not completed)
+  const getOverdueTasks = (): TaskWithUrgency[] => {
+    const today = getTodayJST()
+
+    return tasks
+      .filter(task =>
+        !task.completed &&
+        !task.archived &&
+        (!task.snoozed_until || task.snoozed_until <= today) &&
+        task.due_date &&
+        task.due_date !== today &&
+        getDaysFromToday(task.due_date) < 0 // 期日が過ぎているもの
+      )
+      .map(task => {
+        const days_from_today = getDaysFromToday(task.due_date!)
+        const urgency = getUrgencyLevel(task.due_date!)
+
+        return {
+          task,
+          urgency,
+          days_from_today
+        }
+      })
+      .sort((a, b) => b.days_from_today - a.days_from_today) // Sort by overdue date descending (most recent overdue first)
   }
 
   // Complete a task
@@ -298,6 +324,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     getTodayCompletedTasks,
     getAllCompletedTasks,
     getUpcomingTasks,
+    getOverdueTasks,
     completeTask,
     quickMoveTask,
     createTask,

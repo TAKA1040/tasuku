@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Tasuku - 予定管理ツール',
+  title: 'TASUKU - 予定管理ツール',
   description: 'シンプルな日次タスク管理',
   icons: {
     icon: '/favicon.svg'

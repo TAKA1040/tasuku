@@ -4,11 +4,7 @@ import { useState } from 'react'
 import { formatDateForDisplay, getTodayJST } from '@/lib/utils/date-jst'
 
 export default function SimpleTodayPage() {
-  const [tasks, setTasks] = useState([
-    { id: '1', title: 'サンプルタスク1', completed: false },
-    { id: '2', title: 'サンプルタスク2', completed: false },
-    { id: '3', title: 'サンプルタスク3（完了）', completed: true }
-  ])
+  const [tasks, setTasks] = useState<{ id: string; title: string; completed: boolean }[]>([])
 
   const toggleTask = (id: string) => {
     setTasks(prev => prev.map(task => 

@@ -12,6 +12,7 @@ export interface RecurringTaskWithStatus {
   occursToday: boolean
   completedToday: boolean
   displayName: string
+  overdueDate?: string
 }
 
 export function useRecurringTasks(isDbInitialized: boolean = false) {
@@ -46,26 +47,56 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     }
   }, [isDbInitialized])
 
-  // Get today's recurring tasks with completion status
+  // Get today's recurring tasks with completion status (including yesterday for daily tasks)
   const getTodayRecurringTasks = (): RecurringTaskWithStatus[] => {
     const today = getTodayJST()
-    
-    return recurringTasks
+    const yesterday = new Date(new Date(today + 'T00:00:00').getTime() - 24 * 60 * 60 * 1000)
+      .toISOString().split('T')[0]
+
+    const allItems: RecurringTaskWithStatus[] = []
+
+    recurringTasks
       .filter(task => task.active)
-      .map(task => {
+      .forEach(task => {
+        // Today's tasks
         const occursToday = occursOn(today, task)
         const completedToday = recurringLogs.some(
           log => log.recurring_id === task.id && log.date === today
         )
-        
-        return {
-          task,
-          occursToday,
-          completedToday,
-          displayName: getRecurringDisplayName(task)
+
+        if (occursToday && !completedToday) {
+          allItems.push({
+            task,
+            occursToday: true,
+            completedToday: false,
+            displayName: getRecurringDisplayName(task)
+          })
+        }
+
+        // Yesterday's daily tasks (only if uncompleted and task is daily)
+        if (task.frequency === 'daily') {
+          const occursYesterday = occursOn(yesterday, task)
+          const completedYesterday = recurringLogs.some(
+            log => log.recurring_id === task.id && log.date === yesterday
+          )
+
+          if (occursYesterday && !completedYesterday && !completedToday) {
+            // Only add if not already added for today
+            const alreadyAdded = allItems.some(item => item.task.id === task.id)
+            if (!alreadyAdded) {
+              allItems.push({
+                task,
+                occursToday: false, // This is yesterday's task
+                completedToday: false,
+                displayName: getRecurringDisplayName(task) + ' (前日分)',
+                overdueDate: yesterday
+              })
+            }
+          }
         }
       })
-      .filter(item => item.occursToday && !item.completedToday)
+
+    return allItems
   }
 
   // Get today's completed recurring tasks

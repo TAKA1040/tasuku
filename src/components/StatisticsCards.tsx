@@ -7,6 +7,7 @@ interface StatisticsCardsProps {
 }
 
 export function StatisticsCards({ stats }: StatisticsCardsProps) {
+
   const StatCard = ({ title, value, subtitle, color = '#3b82f6' }: {
     title: string
     value: string | number
@@ -104,11 +105,19 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
         <h2 style={{
           fontSize: '14px',
           fontWeight: '600',
-          marginBottom: '8px',
+          marginBottom: '4px',
           color: '#1f2937'
         }}>
           基本統計
         </h2>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b7280',
+          margin: '0 0 8px 0',
+          lineHeight: '1.4'
+        }}>
+          全体的なタスク管理の状況を確認できます。完了率が高いほど効率的にタスクを進められています。
+        </p>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
@@ -146,25 +155,44 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
         <h2 style={{
           fontSize: '14px',
           fontWeight: '600',
-          marginBottom: '8px',
+          marginBottom: '4px',
           color: '#1f2937'
         }}>
           緊急度別統計
         </h2>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b7280',
+          margin: '0 0 8px 0',
+          lineHeight: '1.4'
+        }}>
+          期限までの時間による優先度別の進捗状況です。期限切れや期限間近のタスクが多い場合は要注意です。
+        </p>
         <div style={{
           backgroundColor: '#f8fafc',
           padding: '8px 12px'
         }}>
           {Object.entries(stats.urgencyStats)
             .filter(([, stat]) => stat.total > 0)
-            .map(([urgency, stat]) => (
-              <ProgressBar
-                key={urgency}
-                completed={stat.completed}
-                total={stat.total}
-                label={urgency}
-              />
-            ))
+            .map(([urgency, stat]) => {
+              // 緊急度の英語表示を日本語に変換
+              const urgencyLabels: { [key: string]: string } = {
+                'Overdue': '期限切れ',
+                'Soon': '期限間近',
+                'Next7': '今週中',
+                'Next30': '今月中',
+                'Normal': '通常'
+              }
+
+              return (
+                <ProgressBar
+                  key={urgency}
+                  completed={stat.completed}
+                  total={stat.total}
+                  label={urgencyLabels[urgency] || urgency}
+                />
+              )
+            })
           }
         </div>
       </section>
@@ -174,11 +202,19 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
         <h2 style={{
           fontSize: '14px',
           fontWeight: '600',
-          marginBottom: '8px',
+          marginBottom: '4px',
           color: '#1f2937'
         }}>
           カテゴリ別統計
         </h2>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b7280',
+          margin: '0 0 8px 0',
+          lineHeight: '1.4'
+        }}>
+          各分野別（仕事、プライベート、格闘系など）の進捗状況です。どの分野に時間を使っているかが分かります。
+        </p>
         <div style={{
           backgroundColor: '#f8fafc',
           padding: '8px 12px'
@@ -202,11 +238,19 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
         <h2 style={{
           fontSize: '14px',
           fontWeight: '600',
-          marginBottom: '8px',
+          marginBottom: '4px',
           color: '#1f2937'
         }}>
           重要度別統計
         </h2>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b7280',
+          margin: '0 0 8px 0',
+          lineHeight: '1.4'
+        }}>
+          重要度レベル別（1=最重要〜5=低優先度）の進捗状況です。重要なタスクの完了率を確認できます。
+        </p>
         <div style={{
           backgroundColor: '#f8fafc',
           padding: '8px 12px'
@@ -232,11 +276,19 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
           <h2 style={{
             fontSize: '18px',
             fontWeight: '600',
-            marginBottom: '16px',
+            marginBottom: '4px',
             color: '#1f2937'
           }}>
             繰り返しタスク
           </h2>
+          <p style={{
+            fontSize: '12px',
+            color: '#6b7280',
+            margin: '0 0 12px 0',
+            lineHeight: '1.4'
+          }}>
+            習慣化したいタスクの実行状況です。毎日や毎週のルーティンタスクの継続率を確認できます。
+          </p>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
@@ -264,16 +316,25 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
         </section>
       )}
 
+
       {/* 週間統計 */}
       <section>
         <h2 style={{
-          fontSize: '18px',
+          fontSize: '14px',
           fontWeight: '600',
-          marginBottom: '16px',
+          marginBottom: '4px',
           color: '#1f2937'
         }}>
           週間アクティビティ（過去7日間）
         </h2>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b7280',
+          margin: '0 0 8px 0',
+          lineHeight: '1.4'
+        }}>
+          過去1週間の日別完了タスク数です。日々の作業量の変化やパターンを把握できます。数字が大きいほど多くのタスクを完了しています。
+        </p>
         <div style={{
           backgroundColor: '#f8fafc',
           padding: '8px 12px'
@@ -295,8 +356,8 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
                   color: '#6b7280',
                   marginBottom: '2px'
                 }}>
-                  {new Date(day.date).toLocaleDateString('ja-JP', { 
-                    day: 'numeric' 
+                  {new Date(day.date).toLocaleDateString('ja-JP', {
+                    day: 'numeric'
                   })}
                 </div>
                 <div style={{

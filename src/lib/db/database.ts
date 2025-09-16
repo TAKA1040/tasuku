@@ -16,7 +16,13 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type LocationTag,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  type UnifiedItem
+  type UnifiedItem,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type SubTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type ShoppingList,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type ShoppingItem
 } from './schema'
 
 // Re-export STORE_NAMES for convenience
@@ -97,11 +103,33 @@ class TasukuDatabase {
       settingsStore.put(defaultSettings)
     }
     
+    // Sub Tasks store
+    if (!db.objectStoreNames.contains(STORE_NAMES.SUB_TASKS)) {
+      const subTaskStore = db.createObjectStore(STORE_NAMES.SUB_TASKS, { keyPath: 'id' })
+      subTaskStore.createIndex('by_parent_task_id', 'parent_task_id')
+      subTaskStore.createIndex('by_completed', 'completed')
+      subTaskStore.createIndex('by_sort_order', 'sort_order')
+    }
+
+    // Shopping Lists store
+    if (!db.objectStoreNames.contains(STORE_NAMES.SHOPPING_LISTS)) {
+      const shoppingListStore = db.createObjectStore(STORE_NAMES.SHOPPING_LISTS, { keyPath: 'id' })
+      shoppingListStore.createIndex('by_created_at', 'created_at')
+    }
+
+    // Shopping Items store
+    if (!db.objectStoreNames.contains(STORE_NAMES.SHOPPING_ITEMS)) {
+      const shoppingItemStore = db.createObjectStore(STORE_NAMES.SHOPPING_ITEMS, { keyPath: 'id' })
+      shoppingItemStore.createIndex('by_shopping_list_id', 'shopping_list_id')
+      shoppingItemStore.createIndex('by_completed', 'completed')
+      shoppingItemStore.createIndex('by_sort_order', 'sort_order')
+    }
+
     // Location Tags store (PHASE 6)
     if (!db.objectStoreNames.contains(STORE_NAMES.LOCATION_TAGS)) {
       db.createObjectStore(STORE_NAMES.LOCATION_TAGS, { keyPath: 'id' })
     }
-    
+
     // Unified Items store (PHASE 4)
     if (!db.objectStoreNames.contains(STORE_NAMES.UNIFIED_ITEMS)) {
       db.createObjectStore(STORE_NAMES.UNIFIED_ITEMS, { keyPath: ['source', 'source_id'] })
@@ -161,15 +189,29 @@ class TasukuDatabase {
     })
   }
   
+  async getByIndex<T>(storeName: string, indexName: string, key: IDBValidKey): Promise<T[]> {
+    if (!this.db) throw new Error('Database not initialized')
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
+      const index = store.index(indexName)
+      const request = index.getAll(key)
+
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+  }
+
   async getAllByIndex<T>(storeName: string, indexName: string, key?: IDBValidKey): Promise<T[]> {
     if (!this.db) throw new Error('Database not initialized')
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([storeName], 'readonly')
       const store = transaction.objectStore(storeName)
       const index = store.index(indexName)
       const request = key !== undefined ? index.getAll(key) : index.getAll()
-      
+
       request.onsuccess = () => resolve(request.result)
       request.onerror = () => reject(request.error)
     })

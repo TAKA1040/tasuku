@@ -95,6 +95,13 @@ export interface StatisticsData {
     completedToday: number
     pendingToday: number
   }
+
+  // 繰り返しタスク統計
+  recurringStats: {
+    total: number
+    completedToday: number
+    pendingToday: number
+  }
 }
 
 // MVP統計フック（設計書準拠）
@@ -228,6 +235,7 @@ function getDateDaysAgo(fromDate: string, daysAgo: number): string {
   date.setDate(date.getDate() - daysAgo)
   return date.toISOString().split('T')[0]
 }
+
 
 // レガシー統計フック（既存コンポーネント用）
 export function useStatistics(
@@ -371,7 +379,7 @@ export function useStatistics(
       completedToday: recurringTasks.filter(rt => rt.completedToday).length,
       pendingToday: recurringTasks.filter(rt => !rt.completedToday).length
     }
-    
+
     return {
       totalTasks,
       completedTasks,

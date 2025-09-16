@@ -13,6 +13,24 @@ export function getTodayJST(): string {
 }
 
 /**
+ * 明日のJST日付を YYYY-MM-DD 形式で取得
+ */
+export function getTomorrowJST(): string {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return formatDateJST(tomorrow)
+}
+
+/**
+ * 明後日のJST日付を YYYY-MM-DD 形式で取得
+ */
+export function getDayAfterTomorrowJST(): string {
+  const dayAfterTomorrow = new Date()
+  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
+  return formatDateJST(dayAfterTomorrow)
+}
+
+/**
  * Date オブジェクトを YYYY-MM-DD 形式（JST）に変換
  */
 export function formatDateJST(date: Date): string {
