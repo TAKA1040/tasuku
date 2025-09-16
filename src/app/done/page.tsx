@@ -113,11 +113,24 @@ export default function DonePage() {
   const completedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
 
   // 毎日のタスク達成度追跡システム
-  const getDailyTasksAchievementData = () => {
+  const getDailyTasksAchievementData = (): Array<{
+    taskId: string;
+    taskTitle: string;
+    taskStartDate: string;
+    dates: string[];
+    completions: boolean[];
+    consecutiveDays: number;
+    recentCompletedDays: number;
+    recentTotalDays: number;
+    recentAchievementRate: number;
+    totalCompletedDays: number;
+    totalDays: number;
+    totalAchievementRate: number;
+  }> => {
     if (!isInitialized || !recurringTasks || !recurringLogs) return []
 
     // 過去30日間の日付配列を生成
-    const dates = []
+    const dates: string[] = []
     for (let i = 29; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
@@ -128,7 +141,7 @@ export default function DonePage() {
     return selectedDailyTasks
       .map(taskId => {
         const task = recurringTasks.find(t => t.id === taskId)
-        if (!task) return null
+        if (!task) return undefined
 
         // タスクの開始日を取得（created_atまたはstart_date）
         const taskStartDate = task.start_date || task.created_at?.split('T')[0] || dates[0]
@@ -184,7 +197,7 @@ export default function DonePage() {
           totalAchievementRate
         }
       })
-      .filter(Boolean)
+      .filter((item): item is NonNullable<typeof item> => item !== undefined)
   }
 
   // 毎日のタスク選択/選択解除
