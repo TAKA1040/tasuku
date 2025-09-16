@@ -161,7 +161,13 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
     importance?: number,
     durationMin?: number,
     urls?: string[],
-    category?: string
+    category?: string,
+    attachment?: {
+      file_name: string
+      file_type: string
+      file_size: number
+      file_data: string
+    }
   ) => {
     try {
       const newRecurringTask: RecurringTask = {
@@ -176,6 +182,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
         duration_min: durationMin || undefined,
         urls: urls || undefined,
+        attachment: attachment || undefined,
         start_date: startDate || getTodayJST(),
         end_date: endDate,
         max_occurrences: undefined,
@@ -287,6 +294,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   return {
     recurringTasks,
     allRecurringTasks: recurringTasks, // 繰り越し機能用
+    recurringLogs,
     loading,
     error,
     getTodayRecurringTasks,

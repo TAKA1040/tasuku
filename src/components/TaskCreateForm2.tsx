@@ -16,8 +16,8 @@ interface RecurringSettings {
 
 interface TaskCreateForm2Props {
   isVisible: boolean
-  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string) => void
+  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: any) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: any) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -39,8 +39,48 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   const [urls, setUrls] = useState<string[]>([])
   const [newUrl, setNewUrl] = useState('')
   const [saveAsIdea, setSaveAsIdea] = useState(false)
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
 
-  const handleSubmit = () => {
+  // ファイル添付処理
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // ファイルサイズチェック（10MB制限）
+      if (file.size > 10 * 1024 * 1024) {
+        alert('ファイルサイズは10MB以下にしてください')
+        return
+      }
+
+      // 画像ファイルかPDFのみ許可
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+      if (!allowedTypes.includes(file.type)) {
+        alert('対応しているファイル形式: JPG, PNG, GIF, WebP, PDF')
+        return
+      }
+
+      setAttachedFile(file)
+
+      // ファイルのプレビューURL作成（画像の場合）
+      if (file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file)
+        setAttachedFileUrl(url)
+      } else {
+        setAttachedFileUrl('')
+      }
+    }
+  }
+
+  // ファイル削除
+  const removeFile = () => {
+    if (attachedFileUrl) {
+      URL.revokeObjectURL(attachedFileUrl)
+    }
+    setAttachedFile(null)
+    setAttachedFileUrl('')
+  }
+
+  const handleSubmit = async () => {
     console.log('TaskCreateForm2: handleSubmit called')
     console.log('TaskCreateForm2: title:', title)
     console.log('TaskCreateForm2: taskType:', taskType)
@@ -52,12 +92,42 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
       return
     }
 
+    // ファイル添付がある場合はBase64に変換
+    let attachment: any = undefined
+    if (attachedFile) {
+      try {
+        const fileBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const result = reader.result as string
+            // data:image/jpeg;base64, の部分を削除してBase64のみ取得
+            const base64Data = result.split(',')[1]
+            resolve(base64Data)
+          }
+          reader.onerror = reject
+          reader.readAsDataURL(attachedFile)
+        })
+
+        attachment = {
+          file_name: attachedFile.name,
+          file_type: attachedFile.type,
+          file_size: attachedFile.size,
+          file_data: fileBase64
+        }
+        console.log('TaskCreateForm2: File converted to base64, size:', attachment.file_data.length)
+      } catch (error) {
+        console.error('TaskCreateForm2: File conversion failed:', error)
+        alert('ファイルの変換に失敗しました')
+        return
+      }
+    }
+
     if (saveAsIdea) {
       console.log('TaskCreateForm2: Saving as idea')
       handleAddToIdeas()
     } else if (taskType === 'once' || taskType === 'deadline') {
       console.log('TaskCreateForm2: Submitting regular task with category:', category)
-      onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined)
+      onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment)
       resetForm()
     } else {
       console.log('TaskCreateForm2: Submitting recurring task')
@@ -68,7 +138,7 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
         dayOfMonth,
         monthOfYear,
         dayOfYear
-      }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category)
+      }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category, attachment)
       resetForm()
     }
   }
@@ -97,6 +167,13 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     setNewUrl('')
     setSaveAsIdea(false)
     setTaskType('once')
+
+    // ファイル添付のリセット
+    if (attachedFileUrl) {
+      URL.revokeObjectURL(attachedFileUrl)
+    }
+    setAttachedFile(null)
+    setAttachedFileUrl('')
   }
 
   const toggleWeekday = (day: number) => {
@@ -435,6 +512,103 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* ファイル添付セクション */}
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '4px',
+            fontSize: '12px',
+            fontWeight: '500',
+            color: '#374151'
+          }}>
+            ファイル添付（画像・PDF 1枚）
+          </label>
+
+          {!attachedFile ? (
+            <div style={{
+              border: '2px dashed #d1d5db',
+              borderRadius: '6px',
+              padding: '16px',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb'
+            }}>
+              <input
+                type="file"
+                id="file-upload"
+                accept="image/*,.pdf"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
+              <label
+                htmlFor="file-upload"
+                style={{
+                  display: 'inline-block',
+                  padding: '6px 12px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                📎 ファイルを選択
+              </label>
+              <div style={{ fontSize: '10px', color: '#6b7280', marginTop: '4px' }}>
+                JPG, PNG, GIF, WebP, PDF（10MB以下）
+              </div>
+            </div>
+          ) : (
+            <div style={{
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              padding: '8px',
+              backgroundColor: '#f9fafb'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+                    📎 {attachedFile.name}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#6b7280' }}>
+                    {(attachedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeFile}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #dc2626',
+                    borderRadius: '4px',
+                    backgroundColor: '#fee2e2',
+                    color: '#dc2626',
+                    fontSize: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  削除
+                </button>
+              </div>
+
+              {/* 画像プレビュー */}
+              {attachedFileUrl && (
+                <div style={{ marginTop: '8px', textAlign: 'center' }}>
+                  <img
+                    src={attachedFileUrl}
+                    alt="プレビュー"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100px',
+                      borderRadius: '4px',
+                      border: '1px solid #e5e7eb'
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

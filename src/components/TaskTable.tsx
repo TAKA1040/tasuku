@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { TaskWithUrgency, Task, RecurringTask } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
@@ -22,6 +22,48 @@ interface TaskTableProps {
 }
 
 export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
+  const [showFilePopup, setShowFilePopup] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<{ file_name: string; file_type: string; file_data: string } | null>(null)
+
+  // ファイル表示機能
+  const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
+    setSelectedFile(attachment)
+    setShowFilePopup(true)
+  }
+
+  const closeFilePopup = () => {
+    setShowFilePopup(false)
+    setSelectedFile(null)
+  }
+
+  // ファイルアイコン表示機能
+  const renderFileIcon = (attachment?: { file_name: string; file_type: string; file_data: string }) => {
+    if (!attachment) return null
+
+    const isImage = attachment.file_type.startsWith('image/')
+    const isPDF = attachment.file_type === 'application/pdf'
+
+    return (
+      <button
+        onClick={() => handleFileClick(attachment)}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '16px',
+          padding: '2px',
+          borderRadius: '3px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        title={`添付ファイル: ${attachment.file_name}`}
+      >
+        {isImage ? '📷' : isPDF ? '📄' : '📎'}
+      </button>
+    )
+  }
+
   const getUrgencyStyle = (urgency: string) => {
     switch (urgency) {
       case 'Overdue':
@@ -381,6 +423,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   <span style={{ fontWeight: '500' }}>
                     {item.title}
                   </span>
+                  {(item.task?.attachment || item.recurringTask?.task?.attachment) && renderFileIcon(item.task?.attachment || item.recurringTask?.task?.attachment)}
                   {item.memo && (
                     <span style={{
                       color: '#6b7280',
@@ -470,34 +513,11 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   )}
 
                   {/* 削除ボタン（ゴミ箱アイコン） */}
-                  {(() => {
-                    if (item.isRecurring) {
-                      console.log('繰り返しタスクの削除ボタン表示判定:', {
-                        itemId: item.id,
-                        title: item.title,
-                        isRecurring: item.isRecurring,
-                        hasRecurringTask: !!item.recurringTask,
-                        hasOnDeleteRecurring: !!onDeleteRecurring
-                      })
-                    } else {
-                      console.log('通常タスクの削除ボタン表示判定:', {
-                        itemId: item.id,
-                        title: item.title,
-                        hasTask: !!item.task,
-                        hasOnDelete: !!onDelete
-                      })
-                    }
-                    return null
-                  })()}
                   {item.isRecurring && item.recurringTask && onDeleteRecurring ? (
                     <button
                       onClick={() => {
-                        console.log('繰り返しタスク削除ボタンがクリックされました:', item.id, item.title)
                         if (confirm('この繰り返しタスクを削除しますか？')) {
-                          console.log('繰り返しタスクの削除が確認されました:', item.id)
                           onDeleteRecurring(item.id)
-                        } else {
-                          console.log('繰り返しタスクの削除がキャンセルされました:', item.id)
                         }
                       }}
                       style={{
@@ -530,12 +550,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   ) : item.task && onDelete && (
                     <button
                       onClick={() => {
-                        console.log('削除ボタンがクリックされました:', item.id, item.title)
                         if (confirm('このタスクを削除しますか？')) {
-                          console.log('削除が確認されました:', item.id)
                           onDelete(item.id)
-                        } else {
-                          console.log('削除がキャンセルされました:', item.id)
                         }
                       }}
                       style={{
@@ -579,6 +595,152 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           ))}
         </tbody>
       </table>
+
+      {/* ファイルポップアップ */}
+      {showFilePopup && selectedFile && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '10px'
+          }}
+          onClick={closeFilePopup}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '16px',
+              maxWidth: '95vw',
+              maxHeight: '95vh',
+              width: 'fit-content',
+              height: 'fit-content',
+              overflow: 'auto',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '12px',
+              flexShrink: 0
+            }}>
+              <h3 style={{
+                margin: 0,
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151',
+                wordBreak: 'break-all',
+                lineHeight: '1.3',
+                paddingRight: '8px'
+              }}>
+                {selectedFile.file_name}
+              </h3>
+              <button
+                onClick={closeFilePopup}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '28px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '4px',
+                  minWidth: '32px',
+                  minHeight: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* ファイル内容表示 */}
+            {selectedFile.file_type.startsWith('image/') ? (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '200px',
+                maxHeight: 'calc(95vh - 80px)',
+                overflow: 'hidden'
+              }}>
+                <img
+                  src={`data:${selectedFile.file_type};base64,${selectedFile.file_data}`}
+                  alt={selectedFile.file_name}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    height: 'auto',
+                    width: 'auto',
+                    borderRadius: '4px',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }}
+                />
+              </div>
+            ) : selectedFile.file_type === 'application/pdf' ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📄</div>
+                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                  PDFファイルはブラウザで開くことができます
+                </p>
+                <a
+                  href={`data:${selectedFile.file_type};base64,${selectedFile.file_data}`}
+                  download={selectedFile.file_name}
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                >
+                  ダウンロード
+                </a>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📎</div>
+                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                  このファイルはプレビューできません
+                </p>
+                <a
+                  href={`data:${selectedFile.file_type};base64,${selectedFile.file_data}`}
+                  download={selectedFile.file_name}
+                  style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                >
+                  ダウンロード
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

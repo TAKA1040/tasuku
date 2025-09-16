@@ -44,7 +44,8 @@ export default function TodayPage() {
   // 繰り返しタスク編集フォーム表示制御
   const [showRecurringEditForm, setShowRecurringEditForm] = useState(false)
   const [editingRecurringTask, setEditingRecurringTask] = useState<RecurringTask | null>(null)
-  
+
+
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
   
@@ -107,8 +108,8 @@ export default function TodayPage() {
   ].sort((a, b) => a.days_from_today - b.days_from_today)
 
 
-  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[]) => {
-    await createTask(title, memo, dueDate, category, importance, durationMin, urls)
+  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: any) => {
+    await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
   }
 
   const handleCreateRecurring = async (title: string, memo: string, settings: {
@@ -118,7 +119,7 @@ export default function TodayPage() {
     dayOfMonth: number
     monthOfYear: number
     dayOfYear: number
-  }, importance?: number, durationMin?: number, urls?: string[], category?: string) => {
+  }, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: any) => {
     const { pattern, intervalDays, selectedWeekdays, dayOfMonth } = settings
     
     // パターンをスキーマ形式に変換
@@ -147,7 +148,7 @@ export default function TodayPage() {
         frequency = 'DAILY'
     }
     
-    await createRecurringTask(title, memo, frequency, intervalN, weekdays, monthDay, undefined, undefined, importance, durationMin, urls, category)
+    await createRecurringTask(title, memo, frequency, intervalN, weekdays, monthDay, undefined, undefined, importance, durationMin, urls, category, attachment)
   }
 
   const handleEditTask = (task: Task) => {
@@ -403,6 +404,7 @@ export default function TodayPage() {
         onSubmit={handleUpdateRecurringTask}
         onCancel={handleCancelRecurringEdit}
       />
+
       </div>
     </ThemedContainer>
   )

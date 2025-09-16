@@ -25,6 +25,12 @@ export interface Task {
   importance?: 1 | 2 | 3 | 4 | 5 // 重要度
   category?: string // カテゴリ（仕事、プライベート、勉強など）
   urls?: string[] // 関連URL（最大5個）
+  attachment?: {
+    file_name: string
+    file_type: string
+    file_size: number
+    file_data: string // Base64エンコードされたファイルデータ
+  }
   location_tag_id?: string
 }
 
@@ -48,6 +54,12 @@ export interface RecurringTask {
   importance?: 1 | 2 | 3 | 4 | 5
   category?: string // カテゴリ（仕事、プライベート、勉強など）
   urls?: string[] // 関連URL（最大5個）
+  attachment?: {
+    file_name: string
+    file_type: string
+    file_size: number
+    file_data: string // Base64エンコードされたファイルデータ
+  }
   location_tag_id?: string
 }
 

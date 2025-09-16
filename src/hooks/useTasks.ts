@@ -199,13 +199,19 @@ export function useTasks(isDbInitialized: boolean = false) {
 
   // Create a new task
   const createTask = async (
-    title: string, 
-    memo?: string, 
-    dueDate?: string, 
-    category?: string, 
+    title: string,
+    memo?: string,
+    dueDate?: string,
+    category?: string,
     importance?: number,
     durationMin?: number,
-    urls?: string[]
+    urls?: string[],
+    attachment?: {
+      file_name: string
+      file_type: string
+      file_size: number
+      file_data: string
+    }
   ) => {
     try {
       const newTask: Task = {
@@ -217,6 +223,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
         duration_min: durationMin || undefined,
         urls: urls || undefined,
+        attachment: attachment || undefined,
         completed: false,
         archived: false,
         completed_at: undefined,
