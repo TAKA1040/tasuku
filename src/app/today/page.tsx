@@ -20,7 +20,6 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { VoiceInputButton } from '@/components/VoiceInputButton'
 import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
-import { subTaskService } from '@/lib/db/supabase-subtasks'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
