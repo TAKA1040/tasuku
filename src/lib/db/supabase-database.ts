@@ -515,8 +515,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds,
-        features: data.features,
+        urgency_thresholds: data.urgency_thresholds as any,
+        features: data.features as any,
         updated_at: data.updated_at
       }
     } catch (err) {
@@ -558,8 +558,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds,
-        features: data.features,
+        urgency_thresholds: data.urgency_thresholds as any,
+        features: data.features as any,
         updated_at: data.updated_at
       }
     } catch (err) {
@@ -640,8 +640,8 @@ class SupabaseTasukuDatabase {
           return {
             id: 'main',
             timezone: newData.timezone as 'Asia/Tokyo',
-            urgency_thresholds: newData.urgency_thresholds,
-            features: newData.features,
+            urgency_thresholds: newData.urgency_thresholds as any,
+            features: newData.features as any,
             updated_at: newData.updated_at
           }
         }
@@ -651,8 +651,8 @@ class SupabaseTasukuDatabase {
       return {
         id: 'main',
         timezone: data.timezone as 'Asia/Tokyo',
-        urgency_thresholds: data.urgency_thresholds,
-        features: data.features,
+        urgency_thresholds: data.urgency_thresholds as any,
+        features: data.features as any,
         updated_at: data.updated_at
       }
     } catch (err) {

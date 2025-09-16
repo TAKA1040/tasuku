@@ -34,7 +34,8 @@ export class ShoppingListService {
     await database.init()
 
     // 関連する買い物アイテムもすべて削除
-    const items = await this.getShoppingItems(listId)
+    const itemService = new ShoppingItemService()
+    const items = await itemService.getShoppingItems(listId)
     for (const item of items) {
       await database.delete(STORE_NAMES.SHOPPING_ITEMS, item.id)
     }

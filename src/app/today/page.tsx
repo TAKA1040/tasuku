@@ -245,18 +245,18 @@ export default function TodayPage() {
       id: '', // 新規タスク
       title: idea.text,
       memo: '',
-      due_date: null,
+      due_date: undefined,
       category: '',
       importance: 1,
-      duration_min: null,
-      urls: null,
-      attachment: null,
+      duration_min: undefined,
+      urls: undefined,
+      attachment: undefined,
       completed: false,
       archived: false,
-      snoozed_until: null,
+      snoozed_until: undefined,
       created_at: '',
       updated_at: '',
-      completed_at: null
+      completed_at: undefined
     })
     setShowEditForm(true)
 

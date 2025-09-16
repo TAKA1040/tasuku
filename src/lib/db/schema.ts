@@ -48,6 +48,18 @@ export interface RecurringTask {
   active: boolean
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
+
+  // PHASE 4.2 - 拡張フィールド（TasksからRecurringTasksにも追加）
+  duration_min?: number // 想定所要時間（分）
+  importance?: 1 | 2 | 3 | 4 | 5 // 重要度
+  category?: string // カテゴリ（仕事、プライベート、勉強など）
+  urls?: string[] // 関連URL（最大5個）
+  attachment?: {
+    file_name: string
+    file_type: string
+    file_size: number
+    file_data: string // Base64エンコードされたファイルデータ
+  }
 }
 
 // サブタスク（買い物リスト等で使用）

@@ -74,7 +74,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         }
 
         // Yesterday's daily tasks (only if uncompleted and task is daily)
-        if (task.frequency === 'daily') {
+        if (task.frequency === 'DAILY') {
           const occursYesterday = occursOn(yesterday, task)
           const completedYesterday = recurringLogs.some(
             log => log.recurring_id === task.id && log.date === yesterday

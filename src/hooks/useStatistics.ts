@@ -95,13 +95,6 @@ export interface StatisticsData {
     completedToday: number
     pendingToday: number
   }
-
-  // 繰り返しタスク統計
-  recurringStats: {
-    total: number
-    completedToday: number
-    pendingToday: number
-  }
 }
 
 // MVP統計フック（設計書準拠）

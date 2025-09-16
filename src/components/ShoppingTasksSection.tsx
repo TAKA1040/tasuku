@@ -297,7 +297,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
           const newTaskId = await createTask(
             newTitle,
             originalTask.task.memo,
-            null, // 期日なしに変更
+            undefined, // 期日なしに変更
             TASK_CATEGORIES.SHOPPING,
             originalTask.task.importance,
             originalTask.task.duration_min,
