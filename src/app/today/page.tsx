@@ -222,36 +222,6 @@ export default function TodayPage() {
     console.log('音声でタスクを作成:', voiceText)
   }
 
-  const handleScheduleTask = async (storeName: string, items: string[], dueDate: string) => {
-    try {
-      // メインタスクを作成（店舗名をタイトルに）
-      const taskTitle = `${storeName}で買い物`
-      await createTask(taskTitle, '', dueDate)
-
-      // 少し待ってからタスクリストを再取得（createTaskがloadTasksを呼び出すため）
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // 作成されたタスクのIDを取得
-      const allTasksList = isInitialized ? [...getTodayTasks(), ...getUpcomingTasks()] : []
-      const recentTask = allTasksList.find(t =>
-        t.task.title === taskTitle &&
-        t.task.due_date === dueDate &&
-        !t.task.completed
-      )
-
-      if (recentTask) {
-        // サブタスクを作成
-        for (let i = 0; i < items.length; i++) {
-          await subTaskService.createSubTask(recentTask.task.id, items[i], i)
-        }
-        console.log(`${storeName}の買い物タスクを${dueDate}に作成しました`)
-      } else {
-        console.error('作成したタスクが見つかりませんでした')
-      }
-    } catch (error) {
-      console.error('スケジュール作成エラー:', error)
-    }
-  }
 
   const handleMoveToIdeas = async (taskId: string) => {
     try {
@@ -270,7 +240,7 @@ export default function TodayPage() {
     }
   }
 
-  const handleUpgradeToTask = async (idea: any) => {
+  const handleUpgradeToTask = async (idea: { id: string; text: string; completed: boolean; createdAt: string }) => {
     // アイデアをタスクに昇格させる場合、編集フォームを開いてタイトルを事前入力
     setEditingTask({
       id: '', // 新規タスク

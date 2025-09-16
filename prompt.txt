@@ -1,4 +1,131 @@
-DBとの連携が出来てないところを、連携させて
-
-コード全体を見て、決め打ちのデータがないかチェックしてみて
-そこがDBとれんけいできてないか、そもそもDBがないかの基準になると思う。
+[01:22:31.898] Running build in Washington, D.C., USA (East) – iad1
+[01:22:31.899] Build machine configuration: 2 cores, 8 GB
+[01:22:31.916] Cloning github.com/TAKA1040/tasuku (Branch: main, Commit: e307a60)
+[01:22:32.238] Cloning completed: 321.000ms
+[01:22:34.038] Restored build cache from previous deployment (A86UNKPgL5QBYZsq6KNGPLpg1aSy)
+[01:22:34.461] Running "vercel build"
+[01:22:34.843] Vercel CLI 47.1.1
+[01:22:35.156] Installing dependencies...
+[01:22:36.410] 
+[01:22:36.410] up to date in 1s
+[01:22:36.410] 
+[01:22:36.411] 133 packages are looking for funding
+[01:22:36.411]   run `npm fund` for details
+[01:22:36.442] Detected Next.js version: 15.5.3
+[01:22:36.446] Running "npm run build"
+[01:22:36.556] 
+[01:22:36.556] > tasuku@0.1.0 build
+[01:22:36.557] > next build
+[01:22:36.557] 
+[01:22:37.307]    ▲ Next.js 15.5.3
+[01:22:37.307] 
+[01:22:37.398]    Creating an optimized production build ...
+[01:22:50.749]  ✓ Compiled successfully in 10.7s
+[01:22:50.751]    Linting and checking validity of types ...
+[01:23:00.773] 
+[01:23:00.774] Failed to compile.
+[01:23:00.778] 
+[01:23:00.779] ./src/app/done/page.tsx
+[01:23:00.779] 7:10  Warning: 'formatDateForDisplay' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.779] 405:56  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.780] 
+[01:23:00.780] ./src/app/manage/page.tsx
+[01:23:00.780] 32:10  Warning: 'showCreateTaskForm' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.780] 
+[01:23:00.781] ./src/app/today/page.tsx
+[01:23:00.781] 225:9  Warning: 'handleScheduleTask' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.781] 273:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+[01:23:00.781] 
+[01:23:00.782] ./src/components/IdeaBox.tsx
+[01:23:00.782] 21:51  Warning: 'onEdit' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.782] 
+[01:23:00.782] ./src/components/ShoppingTasksSection.tsx
+[01:23:00.783] 9:23  Warning: 'getTomorrowJST' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.783] 18:11  Warning: 'getTodayTasks' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.783] 18:26  Warning: 'getUpcomingTasks' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.784] 18:58  Warning: 'updateTask' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.784] 194:6  Warning: React Hook useEffect has a missing dependency: 'loadSubTasks'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[01:23:00.784] 197:57  Warning: 'taskId' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.785] 207:57  Warning: 'taskId' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.785] 297:17  Warning: 'newTaskId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.790] 850:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[01:23:00.791] 
+[01:23:00.791] ./src/components/SwipeableTaskRow.tsx
+[01:23:00.791] 99:9  Warning: 'handleMouseMove' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.792] 180:6  Warning: React Hook useEffect has a missing dependency: 'handleMouseUp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[01:23:00.792] 
+[01:23:00.792] ./src/components/TaskCreateForm2.tsx
+[01:23:00.793] 600:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[01:23:00.793] 
+[01:23:00.793] ./src/components/TaskTable.tsx
+[01:23:00.794] 75:9  Warning: 'getUrgencyStyle' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.794] 200:57  Warning: 'taskId' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.794] 209:57  Warning: 'taskId' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.795] 973:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[01:23:00.812] 
+[01:23:00.813] ./src/components/VoiceInputButton.tsx
+[01:23:00.814] 17:5  Warning: 'transcript' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.814] 
+[01:23:00.814] ./src/hooks/useRecurringTasks.ts
+[01:23:00.815] 147:13  Warning: 'newLog' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.815] 
+[01:23:00.815] ./src/hooks/useRollover.ts
+[01:23:00.815] 11:36  Warning: 'RecurringLog' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.816] 65:6  Warning: React Hook useEffect has missing dependencies: 'autoRollover' and 'executeAutoRollover'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[01:23:00.818] 94:17  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.825] 94:21  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.825] 94:33  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.825] 164:19  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.826] 164:23  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.826] 164:35  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.826] 186:21  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.826] 186:25  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.827] 186:37  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.827] 
+[01:23:00.827] ./src/hooks/useStatistics.ts
+[01:23:00.827] 227:10  Warning: 'getNextDate' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.828] 
+[01:23:00.828] ./src/hooks/useTasks.ts
+[01:23:00.828] 316:6  Warning: React Hook useEffect has a missing dependency: 'loadTasks'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[01:23:00.828] 
+[01:23:00.829] ./src/lib/db/seed.ts
+[01:23:00.829] 94:13  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.829] 94:17  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.830] 94:29  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.830] 99:13  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.832] 99:17  Warning: 'created_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.832] 99:29  Warning: 'updated_at' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.833] 
+[01:23:00.833] ./src/lib/db/supabase-database.ts
+[01:23:00.833] 18:8  Warning: 'TaskWithUrgency' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.834] 19:8  Warning: 'UrgencyLevel' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.834] 70:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.834] 86:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.834] 98:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.835] 110:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.835] 126:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.835] 153:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.835] 169:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.836] 181:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.836] 193:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.836] 226:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.836] 265:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.837] 276:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.837] 287:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.838] 330:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.838] 346:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.838] 358:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.838] 374:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.839] 417:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.839] 433:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.840] 446:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.840] 457:24  Warning: 'user_id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.841] 470:13  Warning: 'user_id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.842] 677:27  Warning: 'tag' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.842] 685:27  Warning: 'id' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.842] 693:27  Warning: 'item' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.843] 701:27  Warning: 'source' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.843] 701:43  Warning: 'sourceId' is defined but never used.  @typescript-eslint/no-unused-vars
+[01:23:00.843] 
+[01:23:00.843] info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+[01:23:00.844] Error: Command "npm run build" exited with 1
