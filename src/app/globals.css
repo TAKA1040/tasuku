@@ -18,6 +18,14 @@
   color: #f9fafb !important;
 }
 
+[data-theme="dark"] .task-item {
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] .task-content span {
+  color: #f9fafb !important;
+}
+
 [data-theme="dark"] .task-row {
   background-color: #1f2937 !important;
   border-color: #374151 !important;
@@ -48,6 +56,26 @@
 
 [data-theme="dark"] .border-gray {
   border-color: #374151 !important;
+}
+
+/* Table rows in dark mode */
+[data-theme="dark"] tr {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] tr:nth-child(even) {
+  background-color: #111827 !important;
+}
+
+[data-theme="dark"] td {
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+
+[data-theme="dark"] table {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
 }
 
 /* Mobile responsive design */

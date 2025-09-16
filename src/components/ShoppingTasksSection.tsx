@@ -494,7 +494,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                   </button>
                 </td>
                 <td style={{ padding: '2px 4px' }}>
-                  <div style={{
+                  <div className="task-content" style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
@@ -504,7 +504,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                     color: item.isCompleted ? '#9ca3af' : 'inherit'
                   }}>
                     <ImportanceDot importance={item.importance} size={10} showTooltip />
-                    <span style={{ fontWeight: '500' }}>
+                    <span className="task-title" style={{ fontWeight: '500' }}>
                       {item.title}
                     </span>
                     <span
