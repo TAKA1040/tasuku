@@ -16,8 +16,8 @@ interface RecurringSettings {
 
 interface TaskCreateForm2Props {
   isVisible: boolean
-  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: any) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: any) => void
+  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -93,7 +93,7 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     }
 
     // ファイル添付がある場合はBase64に変換
-    let attachment: any = undefined
+    let attachment: { file_name: string; file_type: string; file_size: number; file_data: string } | undefined = undefined
     if (attachedFile) {
       try {
         const fileBase64 = await new Promise<string>((resolve, reject) => {

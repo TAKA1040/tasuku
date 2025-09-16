@@ -108,7 +108,7 @@ export default function TodayPage() {
   ].sort((a, b) => a.days_from_today - b.days_from_today)
 
 
-  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: any) => {
+  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
   }
 
@@ -119,7 +119,7 @@ export default function TodayPage() {
     dayOfMonth: number
     monthOfYear: number
     dayOfYear: number
-  }, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: any) => {
+  }, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     const { pattern, intervalDays, selectedWeekdays, dayOfMonth } = settings
     
     // パターンをスキーマ形式に変換
