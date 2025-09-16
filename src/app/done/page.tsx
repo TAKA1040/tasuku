@@ -7,6 +7,7 @@ import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { formatDateForDisplay } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
+import { ThemedContainer } from '@/components/ThemedContainer'
 import type { Task } from '@/lib/db/schema'
 
 // Dynamic import to prevent static generation
@@ -229,13 +230,14 @@ export default function DonePage() {
   }
 
   return (
-    <div style={{
-      padding: '8px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      width: '100%',
-      boxSizing: 'border-box'
-    }}>
+    <ThemedContainer>
+      <div className="page-container" style={{
+        padding: '8px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
       <header style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0' }}>
@@ -478,7 +480,7 @@ export default function DonePage() {
                     }
                     .mobile-header-row {
                       display: grid;
-                      grid-template-columns: 60px repeat(15, 12px) 40px 50px 35px;
+                      grid-template-columns: 50px repeat(15, 10px) 35px 40px 30px;
                       gap: 1px;
                       padding: 4px 0;
                     }
@@ -489,7 +491,7 @@ export default function DonePage() {
                     }
                     .mobile-task-row {
                       display: grid;
-                      grid-template-columns: 60px repeat(15, 12px) 40px 50px 35px;
+                      grid-template-columns: 50px repeat(15, 10px) 35px 40px 30px;
                       gap: 1px;
                       padding: 4px 0;
                     }
@@ -531,7 +533,7 @@ export default function DonePage() {
                     }}
                   >
                     {/* タスク名 */}
-                    <div className="achievement-text-light achievement-border" style={{
+                    <div className="achievement-text-light achievement-border task-title" style={{
                       padding: '8px',
                       fontSize: '12px',
                       fontWeight: '500',
@@ -673,7 +675,7 @@ export default function DonePage() {
                     >
                       {/* 第1行：タスク名 + 前半15日 + 統計情報 */}
                       <div className="mobile-task-row">
-                        <div className="achievement-text-light achievement-border" style={{
+                        <div className="achievement-text-light achievement-border task-title" style={{
                           padding: '6px 4px',
                           fontSize: '10px',
                           fontWeight: '500',
@@ -828,6 +830,7 @@ export default function DonePage() {
         onCancel={handleCancelEdit}
         onUncomplete={uncompleteTask}
       />
-    </div>
+      </div>
+    </ThemedContainer>
   )
 }

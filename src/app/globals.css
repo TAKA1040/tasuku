@@ -1,3 +1,55 @@
+/* Dark mode support */
+[data-theme="dark"] {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+[data-theme="dark"] body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+/* Task-related dark mode styles */
+[data-theme="dark"] .task-text {
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] .task-title {
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] .task-row {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+[data-theme="dark"] .task-row:nth-child(even) {
+  background-color: #111827 !important;
+}
+
+[data-theme="dark"] .task-container {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+[data-theme="dark"] .page-container {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
+}
+
+[data-theme="dark"] .card {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+[data-theme="dark"] .text-gray {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .border-gray {
+  border-color: #374151 !important;
+}
+
 /* Mobile responsive design */
 @media (max-width: 768px) {
   /* Header layout for mobile */
