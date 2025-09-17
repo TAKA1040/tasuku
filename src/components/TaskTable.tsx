@@ -398,6 +398,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#f9fafb' }}>
+              <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>番号</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
               <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
