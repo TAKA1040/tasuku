@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useTasks } from '@/hooks/useTasks'
 import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { useRollover } from '@/hooks/useRollover'
 import { formatDateForDisplay, getTodayJST } from '@/lib/utils/date-jst'
-import { TaskTable } from '@/components/TaskTable'
+import { DraggableTaskTable } from '@/components/DraggableTaskTable'
 import { UpcomingPreview } from '@/components/UpcomingPreview'
 import { IncompleteTasksToggle } from '@/components/IncompleteTasksToggle'
 import { TaskEditForm } from '@/components/TaskEditForm'
@@ -14,6 +14,7 @@ import { RecurringTaskEditForm } from '@/components/RecurringTaskEditForm'
 import { TaskCreateForm2 } from '@/components/TaskCreateForm2'
 import { IdeaBox } from '@/components/IdeaBox'
 import { useIdeas } from '@/hooks/useIdeas'
+import { useTaskOrder } from '@/hooks/useTaskOrder'
 import { Task, RecurringTask } from '@/lib/db/schema'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -30,6 +31,7 @@ export default function TodayPage() {
   const { loading: tasksLoading, getTodayTasks, getTodayCompletedTasks, getUpcomingTasks, getOverdueTasks, completeTask, createTask, updateTask, uncompleteTask, deleteTask, allTasks } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayRecurringTasks, getTodayCompletedRecurringTasks, getUpcomingRecurringTasks, completeRecurringTask, createRecurringTask, uncompleteRecurringTask, updateRecurringTask, deleteRecurringTask, allRecurringTasks } = useRecurringTasks(isInitialized)
   const { ideas, addIdea, toggleIdea, editIdea, deleteIdea } = useIdeas(isInitialized)
+  const { updateTaskOrder: updateLocalTaskOrder, sortTasksByOrder, taskOrder } = useTaskOrder()
   
   // 繰り越し機能
   const {
@@ -53,6 +55,12 @@ export default function TodayPage() {
   // 期日切れタスク表示制御
   const [showOverdueTasks, setShowOverdueTasks] = useState(false)
 
+  // ドラッグ&ドロップによる並び順の一時的な管理
+  const [reorderedTasks, setReorderedTasks] = useState<{[key: string]: number}>({})
+
+  // 並び替え処理中のレースコンディション防止
+  const [isReordering, setIsReordering] = useState(false)
+
 
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
@@ -67,61 +75,106 @@ export default function TodayPage() {
     
     return () => clearTimeout(timer)
   }, [isInitialized])
-  
-  if (error) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1 style={{ color: '#dc2626' }}>データベースエラー</h1>
-        <p>{error}</p>
-      </div>
-    )
-  }
-  
-  // Show loading only if database isn't initialized and timeout hasn't occurred
-  if (!isInitialized && !forceShow && (tasksLoading || recurringLoading)) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>読み込み中...</h1>
-        <p>データを準備しています</p>
-        {error && (
-          <div style={{ marginTop: '20px', color: '#dc2626' }}>
-            <p>データベースエラー: {error}</p>
-            <p>3秒後にインターフェースを表示します...</p>
-          </div>
-        )}
-      </div>
-    )
-  }
 
   // Safe data fetching - fallback to empty arrays if not initialized
-  const todayTasks = isInitialized ? getTodayTasks() : []
+  const rawTodayTasks = isInitialized ? getTodayTasks() : []
   const todayCompletedTasks = isInitialized ? getTodayCompletedTasks() : []
-  const overdueTasks = isInitialized ? getOverdueTasks() : []
+  const rawOverdueTasks = isInitialized ? getOverdueTasks() : []
   const todayRecurringTasks = isInitialized ? getTodayRecurringTasks() : []
   const todayCompletedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
-  const upcomingTasks = isInitialized ? getUpcomingTasks() : []
+  const rawUpcomingTasks = isInitialized ? getUpcomingTasks() : []
   const upcomingRecurringTasks = isInitialized ? getUpcomingRecurringTasks() : []
-  
-  // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
-  const allUpcoming = [
-    ...upcomingTasks,
-    ...upcomingRecurringTasks.map(item => ({
-      task: {
-        id: item.task.id,
-        title: item.task.title,
-        due_date: item.nextDate
-      } as Task,
-      urgency: 'Normal' as const,
-      days_from_today: item.daysFromToday
+
+  // ローカル順序を適用してタスクをソート
+  const todayTasks = useMemo(() => {
+    return sortTasksByOrder(rawTodayTasks.map(item => ({
+      ...item,
+      id: item.task.id
+    }))).map(item => ({
+      task: item.task,
+      urgency: item.urgency,
+      days_from_today: item.days_from_today
     }))
-  ].sort((a, b) => a.days_from_today - b.days_from_today)
+  }, [rawTodayTasks, sortTasksByOrder, taskOrder])
 
+  const overdueTasks = useMemo(() => {
+    return sortTasksByOrder(rawOverdueTasks.map(item => ({
+      ...item,
+      id: item.task.id
+    }))).map(item => ({
+      task: item.task,
+      urgency: item.urgency,
+      days_from_today: item.days_from_today
+    }))
+  }, [rawOverdueTasks, sortTasksByOrder, taskOrder])
 
-  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+  const upcomingTasks = useMemo(() => {
+    return sortTasksByOrder(rawUpcomingTasks.map(item => ({
+      ...item,
+      id: item.task.id
+    }))).map(item => ({
+      task: item.task,
+      urgency: item.urgency,
+      days_from_today: item.days_from_today
+    }))
+  }, [rawUpcomingTasks, sortTasksByOrder, taskOrder])
+
+  // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
+  const allUpcoming = useMemo(() => {
+    const taskIds = new Set()
+    const combined = []
+
+    // 通常のupcomingTasksを追加
+    for (const task of upcomingTasks) {
+      if (!taskIds.has(task.task.id)) {
+        taskIds.add(task.task.id)
+        combined.push(task)
+      }
+    }
+
+    // 繰り返しタスクを追加（重複チェック）
+    for (const item of upcomingRecurringTasks) {
+      if (!taskIds.has(item.task.id)) {
+        taskIds.add(item.task.id)
+        combined.push({
+          task: {
+            id: item.task.id,
+            title: item.task.title,
+            due_date: item.nextDate
+          } as Task,
+          urgency: 'Normal' as const,
+          days_from_today: item.daysFromToday
+        })
+      }
+    }
+
+    // カスタム順序を適用（カスタム順序がない場合は元の順序を保持）
+    return combined.sort((a, b) => {
+      const aOrder = reorderedTasks[a.task.id]
+      const bOrder = reorderedTasks[b.task.id]
+
+      // 両方ともカスタム順序がない場合は元の順序（days_from_today）
+      if (aOrder === undefined && bOrder === undefined) {
+        return a.days_from_today - b.days_from_today
+      }
+
+      // 片方だけカスタム順序がある場合
+      if (aOrder === undefined) return 1  // aを後ろに
+      if (bOrder === undefined) return -1 // bを後ろに
+
+      // 両方ともカスタム順序がある場合
+      return aOrder - bOrder
+    })
+  }, [upcomingTasks, upcomingRecurringTasks, reorderedTasks, taskOrder])
+
+  // Note: reorderedTodayTasks removed as it's not used in this implementation
+
+  // すべてのハンドラーを最初に定義（Hooks順序を安定させるため）
+  const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
-  }
+  }, [createTask])
 
-  const handleCreateRecurring = async (title: string, memo: string, settings: {
+  const handleCreateRecurring = useCallback(async (title: string, memo: string, settings: {
     pattern: string
     intervalDays: number
     selectedWeekdays: number[]
@@ -130,13 +183,13 @@ export default function TodayPage() {
     dayOfYear: number
   }, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     const { pattern, intervalDays, selectedWeekdays, dayOfMonth } = settings
-    
+
     // パターンをスキーマ形式に変換
     let frequency: 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY'
     let intervalN = 1
     let weekdays: number[] | undefined
     let monthDay: number | undefined
-    
+
     switch (pattern) {
       case 'daily':
         frequency = 'DAILY'
@@ -156,30 +209,68 @@ export default function TodayPage() {
       default:
         frequency = 'DAILY'
     }
-    
+
     await createRecurringTask(title, memo, frequency, intervalN, weekdays, monthDay, undefined, undefined, importance, durationMin, urls, category, attachment)
-  }
+  }, [createRecurringTask])
 
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task)
-    setShowEditForm(true)
-  }
+  const handleEditTask = useCallback((taskId: string) => {
+    const task = allTasks.find(t => t.id === taskId)
+    if (task) {
+      setEditingTask(task)
+      setShowEditForm(true)
+    }
+  }, [allTasks])
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
+  const handleReorderTask = useCallback(async (taskId: string, newOrderIndex: number) => {
+    if (isReordering) {
+      console.warn('Reorder already in progress, ignoring')
+      return
+    }
+
+    setIsReordering(true)
+    try {
+      // ローカルストレージに順序を保存
+      updateLocalTaskOrder(taskId, newOrderIndex)
+
+      // 一時的な並び順も更新（表示用）
+      setReorderedTasks(prev => ({
+        ...prev,
+        [taskId]: newOrderIndex
+      }))
+
+      console.log(`Reordered task ${taskId} to position ${newOrderIndex} (saved locally)`)
+    } catch (error) {
+      console.error('Failed to reorder task:', error)
+      // エラーが発生した場合は楽観的更新を取り消す
+      setReorderedTasks(prev => {
+        const { [taskId]: removed, ...rest } = prev
+        return rest
+      })
+      // ユーザーにエラーを通知
+      alert('タスクの並び替えに失敗しました。再試行してください。')
+    } finally {
+      setIsReordering(false)
+    }
+  }, [isReordering, updateLocalTaskOrder])
+
+  const handleUpdateTask = useCallback(async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
     await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
-  }
+  }, [updateTask])
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setShowEditForm(false)
     setEditingTask(null)
-  }
+  }, [])
 
-  const handleEditRecurringTask = (task: RecurringTask) => {
-    setEditingRecurringTask(task)
-    setShowRecurringEditForm(true)
-  }
+  const handleEditRecurringTask = useCallback((taskId: string) => {
+    const task = allRecurringTasks.find(t => t.id === taskId)
+    if (task) {
+      setEditingRecurringTask(task)
+      setShowRecurringEditForm(true)
+    }
+  }, [allRecurringTasks])
 
-  const handleUpdateRecurringTask = async (
+  const handleUpdateRecurringTask = useCallback(async (
     taskId: string,
     title: string,
     memo: string,
@@ -206,15 +297,14 @@ export default function TodayPage() {
     })
     setShowRecurringEditForm(false)
     setEditingRecurringTask(null)
-  }
+  }, [updateRecurringTask])
 
-  const handleCancelRecurringEdit = () => {
+  const handleCancelRecurringEdit = useCallback(() => {
     setShowRecurringEditForm(false)
     setEditingRecurringTask(null)
-  }
+  }, [])
 
-
-  const handleMoveToIdeas = async (taskId: string) => {
+  const handleMoveToIdeas = useCallback(async (taskId: string) => {
     try {
       const task = overdueTasks.find(t => t.task.id === taskId)
       if (!task) return
@@ -229,9 +319,9 @@ export default function TodayPage() {
     } catch (error) {
       console.error('やることリストへの移動エラー:', error)
     }
-  }
+  }, [overdueTasks, addIdea, deleteTask])
 
-  const handleUpgradeToTask = async (idea: { id: string; text: string; completed: boolean; createdAt: string }) => {
+  const handleUpgradeToTask = useCallback(async (idea: { id: string; text: string; completed: boolean; createdAt: string }) => {
     // アイデアをタスクに昇格させる場合、編集フォームを開いてタイトルを事前入力
     setEditingTask({
       id: '', // 新規タスク
@@ -254,6 +344,31 @@ export default function TodayPage() {
 
     // アイデアは削除
     await deleteIdea(idea.id)
+  }, [deleteIdea])
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1 style={{ color: '#dc2626' }}>データベースエラー</h1>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
+  // Show loading only if database isn't initialized and timeout hasn't occurred
+  if (!isInitialized && !forceShow && (tasksLoading || recurringLoading)) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>読み込み中...</h1>
+        <p>データを準備しています</p>
+        {error && (
+          <div style={{ marginTop: '20px', color: '#dc2626' }}>
+            <p>データベースエラー: {error}</p>
+            <p>3秒後にインターフェースを表示します...</p>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -391,7 +506,7 @@ export default function TodayPage() {
       <main>
         {/* 今日のタスク表 */}
         <section style={{ marginBottom: '12px' }}>
-          <TaskTable
+          <DraggableTaskTable
             tasks={todayTasks}
             recurringTasks={todayRecurringTasks}
             completedTasks={todayCompletedTasks}
@@ -404,6 +519,7 @@ export default function TodayPage() {
             onRecurringUncomplete={uncompleteRecurringTask}
             onDelete={deleteTask}
             onDeleteRecurring={deleteRecurringTask}
+            onReorder={handleReorderTask}
           />
         </section>
 
@@ -526,7 +642,7 @@ export default function TodayPage() {
                             flexWrap: 'nowrap'
                           }}>
                             <button
-                              onClick={() => handleEditTask(item.task)}
+                              onClick={() => handleEditTask(item.task.id)}
                               style={{
                                 padding: '4px',
                                 fontSize: '14px',
@@ -598,11 +714,13 @@ export default function TodayPage() {
           onComplete={completeTask}
           onEdit={handleEditTask}
           onDelete={deleteTask}
+          onReorder={handleReorderTask}
         />
 
         {/* 買い物タスク */}
         <ShoppingTasksSection
           onEdit={handleEditTask}
+          onReorder={handleReorderTask}
         />
 
         {/* やることリスト */}
@@ -614,6 +732,10 @@ export default function TodayPage() {
             onEdit={editIdea}
             onDelete={deleteIdea}
             onUpgradeToTask={handleUpgradeToTask}
+            onReorder={(ideaId, newOrderIndex) => {
+              // TODO: Implement idea reordering when order_index is added to ideas table
+              console.log(`Reordered idea ${ideaId} to position ${newOrderIndex} (not persisted yet)`)
+            }}
           />
         </section>
       </main>

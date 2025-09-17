@@ -127,12 +127,71 @@ class SupabaseTasukuDatabase {
     return taskData as Task
   }
 
+  async updateTaskOrder(id: string, orderIndex: number): Promise<Task> {
+    const userId = await this.getCurrentUserId()
+
+    console.log(`Task ${id} order updated to ${orderIndex} (persisting to DB...)`)
+
+    // まず、タスクが存在するかチェック
+    const { data: existingTasks, error: checkError } = await this.supabase
+      .from('tasks')
+      .select('id, user_id, title')
+      .eq('id', id)
+
+    if (checkError) {
+      console.error('Task check failed:', checkError)
+      throw new Error(`Failed to check task existence: ${checkError.message}`)
+    }
+
+    if (!existingTasks || existingTasks.length === 0) {
+      throw new Error(`Task with id ${id} does not exist or access denied`)
+    }
+
+    const existingTask = existingTasks[0]
+
+    if (existingTask.user_id !== userId) {
+      throw new Error(`Access denied: Task ${id} belongs to different user`)
+    }
+
+    console.log(`Found task: ${existingTask.title}, proceeding with update...`)
+
+    // データベース更新を実行
+    const { data, error } = await this.supabase
+      .from('tasks')
+      .update({
+        order_index: orderIndex,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+
+    if (error) {
+      console.error('updateTaskOrder failed:', error)
+      throw new Error(`Failed to update task order: ${error.message}`)
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error(`Task with id ${id} not found or access denied`)
+    }
+
+    console.log(`Task ${id} order updated to ${orderIndex} successfully`)
+
+    // 最初のレコードからuser_idを除外してTaskオブジェクトを返す
+    const { user_id, ...taskData } = data[0]
+    return taskData as Task
+  }
+
+  async updateTaskOrderIndex(id: string, orderIndex: number): Promise<Task> {
+    return this.updateTaskOrder(id, orderIndex)
+  }
+
   async deleteTask(id: string): Promise<void> {
     const { error } = await this.supabase
       .from('tasks')
       .delete()
       .eq('id', id)
-      
+
     if (error) throw error
   }
 

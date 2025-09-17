@@ -15,6 +15,7 @@ export const ERROR_MESSAGES = {
   TASK_NOT_FOUND: 'タスクが見つかりません。',
   TASK_CREATE_FAILED: 'タスクの作成に失敗しました。',
   TASK_UPDATE_FAILED: 'タスクの更新に失敗しました。',
+  UPDATE_FAILED: 'データの更新に失敗しました。',
   TASK_DELETE_FAILED: 'タスクの削除に失敗しました。',
   TASK_COMPLETE_FAILED: 'タスクの完了処理に失敗しました。',
   TASK_MOVE_FAILED: 'タスクの移動に失敗しました。',

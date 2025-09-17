@@ -1,8 +1,116 @@
-修正点は２つ
-１つ目
-まだタスクの達成度は画面に入り切れてない
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useRecurringTasks.ts:27 Database not yet initialized, skipping recurring data loading
+C:\Windsurf\tasuku\src\hooks\useIdeas.ts:17 Database not yet initialized, trying localStorage fallback
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:43 Supabase Database initialized
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:46 Dev features initialized
+C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:43 Supabase Database initialized
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:46 Dev features initialized
+C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: Object
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: Object
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
+VM4153 DraggableTaskTable.tsx:486 Reordering task: Object
+VM4167 useTaskOrder.ts:32 Task order saved to localStorage: 2 items
+VM4167 useTaskOrder.ts:46 Updated order for task 2a468f47-dd3b-40bb-bd86-a05b0fcd75ac: 999999
+VM4070 page.tsx:285 Reordered task 2a468f47-dd3b-40bb-bd86-a05b0fcd75ac to position 999999 (saved locally)
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 576ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 179ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+report-hmr-latency.js:14 [Fast Refresh] done in 127ms
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+VM4167 useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 213ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 223ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 126ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 165ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 191ms
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:31 Task order saved to localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:44 Updated order for task 2a468f47-dd3b-40bb-bd86-a05b0fcd75ac: 3
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:31 Task order saved to localStorage: 3 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:44 Updated order for task 1cfcb911-56e6-404e-93d4-547e0cb1974e: 2
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:31 Task order saved to localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:44 Updated order for task 1a271a50-3f00-4108-b8b6-85ea0e7b288f: 5
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useRecurringTasks.ts:27 Database not yet initialized, skipping recurring data loading
+C:\Windsurf\tasuku\src\hooks\useIdeas.ts:17 Database not yet initialized, trying localStorage fallback
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+report-hmr-latency.js:14 [Fast Refresh] done in 463ms
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useTasks.ts:19 Database not yet initialized, skipping task loading
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:25 Starting database initialization...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:43 Supabase Database initialized
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:46 Dev features initialized
+C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:43 Supabase Database initialized
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:46 Dev features initialized
+C:\Windsurf\tasuku\src\lib\db\reset.ts:41 Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Dev tools setup
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:54 Checking for dummy data...
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: Object
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:19 Task order loaded from localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:57 Database state: Object
+C:\Windsurf\tasuku\src\hooks\useDatabase.ts:66 Database initialization completed successfully
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 177ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 147ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 286ms
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+report-hmr-latency.js:14 [Fast Refresh] done in 368ms
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:31 Task order saved to localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:44 Updated order for task 2a468f47-dd3b-40bb-bd86-a05b0fcd75ac: 3
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:31 Task order saved to localStorage: 2 items
+C:\Windsurf\tasuku\src\hooks\useTaskOrder.ts:44 Updated order for task 1a271a50-3f00-4108-b8b6-85ea0e7b288f: 5
 
-２つ目
-ダークモードの文字の色問題
-タスクが白の為、ほぼ見えない
-あと、ダークモードにしても、はじめの画面しかダークモードにならない。
+
+まず、一つずつ問題を解決していこう。
+1つ目の問題、番号の部分が変更できるようになっていない。
+ここが修正できるようにならなければ、順番の入れ替えなどできないので、まずはここが変更できるようにデータベースを修正していこう。
+それができるようになってから、相当機能、順番の言えかえかな、ができるようにすればいいので、まずはこの番号がもっと自由度のある形に変更することが先決です。
+この考え方が間違っている場合は指摘してください。
+ぼくはエンジニアではないので、プロの意見として回答をお願いします。

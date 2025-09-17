@@ -62,13 +62,19 @@ export function useTasks(isDbInitialized: boolean = false) {
         }
       })
       .sort((a, b) => {
-        // Sort by urgency first, then by due date, then by creation time
+        // Sort by order_index first (if set), then by urgency, then by due date, then by creation time
+        const aOrder = a.task.order_index ?? 999999
+        const bOrder = b.task.order_index ?? 999999
+
+        if (aOrder !== bOrder) return aOrder - bOrder
+
+        // Fallback to existing sorting logic
         const urgencyOrder = ['Overdue', 'Soon', 'Next7', 'Next30', 'Normal']
         const urgencyDiff = urgencyOrder.indexOf(a.urgency) - urgencyOrder.indexOf(b.urgency)
-        
+
         if (urgencyDiff !== 0) return urgencyDiff
         if (a.days_from_today !== b.days_from_today) return a.days_from_today - b.days_from_today
-        
+
         return new Date(a.task.created_at).getTime() - new Date(b.task.created_at).getTime()
       })
   }
@@ -148,7 +154,15 @@ export function useTasks(isDbInitialized: boolean = false) {
           days_from_today
         }
       })
-      .sort((a, b) => a.days_from_today - b.days_from_today)
+      .sort((a, b) => {
+        // Sort by order_index first (if set), then by days from today
+        const aOrder = a.task.order_index ?? 999999
+        const bOrder = b.task.order_index ?? 999999
+
+        if (aOrder !== bOrder) return aOrder - bOrder
+
+        return a.days_from_today - b.days_from_today
+      })
       .slice(0, 3) // Max 3 items for preview
   }
 
@@ -175,7 +189,15 @@ export function useTasks(isDbInitialized: boolean = false) {
           days_from_today
         }
       })
-      .sort((a, b) => b.days_from_today - a.days_from_today) // Sort by overdue date descending (most recent overdue first)
+      .sort((a, b) => {
+        // Sort by order_index first (if set), then by overdue date descending (most recent overdue first)
+        const aOrder = a.task.order_index ?? 999999
+        const bOrder = b.task.order_index ?? 999999
+
+        if (aOrder !== bOrder) return aOrder - bOrder
+
+        return b.days_from_today - a.days_from_today
+      })
   }
 
   // Complete a task

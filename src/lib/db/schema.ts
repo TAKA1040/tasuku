@@ -14,12 +14,13 @@ export interface Task {
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
   completed_at?: string // YYYY-MM-DD format (JST), only when completed
-  
+  order_index?: number // ドラッグ&ドロップでの並び順
+
   // PHASE 1.2 - 繰り越し関連
   rollover_count?: number
   archived?: boolean
   snoozed_until?: string // YYYY-MM-DD format (JST)
-  
+
   // PHASE 4.2 - 拡張フィールド
   duration_min?: number // 想定所要時間（分）
   importance?: 1 | 2 | 3 | 4 | 5 // 重要度

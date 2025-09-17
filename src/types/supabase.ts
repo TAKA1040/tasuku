@@ -212,6 +212,7 @@ export type Database = {
           importance: number | null
           location_tag_id: string | null
           memo: string | null
+          order_index: number | null
           rollover_count: number | null
           snoozed_until: string | null
           title: string
@@ -232,6 +233,7 @@ export type Database = {
           importance?: number | null
           location_tag_id?: string | null
           memo?: string | null
+          order_index?: number | null
           rollover_count?: number | null
           snoozed_until?: string | null
           title: string
@@ -252,6 +254,7 @@ export type Database = {
           importance?: number | null
           location_tag_id?: string | null
           memo?: string | null
+          order_index?: number | null
           rollover_count?: number | null
           snoozed_until?: string | null
           title?: string
