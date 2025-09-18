@@ -1,5 +1,6 @@
 // Unified Task Service
 // Handles all CRUD operations for the unified_tasks table
+// NOTE: This is a placeholder implementation until the unified_tasks table is created
 
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
@@ -16,33 +17,55 @@ type SupabaseClient = ReturnType<typeof createClient<Database>>
 export class UnifiedTaskService {
   constructor(private supabase: SupabaseClient) {}
 
+  // TODO: Remove this when unified_tasks table is created
+  private async checkTableExists(): Promise<boolean> {
+    try {
+      // Check if unified_tasks table exists by attempting a query
+      const { error } = await this.supabase.rpc('check_table_exists', { table_name: 'unified_tasks' })
+      return !error
+    } catch {
+      // For now, always return false since table doesn't exist
+      return false
+    }
+  }
+
   /**
    * Get all tasks for a user, sorted by display number
    */
   async getAllTasks(userId: string): Promise<UnifiedTask[]> {
+    // TODO: Replace with actual unified_tasks query when table is created
+    const tableExists = await this.checkTableExists()
+    if (!tableExists) {
+      console.warn('unified_tasks table does not exist yet, returning empty array')
+      return []
+    }
+
     const { data, error } = await this.supabase
-      .from('unified_tasks')
+      .from('unified_tasks' as any)
       .select('*')
       .eq('user_id', userId)
       .order('display_number', { ascending: true })
 
     if (error) throw new Error(`Failed to fetch tasks: ${error.message}`)
-    return data || []
+    return (data || []) as UnifiedTask[]
   }
 
   /**
    * Get tasks by type
    */
   async getTasksByType(userId: string, taskType: TaskType): Promise<UnifiedTask[]> {
+    const tableExists = await this.checkTableExists()
+    if (!tableExists) return []
+
     const { data, error } = await this.supabase
-      .from('unified_tasks')
+      .from('unified_tasks' as any)
       .select('*')
       .eq('user_id', userId)
       .eq('task_type', taskType)
       .order('display_number', { ascending: true })
 
     if (error) throw new Error(`Failed to fetch tasks by type: ${error.message}`)
-    return data || []
+    return (data || []) as UnifiedTask[]
   }
 
   /**

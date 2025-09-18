@@ -1,7 +1,7 @@
 // Unified Task Types and Utilities
 // Implements the YYYYMMDDTTCCC display numbering system
 
-export type TaskType = 'NORMAL' | 'RECURRING' | 'SHOPPING' | 'IDEA'
+export type TaskType = 'NORMAL' | 'RECURRING' | 'IDEA'
 
 export interface RecurringConfig {
   frequency: 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY'
@@ -80,8 +80,12 @@ export class DisplayNumberUtils {
     if (taskType === 'NORMAL' && dueDate) {
       const today = new Date().toISOString().split('T')[0]
       typeCode = dueDate < today ? TYPE_CODES.OVERDUE : TYPE_CODES.NORMAL
+    } else if (taskType === 'RECURRING') {
+      typeCode = TYPE_CODES.RECURRING
+    } else if (taskType === 'IDEA') {
+      typeCode = TYPE_CODES.IDEA
     } else {
-      typeCode = TYPE_CODES[taskType] || TYPE_CODES.NORMAL
+      typeCode = TYPE_CODES.NORMAL
     }
 
     const prefix = datePrefix + typeCode // YYYYMMDDTT
@@ -182,8 +186,12 @@ export class DisplayNumberUtils {
     if (newTaskType === 'NORMAL' && dueDate) {
       const today = new Date().toISOString().split('T')[0]
       typeCode = dueDate < today ? TYPE_CODES.OVERDUE : TYPE_CODES.NORMAL
+    } else if (newTaskType === 'RECURRING') {
+      typeCode = TYPE_CODES.RECURRING
+    } else if (newTaskType === 'IDEA') {
+      typeCode = TYPE_CODES.IDEA
     } else {
-      typeCode = TYPE_CODES[newTaskType] || TYPE_CODES.NORMAL
+      typeCode = TYPE_CODES.NORMAL
     }
 
     const datePrefix = date.replace(/-/g, '')
@@ -219,12 +227,12 @@ export class TaskFilters {
 
   static isOverdueTask(task: UnifiedTask): boolean {
     const today = new Date().toISOString().split('T')[0]
-    return !task.completed && task.due_date !== null && task.due_date < today
+    return !task.completed && task.due_date !== undefined && task.due_date !== null && task.due_date < today
   }
 
   static isUpcomingTask(task: UnifiedTask): boolean {
     const today = new Date().toISOString().split('T')[0]
-    return !task.completed && task.due_date !== null && task.due_date > today
+    return !task.completed && task.due_date !== undefined && task.due_date !== null && task.due_date > today
   }
 
   static isShoppingTask(task: UnifiedTask): boolean {
