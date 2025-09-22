@@ -6,14 +6,14 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/today', label: '今日', icon: '📅' },
   { href: '/manage', label: '管理', icon: '⚙️' },
-  { href: '/stats', label: '統計', icon: '📊' }
+  { href: '/statistics', label: '統計', icon: '📊' }
 ]
 
 export function Navigation() {
   const pathname = usePathname()
 
   return (
-    <nav style={{
+    <nav className="dark:bg-gray-800 dark:border-gray-700" style={{
       backgroundColor: '#fff',
       borderBottom: '1px solid #e5e7eb',
       padding: '0 20px'
@@ -28,8 +28,9 @@ export function Navigation() {
         justifyContent: 'space-between',
         minHeight: '60px'
       }}>
-        <Link 
-          href="/today" 
+        <Link
+          href="/today"
+          className="dark:text-white"
           style={{
             fontSize: '20px',
             fontWeight: 'bold',
@@ -47,6 +48,7 @@ export function Navigation() {
               <Link
                 key={href}
                 href={href}
+                className={isActive ? 'dark:bg-blue-900 dark:text-blue-300' : 'dark:text-gray-300 dark:hover:text-white'}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

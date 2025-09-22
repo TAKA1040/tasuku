@@ -1,7 +1,8 @@
 // フィーチャーフラグ管理
 // 段階的機能有効化とデバッグ用
 
-import { db } from './db/database'
+// Supabaseデータベースを使用する場合は supabase-database をimport
+// import { supabaseDb as db } from './db/supabase-database'
 // import type { Settings } from './db/schema' // 将来使用予定
 
 /**
@@ -26,11 +27,14 @@ export const DEFAULT_FEATURES: FeatureFlags = {
 
 /**
  * 現在のフィーチャーフラグを取得
+ * TODO: Supabaseデータベース実装を接続
  */
 export async function getFeatureFlags(): Promise<FeatureFlags> {
   try {
-    const settings = await db.getSettings()
-    return { ...DEFAULT_FEATURES, ...settings.features }
+    // TODO: Supabaseからsettingsを取得
+    // const settings = await db.getSettings()
+    // return { ...DEFAULT_FEATURES, ...settings.features }
+    return DEFAULT_FEATURES
   } catch (error) {
     console.warn('Failed to load feature flags, using defaults:', error)
     return DEFAULT_FEATURES
@@ -47,25 +51,31 @@ export async function isFeatureEnabled(feature: keyof FeatureFlags): Promise<boo
 
 /**
  * フィーチャーフラグを更新
+ * TODO: Supabaseデータベース実装を接続
  */
 export async function updateFeatureFlag(
-  feature: keyof FeatureFlags, 
+  feature: keyof FeatureFlags,
   enabled: boolean
 ): Promise<void> {
   const current = await getFeatureFlags()
   const updated = { ...current, [feature]: enabled }
-  
-  await db.updateSettings({ features: updated })
+
+  // TODO: Supabaseでsettingsを更新
+  // await db.updateSettings({ features: updated })
+  console.log('Feature flag would be updated:', feature, enabled)
 }
 
 /**
  * 複数のフィーチャーフラグを一括更新
+ * TODO: Supabaseデータベース実装を接続
  */
 export async function updateFeatureFlags(updates: Partial<FeatureFlags>): Promise<void> {
   const current = await getFeatureFlags()
   const updated = { ...current, ...updates }
-  
-  await db.updateSettings({ features: updated })
+
+  // TODO: Supabaseでsettingsを更新
+  // await db.updateSettings({ features: updated })
+  console.log('Feature flags would be updated:', updates)
 }
 
 /**

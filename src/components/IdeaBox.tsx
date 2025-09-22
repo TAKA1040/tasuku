@@ -6,7 +6,8 @@ interface IdeaItem {
   id: string
   text: string
   completed: boolean
-  createdAt: string
+  created_at: string
+  display_number?: string
 }
 
 interface IdeaBoxProps {

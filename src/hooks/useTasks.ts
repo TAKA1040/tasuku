@@ -6,7 +6,11 @@ import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
 import { TIME_CONSTANTS } from '@/lib/constants'
-import { ERROR_MESSAGES, getErrorMessage } from '@/lib/messages'
+import { handleError, withErrorHandling, ERROR_MESSAGES as ERROR_MSG } from '@/lib/utils/error-handler'
+
+// 簡易メモリキャッシュ
+let taskCache: { data: Task[]; timestamp: number } | null = null
+const CACHE_DURATION = 30000 // 30秒
 
 export function useTasks(isDbInitialized: boolean = false) {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -14,30 +18,41 @@ export function useTasks(isDbInitialized: boolean = false) {
   const [error, setError] = useState<string | null>(null)
 
   // Load tasks from database
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (forceRefresh = false) => {
     if (!isDbInitialized) {
       console.log('Database not yet initialized, skipping task loading')
       setLoading(false) // Important: Set loading to false even when not initialized
       return
     }
-    
-    try {
-      setLoading(true)
-      const allTasks = await db.getAllTasks()
-      setTasks(allTasks)
-      setError(null)
-    } catch (err) {
-      console.error('Failed to load tasks:', err)
-      // Handle authentication errors specifically
-      if (err instanceof Error && err.message.includes('Authentication required')) {
-        setError(ERROR_MESSAGES.AUTH_REQUIRED)
-        // Redirect to login or handle auth error appropriately
-      } else {
-        setError(getErrorMessage(err))
-      }
-    } finally {
+
+    // キャッシュチェック（強制更新でない場合）
+    if (!forceRefresh && taskCache && Date.now() - taskCache.timestamp < CACHE_DURATION) {
+      console.log('Using cached tasks data')
+      setTasks(taskCache.data)
       setLoading(false)
+      return
     }
+
+    const result = await withErrorHandling(
+      async () => {
+        setLoading(true)
+        const allTasks = await db.getAllTasks()
+
+        // キャッシュを更新
+        taskCache = {
+          data: allTasks,
+          timestamp: Date.now()
+        }
+
+        setTasks(allTasks)
+        setError(null)
+        return allTasks
+      },
+      'useTasks.loadTasks',
+      setError
+    )
+
+    setLoading(false)
   }, [isDbInitialized])
 
   // Get today's tasks with urgency
@@ -180,47 +195,50 @@ export function useTasks(isDbInitialized: boolean = false) {
 
   // Complete a task
   const completeTask = async (taskId: string) => {
-    try {
-      const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+    await withErrorHandling(
+      async () => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) throw new Error('タスクが見つかりません')
 
-      await db.updateTask(taskId, { completed: true, completed_at: getTodayJST() })
-      await loadTasks() // Reload tasks
-    } catch (err) {
-      console.error('Failed to complete task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.updateTask(taskId, { completed: true, completed_at: getTodayJST() })
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.completeTask',
+      setError
+    )
   }
 
   // Uncomplete a task (mark as not completed)
   const uncompleteTask = async (taskId: string) => {
-    try {
-      const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+    await withErrorHandling(
+      async () => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) throw new Error('タスクが見つかりません')
 
-      await db.updateTask(taskId, {
-        completed: false,
-        completed_at: undefined
-      })
-      await loadTasks() // Reload tasks
-    } catch (err) {
-      console.error('Failed to uncomplete task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.updateTask(taskId, {
+          completed: false,
+          completed_at: undefined
+        })
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.uncompleteTask',
+      setError
+    )
   }
 
   // Quick move task
   const quickMoveTask = async (taskId: string, newDueDate: string) => {
-    try {
-      const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+    await withErrorHandling(
+      async () => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) throw new Error('タスクが見つかりません')
 
-      await db.updateTask(taskId, { due_date: newDueDate })
-      await loadTasks() // Reload tasks
-    } catch (err) {
-      console.error('Failed to move task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.updateTask(taskId, { due_date: newDueDate })
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.quickMoveTask',
+      setError
+    )
   }
 
   // Create a new task
@@ -239,75 +257,71 @@ export function useTasks(isDbInitialized: boolean = false) {
       file_data: string
     }
   ) => {
-    try {
-      const newTask: Task = {
-        id: crypto.randomUUID(),
-        title: title.trim(),
-        memo: memo?.trim() || undefined,
-        due_date: dueDate || getTodayJST(),
-        category: category?.trim() || undefined,
-        importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
-        duration_min: durationMin || undefined,
-        urls: urls || undefined,
-        attachment: attachment || undefined,
-        completed: false,
-        archived: false,
-        completed_at: undefined,
-        snoozed_until: undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
+    await withErrorHandling(
+      async () => {
+        const newTask: Task = {
+          id: crypto.randomUUID(),
+          title: title.trim(),
+          memo: memo?.trim() || undefined,
+          due_date: dueDate || getTodayJST(),
+          category: category?.trim() || undefined,
+          importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
+          duration_min: durationMin || undefined,
+          urls: urls || undefined,
+          attachment: attachment || undefined,
+          completed: false,
+          archived: false,
+          completed_at: undefined,
+          snoozed_until: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
 
-      console.log('useTasks: Creating task with category:', category, '-> processed:', newTask.category)
-
-      await db.createTask(newTask)
-      await loadTasks() // Reload tasks
-    } catch (err) {
-      console.error('Failed to create task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.createTask(newTask)
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.createTask',
+      setError
+    )
   }
 
   // Update an existing task
   const updateTask = async (taskId: string, updates: Partial<Pick<Task, 'title' | 'memo' | 'due_date' | 'category' | 'importance' | 'duration_min' | 'urls'>>) => {
-    try {
-      const task = tasks.find(t => t.id === taskId)
-      if (!task) throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
+    await withErrorHandling(
+      async () => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) throw new Error('タスクが見つかりません')
 
-      const cleanedUpdates = {
-        ...updates,
-        title: updates.title?.trim(),
-        memo: updates.memo?.trim(),
-        category: updates.category?.trim()
-      }
+        const cleanedUpdates = {
+          ...updates,
+          title: updates.title?.trim(),
+          memo: updates.memo?.trim(),
+          category: updates.category?.trim()
+        }
 
-      await db.updateTask(taskId, cleanedUpdates)
-      await loadTasks() // Reload tasks
-    } catch (err) {
-      console.error('Failed to update task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.updateTask(taskId, cleanedUpdates)
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.updateTask',
+      setError
+    )
   }
 
   // Delete a task
   const deleteTask = async (taskId: string) => {
-    try {
-      console.log('useTasks: deleteTask called with ID:', taskId)
-      const task = tasks.find(t => t.id === taskId)
-      if (!task) {
-        console.error('useTasks: Task not found:', taskId)
-        throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND)
-      }
+    await withErrorHandling(
+      async () => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) {
+          throw new Error('タスクが見つかりません')
+        }
 
-      console.log('useTasks: Deleting task:', task.title)
-      await db.deleteTask(taskId)
-      console.log('useTasks: Task deleted successfully, reloading tasks...')
-      await loadTasks() // Reload tasks
-      console.log('useTasks: Tasks reloaded after deletion')
-    } catch (err) {
-      console.error('useTasks: Failed to delete task:', err)
-      setError(getErrorMessage(err))
-    }
+        await db.deleteTask(taskId)
+        await loadTasks(true) // 強制リフレッシュ
+      },
+      'useTasks.deleteTask',
+      setError
+    )
   }
 
   // Load tasks when database is initialized or component mounts

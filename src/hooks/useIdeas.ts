@@ -28,7 +28,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
         id: idea.id,
         text: idea.text,
         completed: idea.completed,
-        createdAt: idea.created_at
+        created_at: idea.created_at
       }))
 
       setIdeas(ideaItems)
@@ -84,7 +84,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
           id: idea.id,
           text: idea.text,
           completed: idea.completed,
-          createdAt: idea.created_at
+          created_at: idea.created_at
         }))
         setIdeas(ideaItems)
 
@@ -105,7 +105,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
         id: crypto.randomUUID(),
         text: text.trim(),
         completed: false,
-        createdAt: new Date().toISOString()
+        created_at: new Date().toISOString()
       }
       const updatedIdeas = [newIdea, ...ideas]
       saveIdeasToLocalStorage(updatedIdeas)

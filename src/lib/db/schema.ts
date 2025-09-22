@@ -14,12 +14,13 @@ export interface Task {
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
   completed_at?: string // YYYY-MM-DD format (JST), only when completed
-  
+  display_number?: string // 表示用番号
+
   // PHASE 1.2 - 繰り越し関連
   rollover_count?: number
   archived?: boolean
   snoozed_until?: string // YYYY-MM-DD format (JST)
-  
+
   // PHASE 4.2 - 拡張フィールド
   duration_min?: number // 想定所要時間（分）
   importance?: 1 | 2 | 3 | 4 | 5 // 重要度
@@ -48,6 +49,7 @@ export interface RecurringTask {
   active: boolean
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
+  display_number?: string // 表示用番号
 
   // PHASE 4.2 - 拡張フィールド（TasksからRecurringTasksにも追加）
   duration_min?: number // 想定所要時間（分）
@@ -103,6 +105,7 @@ export interface Idea {
   completed: boolean
   created_at: string // ISO string (JST)
   updated_at: string // ISO string (JST)
+  display_number?: string // 表示用番号
 }
 
 export interface Settings {

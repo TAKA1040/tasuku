@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useTasks } from '@/hooks/useTasks'
 import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { useRollover } from '@/hooks/useRollover'
-import { formatDateForDisplay, getTodayJST } from '@/lib/utils/date-jst'
+import { getTodayJST, formatDateForDisplay } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
 import { UpcomingPreview } from '@/components/UpcomingPreview'
 import { IncompleteTasksToggle } from '@/components/IncompleteTasksToggle'
@@ -19,6 +19,44 @@ import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
+import { DisplayNumberUtils, TaskType } from '@/lib/types/unified-task'
+
+// 統一データ表示用の型定義
+interface UnifiedDataItem {
+  // 共通フィールド
+  id: string
+  dataType: 'task' | 'recurring' | 'idea'
+  displayTitle: string
+  displayCategory: string
+  display_number: string
+  task_type: TaskType
+  completed: boolean
+  created_at: string
+
+  // タスク/繰り返しタスク固有フィールド
+  title?: string
+  memo?: string
+  due_date?: string
+  category?: string
+  importance?: number
+  urls?: string[]
+
+  // アイデア固有フィールド
+  text?: string
+
+  // その他の可能なフィールド
+  [key: string]: unknown
+}
+
+// サブタスク型定義
+interface SubTaskItem {
+  id: string
+  parent_task_id: string
+  title: string
+  completed: boolean
+  sort_order: number
+  created_at: string
+}
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -27,9 +65,144 @@ export default function TodayPage() {
   useEffect(() => {
     document.title = 'TASUKU - 今日のタスク'
   }, [])
+  // 統一データベースから全データを取得
+  const [allUnifiedData, setAllUnifiedData] = useState<UnifiedDataItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // 買い物リスト（サブタスク）管理
+  const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: SubTaskItem[]}>({})
+  const [expandedShoppingLists, setExpandedShoppingLists] = useState<{[taskId: string]: boolean}>({})
+
+  // 個別のフックも一時的に保持（機能維持のため）
   const { loading: tasksLoading, getTodayTasks, getTodayCompletedTasks, getUpcomingTasks, getOverdueTasks, completeTask, createTask, updateTask, uncompleteTask, deleteTask, allTasks } = useTasks(isInitialized)
   const { loading: recurringLoading, getTodayRecurringTasks, getTodayCompletedRecurringTasks, getUpcomingRecurringTasks, completeRecurringTask, createRecurringTask, uncompleteRecurringTask, updateRecurringTask, deleteRecurringTask, allRecurringTasks } = useRecurringTasks(isInitialized)
   const { ideas, addIdea, toggleIdea, editIdea, deleteIdea } = useIdeas(isInitialized)
+
+  // 統一データ取得関数
+  const fetchAllUnifiedData = useCallback(async () => {
+    if (!isInitialized) return
+
+    try {
+      setLoading(true)
+      console.log('🔄 統一データベースから全データを取得中...')
+
+      // すべてのデータを統合して取得（統一番号システム付き）
+      const unifiedData = [
+        // 通常タスク
+        ...allTasks.map((task, index) => {
+          const taskType: TaskType = 'NORMAL'
+          const createdDate = new Date(task.created_at)
+          const displayNumber = task.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+
+          return {
+            ...task,
+            dataType: 'task' as const,
+            displayTitle: task.title,
+            displayCategory: task.category || '未分類',
+            display_number: displayNumber,
+            task_type: taskType
+          }
+        }),
+        // 繰り返しタスク
+        ...allRecurringTasks.map((recurringTask, index) => {
+          const taskType: TaskType = 'RECURRING'
+          const createdDate = new Date(recurringTask.created_at)
+          const displayNumber = recurringTask.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+
+          return {
+            ...recurringTask,
+            dataType: 'recurring' as const,
+            displayTitle: `🔄 ${recurringTask.title}`,
+            displayCategory: recurringTask.category || '繰り返し',
+            display_number: displayNumber,
+            task_type: taskType,
+            completed: false // 繰り返しタスクは完了状態なし
+          }
+        }),
+        // アイデア
+        ...ideas.map((idea, index) => {
+          const taskType: TaskType = 'IDEA'
+          const createdDate = new Date(idea.created_at)
+          const displayNumber = idea.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+
+          return {
+            ...idea,
+            dataType: 'idea' as const,
+            displayTitle: `💡 ${idea.text}`,
+            displayCategory: 'アイデア',
+            completed: idea.completed,
+            display_number: displayNumber,
+            task_type: taskType
+          }
+        })
+      ]
+
+      // 統一番号順でソート
+      unifiedData.sort((a, b) => a.display_number.localeCompare(b.display_number))
+
+      console.log(`📊 統一データ取得完了: ${unifiedData.length}件`)
+      console.log('- タスク:', allTasks.length, '件')
+      console.log('- 繰り返し:', allRecurringTasks.length, '件')
+      console.log('- アイデア:', ideas.length, '件')
+
+      setAllUnifiedData(unifiedData)
+    } catch (error) {
+      console.error('❌ 統一データ取得エラー:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [isInitialized, allTasks, allRecurringTasks, ideas])
+
+  // データ取得
+  useEffect(() => {
+    if (isInitialized && allTasks.length >= 0 && allRecurringTasks.length >= 0 && ideas.length >= 0) {
+      fetchAllUnifiedData()
+    }
+  }, [fetchAllUnifiedData, isInitialized, allTasks.length, allRecurringTasks.length, ideas.length])
+
+  // サブタスク管理関数
+  const addShoppingSubTask = useCallback((taskId: string, itemName: string) => {
+    const newSubTask = {
+      id: `sub_${Date.now()}`,
+      parent_task_id: taskId,
+      title: itemName,
+      completed: false,
+      sort_order: (shoppingSubTasks[taskId]?.length || 0) + 1,
+      created_at: new Date().toISOString()
+    }
+
+    setShoppingSubTasks(prev => ({
+      ...prev,
+      [taskId]: [...(prev[taskId] || []), newSubTask]
+    }))
+
+    console.log(`サブタスク追加: ${itemName} (Parent: ${taskId})`)
+  }, [shoppingSubTasks])
+
+  const toggleShoppingSubTask = useCallback((taskId: string, subTaskId: string) => {
+    setShoppingSubTasks(prev => ({
+      ...prev,
+      [taskId]: prev[taskId]?.map(subTask =>
+        subTask.id === subTaskId
+          ? { ...subTask, completed: !subTask.completed }
+          : subTask
+      ) || []
+    }))
+  }, [])
+
+  const deleteShoppingSubTask = (taskId: string, subTaskId: string) => {
+    setShoppingSubTasks(prev => ({
+      ...prev,
+      [taskId]: prev[taskId]?.filter(subTask => subTask.id !== subTaskId) || []
+    }))
+  }
+
+  const toggleShoppingList = (taskId: string) => {
+    setExpandedShoppingLists(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }))
+  }
   
   // 繰り越し機能
   const {
@@ -53,10 +226,36 @@ export default function TodayPage() {
   // 期日切れタスク表示制御
   const [showOverdueTasks, setShowOverdueTasks] = useState(false)
 
-
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
-  
+
+  // Safe data fetching - fallback to empty arrays if not initialized
+  const todayTasks = useMemo(() => isInitialized ? getTodayTasks() : [], [isInitialized, getTodayTasks])
+  const todayCompletedTasks = useMemo(() => isInitialized ? getTodayCompletedTasks() : [], [isInitialized, getTodayCompletedTasks])
+  const overdueTasks = useMemo(() => isInitialized ? getOverdueTasks() : [], [isInitialized, getOverdueTasks])
+  const todayRecurringTasks = useMemo(() => isInitialized ? getTodayRecurringTasks() : [], [isInitialized, getTodayRecurringTasks])
+  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? getTodayCompletedRecurringTasks() : [], [isInitialized, getTodayCompletedRecurringTasks])
+  const upcomingTasks = useMemo(() => isInitialized ? getUpcomingTasks() : [], [isInitialized, getUpcomingTasks])
+  const upcomingRecurringTasks = useMemo(() => isInitialized ? getUpcomingRecurringTasks() : [], [isInitialized, getUpcomingRecurringTasks])
+
+  // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
+  const allUpcoming = useMemo(() => [
+    ...upcomingTasks,
+    ...upcomingRecurringTasks.map(item => ({
+      task: {
+        id: item.task.id,
+        title: item.task.title,
+        due_date: item.nextDate
+      } as Task,
+      urgency: 'Normal' as const,
+      days_from_today: item.daysFromToday
+    }))
+  ].sort((a, b) => a.days_from_today - b.days_from_today), [upcomingTasks, upcomingRecurringTasks])
+
+  const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
+  }, [createTask])
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isInitialized) {
@@ -64,10 +263,10 @@ export default function TodayPage() {
         setForceShow(true)
       }
     }, 3000)
-    
+
     return () => clearTimeout(timer)
   }, [isInitialized])
-  
+
   if (error) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -76,7 +275,7 @@ export default function TodayPage() {
       </div>
     )
   }
-  
+
   // Show loading only if database isn't initialized and timeout hasn't occurred
   if (!isInitialized && !forceShow && (tasksLoading || recurringLoading)) {
     return (
@@ -91,34 +290,6 @@ export default function TodayPage() {
         )}
       </div>
     )
-  }
-
-  // Safe data fetching - fallback to empty arrays if not initialized
-  const todayTasks = isInitialized ? getTodayTasks() : []
-  const todayCompletedTasks = isInitialized ? getTodayCompletedTasks() : []
-  const overdueTasks = isInitialized ? getOverdueTasks() : []
-  const todayRecurringTasks = isInitialized ? getTodayRecurringTasks() : []
-  const todayCompletedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
-  const upcomingTasks = isInitialized ? getUpcomingTasks() : []
-  const upcomingRecurringTasks = isInitialized ? getUpcomingRecurringTasks() : []
-  
-  // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
-  const allUpcoming = [
-    ...upcomingTasks,
-    ...upcomingRecurringTasks.map(item => ({
-      task: {
-        id: item.task.id,
-        title: item.task.title,
-        due_date: item.nextDate
-      } as Task,
-      urgency: 'Normal' as const,
-      days_from_today: item.daysFromToday
-    }))
-  ].sort((a, b) => a.days_from_today - b.days_from_today)
-
-
-  const handleCreateRegular = async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
-    await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
   }
 
   const handleCreateRecurring = async (title: string, memo: string, settings: {
@@ -231,7 +402,7 @@ export default function TodayPage() {
     }
   }
 
-  const handleUpgradeToTask = async (idea: { id: string; text: string; completed: boolean; createdAt: string }) => {
+  const handleUpgradeToTask = async (idea: { id: string; text: string; completed: boolean; created_at: string }) => {
     // アイデアをタスクに昇格させる場合、編集フォームを開いてタイトルを事前入力
     setEditingTask({
       id: '', // 新規タスク
@@ -389,22 +560,346 @@ export default function TodayPage() {
       </header>
 
       <main>
-        {/* 今日のタスク表 */}
+        {/* 統一データ表示テーブル（全データ確認用） */}
         <section style={{ marginBottom: '12px' }}>
-          <TaskTable
-            tasks={todayTasks}
-            recurringTasks={todayRecurringTasks}
-            completedTasks={todayCompletedTasks}
-            completedRecurringTasks={todayCompletedRecurringTasks}
-            onComplete={completeTask}
-            onRecurringComplete={completeRecurringTask}
-            onEdit={handleEditTask}
-            onEditRecurring={handleEditRecurringTask}
-            onUncomplete={uncompleteTask}
-            onRecurringUncomplete={uncompleteRecurringTask}
-            onDelete={deleteTask}
-            onDeleteRecurring={deleteRecurringTask}
-          />
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '8px',
+            color: '#1f2937',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            🔄 統一データベース表示 ({allUnifiedData.length}件)
+          </h3>
+
+          {/* デバッグ情報 */}
+          <div style={{
+            padding: '8px',
+            backgroundColor: '#f3f4f6',
+            borderRadius: '4px',
+            marginBottom: '8px',
+            fontSize: '12px',
+            color: '#374151'
+          }}>
+            <strong>📊 データ詳細:</strong>
+            タスク: {allTasks.length}件 |
+            繰り返し: {allRecurringTasks.length}件 |
+            アイデア: {ideas.length}件 |
+            買い物カテゴリ: {allTasks.filter(t => t.category === '買い物').length}件
+          </div>
+
+          {loading ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+              統一データを読み込み中...
+            </div>
+          ) : (
+            <div style={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              overflow: 'hidden'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f9fafb' }}>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allUnifiedData.map((item, index) => (
+                    <tr key={`${item.dataType}-${item.id}`}
+                        style={{
+                          borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
+                          backgroundColor: item.completed ? '#f0fdf4' : 'transparent'
+                        }}>
+                      {/* 統一番号表示 */}
+                      <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
+                        <span style={{
+                          padding: '2px 4px',
+                          borderRadius: '3px',
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
+                          fontWeight: '600'
+                        }}>
+                          {DisplayNumberUtils.formatCompact(item.display_number)}
+                        </span>
+                      </td>
+
+                      {/* 完了チェックボックス */}
+                      <td style={{ padding: '8px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => {
+                            if (item.dataType === 'task') {
+                              item.completed ? uncompleteTask(item.id) : completeTask(item.id)
+                            } else if (item.dataType === 'recurring') {
+                              item.completed ? uncompleteRecurringTask(item.id) : completeRecurringTask(item.id)
+                            } else if (item.dataType === 'idea') {
+                              toggleIdea(item.id)
+                            }
+                          }}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            border: `2px solid ${item.completed ? '#10b981' : '#d1d5db'}`,
+                            borderRadius: '4px',
+                            backgroundColor: item.completed ? '#10b981' : 'transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            color: 'white'
+                          }}
+                        >
+                          {item.completed ? '✓' : ''}
+                        </button>
+                      </td>
+
+                      {/* 種別 */}
+                      <td style={{ padding: '8px', fontSize: '12px', fontWeight: '500' }}>
+                        <span style={{
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '10px',
+                          fontWeight: '600',
+                          backgroundColor:
+                            item.dataType === 'task' ? '#dbeafe' :
+                            item.dataType === 'recurring' ? '#f0fdf4' : '#fef3c7',
+                          color:
+                            item.dataType === 'task' ? '#1e40af' :
+                            item.dataType === 'recurring' ? '#166534' : '#92400e'
+                        }}>
+                          {item.dataType === 'task' ? 'タスク' :
+                           item.dataType === 'recurring' ? '繰り返し' : 'アイデア'}
+                        </span>
+                      </td>
+
+                      {/* タイトル + メモ（1段表示） */}
+                      <td style={{ padding: '8px', fontSize: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {/* タイトル */}
+                          <span style={{ fontWeight: '500' }}>
+                            {item.displayTitle}
+                          </span>
+
+                          {/* 買い物カテゴリの場合、「リスト」リンクを右に表示 */}
+                          {item.dataType === 'task' && item.category === '買い物' && (
+                            <button
+                              onClick={() => toggleShoppingList(item.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                textDecoration: 'underline',
+                                padding: '0'
+                              }}
+                              title="買い物リストを表示/非表示"
+                            >
+                              🛒 リスト ({(shoppingSubTasks[item.id] || []).length})
+                            </button>
+                          )}
+
+                          {/* 買い物カテゴリ以外のメモを右に表示 */}
+                          {((item.dataType === 'task' && item.category !== '買い物') || item.dataType === 'recurring') && item.memo && (
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#6b7280',
+                              fontStyle: 'italic'
+                            }}>
+                              - {item.memo}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* サブタスクリスト（展開時） */}
+                        {item.dataType === 'task' && item.category === '買い物' && expandedShoppingLists[item.id] && (
+                          <div style={{
+                            marginTop: '8px',
+                            paddingLeft: '12px',
+                            borderLeft: '2px solid #e5e7eb'
+                          }}>
+                            <div style={{ marginBottom: '4px' }}>
+                              <button
+                                onClick={() => {
+                                  const newItem = prompt('買い物アイテムを追加:')
+                                  if (newItem && newItem.trim()) {
+                                    addShoppingSubTask(item.id, newItem.trim())
+                                  }
+                                }}
+                                style={{
+                                  background: '#10b981',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  padding: '2px 6px',
+                                  fontSize: '10px',
+                                  cursor: 'pointer'
+                                }}
+                                title="買い物アイテムを追加"
+                              >
+                                + 追加
+                              </button>
+                            </div>
+                            {(shoppingSubTasks[item.id] || []).map((subTask) => (
+                              <div key={subTask.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                marginBottom: '4px',
+                                fontSize: '11px'
+                              }}>
+                                <button
+                                  onClick={() => toggleShoppingSubTask(item.id, subTask.id)}
+                                  style={{
+                                    width: '14px',
+                                    height: '14px',
+                                    border: `1px solid ${subTask.completed ? '#10b981' : '#d1d5db'}`,
+                                    borderRadius: '2px',
+                                    backgroundColor: subTask.completed ? '#10b981' : 'transparent',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '8px',
+                                    color: 'white'
+                                  }}
+                                >
+                                  {subTask.completed ? '✓' : ''}
+                                </button>
+                                <span style={{
+                                  flex: 1,
+                                  textDecoration: subTask.completed ? 'line-through' : 'none',
+                                  color: subTask.completed ? '#9ca3af' : '#374151'
+                                }}>
+                                  {subTask.title}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`「${subTask.title}」を削除しますか？`)) {
+                                      deleteShoppingSubTask(item.id, subTask.id)
+                                    }
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#ef4444',
+                                    cursor: 'pointer',
+                                    fontSize: '8px',
+                                    padding: '0'
+                                  }}
+                                  title="削除"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            ))}
+                            {(shoppingSubTasks[item.id] || []).length === 0 && (
+                              <div style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                                リストが空です
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* カテゴリ */}
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
+                        {item.displayCategory}
+                      </td>
+
+                      {/* 操作ボタン */}
+                      <td style={{ padding: '8px' }}>
+                        <div style={{
+                          display: 'flex',
+                          gap: '4px',
+                          alignItems: 'center'
+                        }}>
+                          {/* 編集ボタン */}
+                          <button
+                            onClick={() => {
+                              if (item.dataType === 'task') {
+                                handleEditTask(item as unknown as Task)
+                              } else if (item.dataType === 'recurring') {
+                                handleEditRecurringTask(item as unknown as RecurringTask)
+                              } else if (item.dataType === 'idea') {
+                                // アイデア編集機能（今後実装）
+                                console.log('アイデア編集:', item.text)
+                              }
+                            }}
+                            style={{
+                              padding: '4px',
+                              fontSize: '12px',
+                              border: 'none',
+                              borderRadius: '3px',
+                              backgroundColor: '#3b82f6',
+                              color: 'white',
+                              cursor: 'pointer',
+                              width: '24px',
+                              height: '24px'
+                            }}
+                            title="編集"
+                          >
+                            ✏️
+                          </button>
+
+                          {/* 削除ボタン */}
+                          <button
+                            onClick={() => {
+                              if (confirm(`この${item.dataType === 'task' ? 'タスク' : item.dataType === 'recurring' ? '繰り返しタスク' : 'アイデア'}を削除しますか？`)) {
+                                if (item.dataType === 'task') {
+                                  deleteTask(item.id)
+                                } else if (item.dataType === 'recurring') {
+                                  deleteRecurringTask(item.id)
+                                } else if (item.dataType === 'idea') {
+                                  deleteIdea(item.id)
+                                }
+                              }
+                            }}
+                            style={{
+                              padding: '4px',
+                              fontSize: '12px',
+                              border: 'none',
+                              borderRadius: '3px',
+                              backgroundColor: '#ef4444',
+                              color: 'white',
+                              cursor: 'pointer',
+                              width: '24px',
+                              height: '24px'
+                            }}
+                            title="削除"
+                          >
+                            🗑️
+                          </button>
+
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {allUnifiedData.length === 0 && (
+                    <tr>
+                      <td colSpan={6} style={{
+                        padding: '20px',
+                        textAlign: 'center',
+                        color: '#9ca3af',
+                        fontStyle: 'italic'
+                      }}>
+                        データがありません
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         {/* 期日切れタスク表 */}
