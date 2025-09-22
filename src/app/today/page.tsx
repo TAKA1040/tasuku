@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useDatabase } from '@/hooks/useDatabase'
-import { useTasks } from '@/hooks/useTasks'
-import { useRecurringTasks } from '@/hooks/useRecurringTasks'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useRollover } from '@/hooks/useRollover'
 import { formatDateForDisplay, getTodayJST } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
@@ -13,12 +12,12 @@ import { TaskEditForm } from '@/components/TaskEditForm'
 import { RecurringTaskEditForm } from '@/components/RecurringTaskEditForm'
 import { TaskCreateForm2 } from '@/components/TaskCreateForm2'
 import { IdeaBox } from '@/components/IdeaBox'
-import { useIdeas } from '@/hooks/useIdeas'
-import { Task, RecurringTask } from '@/lib/db/schema'
+import { Task, RecurringTask, SubTask } from '@/lib/db/schema'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
+import { subTaskService } from '@/lib/db/supabase-subtasks'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -27,10 +26,35 @@ export default function TodayPage() {
   useEffect(() => {
     document.title = 'TASUKU - 今日のタスク'
   }, [])
-  const { loading: tasksLoading, getTodayTasks, getTodayCompletedTasks, getUpcomingTasks, getOverdueTasks, completeTask, createTask, updateTask, uncompleteTask, deleteTask, allTasks } = useTasks(isInitialized)
-  const { loading: recurringLoading, getTodayRecurringTasks, getTodayCompletedRecurringTasks, getUpcomingRecurringTasks, completeRecurringTask, createRecurringTask, uncompleteRecurringTask, updateRecurringTask, deleteRecurringTask, allRecurringTasks } = useRecurringTasks(isInitialized)
-  const { ideas, addIdea, toggleIdea, editIdea, deleteIdea } = useIdeas(isInitialized)
-  
+
+  const {
+    loading,
+    getTodayTasks,
+    getTodayCompletedTasks,
+    getUpcomingTasks,
+    getOverdueTasks,
+    completeTask,
+    createTask,
+    updateTask,
+    uncompleteTask,
+    deleteTask,
+    allTasks,
+    getTodayRecurringTasks,
+    getTodayCompletedRecurringTasks,
+    getUpcomingRecurringTasks,
+    completeRecurringTask,
+    createRecurringTask,
+    uncompleteRecurringTask,
+    updateRecurringTask,
+    deleteRecurringTask,
+    allRecurringTasks,
+    ideas,
+    addIdea,
+    toggleIdea,
+    editIdea,
+    deleteIdea
+  } = useUnifiedTasks(isInitialized)
+
   // 繰り越し機能
   const {
     rolloverData,
@@ -52,6 +76,12 @@ export default function TodayPage() {
 
   // 期日切れタスク表示制御
   const [showOverdueTasks, setShowOverdueTasks] = useState(false)
+
+  // 期限切れタスクのサブタスク機能
+  const [overdueSubTasks, setOverdueSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
+  const [showOverdueShoppingLists, setShowOverdueShoppingLists] = useState<{ [taskId: string]: boolean }>({})
+  const [overdueNewItemInputs, setOverdueNewItemInputs] = useState<{ [taskId: string]: string }>({})
+  const [overdueEditingSubTask, setOverdueEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
 
 
   // Timeout to show interface even if DB loading takes too long
@@ -78,7 +108,7 @@ export default function TodayPage() {
   }
   
   // Show loading only if database isn't initialized and timeout hasn't occurred
-  if (!isInitialized && !forceShow && (tasksLoading || recurringLoading)) {
+  if (!isInitialized && !forceShow && loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
@@ -94,26 +124,28 @@ export default function TodayPage() {
   }
 
   // Safe data fetching - fallback to empty arrays if not initialized
-  const todayTasks = isInitialized ? getTodayTasks() : []
-  const todayCompletedTasks = isInitialized ? getTodayCompletedTasks() : []
-  const overdueTasks = isInitialized ? getOverdueTasks() : []
-  const todayRecurringTasks = isInitialized ? getTodayRecurringTasks() : []
-  const todayCompletedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
-  const upcomingTasks = isInitialized ? getUpcomingTasks() : []
-  const upcomingRecurringTasks = isInitialized ? getUpcomingRecurringTasks() : []
+  const todayTasks = useMemo(() => isInitialized ? getTodayTasks() : [], [isInitialized, getTodayTasks])
+  const todayCompletedTasks = useMemo(() => isInitialized ? getTodayCompletedTasks() : [], [isInitialized, getTodayCompletedTasks])
+  const overdueTasks = useMemo(() => isInitialized ? getOverdueTasks() : [], [isInitialized, getOverdueTasks])
+  const todayRecurringTasks = useMemo(() => isInitialized ? getTodayRecurringTasks() : [], [isInitialized, getTodayRecurringTasks])
+  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? getTodayCompletedRecurringTasks() : [], [isInitialized, getTodayCompletedRecurringTasks])
+  const upcomingTasks = useMemo(() => isInitialized ? getUpcomingTasks() : [], [isInitialized, getUpcomingTasks])
+  const upcomingRecurringTasks = useMemo(() => isInitialized ? getUpcomingRecurringTasks() : [], [isInitialized, getUpcomingRecurringTasks])
   
   // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
   const allUpcoming = [
     ...upcomingTasks,
-    ...upcomingRecurringTasks.map(item => ({
-      task: {
-        id: item.task.id,
-        title: item.task.title,
-        due_date: item.nextDate
-      } as Task,
-      urgency: 'Normal' as const,
-      days_from_today: item.daysFromToday
-    }))
+    ...upcomingRecurringTasks
+      .filter(item => item && item.task && item.nextDate !== undefined && item.daysFromToday !== undefined)
+      .map(item => ({
+        task: {
+          id: item.task.id,
+          title: item.task.title,
+          due_date: item.nextDate
+        } as Task,
+        urgency: 'Normal' as const,
+        days_from_today: item.daysFromToday
+      }))
   ].sort((a, b) => a.days_from_today - b.days_from_today)
 
 
@@ -166,12 +198,48 @@ export default function TodayPage() {
   }
 
   const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
+    // 元のタスクの情報を取得して、IDEAかどうか判定
+    const originalTask = allTasks.find(t => t.id === taskId)
+    const isOriginalIdea = originalTask?.task_type === 'IDEA'
+
+    const updateData: any = {
+      title,
+      memo,
+      due_date: dueDate && dueDate.trim() ? dueDate.trim() : undefined,
+      category,
+      importance,
+      duration_min: durationMin,
+      urls
+    }
+
+    // IDEAから通常タスクへの変換判定
+    if (isOriginalIdea) {
+      if (dueDate && dueDate.trim()) {
+        // 期限が設定された場合、通常タスクに変換
+        updateData.task_type = 'NORMAL'
+      } else {
+        // 期限がない場合、IDEAタイプのまま更新
+        updateData.task_type = 'IDEA'
+      }
+    }
+
+    await updateTask(taskId, updateData)
   }
 
   const handleCancelEdit = () => {
     setShowEditForm(false)
     setEditingTask(null)
+  }
+
+  // Helper functions for recurring task completion with fixed signatures
+  const handleCompleteRecurringTask = (taskId: string) => {
+    const today = getTodayJST()
+    return completeRecurringTask(taskId, today)
+  }
+
+  const handleUncompleteRecurringTask = (taskId: string) => {
+    const today = getTodayJST()
+    return uncompleteRecurringTask(taskId, today)
   }
 
   const handleEditRecurringTask = (task: RecurringTask) => {
@@ -231,29 +299,100 @@ export default function TodayPage() {
     }
   }
 
-  const handleUpgradeToTask = async (idea: { id: string; text: string; completed: boolean; createdAt: string }) => {
-    // アイデアをタスクに昇格させる場合、編集フォームを開いてタイトルを事前入力
+  // 期限切れタスクのサブタスク機能
+  const loadOverdueSubTasks = useCallback(async () => {
+    if (!isInitialized) return
+
+    const newSubTasks: { [taskId: string]: SubTask[] } = {}
+    const shoppingOverdueTasks = overdueTasks.filter(task => task.task.category === '買い物')
+
+    for (const taskWithUrgency of shoppingOverdueTasks) {
+      const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
+      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+    }
+
+    setOverdueSubTasks(newSubTasks)
+  }, [isInitialized, overdueTasks])
+
+  useEffect(() => {
+    loadOverdueSubTasks()
+  }, [loadOverdueSubTasks])
+
+  const toggleOverdueShoppingList = (taskId: string) => {
+    setShowOverdueShoppingLists(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }))
+  }
+
+  const handleOverdueAddSubTask = async (taskId: string) => {
+    const newItemText = overdueNewItemInputs[taskId]?.trim()
+    if (!newItemText) return
+
+    try {
+      const existingSubTasks = overdueSubTasks[taskId] || []
+      const nextSortOrder = existingSubTasks.length
+
+      await subTaskService.createSubTask(taskId, newItemText, nextSortOrder)
+
+      setOverdueNewItemInputs(prev => ({
+        ...prev,
+        [taskId]: ''
+      }))
+
+      await loadOverdueSubTasks()
+    } catch (error) {
+      console.error('Failed to add subtask:', error)
+    }
+  }
+
+  const handleOverdueToggleSubTask = async (subTaskId: string, taskId: string) => {
+    try {
+      await subTaskService.toggleSubTaskCompletion(subTaskId)
+      await loadOverdueSubTasks()
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error)
+    }
+  }
+
+  const handleOverdueDeleteSubTask = async (subTaskId: string, taskId: string) => {
+    try {
+      await subTaskService.deleteSubTask(subTaskId)
+      await loadOverdueSubTasks()
+    } catch (error) {
+      console.error('Failed to delete subtask:', error)
+    }
+  }
+
+  const handleEditIdea = async (idea: { id: string; text: string; completed: boolean; createdAt: string; category?: string; importance?: number }) => {
+    // 元のタスクデータを統合タスクから取得
+    const originalTask = allTasks.find(t => t.id === idea.id)
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('handleEditIdea: idea object:', idea)
+      console.log('handleEditIdea: found originalTask:', originalTask)
+      console.log('handleEditIdea: originalTask category:', originalTask?.category)
+    }
+
+    // アイデアを本格的なタスクとして編集（期限・重要度など設定可能）
     setEditingTask({
-      id: '', // 新規タスク
+      id: idea.id, // 元のアイデアIDを保持
       title: idea.text,
-      memo: '',
-      due_date: undefined,
-      category: '',
-      importance: 1,
-      duration_min: undefined,
-      urls: undefined,
-      attachment: undefined,
-      completed: false,
-      archived: false,
-      snoozed_until: undefined,
-      created_at: '',
-      updated_at: '',
-      completed_at: undefined
+      memo: originalTask?.memo || '',
+      due_date: originalTask?.due_date || undefined,
+      category: idea.category || originalTask?.category || '',
+      importance: idea.importance || originalTask?.importance || 1,
+      duration_min: originalTask?.duration_min || undefined,
+      urls: originalTask?.urls || undefined,
+      attachment: originalTask?.attachment || undefined,
+      completed: originalTask?.completed || false,
+      archived: originalTask?.archived || false,
+      snoozed_until: originalTask?.snoozed_until || undefined,
+      created_at: idea.createdAt,
+      updated_at: originalTask?.updated_at || '',
+      completed_at: originalTask?.completed_at || undefined
     })
     setShowEditForm(true)
-
-    // アイデアは削除
-    await deleteIdea(idea.id)
   }
 
   return (
@@ -397,11 +536,11 @@ export default function TodayPage() {
             completedTasks={todayCompletedTasks}
             completedRecurringTasks={todayCompletedRecurringTasks}
             onComplete={completeTask}
-            onRecurringComplete={completeRecurringTask}
+            onRecurringComplete={handleCompleteRecurringTask}
             onEdit={handleEditTask}
             onEditRecurring={handleEditRecurringTask}
             onUncomplete={uncompleteTask}
-            onRecurringUncomplete={uncompleteRecurringTask}
+            onRecurringUncomplete={handleUncompleteRecurringTask}
             onDelete={deleteTask}
             onDeleteRecurring={deleteRecurringTask}
           />
@@ -464,7 +603,7 @@ export default function TodayPage() {
                         style={{
                           borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
                           height: '28px',
-                          backgroundColor: '#fef2f2', // 期日切れは薄い赤
+                          backgroundColor: '#fef2f2',
                           transition: 'background-color 0.15s ease'
                         }}
                       >
@@ -497,6 +636,20 @@ export default function TodayPage() {
                             <span style={{ fontWeight: '500' }}>
                               {item.task.title}
                             </span>
+                            {item.task.category === '買い物' && (
+                              <span
+                                onClick={() => toggleOverdueShoppingList(item.task.id)}
+                                style={{
+                                  fontSize: '12px',
+                                  color: '#6b7280',
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline'
+                                }}
+                                title="買い物リストを表示"
+                              >
+                                タスク（{overdueSubTasks[item.task.id]?.length || 0}件）
+                              </span>
+                            )}
                             {item.task.memo && (
                               <span style={{
                                 color: '#6b7280',
@@ -588,6 +741,7 @@ export default function TodayPage() {
                   </tbody>
                 </table>
               </div>
+
             )}
           </section>
         )}
@@ -613,7 +767,7 @@ export default function TodayPage() {
             onToggle={toggleIdea}
             onEdit={editIdea}
             onDelete={deleteIdea}
-            onUpgradeToTask={handleUpgradeToTask}
+            onEditIdea={handleEditIdea}
           />
         </section>
       </main>
