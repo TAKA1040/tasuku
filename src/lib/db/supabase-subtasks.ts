@@ -38,6 +38,11 @@ export class SupabaseSubTaskService {
     await db.updateSubTask(subTaskId, { completed: !subTask.completed })
   }
 
+  // サブタスクを更新（汎用）
+  async updateSubTask(subTaskId: string, updates: Partial<Pick<SubTask, 'title' | 'completed' | 'sort_order'>>): Promise<void> {
+    await db.updateSubTask(subTaskId, updates)
+  }
+
   // サブタスクのタイトルを更新
   async updateSubTaskTitle(subTaskId: string, title: string): Promise<void> {
     await db.updateSubTask(subTaskId, { title })

@@ -89,15 +89,26 @@ export async function seedDummyData(): Promise<void> {
     }
   ]
   
-  // データベースに投入
-  for (const task of dummyTasks) {
-    const { id, created_at, updated_at, ...taskData } = task
-    await db.createTask(taskData)
-  }
-  
-  for (const recurringTask of dummyRecurringTasks) {
-    const { id, created_at, updated_at, ...taskData } = recurringTask
-    await db.createRecurringTask(taskData)
+  // データベースに投入（統一テーブル使用）
+  try {
+    for (const task of dummyTasks) {
+      const { id, created_at, updated_at, ...taskData } = task
+      await db.createUnifiedTask({
+        ...taskData,
+        task_type: 'NORMAL'
+      })
+    }
+
+    for (const recurringTask of dummyRecurringTasks) {
+      const { id, created_at, updated_at, ...taskData } = recurringTask
+      await db.createUnifiedTask({
+        ...taskData,
+        task_type: 'RECURRING'
+      })
+    }
+  } catch (err) {
+    console.log('Failed to seed data with unified table, skipping:', err)
+    return
   }
   
   console.log(`Seeded ${dummyTasks.length} tasks and ${dummyRecurringTasks.length} recurring tasks`)
@@ -123,13 +134,31 @@ export async function checkDatabaseState(): Promise<{
   recurringTasks: number
   recurringLogs: number
 }> {
-  const tasks = await db.getAllTasks()
-  const recurringTasks = await db.getAllRecurringTasks()
-  const recurringLogs = await db.getAllRecurringLogs()
-  
-  return {
-    tasks: tasks.length,
-    recurringTasks: recurringTasks.length,
-    recurringLogs: recurringLogs.length
+  try {
+    // 統一テーブルから取得
+    const unifiedTasks = await db.getAllUnifiedTasks()
+    const normalTasks = unifiedTasks.filter(task => task.task_type === 'NORMAL')
+    const recurringTasks = unifiedTasks.filter(task => task.task_type === 'RECURRING')
+
+    // 繰り返しログは既存のメソッドを使用（テーブルが存在する場合）
+    let recurringLogs: any[] = []
+    try {
+      recurringLogs = await db.getAllRecurringLogs()
+    } catch (err) {
+      console.log('Recurring logs table not accessible, assuming 0')
+    }
+
+    return {
+      tasks: normalTasks.length,
+      recurringTasks: recurringTasks.length,
+      recurringLogs: recurringLogs.length
+    }
+  } catch (err) {
+    console.log('Database state check failed, assuming empty database:', err)
+    return {
+      tasks: 0,
+      recurringTasks: 0,
+      recurringLogs: 0
+    }
   }
 }

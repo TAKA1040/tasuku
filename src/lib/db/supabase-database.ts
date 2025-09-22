@@ -15,6 +15,7 @@ import {
   type SubTask,
   type LocationTag,
   type UnifiedItem,
+  type UnifiedTask,
   type TaskWithUrgency,
   type UrgencyLevel
 } from './schema'
@@ -30,7 +31,8 @@ class SupabaseTasukuDatabase {
   private async getCurrentUserId(): Promise<string> {
     const { data: { user }, error } = await this.supabase.auth.getUser()
     if (error || !user) {
-      throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
+      // ゲストモードでのサブタスク操作を許可するため、ダミーのゲストIDを返す
+      return 'guest-user-id'
     }
     return user.id
   }
@@ -687,6 +689,177 @@ class SupabaseTasukuDatabase {
   }
 
   // ===================================
+  // UNIFIED TASKS CRUD Operations
+  // ===================================
+
+  async createUnifiedTask(task: Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'display_number'>): Promise<UnifiedTask> {
+    const userId = await this.getCurrentUserId()
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('createUnifiedTask: Creating task:', task.title)
+    }
+
+    try {
+      // Generate display number using the database function
+      const { data: numberData, error: numberError } = await this.supabase
+        .rpc('generate_display_number', {
+          p_user_id: userId,
+          p_task_type: task.task_type
+        })
+
+      if (numberError) {
+        console.error('createUnifiedTask: Failed to generate display number, using fallback:', numberError)
+        // Fallback display number generation
+        const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+        const typeCode = task.task_type === 'NORMAL' ? '10' : task.task_type === 'RECURRING' ? '12' : '13'
+        const sequence = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')
+        var fallbackNumber = `${date}${typeCode}${sequence}`
+      }
+
+      const insertData = {
+        ...task,
+        user_id: userId,
+        display_number: numberData || fallbackNumber
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('createUnifiedTask: Insert data:', JSON.stringify(insertData, null, 2))
+      }
+
+      const { data, error } = await this.supabase
+        .from('unified_tasks')
+        .insert(insertData)
+        .select()
+        .single()
+
+      if (error) {
+        if (error.code === 'PGRST205') {
+          console.error('createUnifiedTask: unified_tasks table not found')
+          throw new Error('Unified tasks table not yet created. Please run database migrations first.')
+        }
+        console.error('createUnifiedTask: Failed to create task:', {
+          title: task.title,
+          error: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          fullError: error
+        })
+        throw error
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('createUnifiedTask: Successfully created task:', task.title)
+      }
+
+      const { user_id, ...taskData } = data
+      return taskData as UnifiedTask
+    } catch (err) {
+      console.error('createUnifiedTask: Operation failed:', err)
+      throw err
+    }
+  }
+
+  async getUnifiedTask(id: string): Promise<UnifiedTask | null> {
+    const { data, error } = await this.supabase
+      .from('unified_tasks')
+      .select()
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') return null // Not found
+      throw error
+    }
+
+    const { user_id, ...taskData } = data
+    return taskData as UnifiedTask
+  }
+
+  async getAllUnifiedTasks(): Promise<UnifiedTask[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('unified_tasks')
+        .select()
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        if (error.code === 'PGRST205') {
+          // Table doesn't exist yet
+          console.log('unified_tasks table not found, returning empty array')
+          return []
+        }
+        throw error
+      }
+
+      return data.map(({ user_id, ...task }) => task as UnifiedTask)
+    } catch (err) {
+      console.log('getAllUnifiedTasks failed, returning empty array:', err)
+      return []
+    }
+  }
+
+  async getUnifiedTasksByType(taskType: 'NORMAL' | 'RECURRING' | 'IDEA'): Promise<UnifiedTask[]> {
+    const { data, error } = await this.supabase
+      .from('unified_tasks')
+      .select()
+      .eq('task_type', taskType)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return data.map(({ user_id, ...task }) => task as UnifiedTask)
+  }
+
+  async getUnifiedTasksByDate(date: string): Promise<UnifiedTask[]> {
+    const { data, error } = await this.supabase
+      .from('unified_tasks')
+      .select()
+      .eq('due_date', date)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return data.map(({ user_id, ...task }) => task as UnifiedTask)
+  }
+
+  async getActiveUnifiedRecurringTasks(): Promise<UnifiedTask[]> {
+    const { data, error } = await this.supabase
+      .from('unified_tasks')
+      .select()
+      .eq('task_type', 'RECURRING')
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return data.map(({ user_id, ...task }) => task as UnifiedTask)
+  }
+
+  async updateUnifiedTask(id: string, updates: Partial<Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'display_number'>>): Promise<UnifiedTask> {
+    const { data, error } = await this.supabase
+      .from('unified_tasks')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    const { user_id, ...taskData } = data
+    return taskData as UnifiedTask
+  }
+
+  async deleteUnifiedTask(id: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('unified_tasks')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  }
+
+  // ===================================
   // UNIFIED ITEMS Operations (Not implemented - tables don't exist)
   // ===================================
 
@@ -708,15 +881,31 @@ class SupabaseTasukuDatabase {
 
   async init(): Promise<void> {
     // Supabaseでは明示的な初期化は不要
-    // 認証状態のみ確認
-    await this.getCurrentUserId()
+    // 認証状態を確認（ゲストモードでは無視）
+    try {
+      await this.getCurrentUserId()
+      console.log('User authenticated, full access enabled')
+    } catch (err) {
+      console.log('Guest mode: limited access enabled')
+    }
+
+    // 統一テーブルが存在するかチェック（存在しない場合はログに記録するのみ）
+    try {
+      await this.supabase
+        .from('unified_tasks')
+        .select('id')
+        .limit(1)
+      console.log('unified_tasks table is accessible')
+    } catch (err) {
+      console.log('unified_tasks table not yet created - this is expected before migration')
+    }
   }
 
   async clearAllData(): Promise<void> {
     const userId = await this.getCurrentUserId()
 
     // Only clear tables that exist
-    const tables = ['subtasks', 'recurring_logs', 'tasks', 'recurring_tasks', 'ideas', 'user_settings'] as const
+    const tables = ['subtasks', 'recurring_logs', 'tasks', 'recurring_tasks', 'ideas', 'unified_tasks', 'user_settings'] as const
 
     for (const table of tables) {
       const { error } = await this.supabase

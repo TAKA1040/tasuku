@@ -1,6 +1,6 @@
 'use client'
 
-import { useTasks } from '@/hooks/useTasks'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useDatabase } from '@/hooks/useDatabase'
 import { TASK_CATEGORIES } from '@/lib/db/schema'
 import { subTaskService } from '@/lib/db/supabase-subtasks'
@@ -15,7 +15,7 @@ interface ShoppingTasksSectionProps {
 
 export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
   const { isInitialized } = useDatabase()
-  const { getTodayTasks, getUpcomingTasks, completeTask, updateTask, deleteTask, createTask, allTasks } = useTasks(isInitialized)
+  const { getShoppingTasks, completeTask, updateTask, deleteTask, createTask, allTasks } = useUnifiedTasks(isInitialized)
   const [subTasks, setSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
   const [showShoppingLists, setShowShoppingLists] = useState<{ [taskId: string]: boolean }>({})
   const [newItemInputs, setNewItemInputs] = useState<{ [taskId: string]: string }>({})
@@ -125,79 +125,67 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     }))
   }
 
-  // 買い物カテゴリーの翌日以降のタスクのみを取得
-  const getShoppingTasks = useCallback(() => {
-    if (!isInitialized) return []
-
-    const today = getTodayJST()
-
-    // 翌日以降の未完了タスクのみ取得
-    const allUpcomingTasks = allTasks
-      .filter(task =>
-        !task.completed &&
-        !task.archived &&
-        (!task.snoozed_until || task.snoozed_until <= today) &&
-        task.due_date &&
-        task.due_date !== today &&
-        getDaysFromToday(task.due_date) > 0
-      )
-      .map(task => {
-        const days_from_today = getDaysFromToday(task.due_date!)
-        const urgency = getUrgencyLevel(task.due_date!)
-
-        return {
-          task,
-          urgency,
-          days_from_today
-        }
-      })
-      .sort((a, b) => a.days_from_today - b.days_from_today)
-
-    // 期日なしの未完了タスクも取得
-    const noDueDateTasks = allTasks
-      .filter(task =>
-        !task.completed &&
-        !task.archived &&
-        (!task.snoozed_until || task.snoozed_until <= today) &&
-        !task.due_date
-      )
-      .map(task => ({
-        task,
-        urgency: 'none' as const,
-        days_from_today: 999 // 期日なしは最後に表示
-      }))
-
-    // 翌日以降 + 期日なしの買い物カテゴリーのみフィルタ（今日のタスクは除外）
-    const allTasksWithUrgency = [...allUpcomingTasks, ...noDueDateTasks]
-    return allTasksWithUrgency.filter(taskWithUrgency =>
-      taskWithUrgency.task.category === TASK_CATEGORIES.SHOPPING
-    )
-  }, [isInitialized, allTasks])
+  // useUnifiedTasksのgetShoppingTasksを使用
 
   // サブタスクを読み込み
-  const loadSubTasks = useCallback(async () => {
-    if (!isInitialized) return
+  // サブタスクを読み込み（買い物カテゴリーのタスクのみ）
+  useEffect(() => {
+    let isMounted = true
 
-    const shoppingTasks = getShoppingTasks()
-    const newSubTasks: { [taskId: string]: SubTask[] } = {}
+    const loadSubTasks = async () => {
+      if (!isInitialized) return
 
-    for (const taskWithUrgency of shoppingTasks) {
-      const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
-      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+      try {
+        const shoppingTasks = getShoppingTasks()
+        const newSubTasks: { [taskId: string]: SubTask[] } = {}
+
+        for (const taskWithUrgency of shoppingTasks) {
+          if (!isMounted) return // コンポーネントがアンマウントされていたら中断
+          const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
+          newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+        }
+
+        if (isMounted) {
+          setSubTasks(newSubTasks)
+        }
+      } catch (error) {
+        console.error('Failed to load shopping subtasks:', error)
+      }
     }
 
-    setSubTasks(newSubTasks)
-  }, [isInitialized, getShoppingTasks])
+    if (isInitialized) {
+      loadSubTasks()
+    }
 
-  useEffect(() => {
-    loadSubTasks()
-  }, [isInitialized])
+    return () => {
+      isMounted = false
+    }
+  }, [isInitialized, allTasks?.length || 0])
+
+  // サブタスクを再読み込みする関数
+  const reloadSubTasks = async () => {
+    if (!isInitialized) return
+
+    try {
+      const shoppingTasks = getShoppingTasks()
+      const newSubTasks: { [taskId: string]: SubTask[] } = {}
+
+      for (const taskWithUrgency of shoppingTasks) {
+        const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
+        newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+      }
+
+      setSubTasks(newSubTasks)
+    } catch (error) {
+      console.error('Failed to reload shopping subtasks:', error)
+    }
+  }
 
   // サブタスクの完了状態を切り替え
   const handleToggleSubTask = async (subTaskId: string, taskId: string) => {
     try {
       await subTaskService.toggleSubTaskCompletion(subTaskId)
-      await loadSubTasks()
+      await reloadSubTasks()
     } catch (error) {
       console.error('Failed to toggle subtask:', error)
     }
@@ -207,7 +195,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
   const handleDeleteSubTask = async (subTaskId: string, taskId: string) => {
     try {
       await subTaskService.deleteSubTask(subTaskId)
-      await loadSubTasks()
+      await reloadSubTasks()
     } catch (error) {
       console.error('Failed to delete subtask:', error)
     }
@@ -230,7 +218,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
         [taskId]: ''
       }))
 
-      await loadSubTasks()
+      await reloadSubTasks()
     } catch (error) {
       console.error('Failed to add subtask:', error)
     }
@@ -260,7 +248,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
 
     try {
       await subTaskService.updateSubTaskTitle(editingSubTask.subTaskId, editingSubTask.title)
-      await loadSubTasks()
+      await reloadSubTasks()
       setEditingSubTask(null)
     } catch (error) {
       console.error('Failed to update subtask:', error)
@@ -337,7 +325,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       }
 
       // サブタスクリストを再読み込み
-      await loadSubTasks()
+      await reloadSubTasks()
     } catch (error) {
       console.error('Failed to complete task:', error)
     }

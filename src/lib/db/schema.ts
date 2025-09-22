@@ -226,3 +226,43 @@ export interface TaskWithUrgency {
   urgency: UrgencyLevel
   days_from_today: number
 }
+
+// Unified Task Management System
+export interface UnifiedTask {
+  id: string
+  display_number: string // YYYYMMDDTTCCC format
+  task_type: 'NORMAL' | 'RECURRING' | 'IDEA'
+  title: string
+  completed: boolean
+  memo?: string
+  due_date?: string // YYYY-MM-DD format (JST)
+  category?: string
+  importance?: 1 | 2 | 3 | 4 | 5
+  duration_min?: number
+  urls?: string[]
+
+  // System fields
+  created_at: string // ISO string (JST)
+  updated_at: string // ISO string (JST)
+  completed_at?: string // YYYY-MM-DD format (JST)
+  archived?: boolean
+  snoozed_until?: string // YYYY-MM-DD format (JST)
+  rollover_count?: number
+
+  // Recurring task fields (when task_type === 'RECURRING')
+  frequency?: 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY'
+  active?: boolean
+  interval_n?: number
+  weekdays?: number[]
+  month_day?: number
+  start_date?: string // YYYY-MM-DD format (JST)
+  end_date?: string // YYYY-MM-DD format (JST)
+
+  // Attachment
+  attachment?: {
+    file_name: string
+    file_type: string
+    file_size: number
+    file_data: string // Base64
+  }
+}

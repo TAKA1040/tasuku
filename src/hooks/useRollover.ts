@@ -30,7 +30,7 @@ export function useRollover(
     }
 
     // 簡易実装：データがない場合は空の結果を返す
-    if (singleTasks.length === 0 && recurringTasks.length === 0) {
+    if (!singleTasks || !recurringTasks || (singleTasks.length === 0 && recurringTasks.length === 0)) {
       setRolloverData({
         incompleteSingle: [],
         incompleteRecurring: []
@@ -42,12 +42,12 @@ export function useRollover(
       try {
         // RecurringLogデータを取得
         const recurringLogs = await db.getAllRecurringLogs()
-        
+
         const incomplete = findIncompleTasks(singleTasks, recurringTasks, recurringLogs)
         setRolloverData(incomplete)
-        
-        // 自動繰り越し実行
-        if (autoRollover && incomplete.incompleteSingle.length > 0) {
+
+        // 自動繰り越し実行 (一時的に無効化 - unified_tasksシステム移行中)
+        if (false && autoRollover && incomplete.incompleteSingle.length > 0) {
           setTimeout(() => {
             executeAutoRollover(incomplete.incompleteSingle)
           }, 1000) // 1秒後に自動実行
@@ -62,7 +62,7 @@ export function useRollover(
     }
 
     loadRolloverData()
-  }, [singleTasks, recurringTasks, isDbInitialized])
+  }, [isDbInitialized])
 
   // 繰り越し候補があるかチェック
   const hasRolloverCandidates = rolloverData && (

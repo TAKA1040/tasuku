@@ -576,21 +576,6 @@ export type Database = {
       }
     }
     Functions: {
-      check_duplicates: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          count: number
-          duplicate_key: string
-          table_name: string
-        }[]
-      }
-      check_task_duplicates: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          count: number
-          duplicate_key: string
-        }[]
-      }
       complete_migration_to_unified: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -604,21 +589,6 @@ export type Database = {
       generate_display_number: {
         Args: { p_date?: string; p_task_type: string; p_user_id: string }
         Returns: string
-      }
-      get_cleanup_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          record_count: number
-          sample_titles: string[]
-          table_name: string
-        }[]
-      }
-      get_table_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          record_count: number
-          table_name: string
-        }[]
       }
       migrate_recurring_tasks_to_unified: {
         Args: Record<PropertyKey, never>

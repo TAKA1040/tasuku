@@ -21,6 +21,7 @@ import { subTaskService } from '@/lib/db/supabase-subtasks'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
+  console.log('TodayPage: Database initialized:', isInitialized, 'Error:', error)
 
   // ページタイトルを設定
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function TodayPage() {
     uncompleteTask,
     deleteTask,
     allTasks,
+    allUnifiedTasks,
     getTodayRecurringTasks,
     getTodayCompletedRecurringTasks,
     getUpcomingRecurringTasks,
@@ -79,14 +81,17 @@ export default function TodayPage() {
 
   // 期限切れタスクのサブタスク機能
   const [overdueSubTasks, setOverdueSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
-  const [showOverdueShoppingLists, setShowOverdueShoppingLists] = useState<{ [taskId: string]: boolean }>({})
   const [overdueNewItemInputs, setOverdueNewItemInputs] = useState<{ [taskId: string]: string }>({})
   const [overdueEditingSubTask, setOverdueEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
+  const [showOverdueShoppingLists, setShowOverdueShoppingLists] = useState<{ [taskId: string]: boolean }>({})
+
+  // アイデア関連タスクのサブタスク機能
+  const [ideaRelatedTasks, setIdeaRelatedTasks] = useState<{ [ideaText: string]: { taskId: string; subTasks: SubTask[] } }>({})
 
 
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isInitialized) {
@@ -94,10 +99,87 @@ export default function TodayPage() {
         setForceShow(true)
       }
     }, 3000)
-    
+
     return () => clearTimeout(timer)
   }, [isInitialized])
-  
+
+  // Safe data fetching - fallback to empty arrays if not initialized (MUST be before any early returns)
+  const todayTasks = useMemo(() => isInitialized ? getTodayTasks() : [], [isInitialized, getTodayTasks])
+  const todayCompletedTasks = useMemo(() => isInitialized ? getTodayCompletedTasks() : [], [isInitialized, getTodayCompletedTasks])
+  const overdueTasks = useMemo(() => isInitialized ? getOverdueTasks() : [], [isInitialized, getOverdueTasks])
+  const todayRecurringTasks = useMemo(() => isInitialized ? getTodayRecurringTasks() : [], [isInitialized, getTodayRecurringTasks])
+  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? getTodayCompletedRecurringTasks() : [], [isInitialized, getTodayCompletedRecurringTasks])
+  const upcomingTasks = useMemo(() => isInitialized ? getUpcomingTasks() : [], [isInitialized, getUpcomingTasks])
+  const upcomingRecurringTasks = useMemo(() => isInitialized ? getUpcomingRecurringTasks() : [], [isInitialized, getUpcomingRecurringTasks])
+
+  // 期限切れタスクのサブタスク機能 (MUST be before any early returns)
+  const loadOverdueSubTasks = useCallback(async () => {
+    if (!isInitialized) return
+
+    const newSubTasks: { [taskId: string]: SubTask[] } = {}
+    const shoppingOverdueTasks = overdueTasks.filter(task => task.task.category === '買い物')
+
+    for (const taskWithUrgency of shoppingOverdueTasks) {
+      const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
+      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+    }
+
+    setOverdueSubTasks(newSubTasks)
+  }, [isInitialized, overdueTasks])
+
+  useEffect(() => {
+    loadOverdueSubTasks()
+  }, [loadOverdueSubTasks])
+
+  // アイデア関連タスクのサブタスクを読み込み
+  useEffect(() => {
+    let isMounted = true
+
+    const loadIdeaRelatedTasks = async () => {
+      if (!isInitialized || !allUnifiedTasks) return
+
+      try {
+        const newRelatedTasks: { [ideaText: string]: { taskId: string; subTasks: SubTask[] } } = {}
+
+        for (const idea of ideas) {
+          if (!isMounted) return
+          // アイデアと同じタイトルの買い物タスクを探す
+          const relatedTask = allUnifiedTasks.find(task =>
+            task.title === idea.text &&
+            task.category === '買い物' &&
+            task.task_type === 'NORMAL'
+          )
+
+          if (relatedTask) {
+            try {
+              const taskSubTasks = await subTaskService.getSubTasksByParentId(relatedTask.id)
+              newRelatedTasks[idea.text] = {
+                taskId: relatedTask.id,
+                subTasks: taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+              }
+            } catch (error) {
+              console.error('Failed to load subtasks for idea-related task:', relatedTask.id, error)
+            }
+          }
+        }
+
+        if (isMounted) {
+          setIdeaRelatedTasks(newRelatedTasks)
+        }
+      } catch (error) {
+        console.error('Failed to load idea related tasks:', error)
+      }
+    }
+
+    if (isInitialized && allUnifiedTasks && ideas.length > 0) {
+      loadIdeaRelatedTasks()
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [isInitialized, ideas.length, allUnifiedTasks?.length || 0])
+
   if (error) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -106,7 +188,7 @@ export default function TodayPage() {
       </div>
     )
   }
-  
+
   // Show loading only if database isn't initialized and timeout hasn't occurred
   if (!isInitialized && !forceShow && loading) {
     return (
@@ -122,30 +204,22 @@ export default function TodayPage() {
       </div>
     )
   }
-
-  // Safe data fetching - fallback to empty arrays if not initialized
-  const todayTasks = useMemo(() => isInitialized ? getTodayTasks() : [], [isInitialized, getTodayTasks])
-  const todayCompletedTasks = useMemo(() => isInitialized ? getTodayCompletedTasks() : [], [isInitialized, getTodayCompletedTasks])
-  const overdueTasks = useMemo(() => isInitialized ? getOverdueTasks() : [], [isInitialized, getOverdueTasks])
-  const todayRecurringTasks = useMemo(() => isInitialized ? getTodayRecurringTasks() : [], [isInitialized, getTodayRecurringTasks])
-  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? getTodayCompletedRecurringTasks() : [], [isInitialized, getTodayCompletedRecurringTasks])
-  const upcomingTasks = useMemo(() => isInitialized ? getUpcomingTasks() : [], [isInitialized, getUpcomingTasks])
-  const upcomingRecurringTasks = useMemo(() => isInitialized ? getUpcomingRecurringTasks() : [], [isInitialized, getUpcomingRecurringTasks])
   
   // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
   const allUpcoming = [
     ...upcomingTasks,
-    ...upcomingRecurringTasks
-      .filter(item => item && item.task && item.nextDate !== undefined && item.daysFromToday !== undefined)
-      .map(item => ({
-        task: {
-          id: item.task.id,
-          title: item.task.title,
-          due_date: item.nextDate
-        } as Task,
-        urgency: 'Normal' as const,
-        days_from_today: item.daysFromToday
-      }))
+    // TODO: 繰り返しタスクのupcoming機能は後で実装
+    // ...upcomingRecurringTasks
+    //   .filter(item => item && item.task && item.nextDate !== undefined && item.daysFromToday !== undefined)
+    //   .map(item => ({
+    //     task: {
+    //       id: item.task.id,
+    //       title: item.task.title,
+    //       due_date: item.nextDate
+    //     } as Task,
+    //     urgency: 'Normal' as const,
+    //     days_from_today: item.daysFromToday
+    //   }))
   ].sort((a, b) => a.days_from_today - b.days_from_today)
 
 
@@ -198,9 +272,9 @@ export default function TodayPage() {
   }
 
   const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
-    // 元のタスクの情報を取得して、IDEAかどうか判定
-    const originalTask = allTasks.find(t => t.id === taskId)
-    const isOriginalIdea = originalTask?.task_type === 'IDEA'
+    // 元のタスクの情報を取得して、IDEAかどうか判定（統合タスクから直接取得）
+    const originalUnifiedTask = allUnifiedTasks?.find(t => t.id === taskId)
+    const isOriginalIdea = originalUnifiedTask?.task_type === 'IDEA'
 
     const updateData: any = {
       title,
@@ -299,25 +373,6 @@ export default function TodayPage() {
     }
   }
 
-  // 期限切れタスクのサブタスク機能
-  const loadOverdueSubTasks = useCallback(async () => {
-    if (!isInitialized) return
-
-    const newSubTasks: { [taskId: string]: SubTask[] } = {}
-    const shoppingOverdueTasks = overdueTasks.filter(task => task.task.category === '買い物')
-
-    for (const taskWithUrgency of shoppingOverdueTasks) {
-      const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
-      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
-    }
-
-    setOverdueSubTasks(newSubTasks)
-  }, [isInitialized, overdueTasks])
-
-  useEffect(() => {
-    loadOverdueSubTasks()
-  }, [loadOverdueSubTasks])
-
   const toggleOverdueShoppingList = (taskId: string) => {
     setShowOverdueShoppingLists(prev => ({
       ...prev,
@@ -346,7 +401,7 @@ export default function TodayPage() {
     }
   }
 
-  const handleOverdueToggleSubTask = async (subTaskId: string, taskId: string) => {
+  const toggleOverdueSubTaskCompletion = async (subTaskId: string, taskId: string) => {
     try {
       await subTaskService.toggleSubTaskCompletion(subTaskId)
       await loadOverdueSubTasks()
@@ -363,6 +418,24 @@ export default function TodayPage() {
       console.error('Failed to delete subtask:', error)
     }
   }
+
+  const handleOverdueUpdateSubTask = async (subTaskId: string, taskId: string) => {
+    if (!overdueEditingSubTask || !overdueEditingSubTask.title.trim()) {
+      setOverdueEditingSubTask(null)
+      return
+    }
+
+    try {
+      await subTaskService.updateSubTask(subTaskId, {
+        title: overdueEditingSubTask.title.trim()
+      })
+      setOverdueEditingSubTask(null)
+      await loadOverdueSubTasks()
+    } catch (error) {
+      console.error('Failed to update subtask:', error)
+    }
+  }
+
 
   const handleEditIdea = async (idea: { id: string; text: string; completed: boolean; createdAt: string; category?: string; importance?: number }) => {
     // 元のタスクデータを統合タスクから取得
@@ -381,7 +454,7 @@ export default function TodayPage() {
       memo: originalTask?.memo || '',
       due_date: originalTask?.due_date || undefined,
       category: idea.category || originalTask?.category || '',
-      importance: idea.importance || originalTask?.importance || 1,
+      importance: (idea.importance || originalTask?.importance || 1) as 1 | 2 | 3 | 4 | 5,
       duration_min: originalTask?.duration_min || undefined,
       urls: originalTask?.urls || undefined,
       attachment: originalTask?.attachment || undefined,
@@ -598,148 +671,364 @@ export default function TodayPage() {
                   </thead>
                   <tbody>
                     {overdueTasks.map((item, index) => (
-                      <tr
-                        key={item.task.id}
-                        style={{
-                          borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
-                          height: '28px',
-                          backgroundColor: '#fef2f2',
-                          transition: 'background-color 0.15s ease'
-                        }}
-                      >
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
-                          <button
-                            onClick={() => completeTask(item.task.id)}
-                            style={{
-                              width: '18px',
-                              height: '18px',
-                              border: '2px solid #d1d5db',
-                              borderRadius: '4px',
-                              backgroundColor: 'transparent',
-                              cursor: 'pointer',
+                      <React.Fragment key={item.task.id}>
+                        <tr
+                          style={{
+                            borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
+                            height: '28px',
+                            backgroundColor: '#fef2f2',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                        >
+                          <td style={{ padding: '2px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => completeTask(item.task.id)}
+                              style={{
+                                width: '18px',
+                                height: '18px',
+                                border: '2px solid #d1d5db',
+                                borderRadius: '4px',
+                                backgroundColor: 'transparent',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                            </button>
+                          </td>
+                          <td style={{ padding: '2px 4px' }}>
+                            <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.15s ease'
-                            }}
-                          >
-                          </button>
-                        </td>
-                        <td style={{ padding: '2px 4px' }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '14px',
-                            lineHeight: '1.2'
-                          }}>
-                            <span style={{ fontWeight: '500' }}>
-                              {item.task.title}
-                            </span>
-                            {item.task.category === '買い物' && (
-                              <span
-                                onClick={() => toggleOverdueShoppingList(item.task.id)}
+                              gap: '8px',
+                              fontSize: '14px',
+                              lineHeight: '1.2'
+                            }}>
+                              <span style={{ fontWeight: '500' }}>
+                                {item.task.title}
+                              </span>
+                              {item.task.category === '買い物' && (
+                                <button
+                                  onClick={() => toggleOverdueShoppingList(item.task.id)}
+                                  style={{
+                                    fontSize: '11px',
+                                    color: '#6b7280',
+                                    cursor: 'pointer',
+                                    background: 'none',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '3px',
+                                    padding: '2px 6px',
+                                    backgroundColor: showOverdueShoppingLists[item.task.id] ? '#e0f2fe' : 'white'
+                                  }}
+                                  title="買い物リストを表示/非表示"
+                                >
+                                  🛒 {overdueSubTasks[item.task.id]?.length || 0}品目
+                                </button>
+                              )}
+                              {item.task.memo && (
+                                <span style={{
+                                  color: '#6b7280',
+                                  fontSize: '13px',
+                                  display: 'none'
+                                }}
+                                className="memo-desktop-only">
+                                  - {item.task.memo}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ padding: '2px', textAlign: 'center' }}>
+                            {item.task.attachment ? '📷' : '-'}
+                          </td>
+                          <td style={{ padding: '2px', textAlign: 'center' }}>
+                            {item.task.urls && item.task.urls.length > 0 ? '🌍' : '-'}
+                          </td>
+                          <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
+                            {item.task.due_date}
+                          </td>
+                          <td style={{ padding: '2px' }}>
+                            <div style={{
+                              display: 'flex',
+                              gap: '4px',
+                              alignItems: 'center',
+                              flexWrap: 'nowrap'
+                            }}>
+                              <button
+                                onClick={() => handleEditTask(item.task)}
                                 style={{
-                                  fontSize: '12px',
+                                  padding: '4px',
+                                  fontSize: '14px',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  backgroundColor: 'transparent',
                                   color: '#6b7280',
                                   cursor: 'pointer',
-                                  textDecoration: 'underline'
+                                  width: '24px',
+                                  height: '24px',
+                                  transition: 'all 0.15s ease'
                                 }}
-                                title="買い物リストを表示"
+                                title="タスクを編集"
                               >
-                                タスク（{overdueSubTasks[item.task.id]?.length || 0}件）
-                              </span>
-                            )}
-                            {item.task.memo && (
-                              <span style={{
-                                color: '#6b7280',
-                                fontSize: '13px',
-                                display: 'none'
-                              }}
-                              className="memo-desktop-only">
-                                - {item.task.memo}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
-                          {item.task.attachment ? '📷' : '-'}
-                        </td>
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
-                          {item.task.urls && item.task.urls.length > 0 ? '🌍' : '-'}
-                        </td>
-                        <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
-                          {item.task.due_date}
-                        </td>
-                        <td style={{ padding: '2px' }}>
-                          <div style={{
-                            display: 'flex',
-                            gap: '4px',
-                            alignItems: 'center',
-                            flexWrap: 'nowrap'
-                          }}>
-                            <button
-                              onClick={() => handleEditTask(item.task)}
-                              style={{
-                                padding: '4px',
-                                fontSize: '14px',
-                                border: 'none',
-                                borderRadius: '3px',
-                                backgroundColor: 'transparent',
-                                color: '#6b7280',
-                                cursor: 'pointer',
-                                width: '24px',
-                                height: '24px',
-                                transition: 'all 0.15s ease'
-                              }}
-                              title="タスクを編集"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm('このタスクを削除しますか？')) {
-                                  deleteTask(item.task.id)
-                                }
-                              }}
-                              style={{
-                                padding: '4px',
-                                fontSize: '14px',
-                                border: 'none',
-                                borderRadius: '3px',
-                                backgroundColor: 'transparent',
-                                color: '#6b7280',
-                                cursor: 'pointer',
-                                width: '24px',
-                                height: '24px',
-                                transition: 'all 0.15s ease'
-                              }}
-                              title="タスクを削除"
-                            >
-                              🗑️
-                            </button>
-                            <button
-                              onClick={() => handleMoveToIdeas(item.task.id)}
-                              style={{
-                                padding: '4px 8px',
-                                fontSize: '11px',
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap'
-                              }}
-                              title="期日を削除してやることリストに移動"
-                            >
-                              やることリストへ
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm('このタスクを削除しますか？')) {
+                                    deleteTask(item.task.id)
+                                  }
+                                }}
+                                style={{
+                                  padding: '4px',
+                                  fontSize: '14px',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  backgroundColor: 'transparent',
+                                  color: '#6b7280',
+                                  cursor: 'pointer',
+                                  width: '24px',
+                                  height: '24px',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                title="タスクを削除"
+                              >
+                                🗑️
+                              </button>
+                              <button
+                                onClick={() => handleMoveToIdeas(item.task.id)}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11px',
+                                  backgroundColor: '#10b981',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap'
+                                }}
+                                title="期日を削除してやることリストに移動"
+                              >
+                                やることリストへ
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* 買い物リスト展開行 */}
+                        {item.task.category === '買い物' && showOverdueShoppingLists[item.task.id] && (
+                          <tr key={`${item.task.id}-shopping`}>
+                            <td colSpan={6} style={{ padding: '0', border: 'none' }}>
+                              <div style={{
+                                margin: '0 8px 8px 8px',
+                                padding: '12px',
+                                backgroundColor: '#f8fffe',
+                                borderRadius: '6px',
+                                border: '1px solid #e6fffa'
+                              }}>
+                                <div style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  marginBottom: '8px'
+                                }}>
+                                  <div style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+                                    🛒 {item.task.title} の買い物リスト
+                                  </div>
+                                  <button
+                                    onClick={() => toggleOverdueShoppingList(item.task.id)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: '#6b7280',
+                                      cursor: 'pointer',
+                                      fontSize: '16px'
+                                    }}
+                                    title="閉じる"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+
+                                {/* サブタスクリスト */}
+                                {overdueSubTasks[item.task.id] && overdueSubTasks[item.task.id].length > 0 ? (
+                                  <div>
+                                    {overdueSubTasks[item.task.id].map((subTask) => (
+                                      <div
+                                        key={subTask.id}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '8px',
+                                          padding: '4px 0',
+                                          borderBottom: '1px solid #f0f9ff'
+                                        }}
+                                      >
+                                        <button
+                                          onClick={() => toggleOverdueSubTaskCompletion(subTask.id, item.task.id)}
+                                          style={{
+                                            width: '16px',
+                                            height: '16px',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '3px',
+                                            backgroundColor: subTask.completed ? '#10b981' : 'white',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '10px',
+                                            color: 'white'
+                                          }}
+                                        >
+                                          {subTask.completed ? '✓' : ''}
+                                        </button>
+
+                                        {overdueEditingSubTask?.taskId === item.task.id && overdueEditingSubTask?.subTaskId === subTask.id ? (
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+                                            <input
+                                              type="text"
+                                              value={overdueEditingSubTask.title}
+                                              onChange={(e) => setOverdueEditingSubTask({
+                                                ...overdueEditingSubTask,
+                                                title: e.target.value
+                                              })}
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                  handleOverdueUpdateSubTask(subTask.id, item.task.id)
+                                                } else if (e.key === 'Escape') {
+                                                  setOverdueEditingSubTask(null)
+                                                }
+                                              }}
+                                              style={{
+                                                flex: 1,
+                                                padding: '2px 6px',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '3px',
+                                                fontSize: '13px'
+                                              }}
+                                              autoFocus
+                                            />
+                                            <button
+                                              onClick={() => handleOverdueUpdateSubTask(subTask.id, item.task.id)}
+                                              style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#10b981',
+                                                cursor: 'pointer',
+                                                fontSize: '12px'
+                                              }}
+                                            >
+                                              ✓
+                                            </button>
+                                            <button
+                                              onClick={() => setOverdueEditingSubTask(null)}
+                                              style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#6b7280',
+                                                cursor: 'pointer',
+                                                fontSize: '12px'
+                                              }}
+                                            >
+                                              ✕
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <span
+                                            onClick={() => setOverdueEditingSubTask({
+                                              taskId: item.task.id,
+                                              subTaskId: subTask.id,
+                                              title: subTask.title
+                                            })}
+                                            style={{
+                                              flex: 1,
+                                              fontSize: '13px',
+                                              color: subTask.completed ? '#6b7280' : '#374151',
+                                              textDecoration: subTask.completed ? 'line-through' : 'none',
+                                              cursor: 'pointer'
+                                            }}
+                                          >
+                                            {subTask.title}
+                                          </span>
+                                        )}
+
+                                        <button
+                                          onClick={() => handleOverdueDeleteSubTask(subTask.id, item.task.id)}
+                                          style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#ef4444',
+                                            cursor: 'pointer',
+                                            fontSize: '12px'
+                                          }}
+                                          title="削除"
+                                        >
+                                          🗑️
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div style={{
+                                    textAlign: 'center',
+                                    color: '#9ca3af',
+                                    fontSize: '13px',
+                                    padding: '16px'
+                                  }}>
+                                    買い物リストはまだありません
+                                  </div>
+                                )}
+
+                                {/* 新しいアイテム追加 */}
+                                <div style={{ marginTop: '12px' }}>
+                                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                    <input
+                                      type="text"
+                                      value={overdueNewItemInputs[item.task.id] || ''}
+                                      onChange={(e) => setOverdueNewItemInputs(prev => ({
+                                        ...prev,
+                                        [item.task.id]: e.target.value
+                                      }))}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          handleOverdueAddSubTask(item.task.id)
+                                        }
+                                      }}
+                                      placeholder="新しい買い物を追加..."
+                                      style={{
+                                        flex: 1,
+                                        padding: '6px 8px',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '4px',
+                                        fontSize: '13px'
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() => handleOverdueAddSubTask(item.task.id)}
+                                      disabled={!overdueNewItemInputs[item.task.id]?.trim()}
+                                      style={{
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        backgroundColor: overdueNewItemInputs[item.task.id]?.trim() ? '#10b981' : '#9ca3af',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: overdueNewItemInputs[item.task.id]?.trim() ? 'pointer' : 'not-allowed'
+                                      }}
+                                    >
+                                      追加
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
+
               </div>
 
             )}
@@ -768,6 +1057,7 @@ export default function TodayPage() {
             onEdit={editIdea}
             onDelete={deleteIdea}
             onEditIdea={handleEditIdea}
+            relatedTasks={ideaRelatedTasks}
           />
         </section>
       </main>

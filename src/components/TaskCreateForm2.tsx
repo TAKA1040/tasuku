@@ -18,7 +18,7 @@ interface TaskCreateForm2Props {
   isVisible: boolean
   onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
   onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
-  onAddToIdeas: (text: string) => void
+  onAddToIdeas: (text: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, memo?: string) => void
   onCancel: () => void
 }
 
@@ -123,8 +123,11 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     }
 
     if (saveAsIdea) {
-      console.log('TaskCreateForm2: Saving as idea')
-      handleAddToIdeas()
+      console.log('TaskCreateForm2: Saving as todo list task (IDEA type)')
+      console.log('TaskCreateForm2: Category:', category, 'Importance:', importance)
+      // やることリストに追加 = IDEAタイプ（カテゴリー・重要度付き）
+      onAddToIdeas(title, category, importance, memo)
+      resetForm()
     } else if (taskType === 'once' || taskType === 'deadline') {
       console.log('TaskCreateForm2: Submitting regular task with category:', category)
       onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment)

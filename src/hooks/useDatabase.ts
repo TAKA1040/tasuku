@@ -23,17 +23,25 @@ export function useDatabase() {
     async function init() {
       try {
         console.log('Starting database initialization...')
+        console.log('Current window location:', window.location.href)
 
         // Check if user is authenticated before initializing database
         const { createClient } = await import('@/lib/supabase/client')
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
 
+        console.log('Auth check result - user:', user ? 'exists' : 'null')
+
         if (!user) {
-          console.log('No authenticated user found, skipping database initialization')
+          console.log('No authenticated user found, initializing in guest mode')
+          // Initialize database anyway for guest/development access
+          await db.init()
+          console.log('Supabase Database initialized in guest mode')
+
           if (mounted) {
-            setIsInitialized(false)
-            setError(null) // Clear any previous errors
+            console.log('Setting isInitialized to true (guest mode)')
+            setIsInitialized(true) // Set to true to prevent re-initialization loop
+            setError(null)
           }
           return
         }
@@ -52,16 +60,21 @@ export function useDatabase() {
         // Development: Add dummy data if no tasks exist
         if (process.env.NODE_ENV === 'development') {
           console.log('Checking for dummy data...')
-          const { checkDatabaseState, seedDummyData } = await import('@/lib/db/seed')
-          const state = await checkDatabaseState()
-          console.log('Database state:', state)
-          if (state.tasks === 0) {
-            await seedDummyData()
-            console.log('Seeded dummy data for development')
+          try {
+            const { checkDatabaseState, seedDummyData } = await import('@/lib/db/seed')
+            const state = await checkDatabaseState()
+            console.log('Database state:', state)
+            if (state.tasks === 0 && state.recurringTasks === 0) {
+              await seedDummyData()
+              console.log('Seeded dummy data for development')
+            }
+          } catch (err) {
+            console.log('Dummy data seeding skipped - unified_tasks table may not exist yet:', err)
           }
         }
 
         if (mounted) {
+          console.log('Setting isInitialized to true (authenticated mode)')
           setIsInitialized(true)
           console.log('Database initialization completed successfully')
         }
