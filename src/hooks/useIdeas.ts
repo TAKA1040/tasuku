@@ -14,7 +14,9 @@ export function useIdeas(isDbInitialized: boolean = false) {
   // Database からアイデアを読み込み
   const loadIdeas = useCallback(async () => {
     if (!isDbInitialized) {
-      console.log('Database not yet initialized, trying localStorage fallback')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database not yet initialized, trying localStorage fallback')
+      }
       loadIdeasFromLocalStorage()
       return
     }
@@ -69,7 +71,9 @@ export function useIdeas(isDbInitialized: boolean = false) {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsedIdeas: IdeaItem[] = JSON.parse(stored)
-        console.log(`Migrating ${parsedIdeas.length} ideas from localStorage to database`)
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Migrating ${parsedIdeas.length} ideas from localStorage to database`)
+        }
 
         for (const idea of parsedIdeas) {
           await db.createIdea({
@@ -90,7 +94,9 @@ export function useIdeas(isDbInitialized: boolean = false) {
 
         // Clear localStorage after successful migration
         localStorage.removeItem(STORAGE_KEY)
-        console.log('Ideas migration completed successfully')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Ideas migration completed successfully')
+        }
       }
     } catch (error) {
       console.error('Failed to migrate ideas from localStorage:', error)

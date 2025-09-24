@@ -5,6 +5,7 @@ import { useDatabase } from '@/hooks/useDatabase'
 import { useTasks } from '@/hooks/useTasks'
 import { useRecurringTasks } from '@/hooks/useRecurringTasks'
 import { useRollover } from '@/hooks/useRollover'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { getTodayJST, formatDateForDisplay } from '@/lib/utils/date-jst'
 import { TaskTable } from '@/components/TaskTable'
 import { UpcomingPreview } from '@/components/UpcomingPreview'
@@ -58,16 +59,70 @@ interface SubTaskItem {
   created_at: string
 }
 
+// 重要度に応じた色を返すヘルパー関数
+const getImportanceColor = (importance?: number | null): string => {
+  switch (importance) {
+    case 5: return '#dc2626' // 赤 - 最高重要度
+    case 4: return '#ea580c' // オレンジ - 高重要度
+    case 3: return '#ca8a04' // 黄 - 中重要度
+    case 2: return '#16a34a' // 緑 - 低重要度
+    case 1: return '#2563eb' // 青 - 最低重要度
+    default: return '#9ca3af' // グレー - 重要度なし
+  }
+}
+
+// 日付を日本語形式でフォーマットするヘルパー関数
+const formatDueDateForDisplay = (dateString?: string | null): string => {
+  if (!dateString) return '-'
+
+  const date = new Date(dateString)
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+
+  // 日付を YYYY-MM-DD 形式で比較
+  const dateStr = dateString
+  const todayStr = today.toISOString().split('T')[0]
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+  const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+  if (dateStr === todayStr) return '今日'
+  if (dateStr === tomorrowStr) return '明日'
+  if (dateStr === yesterdayStr) return '昨日'
+
+  // それ以外は月/日形式
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${month}/${day}`
+}
+
+// 繰り返しタスクの次回実行日を計算するヘルパー関数
+// 統一ルール: 繰り返しタスクも due_date ベースで管理
+// 複雑な計算は不要 - due_dateをそのまま表示
+const getTaskDateDisplay = (task: any): string => {
+  if (!task.due_date) return '日付なし'
+
+  // 期限なしタスク（アイデア等）
+  if (task.due_date === '2999-12-31') {
+    return 'アイデア'
+  }
+
+  // 通常の日付表示
+  return formatDueDateForDisplay(task.due_date)
+}
+
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
+
+  // 統一データベースフック
+  const unifiedTasks = useUnifiedTasks(isInitialized)
 
   // ページタイトルを設定
   useEffect(() => {
     document.title = 'TASUKU - 今日のタスク'
   }, [])
-  // 統一データベースから全データを取得
-  const [allUnifiedData, setAllUnifiedData] = useState<UnifiedDataItem[]>([])
-  const [loading, setLoading] = useState(true)
 
   // 買い物リスト（サブタスク）管理
   const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: SubTaskItem[]}>({})
@@ -78,87 +133,43 @@ export default function TodayPage() {
   const { loading: recurringLoading, getTodayRecurringTasks, getTodayCompletedRecurringTasks, getUpcomingRecurringTasks, completeRecurringTask, createRecurringTask, uncompleteRecurringTask, updateRecurringTask, deleteRecurringTask, allRecurringTasks } = useRecurringTasks(isInitialized)
   const { ideas, addIdea, toggleIdea, editIdea, deleteIdea } = useIdeas(isInitialized)
 
-  // 統一データ取得関数
-  const fetchAllUnifiedData = useCallback(async () => {
-    if (!isInitialized) return
+  // 統一データベースから直接データを取得
+  const allUnifiedData = useMemo(() => {
+    if (!isInitialized || unifiedTasks.loading) return []
 
-    try {
-      setLoading(true)
-      console.log('🔄 統一データベースから全データを取得中...')
+    const allTasks = unifiedTasks.tasks
+    const unifiedData = allTasks.map((task) => ({
+      ...task,
+      // 統一ルール: due_date で種別を判断
+      dataType: task.due_date === '2999-12-31' ? 'idea' as const :
+                task.recurring_pattern ? 'recurring' as const : 'task' as const,
+      displayTitle: task.recurring_pattern ? `🔄 ${task.title}` :
+                    task.due_date === '2999-12-31' ? `💡 ${task.title}` : task.title,
+      displayCategory: task.category || (task.recurring_pattern ? '繰り返し' : task.due_date === '2999-12-31' ? 'アイデア' : '未分類')
+    }))
 
-      // すべてのデータを統合して取得（統一番号システム付き）
-      const unifiedData = [
-        // 通常タスク
-        ...allTasks.map((task, index) => {
-          const taskType: TaskType = 'NORMAL'
-          const createdDate = new Date(task.created_at)
-          const displayNumber = task.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+    // 優先度順でソート（高い優先度が上位）、同じ優先度の場合は統一番号順
+    unifiedData.sort((a, b) => {
+      const priorityA = a.importance || 0
+      const priorityB = b.importance || 0
 
-          return {
-            ...task,
-            dataType: 'task' as const,
-            displayTitle: task.title,
-            displayCategory: task.category || '未分類',
-            display_number: displayNumber,
-            task_type: taskType
-          }
-        }),
-        // 繰り返しタスク
-        ...allRecurringTasks.map((recurringTask, index) => {
-          const taskType: TaskType = 'RECURRING'
-          const createdDate = new Date(recurringTask.created_at)
-          const displayNumber = recurringTask.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+      // 優先度が異なる場合は優先度で比較（高い方が先）
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA
+      }
 
-          return {
-            ...recurringTask,
-            dataType: 'recurring' as const,
-            displayTitle: `🔄 ${recurringTask.title}`,
-            displayCategory: recurringTask.category || '繰り返し',
-            display_number: displayNumber,
-            task_type: taskType,
-            completed: false // 繰り返しタスクは完了状態なし
-          }
-        }),
-        // アイデア
-        ...ideas.map((idea, index) => {
-          const taskType: TaskType = 'IDEA'
-          const createdDate = new Date(idea.created_at)
-          const displayNumber = idea.display_number || DisplayNumberUtils.generateDisplayNumber(taskType, createdDate)
+      // 優先度が同じ場合は統一番号順
+      return (a.display_number || '').localeCompare(b.display_number || '')
+    })
 
-          return {
-            ...idea,
-            dataType: 'idea' as const,
-            displayTitle: `💡 ${idea.text}`,
-            displayCategory: 'アイデア',
-            completed: idea.completed,
-            display_number: displayNumber,
-            task_type: taskType
-          }
-        })
-      ]
-
-      // 統一番号順でソート
-      unifiedData.sort((a, b) => a.display_number.localeCompare(b.display_number))
-
+    if (process.env.NODE_ENV === 'development') {
       console.log(`📊 統一データ取得完了: ${unifiedData.length}件`)
-      console.log('- タスク:', allTasks.length, '件')
-      console.log('- 繰り返し:', allRecurringTasks.length, '件')
-      console.log('- アイデア:', ideas.length, '件')
-
-      setAllUnifiedData(unifiedData)
-    } catch (error) {
-      console.error('❌ 統一データ取得エラー:', error)
-    } finally {
-      setLoading(false)
     }
-  }, [isInitialized, allTasks, allRecurringTasks, ideas])
 
-  // データ取得
-  useEffect(() => {
-    if (isInitialized && allTasks.length >= 0 && allRecurringTasks.length >= 0 && ideas.length >= 0) {
-      fetchAllUnifiedData()
-    }
-  }, [fetchAllUnifiedData, isInitialized, allTasks.length, allRecurringTasks.length, ideas.length])
+    return unifiedData
+  }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading])
+
+  const loading = unifiedTasks.loading
 
   // サブタスク管理関数
   const addShoppingSubTask = useCallback((taskId: string, itemName: string) => {
@@ -176,7 +187,9 @@ export default function TodayPage() {
       [taskId]: [...(prev[taskId] || []), newSubTask]
     }))
 
-    console.log(`サブタスク追加: ${itemName} (Parent: ${taskId})`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`サブタスク追加: ${itemName} (Parent: ${taskId})`)
+    }
   }, [shoppingSubTasks])
 
   const toggleShoppingSubTask = useCallback((taskId: string, subTaskId: string) => {
@@ -229,37 +242,94 @@ export default function TodayPage() {
   // Timeout to show interface even if DB loading takes too long
   const [forceShow, setForceShow] = useState(false)
 
-  // Safe data fetching - fallback to empty arrays if not initialized
-  const todayTasks = useMemo(() => isInitialized ? getTodayTasks() : [], [isInitialized, getTodayTasks])
-  const todayCompletedTasks = useMemo(() => isInitialized ? getTodayCompletedTasks() : [], [isInitialized, getTodayCompletedTasks])
-  const overdueTasks = useMemo(() => isInitialized ? getOverdueTasks() : [], [isInitialized, getOverdueTasks])
-  const todayRecurringTasks = useMemo(() => isInitialized ? getTodayRecurringTasks() : [], [isInitialized, getTodayRecurringTasks])
-  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? getTodayCompletedRecurringTasks() : [], [isInitialized, getTodayCompletedRecurringTasks])
-  const upcomingTasks = useMemo(() => isInitialized ? getUpcomingTasks() : [], [isInitialized, getUpcomingTasks])
-  const upcomingRecurringTasks = useMemo(() => isInitialized ? getUpcomingRecurringTasks() : [], [isInitialized, getUpcomingRecurringTasks])
+  // 統一データベースからフィルター済みデータを取得
+  const todayTasks = useMemo(() => isInitialized ? unifiedTasks.getTodayTasks() : [], [isInitialized, unifiedTasks.getTodayTasks])
+  const todayCompletedTasks = useMemo(() => isInitialized ? unifiedTasks.getCompletedTasks().filter(task => {
+    const today = new Date().toISOString().split('T')[0]
+    return task.due_date === today && (task.task_type === 'NORMAL' || task.task_type === 'RECURRING')
+  }) : [], [isInitialized, unifiedTasks.getCompletedTasks])
+  const overdueTasks = useMemo(() => {
+    if (!isInitialized) return []
+    const today = new Date().toISOString().split('T')[0]
+    return unifiedTasks.tasks
+      .filter(task => !task.completed && task.due_date && task.due_date < today && task.task_type === 'NORMAL')
+      .sort((a, b) => {
+        const priorityA = a.importance || 0
+        const priorityB = b.importance || 0
+
+        // 優先度が異なる場合は優先度で比較（高い方が先）
+        if (priorityA !== priorityB) {
+          return priorityB - priorityA
+        }
+
+        // 優先度が同じ場合は統一番号順
+        return (a.display_number || '').localeCompare(b.display_number || '')
+      })
+      .map(task => ({ task, urgency: 'High' as const, days_from_today: -1 }))
+  }, [isInitialized, unifiedTasks.tasks])
+  const todayRecurringTasks = useMemo(() => isInitialized ? unifiedTasks.getRecurringTasks() : [], [isInitialized, unifiedTasks.getRecurringTasks])
+  const todayCompletedRecurringTasks = useMemo(() => isInitialized ? unifiedTasks.getCompletedTasks().filter(task => task.task_type === 'RECURRING') : [], [isInitialized, unifiedTasks.getCompletedTasks])
+  const upcomingTasks = useMemo(() => {
+    if (!isInitialized) return []
+    const today = new Date().toISOString().split('T')[0]
+    return unifiedTasks.tasks
+      .filter(task => !task.completed && task.due_date && task.due_date > today && task.task_type === 'NORMAL')
+      .sort((a, b) => {
+        const priorityA = a.importance || 0
+        const priorityB = b.importance || 0
+
+        // 優先度が異なる場合は優先度で比較（高い方が先）
+        if (priorityA !== priorityB) {
+          return priorityB - priorityA
+        }
+
+        // 優先度が同じ場合は統一番号順
+        return (a.display_number || '').localeCompare(b.display_number || '')
+      })
+      .map(task => {
+        const dueDate = new Date(task.due_date!)
+        const todayDate = new Date(today)
+        const diffTime = dueDate.getTime() - todayDate.getTime()
+        const days_from_today = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        return { task, urgency: 'Normal' as const, days_from_today }
+      })
+  }, [isInitialized, unifiedTasks.tasks])
+  const upcomingRecurringTasks = useMemo(() => [], []) // TODO: Implement recurring task upcoming logic
 
   // Combine upcoming tasks for preview (7日以上も含めてすべて渡す)
   const allUpcoming = useMemo(() => [
-    ...upcomingTasks,
-    ...upcomingRecurringTasks.map(item => ({
+    ...upcomingTasks.map(item => ({
+      ...item,
       task: {
-        id: item.task.id,
-        title: item.task.title,
-        due_date: item.nextDate
-      } as Task,
-      urgency: 'Normal' as const,
-      days_from_today: item.daysFromToday
+        ...item.task,
+        memo: item.task.memo || undefined,
+        due_date: item.task.due_date || undefined,
+        category: item.task.category || undefined,
+        importance: (item.task.importance && item.task.importance >= 1 && item.task.importance <= 5) ? item.task.importance as 1|2|3|4|5 : undefined,
+        duration_min: item.task.duration_min || undefined,
+        urls: item.task.urls || undefined,
+        attachment: item.task.attachment || undefined,
+        completed: item.task.completed || false,
+        created_at: item.task.created_at || new Date().toISOString(),
+        updated_at: item.task.updated_at || new Date().toISOString(),
+        completed_at: item.task.completed_at || undefined,
+        archived: item.task.archived || false,
+        snoozed_until: item.task.snoozed_until || undefined
+      }
     }))
-  ].sort((a, b) => a.days_from_today - b.days_from_today), [upcomingTasks, upcomingRecurringTasks])
+  ].sort((a, b) => a.days_from_today - b.days_from_today), [upcomingTasks])
 
   const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    // TODO: Implement unified task creation
     await createTask(title, memo, dueDate, category, importance, durationMin, urls, attachment)
   }, [createTask])
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isInitialized) {
-        console.log('Forcing interface display after timeout')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Forcing interface display after timeout')
+        }
         setForceShow(true)
       }
     }, 3000)
@@ -396,7 +466,9 @@ export default function TodayPage() {
       // 元のタスクを削除
       await deleteTask(taskId)
 
-      console.log(`タスク「${task.task.title}」をやることリストに移動しました`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`タスク「${task.task.title}」をやることリストに移動しました`)
+      }
     } catch (error) {
       console.error('やることリストへの移動エラー:', error)
     }
@@ -559,6 +631,7 @@ export default function TodayPage() {
         </div>
       </header>
 
+
       <main>
         {/* 統一データ表示テーブル（全データ確認用） */}
         <section style={{ marginBottom: '12px' }}>
@@ -584,10 +657,10 @@ export default function TodayPage() {
             color: '#374151'
           }}>
             <strong>📊 データ詳細:</strong>
-            タスク: {allTasks.length}件 |
-            繰り返し: {allRecurringTasks.length}件 |
-            アイデア: {ideas.length}件 |
-            買い物カテゴリ: {allTasks.filter(t => t.category === '買い物').length}件
+            タスク: {unifiedTasks.tasks.filter(t => t.task_type === 'NORMAL').length}件 |
+            繰り返し: {unifiedTasks.tasks.filter(t => t.task_type === 'RECURRING').length}件 |
+            アイデア: {unifiedTasks.tasks.filter(t => t.task_type === 'IDEA').length}件 |
+            買い物カテゴリ: {unifiedTasks.tasks.filter(t => t.category === '買い物').length}件
           </div>
 
           {loading ? (
@@ -609,6 +682,7 @@ export default function TodayPage() {
                     <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
                     <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
                     <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
                     <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
                   </tr>
                 </thead>
@@ -636,12 +710,10 @@ export default function TodayPage() {
                       <td style={{ padding: '8px', textAlign: 'center' }}>
                         <button
                           onClick={() => {
-                            if (item.dataType === 'task') {
-                              item.completed ? uncompleteTask(item.id) : completeTask(item.id)
-                            } else if (item.dataType === 'recurring') {
-                              item.completed ? uncompleteRecurringTask(item.id) : completeRecurringTask(item.id)
-                            } else if (item.dataType === 'idea') {
-                              toggleIdea(item.id)
+                            if (item.completed) {
+                              unifiedTasks.uncompleteTask(item.id)
+                            } else {
+                              unifiedTasks.completeTask(item.id)
                             }
                           }}
                           style={{
@@ -684,6 +756,18 @@ export default function TodayPage() {
                       {/* タイトル + メモ（1段表示） */}
                       <td style={{ padding: '8px', fontSize: '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {/* 重要度インディケーター */}
+                          <div
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              backgroundColor: getImportanceColor(item.importance),
+                              flexShrink: 0
+                            }}
+                            title={`重要度: ${item.importance || '未設定'}`}
+                          />
+
                           {/* タイトル */}
                           <span style={{ fontWeight: '500' }}>
                             {item.displayTitle}
@@ -816,6 +900,37 @@ export default function TodayPage() {
                         {item.displayCategory}
                       </td>
 
+                      {/* 期限 */}
+                      <td style={{ padding: '8px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                        {item.due_date ? (
+                          <span style={{
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}>
+                            {formatDueDateForDisplay(item.due_date)}
+                          </span>
+                        ) : item.dataType === 'recurring' ? (
+                          <span style={{
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f0f9ff',
+                            color: '#1e40af',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}
+                          title={`デバッグ - タイトル: ${item.title}, 頻度: ${item.frequency}, 曜日配列: ${JSON.stringify(item.weekdays)}, 今日JS: ${new Date().getDay()} (${['日', '月', '火', '水', '木', '金', '土'][new Date().getDay()]}), 今日ISO: ${new Date().getDay() === 0 ? 7 : new Date().getDay()}, 配列に含む: ${item.weekdays?.includes(new Date().getDay() === 0 ? 7 : new Date().getDay())}`}
+                          >
+                            {getTaskDateDisplay(item)}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#9ca3af', fontSize: '10px' }}>-</span>
+                        )}
+                      </td>
+
                       {/* 操作ボタン */}
                       <td style={{ padding: '8px' }}>
                         <div style={{
@@ -827,12 +942,32 @@ export default function TodayPage() {
                           <button
                             onClick={() => {
                               if (item.dataType === 'task') {
-                                handleEditTask(item as unknown as Task)
+                                // Convert UnifiedTask to Task format for compatibility
+                                const taskForEdit: Task = {
+                                  id: item.id,
+                                  title: item.title || '',
+                                  memo: item.memo || undefined,
+                                  due_date: item.due_date || undefined,
+                                  category: item.category || undefined,
+                                  importance: (item.importance && item.importance >= 1 && item.importance <= 5) ? item.importance as 1|2|3|4|5 : undefined,
+                                  duration_min: item.duration_min || undefined,
+                                  urls: item.urls || undefined,
+                                  attachment: item.attachment || undefined,
+                                  completed: item.completed || false,
+                                  archived: false,
+                                  snoozed_until: undefined,
+                                  created_at: item.created_at || new Date().toISOString(),
+                                  updated_at: new Date().toISOString(),
+                                  completed_at: undefined
+                                }
+                                handleEditTask(taskForEdit)
                               } else if (item.dataType === 'recurring') {
                                 handleEditRecurringTask(item as unknown as RecurringTask)
                               } else if (item.dataType === 'idea') {
                                 // アイデア編集機能（今後実装）
-                                console.log('アイデア編集:', item.text)
+                                if (process.env.NODE_ENV === 'development') {
+                                  console.log('アイデア編集:', item.title)
+                                }
                               }
                             }}
                             style={{
@@ -855,13 +990,7 @@ export default function TodayPage() {
                           <button
                             onClick={() => {
                               if (confirm(`この${item.dataType === 'task' ? 'タスク' : item.dataType === 'recurring' ? '繰り返しタスク' : 'アイデア'}を削除しますか？`)) {
-                                if (item.dataType === 'task') {
-                                  deleteTask(item.id)
-                                } else if (item.dataType === 'recurring') {
-                                  deleteRecurringTask(item.id)
-                                } else if (item.dataType === 'idea') {
-                                  deleteIdea(item.id)
-                                }
+                                unifiedTasks.deleteTask(item.id)
                               }
                             }}
                             style={{
@@ -886,7 +1015,7 @@ export default function TodayPage() {
                   ))}
                   {allUnifiedData.length === 0 && (
                     <tr>
-                      <td colSpan={6} style={{
+                      <td colSpan={7} style={{
                         padding: '20px',
                         textAlign: 'center',
                         color: '#9ca3af',
@@ -948,7 +1077,7 @@ export default function TodayPage() {
                       <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
                       <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>📷</th>
                       <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px', display: 'none' }} className="date-type-desktop-only">期日</th>
+                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日</th>
                       <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>操作</th>
                     </tr>
                   </thead>
@@ -965,7 +1094,7 @@ export default function TodayPage() {
                       >
                         <td style={{ padding: '2px', textAlign: 'center' }}>
                           <button
-                            onClick={() => completeTask(item.task.id)}
+                            onClick={() => unifiedTasks.completeTask(item.task.id)}
                             style={{
                               width: '18px',
                               height: '18px',
@@ -989,6 +1118,18 @@ export default function TodayPage() {
                             fontSize: '14px',
                             lineHeight: '1.2'
                           }}>
+                            {/* 重要度インディケーター */}
+                            <div
+                              style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: getImportanceColor(item.task.importance),
+                                flexShrink: 0
+                              }}
+                              title={`重要度: ${item.task.importance || '未設定'}`}
+                            />
+
                             <span style={{ fontWeight: '500' }}>
                               {item.task.title}
                             </span>
@@ -1010,8 +1151,17 @@ export default function TodayPage() {
                         <td style={{ padding: '2px', textAlign: 'center' }}>
                           {item.task.urls && item.task.urls.length > 0 ? '🌍' : '-'}
                         </td>
-                        <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
-                          {item.task.due_date}
+                        <td style={{ padding: '2px 4px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                          <span style={{
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}>
+                            {formatDueDateForDisplay(item.task.due_date)}
+                          </span>
                         </td>
                         <td style={{ padding: '2px' }}>
                           <div style={{
@@ -1021,7 +1171,25 @@ export default function TodayPage() {
                             flexWrap: 'nowrap'
                           }}>
                             <button
-                              onClick={() => handleEditTask(item.task)}
+                              onClick={() => {
+                                const taskForEdit: Task = {
+                                  ...item.task,
+                                  memo: item.task.memo || undefined,
+                                  due_date: item.task.due_date || undefined,
+                                  category: item.task.category || undefined,
+                                  importance: (item.task.importance && item.task.importance >= 1 && item.task.importance <= 5) ? item.task.importance as 1|2|3|4|5 : undefined,
+                                  duration_min: item.task.duration_min || undefined,
+                                  urls: item.task.urls || undefined,
+                                  attachment: item.task.attachment || undefined,
+                                  completed: item.task.completed || false,
+                                  created_at: item.task.created_at || new Date().toISOString(),
+                                  updated_at: item.task.updated_at || new Date().toISOString(),
+                                  completed_at: item.task.completed_at || undefined,
+                                  archived: item.task.archived || false,
+                                  snoozed_until: item.task.snoozed_until || undefined
+                                }
+                                handleEditTask(taskForEdit)
+                              }}
                               style={{
                                 padding: '4px',
                                 fontSize: '14px',
@@ -1090,9 +1258,9 @@ export default function TodayPage() {
         {/* 近々の予告 */}
         <UpcomingPreview
           upcomingTasks={allUpcoming}
-          onComplete={completeTask}
+          onComplete={unifiedTasks.completeTask}
           onEdit={handleEditTask}
-          onDelete={deleteTask}
+          onDelete={unifiedTasks.deleteTask}
         />
 
         {/* 買い物タスク */}
@@ -1103,11 +1271,25 @@ export default function TodayPage() {
         {/* やることリスト */}
         <section style={{ marginBottom: '12px' }}>
           <IdeaBox
-            ideas={ideas}
+            ideas={unifiedTasks.getIdeaTasks().map(task => ({
+              id: task.id,
+              text: task.title || '',
+              completed: task.completed || false,
+              created_at: task.created_at || new Date().toISOString(),
+              display_number: task.display_number
+            }))}
+            allNoDateTasks={unifiedTasks.getIdeaTasks()}
             onAdd={addIdea}
-            onToggle={toggleIdea}
+            onToggle={(id) => {
+              const task = unifiedTasks.tasks.find(t => t.id === id)
+              if (task?.completed) {
+                unifiedTasks.uncompleteTask(id)
+              } else {
+                unifiedTasks.completeTask(id)
+              }
+            }}
             onEdit={editIdea}
-            onDelete={deleteIdea}
+            onDelete={unifiedTasks.deleteTask}
             onUpgradeToTask={handleUpgradeToTask}
           />
         </section>

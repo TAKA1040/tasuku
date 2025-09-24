@@ -1,12 +1,13 @@
 'use client'
 
+import React, { memo } from 'react'
 import type { StatisticsData } from '@/hooks/useStatistics'
 
 interface StatisticsCardsProps {
   stats: StatisticsData
 }
 
-export function StatisticsCards({ stats }: StatisticsCardsProps) {
+function StatisticsCards({ stats }: StatisticsCardsProps) {
 
   const StatCard = ({ title, value, subtitle, color = '#3b82f6' }: {
     title: string
@@ -382,3 +383,6 @@ export function StatisticsCards({ stats }: StatisticsCardsProps) {
     </div>
   )
 }
+
+export default memo(StatisticsCards)
+export { StatisticsCards }

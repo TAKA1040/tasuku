@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useCallback } from 'react'
+import React, { useMemo, useState, useEffect, useCallback, memo } from 'react'
 import type { TaskWithUrgency, Task, RecurringTask, SubTask } from '@/lib/db/schema'
 import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
@@ -124,14 +124,18 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       <button
         type="button"
         onClick={() => {
-          console.log('All URLs:', urls)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('All URLs:', urls)
+          }
 
           // Validate URLs before opening
           const validUrls = urls.filter(isValidUrl)
           const invalidUrls = urls.filter(url => !isValidUrl(url))
 
-          console.log('Valid URLs:', validUrls)
-          console.log('Invalid URLs:', invalidUrls)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Valid URLs:', validUrls)
+            console.log('Invalid URLs:', invalidUrls)
+          }
 
           if (validUrls.length === 0) {
             alert('有効なURLが見つかりませんでした。')
@@ -145,9 +149,13 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
 
           const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
           if (confirm(confirmMessage)) {
-            console.log('Opening URLs:', validUrls)
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Opening URLs:', validUrls)
+            }
             validUrls.forEach((url, index) => {
-              console.log(`Opening URL ${index + 1}:`, url)
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`Opening URL ${index + 1}:`, url)
+              }
               window.open(url, '_blank', 'noopener,noreferrer')
             })
           }
@@ -1030,3 +1038,5 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     </div>
   )
 }
+
+export default memo(TaskTable)

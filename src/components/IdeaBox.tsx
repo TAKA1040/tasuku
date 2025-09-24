@@ -1,6 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import React, { memo, useState } from 'react'
+import type { UnifiedTask } from '@/lib/types/unified-task'
+
+// 重要度に応じた色を返すヘルパー関数
+const getImportanceColor = (importance?: number | null): string => {
+  switch (importance) {
+    case 5: return '#dc2626' // 赤 - 最高重要度
+    case 4: return '#ea580c' // オレンジ - 高重要度
+    case 3: return '#ca8a04' // 黄 - 中重要度
+    case 2: return '#16a34a' // 緑 - 低重要度
+    case 1: return '#2563eb' // 青 - 最低重要度
+    default: return '#9ca3af' // グレー - 重要度なし
+  }
+}
 
 interface IdeaItem {
   id: string
@@ -12,6 +25,7 @@ interface IdeaItem {
 
 interface IdeaBoxProps {
   ideas: IdeaItem[]
+  allNoDateTasks: UnifiedTask[] // 統一ルール: due_date='2999-12-31'の全タスク
   onAdd: (text: string) => void
   onToggle: (id: string) => void
   onEdit: (id: string, text: string) => void
@@ -19,7 +33,7 @@ interface IdeaBoxProps {
   onUpgradeToTask?: (idea: IdeaItem) => void
 }
 
-export function IdeaBox({ ideas, onAdd, onToggle, onEdit, onDelete, onUpgradeToTask }: IdeaBoxProps) {
+function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onUpgradeToTask }: IdeaBoxProps) {
   const [newIdea, setNewIdea] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [showIdeaBox, setShowIdeaBox] = useState(false) // デフォルトは非表示
@@ -33,6 +47,13 @@ export function IdeaBox({ ideas, onAdd, onToggle, onEdit, onDelete, onUpgradeToT
     setIsAdding(false)
   }
 
+  // 統一ルール: カテゴリー別にグループ化
+  const tasksByCategory = allNoDateTasks.reduce((acc, task) => {
+    const category = task.category || '未分類'
+    if (!acc[category]) acc[category] = []
+    acc[category].push(task)
+    return acc
+  }, {} as Record<string, UnifiedTask[]>)
 
   const pendingIdeas = ideas.filter(idea => !idea.completed)
   const completedIdeas = ideas.filter(idea => idea.completed)
@@ -120,6 +141,86 @@ export function IdeaBox({ ideas, onAdd, onToggle, onEdit, onDelete, onUpgradeToT
 
       {showIdeaBox && (
         <>
+          {/* 統一表示: カテゴリー別期限なしタスク */}
+          {Object.entries(tasksByCategory).map(([category, tasks]) => (
+            <div key={category} style={{ marginBottom: '16px' }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#1f2937',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                {category === '買い物' ? '🛒' : '📝'} {category}
+                <span style={{
+                  fontSize: '12px',
+                  color: '#6b7280',
+                  fontWeight: 'normal'
+                }}>
+                  {tasks.length}件
+                </span>
+              </div>
+              <div style={{
+                backgroundColor: category === '買い物' ? '#f0f9ff' : '#f9fafb',
+                padding: '8px',
+                borderRadius: '4px',
+                border: `1px solid ${category === '買い物' ? '#e0f2fe' : '#f3f4f6'}`
+              }}>
+                {tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '4px 0',
+                      borderBottom: tasks.indexOf(task) < tasks.length - 1 ? '1px solid #f3f4f6' : 'none'
+                    }}
+                  >
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#3b82f6',
+                      fontWeight: '500',
+                      minWidth: '60px'
+                    }}>
+                      {task.display_number}
+                    </span>
+
+                    {/* 重要度インディケーター */}
+                    <div
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: getImportanceColor(task.importance),
+                        flexShrink: 0
+                      }}
+                      title={`重要度: ${task.importance || '未設定'}`}
+                    />
+
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: '14px',
+                        color: '#374151'
+                      }}
+                    >
+                      {task.title}
+                    </span>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#6b7280'
+                    }}>
+                      {category}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
           <div style={{
             fontSize: '12px',
             color: '#6b7280',
@@ -311,4 +412,6 @@ export function IdeaBox({ ideas, onAdd, onToggle, onEdit, onDelete, onUpgradeToT
   )
 }
 
+export default memo(IdeaBox)
+export { IdeaBox }
 export type { IdeaItem }

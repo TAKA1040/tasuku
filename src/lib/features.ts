@@ -62,7 +62,9 @@ export async function updateFeatureFlag(
 
   // TODO: Supabaseでsettingsを更新
   // await db.updateSettings({ features: updated })
-  console.log('Feature flag would be updated:', feature, enabled)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Feature flag would be updated:', feature, enabled)
+  }
 }
 
 /**
@@ -75,7 +77,9 @@ export async function updateFeatureFlags(updates: Partial<FeatureFlags>): Promis
 
   // TODO: Supabaseでsettingsを更新
   // await db.updateSettings({ features: updated })
-  console.log('Feature flags would be updated:', updates)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Feature flags would be updated:', updates)
+  }
 }
 
 /**
@@ -158,7 +162,9 @@ export const DEV_FEATURES: Partial<FeatureFlags> = {
  */
 export async function initializeDevFeatures(): Promise<void> {
   if (process.env.NODE_ENV === 'development' && Object.keys(DEV_FEATURES).length > 0) {
-    console.log('Initializing development feature flags:', DEV_FEATURES)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Initializing development feature flags:', DEV_FEATURES)
+    }
     await updateFeatureFlags(DEV_FEATURES)
   }
 }

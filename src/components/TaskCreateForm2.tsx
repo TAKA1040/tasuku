@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { URL_LIMITS } from '@/lib/db/schema'
 import { ImportanceDot } from '@/components/ImportanceDot'
@@ -22,7 +22,7 @@ interface TaskCreateForm2Props {
   onCancel: () => void
 }
 
-export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddToIdeas, onCancel }: TaskCreateForm2Props) {
+function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddToIdeas, onCancel }: TaskCreateForm2Props) {
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
   const [dueDate, setDueDate] = useState(getTodayJST())
@@ -81,14 +81,18 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
   }
 
   const handleSubmit = async () => {
-    console.log('TaskCreateForm2: handleSubmit called')
-    console.log('TaskCreateForm2: title:', title)
-    console.log('TaskCreateForm2: taskType:', taskType)
-    console.log('TaskCreateForm2: saveAsIdea:', saveAsIdea)
-    console.log('TaskCreateForm2: category:', category)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('TaskCreateForm2: handleSubmit called')
+      console.log('TaskCreateForm2: title:', title)
+      console.log('TaskCreateForm2: taskType:', taskType)
+      console.log('TaskCreateForm2: saveAsIdea:', saveAsIdea)
+      console.log('TaskCreateForm2: category:', category)
+    }
 
     if (!title.trim()) {
-      console.log('TaskCreateForm2: No title, returning early')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('TaskCreateForm2: No title, returning early')
+      }
       return
     }
 
@@ -114,7 +118,9 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
           file_size: attachedFile.size,
           file_data: fileBase64
         }
-        console.log('TaskCreateForm2: File converted to base64, size:', attachment.file_data.length)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('TaskCreateForm2: File converted to base64, size:', attachment.file_data.length)
+        }
       } catch (error) {
         console.error('TaskCreateForm2: File conversion failed:', error)
         alert('ファイルの変換に失敗しました')
@@ -123,14 +129,20 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     }
 
     if (saveAsIdea) {
-      console.log('TaskCreateForm2: Saving as idea')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('TaskCreateForm2: Saving as idea')
+      }
       handleAddToIdeas()
     } else if (taskType === 'once' || taskType === 'deadline') {
-      console.log('TaskCreateForm2: Submitting regular task with category:', category)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('TaskCreateForm2: Submitting regular task with category:', category)
+      }
       onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment)
       resetForm()
     } else {
-      console.log('TaskCreateForm2: Submitting recurring task')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('TaskCreateForm2: Submitting recurring task')
+      }
       onSubmitRecurring(title, memo, {
         pattern: recurringPattern,
         intervalDays,
@@ -938,3 +950,6 @@ export function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring,
     </div>
   )
 }
+
+export default memo(TaskCreateForm2)
+export { TaskCreateForm2 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { memo, useState, useEffect } from 'react'
 import type { RecurringTask } from '@/lib/db/schema'
 
 interface DailyHabitsProps {
@@ -22,19 +22,23 @@ interface HabitCalendarEntry {
   totalDays: number // タスク開始からの総日数
 }
 
-export function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps) {
+function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps) {
   const [selectedHabits, setSelectedHabits] = useState<string[]>([])
   const [showHabitSelector, setShowHabitSelector] = useState(false)
 
   // デバッグログ追加
   useEffect(() => {
-    console.log('🔧 DailyHabits - 受け取ったrecurringTasks:', recurringTasks)
-    console.log('🔧 DailyHabits - 受け取ったrecurringLogs:', recurringLogs)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 DailyHabits - 受け取ったrecurringTasks:', recurringTasks)
+      console.log('🔧 DailyHabits - 受け取ったrecurringLogs:', recurringLogs)
+    }
   }, [recurringTasks, recurringLogs])
 
   // データが渡されていない場合の処理
   if (!recurringTasks || !recurringLogs) {
-    console.log('🔧 DailyHabits - データが未初期化')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 DailyHabits - データが未初期化')
+    }
     return (
       <div style={{
         backgroundColor: 'white',
@@ -159,7 +163,9 @@ export function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps)
 
   // 毎日実行するタスク（すべての繰り返しタスクを含める）
   const dailyRecurringTasks = recurringTasks.filter(task => {
-    console.log('🔧 フィルタリング中のタスク:', task.title, 'frequency:', task.frequency, 'weekdays:', task.weekdays)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 フィルタリング中のタスク:', task.title, 'frequency:', task.frequency, 'weekdays:', task.weekdays)
+    }
 
     // より緩い条件でフィルタリング
     if (task.frequency === 'DAILY') return true
@@ -168,7 +174,9 @@ export function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps)
     return false
   })
 
-  console.log('🔧 フィルタリング結果 - dailyRecurringTasks:', dailyRecurringTasks)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 フィルタリング結果 - dailyRecurringTasks:', dailyRecurringTasks)
+  }
 
   const handleHabitToggle = (taskId: string) => {
     setSelectedHabits(prev =>
@@ -540,3 +548,6 @@ export function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps)
     </div>
   )
 }
+
+export default memo(DailyHabits)
+export { DailyHabits }

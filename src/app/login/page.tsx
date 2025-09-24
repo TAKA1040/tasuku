@@ -31,14 +31,18 @@ export default function LoginPage() {
       })
 
       if (error) {
-        console.error('OAuth error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('OAuth error:', error)
+        }
         setError(`ログインエラー: ${error.message}`)
         setLoading(false)
       }
       // 成功時はリダイレクトが発生するのでloadingは自動でfalseになる
     } catch (err) {
-      console.error('Unexpected error:', err)
-      setError(`予期しないエラー: ${err instanceof Error ? err.message : String(err)}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Unexpected error:', err)
+      }
+      setError(`予期しないエラー: ${err instanceof Error ? err.message : 'Unknown error'}`)
       setLoading(false)
     }
   }

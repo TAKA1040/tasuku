@@ -19,10 +19,10 @@ export default function SearchPage() {
     updateTask,
     uncompleteTask
   } = useTasks(isInitialized)
-  const { 
-    allRecurringTasks, 
+  const {
+    allRecurringTasks,
     loading: recurringLoading,
-    completeRecurringTask 
+    completeRecurringTask
   } = useRecurringTasks(isInitialized)
 
   // フィルター状態

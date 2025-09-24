@@ -32,7 +32,9 @@ export function findIncompleTasks(
         // 1時間以上前に更新されたタスクのみ自動繰り越し対象
         incompleteSingle.push(task)
       } else {
-        console.log('自動繰り越しをスキップ（最近更新されたタスク）:', task.title, `${hoursSinceUpdate.toFixed(1)}時間前`)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('自動繰り越しをスキップ（最近更新されたタスク）:', task.title, `${hoursSinceUpdate.toFixed(1)}時間前`)
+        }
       }
     }
   })

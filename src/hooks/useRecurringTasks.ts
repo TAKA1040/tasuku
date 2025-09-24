@@ -24,7 +24,9 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   // Load recurring tasks and logs
   const loadRecurringData = useCallback(async () => {
     if (!isDbInitialized) {
-      console.log('Database not yet initialized, skipping recurring data loading')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database not yet initialized, skipping recurring data loading')
+      }
       setLoading(false) // Important: Set loading to false even when not initialized
       return
     }
@@ -140,7 +142,9 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       )
       
       if (existingLog) {
-        console.log('Task already completed today')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Task already completed today')
+        }
         return
       }
 
@@ -222,7 +226,9 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         updated_at: new Date().toISOString()
       }
 
-      console.log('useRecurringTasks: Creating recurring task with category:', category, '-> processed:', newRecurringTask.category)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('useRecurringTasks: Creating recurring task with category:', category, '-> processed:', newRecurringTask.category)
+      }
 
       await db.createRecurringTask(newRecurringTask)
       await loadRecurringData() // Reload data

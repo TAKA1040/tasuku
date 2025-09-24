@@ -9,7 +9,9 @@ import type { Task, RecurringTask } from './schema'
  * ダミーデータを生成してDBに投入
  */
 export async function seedDummyData(): Promise<void> {
-  console.log('Seeding dummy data...')
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Seeding dummy data...')
+  }
   
   const today = getTodayJST()
   
@@ -100,19 +102,25 @@ export async function seedDummyData(): Promise<void> {
     await db.createRecurringTask(taskData)
   }
   
-  console.log(`Seeded ${dummyTasks.length} tasks and ${dummyRecurringTasks.length} recurring tasks`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Seeded ${dummyTasks.length} tasks and ${dummyRecurringTasks.length} recurring tasks`)
+  }
 }
 
 /**
  * 全データをクリア（テスト用）
  */
 export async function clearAllData(): Promise<void> {
-  console.log('Clearing all data...')
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Clearing all data...')
+  }
   
   // Use Supabase clearAllData method
   await db.clearAllData()
   
-  console.log('All data cleared')
+  if (process.env.NODE_ENV === 'development') {
+    console.log('All data cleared')
+  }
 }
 
 /**

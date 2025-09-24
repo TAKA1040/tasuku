@@ -327,7 +327,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                     i
                   )
                 }
-                console.log(`未完了のサブタスク ${incompleteSubTasks.length} 個を期日なしタスクに繰り越しました`)
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`未完了のサブタスク ${incompleteSubTasks.length} 個を期日なしタスクに繰り越しました`)
+                }
               }
             } catch (error) {
               console.error('Failed to create subtasks for carry-over task:', error)
@@ -368,7 +370,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     if (onEdit) {
       onEdit(task)
     } else {
-      console.log('編集:', task)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('編集:', task)
+      }
       alert(`タスク「${task.title}」の編集機能は今日のページで利用できます`)
     }
   }

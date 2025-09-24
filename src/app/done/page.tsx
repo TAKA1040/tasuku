@@ -37,7 +37,9 @@ export default function DonePage() {
   // データベース初期化後にタスクを再読み込み
   useEffect(() => {
     if (isInitialized && reloadTasks && reloadRecurringTasks) {
-      console.log('Database initialized, reloading tasks for done page')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database initialized, reloading tasks for done page')
+      }
       reloadTasks()
       reloadRecurringTasks()
     }

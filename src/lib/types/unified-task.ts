@@ -13,40 +13,44 @@ export interface UnifiedTask {
   id: string
   user_id: string
   title: string
-  memo?: string
+  memo?: string | null
   display_number: string // YYYYMMDDTTCCC形式
-  task_type: TaskType
-  category: string
-  importance: number
-  due_date?: string
-  urls?: string[]
-  attachment?: {
-    file_name: string
-    file_type: string
-    file_data: string
-  }
-  completed: boolean
-  completed_at?: string
-  created_at: string
-  updated_at: string
+  category?: string | null
+  importance?: number | null
+  due_date: string // 必須フィールド: '2025-09-24' or '2999-12-31'(期限なし)
+  urls?: string[] | null
+  attachment?: any | null // JSON型
+  completed?: boolean | null
+  completed_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+  archived?: boolean | null
+  snoozed_until?: string | null
+  duration_min?: number | null
 
-  // 繰り返しタスク関連
-  recurring_pattern?: string
-  recurring_interval?: number
-  last_completed_date?: string
+  // 繰り返しタスク関連（完了時に次回due_dateを計算するために保持）
+  recurring_pattern?: string | null // 'DAILY' | 'WEEKLY' | 'MONTHLY' | null
+  recurring_interval?: number | null
+  recurring_weekdays?: number[] | null
+  recurring_day?: number | null
 }
+
+// 統一ルールの定数
+export const SPECIAL_DATES = {
+  NO_DUE_DATE: '2999-12-31', // 期限なし（アイデア、買い物リストなど）
+} as const
 
 export type TaskType = 'NORMAL' | 'RECURRING' | 'IDEA'
 
 export interface TaskFilters {
   completed?: boolean
-  task_type?: TaskType
   category?: string
   date_range?: {
     start: string
     end: string
   }
   importance_min?: number
+  has_due_date?: boolean // true: 期限あり, false: 期限なし
 }
 
 export interface TaskSorters {

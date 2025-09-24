@@ -7,12 +7,16 @@ import { DB_NAME } from './schema'
  */
 export async function deleteDatabase(): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log('Deleting IndexedDB database:', DB_NAME)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Deleting IndexedDB database:', DB_NAME)
+    }
     
     const deleteRequest = indexedDB.deleteDatabase(DB_NAME)
     
     deleteRequest.onsuccess = () => {
-      console.log('Database deleted successfully')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database deleted successfully')
+      }
       resolve()
     }
     
@@ -38,6 +42,8 @@ export function setupDevTools() {
       window.location.reload()
     }
     
-    console.log('Development tools available: window.resetTasukuDB()')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development tools available: window.resetTasukuDB()')
+    }
   }
 }

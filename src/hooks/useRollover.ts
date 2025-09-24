@@ -110,7 +110,7 @@ export function useRollover(
         } catch (createError) {
           console.error('Auto rollover: Failed to create task:', {
             title: task.title,
-            error: createError instanceof Error ? createError.message : String(createError)
+            error: createError instanceof Error ? createError.message : 'Unknown error'
           })
           throw createError
         }

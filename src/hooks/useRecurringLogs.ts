@@ -41,7 +41,9 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       )
       
       if (existingLog) {
-        console.log('Log already exists for this task and date')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Log already exists for this task and date')
+        }
         return existingLog
       }
 
@@ -71,7 +73,9 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       )
       
       if (!existingLog) {
-        console.log('No log found for this task and date')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('No log found for this task and date')
+        }
         return
       }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { memo, useState } from 'react'
 import type { TaskWithUrgency, Task } from '@/lib/db/schema'
 // import { QuickMoves } from '@/lib/utils/date-jst' // 将来使用予定
 
@@ -11,7 +11,7 @@ interface UpcomingPreviewProps {
   onDelete: (taskId: string) => void
 }
 
-export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }: UpcomingPreviewProps) {
+function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }: UpcomingPreviewProps) {
   // 表示期間フィルター状態
   const [showDays, setShowDays] = useState<number>(7)
 
@@ -214,3 +214,6 @@ export function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }:
     </section>
   )
 }
+
+export default memo(UpcomingPreview)
+export { UpcomingPreview }
