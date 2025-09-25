@@ -29,7 +29,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<number>(3)
   const [durationMin, setDurationMin] = useState<number>(0)
-  const [recurringPattern, setRecurringPattern] = useState('daily')
+  const [recurringPattern, setRecurringPattern] = useState('DAILY')
   const [taskType, setTaskType] = useState<'once' | 'recurring' | 'deadline'>('once')
   const [intervalDays, setIntervalDays] = useState<number>(1)
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([1]) // 月曜日がデフォルト
@@ -197,7 +197,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     setCategory('')
     setImportance(3)
     setDurationMin(0)
-    setRecurringPattern('daily')
+    setRecurringPattern('DAILY')
     setIntervalDays(1)
     setSelectedWeekdays([1])
     setDayOfMonth(1)
@@ -896,16 +896,16 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                       fontSize: '13px'
                     }}
                   >
-                    <option value="daily">毎日</option>
-                    <option value="interval">X日おき</option>
-                    <option value="weekly">毎週</option>
-                    <option value="monthly">毎月</option>
-                    <option value="yearly">毎年</option>
+                    <option value="DAILY">毎日</option>
+                    <option value="INTERVAL_DAYS">X日おき</option>
+                    <option value="WEEKLY">毎週</option>
+                    <option value="MONTHLY">毎月</option>
+                    <option value="YEARLY">毎年</option>
                   </select>
                 </div>
                 <div>
                   {/* 動的設定エリア */}
-                  {recurringPattern === 'interval' && (
+                  {recurringPattern === 'INTERVAL_DAYS' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <input
                         type="number"
@@ -924,7 +924,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                       <span style={{ fontSize: '14px', color: '#374151' }}>日おき</span>
                     </div>
                   )}
-                  {recurringPattern === 'monthly' && (
+                  {recurringPattern === 'MONTHLY' && (
                     <select
                       value={dayOfMonth}
                       onChange={(e) => setDayOfMonth(Number(e.target.value))}
@@ -942,7 +942,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                       <option value={32}>毎月末日</option>
                     </select>
                   )}
-                  {recurringPattern === 'yearly' && (
+                  {recurringPattern === 'YEARLY' && (
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <select
                         value={monthOfYear}
@@ -980,7 +980,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               </div>
 
               {/* 曜日選択（複数可能） */}
-              {recurringPattern === 'weekly' && (
+              {recurringPattern === 'WEEKLY' && (
                 <div style={{ marginBottom: '6px' }}>
                   <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>
                     曜日（複数選択可）
@@ -1026,7 +1026,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
         <div style={{ marginBottom: '8px' }}>
           <button
             onClick={handleSubmit}
-            disabled={!title.trim() || (!saveAsIdea && taskType === 'recurring' && recurringPattern === 'weekly' && selectedWeekdays.length === 0)}
+            disabled={!title.trim() || (!saveAsIdea && taskType === 'recurring' && recurringPattern === 'WEEKLY' && selectedWeekdays.length === 0)}
             style={{
               width: '100%',
               padding: '10px',
@@ -1042,7 +1042,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               borderRadius: '4px',
               fontSize: '14px',
               fontWeight: '600',
-              cursor: (title.trim() && !(!saveAsIdea && taskType === 'recurring' && recurringPattern === 'weekly' && selectedWeekdays.length === 0)) ? 'pointer' : 'not-allowed'
+              cursor: (title.trim() && !(!saveAsIdea && taskType === 'recurring' && recurringPattern === 'WEEKLY' && selectedWeekdays.length === 0)) ? 'pointer' : 'not-allowed'
             }}
           >
             {saveAsIdea ? '📝 やることリストに追加' :
