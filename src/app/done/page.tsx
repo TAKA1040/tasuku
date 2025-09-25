@@ -222,8 +222,9 @@ export default function DonePage() {
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    // done/page.tsxでは基本的な情報のみ更新（時間やattachmentは無視）
+    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
   }
 
   const handleCancelEdit = () => {

@@ -1,33 +1,69 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+
 export default function TestPage() {
+  const [status, setStatus] = useState('接続テスト中...')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const supabase = createClient()
+
+        // 認証状態確認
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+        if (authError) {
+          setError(`認証エラー: ${authError.message}`)
+          setStatus('認証失敗')
+          return
+        }
+
+        if (!user) {
+          setStatus('ユーザー未ログイン - 匿名アクセステスト中')
+        } else {
+          setStatus(`ログイン済み: ${user.email}`)
+        }
+
+        // データベース接続テスト
+        const { data, error: dbError } = await supabase
+          .from('unified_tasks')
+          .select('count')
+          .limit(1)
+
+        if (dbError) {
+          setError(`データベースエラー: ${dbError.message}`)
+          setStatus('DB接続失敗')
+        } else {
+          setStatus('Supabase接続成功！')
+        }
+
+      } catch (err) {
+        setError(`予期しないエラー: ${err}`)
+        setStatus('接続失敗')
+      }
+    }
+
+    testConnection()
+  }, [])
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>テストページ</h1>
-      <p>基本的なページが表示されるかテストします。</p>
-      <div style={{
-        backgroundColor: '#f0f9ff',
-        padding: '16px',
-        borderRadius: '8px',
-        marginTop: '20px'
-      }}>
-        <h2>テーブル形式テスト</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f9fafb' }}>
-              <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>番号</th>
-              <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>完了</th>
-              <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ backgroundColor: 'white' }}>
-              <td style={{ padding: '8px', textAlign: 'center' }}>001</td>
-              <td style={{ padding: '8px', textAlign: 'center' }}>✓</td>
-              <td style={{ padding: '8px' }}>テストタスク</td>
-            </tr>
-          </tbody>
-        </table>
+    <div style={{ padding: '20px', fontFamily: 'monospace' }}>
+      <h1>Supabase 接続テスト</h1>
+      <div style={{ marginBottom: '20px' }}>
+        <strong>状態:</strong> {status}
+      </div>
+      {error && (
+        <div style={{ color: 'red', backgroundColor: '#ffebee', padding: '10px', borderRadius: '4px' }}>
+          <strong>エラー:</strong> {error}
+        </div>
+      )}
+      <div style={{ marginTop: '20px' }}>
+        <a href="/today" style={{ color: 'blue', textDecoration: 'underline' }}>
+          今日ページに戻る
+        </a>
       </div>
     </div>
   )

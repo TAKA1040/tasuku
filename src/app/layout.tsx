@@ -1,6 +1,7 @@
 export const metadata = {
   title: 'TASUKU - 予定管理ツール',
   description: 'シンプルな日次タスク管理',
+  viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: '/favicon.svg'
   }

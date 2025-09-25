@@ -1,99 +1,955 @@
-react-dom-client.development.js:25631 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:28 Starting database initialization...
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:50 Supabase Database initialized
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:55 Dev features initialized
-C:\Windsurf\tasuku\src\lib\db\reset.ts:46 Development tools available: window.resetTasukuDB()
-C:\Windsurf\tasuku\src\lib\utils\recurring-test.ts:110 Development tools: window.testRecurringRules()
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:61 Dev tools setup
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:67 Checking for dummy data...
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:72 Database state: Object
-C:\Windsurf\tasuku\src\hooks\useDatabase.ts:85 Database initialization completed successfully
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 0件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(0)
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 0件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(0)
-C:\Windsurf\tasuku\src\hooks\useTaskGenerator.ts:37 🔄 タスク生成を開始...
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\lib\services\task-generator.ts:28 タスク生成開始: 今日=2025-09-26, 前回=2025-09-25
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 16件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(16)
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 16件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(16)
-C:\Windsurf\tasuku\src\lib\services\task-generator.ts:106 日次タスク生成: 2025-09-26 - 2025-09-26, テンプレート数: 0
-C:\Windsurf\tasuku\src\lib\services\task-generator.ts:54 タスク生成完了
-C:\Windsurf\tasuku\src\hooks\useTaskGenerator.ts:39 ✅ タスク生成完了
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 16件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(16)
-C:\Windsurf\tasuku\src\app\today\page.tsx:40 📊 allUnifiedData計算中: Object
-C:\Windsurf\tasuku\src\app\today\page.tsx:70 📊 統一データ取得完了: 16件
-C:\Windsurf\tasuku\src\app\today\page.tsx:71 📊 unifiedTasks.tasks: Array(16)
-C:\Windsurf\tasuku\src\app\today\page.tsx:267 統一繰り返しタスク作成: Object
-C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:165 タスク作成データ: Object
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/unified_tasks?select=*:1  Failed to load resource: the server responded with a status of 400 ()
-intercept-console-error.js:57 UnifiedTasksService.createUnifiedTask error: Error: Failed to create unified task: new row for relation "unified_tasks" violates check constraint "unified_tasks_recurring_pattern_check"
-    at UnifiedTasksService.createUnifiedTask (C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:178:15)
-    at async useUnifiedTasks.useCallback[createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:171:29)
-    at async withErrorHandling (C:\Windsurf\tasuku\src\lib\utils\error-handler.ts:132:12)
-    at async useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:157:20)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 [useUnifiedTasks.createTask] MEDIUM: Object
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 ❌ 繰り返しタスク作成エラー: Error: Failed to create task
-    at useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:180:13)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
+ Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ Starting database initialization...
+ Supabase Database initialized
+ Dev features initialized
+ Development tools available: window.resetTasukuDB()
+ Development tools: window.testRecurringRules()
+ Dev tools setup
+ Checking for dummy data...
+ Database state: Object
+ Database initialization completed successfully
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 0件
+ 📊 unifiedTasks.tasks: Array(0)
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 0件
+ 📊 unifiedTasks.tasks: Array(0)
+ 🔄 タスク生成を開始...
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ タスク生成開始: 今日=2025-09-26, 前回=2025-09-26
+ タスク生成完了
+ ✅ タスク生成完了
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 535ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 317ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 376ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 317ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 278ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] rebuilding
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ [Fast Refresh] done in 268ms
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ 📊 allUnifiedData計算中: Object
+ 📊 統一データ取得完了: 18件
+ 📊 unifiedTasks.tasks: Array(18)
+ 📊 Item 0 display_number: Object
+ 📊 Item 1 display_number: Object
+ 📊 Item 2 display_number: Object
+ formatCompact input: Object
+ formatCompact: T001 format matched, returning: 002
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+ formatCompact: parseDisplayNumber result: Object
+ formatCompact: parsed invalid, returning ---
+ formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
 hot-reloader-app.js:197 [Fast Refresh] rebuilding
-report-hmr-latency.js:14 [Fast Refresh] done in 543ms
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 18件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(18)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 18件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(18)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+report-hmr-latency.js:14 [Fast Refresh] done in 329ms
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 18件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(18)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 18件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(18)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
 hot-reloader-app.js:197 [Fast Refresh] rebuilding
-report-hmr-latency.js:14 [Fast Refresh] done in 317ms
+report-hmr-latency.js:14 [Fast Refresh] done in 215ms
+C:\Windsurf\tasuku\src\components\TaskCreateForm2.tsx:164 🛒 TaskCreateForm2 - 買い物リスト送信: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:222 統一タスク作成: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:223 🛒 handleCreateRegular - 受け取った買い物リスト: undefined
+C:\Windsurf\tasuku\src\components\TaskCreateForm2.tsx:200 Uncaught (in promise) ReferenceError: setDurationMin is not defined
+    at resetForm (C:\Windsurf\tasuku\src\components\TaskCreateForm2.tsx:200:5)
+    at handleSubmit (C:\Windsurf\tasuku\src\components\TaskCreateForm2.tsx:172:9)
+C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:37 generateDisplayNumber: lastNumber found: T1758775191887
+C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:56 generateDisplayNumber: found old format, searching for T001 format only
+C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:77 generateDisplayNumber: T001 format search, returning: T003
+C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:200 タスク作成データ: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:255 ✅ 通常タスク作成完了: お昼ご飯
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 19件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(19)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:43 📊 allUnifiedData計算中: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:101 📊 統一データ取得完了: 19件
+C:\Windsurf\tasuku\src\app\today\page.tsx:102 📊 unifiedTasks.tasks: Array(19)
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 0 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 1 display_number: Object
+C:\Windsurf\tasuku\src\app\today\page.tsx:105 📊 Item 2 display_number: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 003
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 002
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:209 formatCompact: T001 format matched, returning: 003
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:195 formatCompact input: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:233 formatCompact: parseDisplayNumber result: Object
+C:\Windsurf\tasuku\src\lib\types\unified-task.ts:236 formatCompact: parsed invalid, returning ---
 hot-reloader-app.js:197 [Fast Refresh] rebuilding
-report-hmr-latency.js:14 [Fast Refresh] done in 327ms
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:85 All URLs: Array(2)
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:93 Valid URLs: Array(2)
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:94 Invalid URLs: Array(0)
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:110 Opening URLs: Array(2)
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:114 Opening URL 1: https://www.yahoo.co.jp/
-C:\Windsurf\tasuku\src\components\UnifiedTasksTable.tsx:114 Opening URL 2: https://news.yahoo.co.jp/pickup/6553573
-C:\Windsurf\tasuku\src\app\today\page.tsx:267 統一繰り返しタスク作成: Object
-C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:165 タスク作成データ: Object
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/unified_tasks?select=*:1  Failed to load resource: the server responded with a status of 400 ()
-intercept-console-error.js:57 UnifiedTasksService.createUnifiedTask error: Error: Failed to create unified task: new row for relation "unified_tasks" violates check constraint "unified_tasks_recurring_pattern_check"
-    at UnifiedTasksService.createUnifiedTask (C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:178:15)
-    at async useUnifiedTasks.useCallback[createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:171:29)
-    at async withErrorHandling (C:\Windsurf\tasuku\src\lib\utils\error-handler.ts:132:12)
-    at async useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:157:20)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 [useUnifiedTasks.createTask] MEDIUM: Object
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 ❌ 繰り返しタスク作成エラー: Error: Failed to create task
-    at useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:180:13)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
-C:\Windsurf\tasuku\src\app\today\page.tsx:267 統一繰り返しタスク作成: Object
-C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:165 タスク作成データ: Object
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/unified_tasks?select=*:1  Failed to load resource: the server responded with a status of 400 ()
-intercept-console-error.js:57 UnifiedTasksService.createUnifiedTask error: Error: Failed to create unified task: new row for relation "unified_tasks" violates check constraint "unified_tasks_recurring_pattern_check"
-    at UnifiedTasksService.createUnifiedTask (C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:178:15)
-    at async useUnifiedTasks.useCallback[createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:171:29)
-    at async withErrorHandling (C:\Windsurf\tasuku\src\lib\utils\error-handler.ts:132:12)
-    at async useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:157:20)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 [useUnifiedTasks.createTask] MEDIUM: Object
-error @ intercept-console-error.js:57
-intercept-console-error.js:57 ❌ 繰り返しタスク作成エラー: Error: Failed to create task
-    at useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:180:13)
-    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
-error @ intercept-console-error.js:57
+report-hmr-latency.js:14 [Fast Refresh] done in 335ms
+
+

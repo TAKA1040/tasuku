@@ -16,8 +16,8 @@ interface RecurringSettings {
 
 interface TaskCreateForm2Props {
   isVisible: boolean
-  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[]) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[]) => void
+  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -28,7 +28,8 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [dueDate, setDueDate] = useState(getTodayJST())
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<number>(3)
-  const [durationMin, setDurationMin] = useState<number>(0)
+  const [startTime, setStartTime] = useState<string>('')
+  const [endTime, setEndTime] = useState<string>('')
   const [recurringPattern, setRecurringPattern] = useState('DAILY')
   const [taskType, setTaskType] = useState<'once' | 'recurring' | 'deadline'>('once')
   const [intervalDays, setIntervalDays] = useState<number>(1)
@@ -167,7 +168,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           isShopping: category === '買い物',
           itemsToSend: category === '買い物' ? finalShoppingItems : undefined
         })
-        onSubmitRegular(title, finalMemo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment, category === '買い物' ? finalShoppingItems : undefined)
+        onSubmitRegular(title, finalMemo, dueDate, category, importance, urls.length > 0 ? urls : undefined, attachment, category === '買い物' ? finalShoppingItems : undefined, startTime || undefined, endTime || undefined)
         resetForm()
       } else {
         onSubmitRecurring(title, finalMemo, {
@@ -177,7 +178,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           dayOfMonth,
           monthOfYear,
           dayOfYear
-        }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category, attachment)
+        }, importance, urls.length > 0 ? urls : undefined, category, attachment, undefined, startTime || undefined, endTime || undefined)
         resetForm()
       }
     }
@@ -196,7 +197,8 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     setDueDate(getTodayJST())
     setCategory('')
     setImportance(3)
-    setDurationMin(0)
+    setStartTime('')
+    setEndTime('')
     setRecurringPattern('DAILY')
     setIntervalDays(1)
     setSelectedWeekdays([1])
@@ -342,7 +344,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             タスク設定
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '90px 80px 110px', gap: '4px', marginBottom: '6px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '75px 65px 80px 90px', gap: '4px', marginBottom: '6px' }}>
             <div>
               <label style={{
                 display: 'block',
@@ -382,13 +384,35 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 fontWeight: '500',
                 color: '#6b7280'
               }}>
-                所要時間
+                開始時間
               </label>
               <input
-                type="number"
-                placeholder="分"
-                value={durationMin || ''}
-                onChange={(e) => setDurationMin(Number(e.target.value) || 0)}
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '4px 4px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '3px',
+                  fontSize: '13px'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '2px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                終了時間
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '4px 4px',

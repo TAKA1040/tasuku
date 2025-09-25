@@ -8,7 +8,7 @@ import { QuickMoves } from '@/lib/utils/date-jst'
 
 interface TaskEditFormProps {
   task: Task | UnifiedTask | null
-  onSubmit: (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => Promise<void>
+  onSubmit: (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => Promise<void>
   onCancel: () => void
   onUncomplete?: (taskId: string) => Promise<void>
   isVisible: boolean
@@ -20,9 +20,12 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const [dueDate, setDueDate] = useState('')
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<number>(TASK_IMPORTANCE.MEDIUM)
-  const [durationMin, setDurationMin] = useState<number>(0)
+  const [startTime, setStartTime] = useState<string>('')
+  const [endTime, setEndTime] = useState<string>('')
   const [urls, setUrls] = useState<string[]>([])
   const [newUrl, setNewUrl] = useState('')
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -32,10 +35,50 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
-      setDurationMin(task.duration_min || 0)
+      setStartTime((task as UnifiedTask).start_time || '')
+      setEndTime((task as UnifiedTask).end_time || '')
       setUrls(task.urls || [])
+      // 既存の添付ファイルはクリア（新規添付のみ対応）
+      setAttachedFile(null)
+      setAttachedFileUrl('')
     }
   }, [task])
+
+  // ファイル添付処理
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // ファイルサイズチェック（10MB制限）
+      if (file.size > 10 * 1024 * 1024) {
+        alert('ファイルサイズは10MB以下にしてください。')
+        return
+      }
+
+      // 前のファイルのURLをクリア
+      if (attachedFileUrl) {
+        URL.revokeObjectURL(attachedFileUrl)
+      }
+
+      setAttachedFile(file)
+
+      // 画像ファイルの場合はプレビュー表示のためURL生成
+      if (file.type.startsWith('image/')) {
+        const fileUrl = URL.createObjectURL(file)
+        setAttachedFileUrl(fileUrl)
+      } else {
+        setAttachedFileUrl('')
+      }
+    }
+  }
+
+  // ファイル削除
+  const removeFile = () => {
+    if (attachedFileUrl) {
+      URL.revokeObjectURL(attachedFileUrl)
+    }
+    setAttachedFile(null)
+    setAttachedFileUrl('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +86,35 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
     setIsSubmitting(true)
     try {
-      await onSubmit(task.id, title, memo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, durationMin || undefined, urls.length > 0 ? urls : undefined)
+      // ファイル添付がある場合はBase64に変換
+      let attachment: { file_name: string; file_type: string; file_size: number; file_data: string } | undefined = undefined
+      if (attachedFile) {
+        try {
+          const fileBase64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => {
+              const result = reader.result as string
+              const base64 = result.split(',')[1] // data:image/jpeg;base64,の部分を除去
+              resolve(base64)
+            }
+            reader.onerror = reject
+            reader.readAsDataURL(attachedFile)
+          })
+
+          attachment = {
+            file_name: attachedFile.name,
+            file_type: attachedFile.type,
+            file_size: attachedFile.size,
+            file_data: fileBase64
+          }
+        } catch (error) {
+          console.error('TaskEditForm: File conversion failed:', error)
+          alert('ファイルの変換に失敗しました')
+          return
+        }
+      }
+
+      await onSubmit(task.id, title, memo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
       onCancel()
     } catch (error) {
       console.error('Failed to update task:', error)
@@ -59,8 +130,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
-      setDurationMin(task.duration_min || 0)
+      setStartTime((task as UnifiedTask).start_time || '')
       setUrls(task.urls || [])
+      // 既存の添付ファイルはクリア
+      setAttachedFile(null)
+      setAttachedFileUrl('')
     }
     onCancel()
   }
@@ -226,7 +300,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 100px', gap: '12px', marginBottom: '16px' }}>
             <div>
               <label style={{
                 display: 'block',
@@ -255,7 +329,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label style={{
                 display: 'block',
@@ -264,13 +338,12 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 marginBottom: '4px',
                 color: '#374151'
               }}>
-                所要時間（分）
+                開始時間
               </label>
               <input
-                type="number"
-                value={durationMin || ''}
-                onChange={(e) => setDurationMin(Number(e.target.value) || 0)}
-                placeholder="0"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -281,6 +354,118 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 }}
               />
             </div>
+
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                終了時間
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* ファイル添付セクション */}
+            <div>
+              <label style={{
+                display: 'block',
+                marginBottom: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                ファイル添付（画像・PDF 1枚）
+              </label>
+
+              {!attachedFile ? (
+                <div style={{
+                  border: '2px dashed #d1d5db',
+                  borderRadius: '6px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  position: 'relative'
+                }}
+                onClick={() => document.getElementById('file-input-edit')?.click()}
+                >
+                  <input
+                    id="file-input-edit"
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>📎</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                    クリックして画像やPDFを添付
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: '500' }}>
+                      📎 {attachedFile.name}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#6b7280' }}>
+                      {(attachedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeFile}
+                    style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '4px 8px',
+                      fontSize: '10px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+              )}
+
+              {attachedFileUrl && (
+                <div style={{ marginTop: '8px', textAlign: 'center' }}>
+                  <img
+                    src={attachedFileUrl}
+                    alt="プレビュー"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100px',
+                      borderRadius: '4px',
+                      border: '1px solid #d1d5db'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
           </div>
 
           <div style={{ marginBottom: '16px' }}>

@@ -38,6 +38,8 @@ export interface UnifiedTask {
   snoozed_until?: string | null
   duration_min?: number | null
   task_type?: string | null // 'NORMAL' | 'RECURRING' | 'IDEA' | null
+  start_time?: string | null // HH:MM format (e.g., "09:00", "14:30")
+  end_time?: string | null // HH:MM format (future use)
 
   // 繰り返しタスク関連（完了時に次回due_dateを計算するために保持）
   recurring_pattern?: string | null // 'DAILY' | 'WEEKLY' | 'MONTHLY' | null

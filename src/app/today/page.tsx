@@ -34,10 +34,13 @@ export default function TodayPage() {
   const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: SubTask[]}>({})
   const [expandedShoppingLists, setExpandedShoppingLists] = useState<{[taskId: string]: boolean}>({})
 
+  // ソート設定状態（今日のタスク用）
+  const [sortMode, setSortMode] = useState<'priority' | 'time'>('priority')
+
   // 統一データベースから直接データを取得
   const allUnifiedData = useMemo(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('📊 allUnifiedData計算中:', { isInitialized, loading: unifiedTasks.loading, tasksLength: unifiedTasks.tasks.length })
+      console.log('📊 allUnifiedData計算中:', { isInitialized, loading: unifiedTasks.loading, tasksLength: unifiedTasks.tasks.length, sortMode })
     }
     if (!isInitialized || unifiedTasks.loading) return []
 
@@ -52,8 +55,36 @@ export default function TodayPage() {
       displayCategory: task.category || (task.recurring_pattern ? '繰り返し' : task.due_date === '2999-12-31' ? 'アイデア' : '未分類')
     }))
 
-    // 優先度順でソート（高い優先度が上位）、同じ優先度の場合は統一番号順
+    // ソートモードに応じて並び替え
     unifiedData.sort((a, b) => {
+      // 時間軸ソートの場合
+      if (sortMode === 'time') {
+        const startTimeA = a.start_time || '99:99' // 未設定は最後
+        const startTimeB = b.start_time || '99:99'
+
+        // 両方とも時間設定がある場合は時間順
+        if (startTimeA !== '99:99' && startTimeB !== '99:99') {
+          return startTimeA.localeCompare(startTimeB)
+        }
+
+        // 一方のみ時間設定がある場合は設定済みを優先
+        if (startTimeA !== '99:99' && startTimeB === '99:99') {
+          return -1
+        }
+        if (startTimeA === '99:99' && startTimeB !== '99:99') {
+          return 1
+        }
+
+        // 両方とも時間未設定の場合は優先度順
+        const priorityA = a.importance || 0
+        const priorityB = b.importance || 0
+        if (priorityA !== priorityB) {
+          return priorityB - priorityA
+        }
+        return (a.display_number || '').localeCompare(b.display_number || '')
+      }
+
+      // 優先度ソート（従来通り）
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
 
@@ -82,7 +113,7 @@ export default function TodayPage() {
     }
 
     return unifiedData
-  }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading])
+  }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
 
   // 買い物タスクのサブタスクを自動で取得（データベース参照と同時に）
   useEffect(() => {
@@ -186,9 +217,9 @@ export default function TodayPage() {
   const [showShoppingTasks, setShowShoppingTasks] = useState(false)
   const [showTodoList, setShowTodoList] = useState(false)
 
-  const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[]) => {
+  const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
-      console.log('統一タスク作成:', { title, memo, dueDate, category, importance, durationMin, urls, attachment, shoppingItems })
+      console.log('統一タスク作成:', { title, memo, dueDate, category, importance, urls, attachment, shoppingItems })
       console.log('🛒 handleCreateRegular - 受け取った買い物リスト:', shoppingItems)
 
       // display_numberを正式に生成
@@ -201,7 +232,8 @@ export default function TodayPage() {
         due_date: dueDate || getTodayJST(),
         category: category || undefined,
         importance: importance || undefined,
-        duration_min: durationMin || undefined,
+        start_time: startTime || undefined,
+        end_time: endTime || undefined,
         urls: urls && urls.length > 0 ? urls : undefined,
         attachment: attachment || undefined,
         task_type: 'NORMAL',
@@ -272,9 +304,9 @@ export default function TodayPage() {
     dayOfMonth: number
     monthOfYear: number
     dayOfYear: number
-  }, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+  }, importance?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
-      console.log('統一繰り返しタスク作成:', { title, memo, settings, importance, durationMin, urls, category, attachment })
+      console.log('統一繰り返しタスク作成:', { title, memo, settings, importance, urls, category, attachment })
 
       // display_numberを正式に生成
       const displayNumber = await UnifiedTasksService.generateDisplayNumber()
@@ -286,7 +318,8 @@ export default function TodayPage() {
         due_date: getTodayJST(), // 明示的に今日の日付を設定
         category: category || undefined,
         importance: importance || undefined,
-        duration_min: durationMin || undefined,
+        start_time: startTime || undefined,
+        end_time: endTime || undefined,
         urls: urls && urls.length > 0 ? urls : undefined,
         task_type: 'RECURRING',
         recurring_pattern: settings.pattern,
@@ -307,8 +340,8 @@ export default function TodayPage() {
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
-    await unifiedTasks.updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    await unifiedTasks.updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls, start_time: startTime, end_time: endTime, attachment })
   }
 
   const handleCancelEdit = () => {
@@ -480,21 +513,84 @@ export default function TodayPage() {
 
       <main>
         {/* 今日のメインタスク表示（大本） */}
-        <UnifiedTasksTable
-          title="📅 今日のタスク"
-          tasks={allUnifiedData.filter(task =>
-            !task.completed && task.due_date === getTodayJST()
-          )}
-          emptyMessage="今日のタスクはありません"
-          unifiedTasks={unifiedTasks}
-          handleEditTask={handleEditTask}
-          shoppingSubTasks={shoppingSubTasks}
-          expandedShoppingLists={expandedShoppingLists}
-          toggleShoppingList={toggleShoppingList}
-          addShoppingSubTask={addShoppingSubTask}
-          toggleShoppingSubTask={toggleShoppingSubTask}
-          deleteShoppingSubTask={deleteShoppingSubTask}
-        />
+        <div style={{ marginBottom: '12px' }}>
+          {/* タイトルとソート切り替えUI */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '8px',
+            gap: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              margin: '0',
+              color: '#1f2937'
+            }}>
+              📅 今日のタスク
+            </h3>
+
+            {/* ソート切り替えボタン */}
+            <div style={{
+              display: 'flex',
+              background: '#f3f4f6',
+              borderRadius: '6px',
+              padding: '2px',
+              gap: '2px'
+            }}>
+              <button
+                onClick={() => setSortMode('priority')}
+                style={{
+                  background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
+                  color: sortMode === 'priority' ? 'white' : '#6b7280',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                重要度
+              </button>
+              <button
+                onClick={() => setSortMode('time')}
+                style={{
+                  background: sortMode === 'time' ? '#3b82f6' : 'transparent',
+                  color: sortMode === 'time' ? 'white' : '#6b7280',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                時間軸
+              </button>
+            </div>
+          </div>
+
+          <UnifiedTasksTable
+            title=""
+            tasks={allUnifiedData.filter(task =>
+              !task.completed && task.due_date === getTodayJST()
+            )}
+            emptyMessage="今日のタスクはありません"
+            unifiedTasks={unifiedTasks}
+            handleEditTask={handleEditTask}
+            shoppingSubTasks={shoppingSubTasks}
+            expandedShoppingLists={expandedShoppingLists}
+            toggleShoppingList={toggleShoppingList}
+            addShoppingSubTask={addShoppingSubTask}
+            toggleShoppingSubTask={toggleShoppingSubTask}
+            deleteShoppingSubTask={deleteShoppingSubTask}
+            showTitle={false}
+          />
+        </div>
 
         {/* 期限切れタスクセクション */}
         <div style={{ marginBottom: '12px' }}>
