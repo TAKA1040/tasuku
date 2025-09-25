@@ -49,13 +49,8 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
     setIsAdding(false)
   }
 
-  // 統一ルール: カテゴリー別にグループ化
-  const tasksByCategory = allNoDateTasks.reduce((acc, task) => {
-    const category = task.category || '未分類'
-    if (!acc[category]) acc[category] = []
-    acc[category].push(task)
-    return acc
-  }, {} as Record<string, UnifiedTask[]>)
+  // 統一ルール: カテゴリ分けせずに全て表示
+  const allTasks = allNoDateTasks
 
   const pendingIdeas = ideas.filter(idea => !idea.completed)
   const completedIdeas = ideas.filter(idea => idea.completed)
@@ -143,9 +138,9 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
 
       {showIdeaBox && (
         <>
-          {/* 統一表示: カテゴリー別期限なしタスク */}
-          {Object.entries(tasksByCategory).map(([category, tasks]) => (
-            <div key={category} style={{ marginBottom: '16px' }}>
+          {/* 統一表示: すべての期限なしタスク */}
+          {allTasks.length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
               <div style={{
                 fontSize: '14px',
                 fontWeight: '600',
@@ -155,13 +150,13 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                {category === '買い物' ? '🛒' : '📝'} {category}
+                📝 期限なしタスク
                 <span style={{
                   fontSize: '12px',
                   color: '#6b7280',
                   fontWeight: 'normal'
                 }}>
-                  {tasks.length}件
+                  {allTasks.length}件
                 </span>
               </div>
 
@@ -179,12 +174,12 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
                   </tr>
                 </thead>
                 <tbody>
-                  {tasks.map((task, index) => (
+                  {allTasks.map((task, index) => (
                     <tr
                       key={task.id}
                       style={{
                         borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
-                        backgroundColor: category === '買い物' ? '#f0f9ff' : '#fef7ff'
+                        backgroundColor: task.category === '買い物' ? '#f0f9ff' : '#fef7ff'
                       }}
                     >
                       {/* 統一番号表示 */}
@@ -255,7 +250,7 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
 
                       {/* カテゴリ */}
                       <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
-                        {category}
+                        {task.category || '未分類'}
                       </td>
 
                       {/* 期限 */}
@@ -327,7 +322,7 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
                 </tbody>
               </table>
             </div>
-          ))}
+          )}
 
           <div style={{
             fontSize: '14px',

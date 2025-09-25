@@ -11,7 +11,7 @@ interface RecurringTaskFormProps {
 export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTaskFormProps) {
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
-  const [pattern, setPattern] = useState('daily')
+  const [pattern, setPattern] = useState('DAILY')
   const [dayOfWeek, setDayOfWeek] = useState<number>(1) // 月曜日
   const [dayOfMonth, setDayOfMonth] = useState<number>(1) // 1日
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -26,13 +26,13 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
         title,
         memo,
         pattern,
-        pattern === 'weekly' ? dayOfWeek : undefined,
-        pattern === 'monthly' ? dayOfMonth : undefined
+        pattern === 'WEEKLY' ? dayOfWeek : undefined,
+        pattern === 'MONTHLY' ? dayOfMonth : undefined
       )
       // Reset form
       setTitle('')
       setMemo('')
-      setPattern('daily')
+      setPattern('DAILY')
       setDayOfWeek(1)
       setDayOfMonth(1)
       onCancel()
@@ -46,7 +46,7 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
   const handleCancel = () => {
     setTitle('')
     setMemo('')
-    setPattern('daily')
+    setPattern('DAILY')
     setDayOfWeek(1)
     setDayOfMonth(1)
     onCancel()
@@ -173,14 +173,14 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
                 boxSizing: 'border-box'
               }}
             >
-              <option value="daily">毎日</option>
-              <option value="weekly">毎週</option>
-              <option value="monthly">毎月</option>
+              <option value="DAILY">毎日</option>
+              <option value="WEEKLY">毎週</option>
+              <option value="MONTHLY">毎月</option>
             </select>
           </div>
 
           {/* 週次の場合の曜日選択 */}
-          {pattern === 'weekly' && (
+          {pattern === 'WEEKLY' && (
             <div style={{ marginBottom: '16px' }}>
               <label style={{
                 display: 'block',
@@ -212,7 +212,7 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
           )}
 
           {/* 月次の場合の日付選択 */}
-          {pattern === 'monthly' && (
+          {pattern === 'MONTHLY' && (
             <div style={{ marginBottom: '16px' }}>
               <label style={{
                 display: 'block',

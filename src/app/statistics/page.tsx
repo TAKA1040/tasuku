@@ -1,25 +1,38 @@
 'use client'
 
 import { useDatabase } from '@/hooks/useDatabase'
-import { useTasks } from '@/hooks/useTasks'
-import { useRecurringTasks } from '@/hooks/useRecurringTasks'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useStatistics } from '@/hooks/useStatistics'
 import { StatisticsCards } from '@/components/StatisticsCards'
+import { useMemo } from 'react'
 
 export default function StatisticsPage() {
   const { isInitialized, error } = useDatabase()
-  const { allTasks, loading: tasksLoading } = useTasks(isInitialized)
-  const { allRecurringTasks, loading: recurringLoading } = useRecurringTasks(isInitialized)
-  
-  // RecurringTaskWithStatusに変換
-  const recurringTasksWithStatus = allRecurringTasks.map(task => ({
-    task,
-    occursToday: false,
-    completedToday: false,
-    displayName: task.title
-  }))
-  
+  const unifiedTasks = useUnifiedTasks(isInitialized)
+
+  // 統一タスクを古いTask形式に変換
+  const allTasks = useMemo(() => {
+    return unifiedTasks.tasks.map(task => ({
+      ...task,
+      // 必要に応じて形式を調整
+      completed_at: task.completed_at || (task.completed ? task.updated_at.split('T')[0] : undefined)
+    }))
+  }, [unifiedTasks.tasks])
+
+  // 繰り返しタスクをRecurringTaskWithStatusに変換
+  const recurringTasksWithStatus = useMemo(() => {
+    return unifiedTasks.tasks
+      .filter(task => task.task_type === 'RECURRING')
+      .map(task => ({
+        task,
+        occursToday: false,
+        completedToday: task.completed,
+        displayName: task.title
+      }))
+  }, [unifiedTasks.tasks])
+
   const stats = useStatistics(allTasks, recurringTasksWithStatus)
+  const loading = unifiedTasks.loading
 
   if (error) {
     return (
@@ -52,7 +65,7 @@ export default function StatisticsPage() {
     )
   }
 
-  if (tasksLoading || recurringLoading) {
+  if (loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>

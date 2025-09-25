@@ -10,9 +10,10 @@ import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 
 interface ShoppingTasksSectionProps {
   onEdit?: (task: UnifiedTask) => void
+  onSubTaskUpdate?: (taskId: string) => void // サブタスク更新時のコールバック
 }
 
-export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
+export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksSectionProps) {
   const unifiedTasks = useUnifiedTasks()
   const [subTasks, setSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
   const [showShoppingLists, setShowShoppingLists] = useState<{ [taskId: string]: boolean }>({})
@@ -165,6 +166,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     try {
       await unifiedTasks.toggleSubtask(subTaskId)
       await loadSubTasks()
+
+      // 親コンポーネントに更新を通知
+      onSubTaskUpdate?.(taskId)
     } catch (error) {
       console.error('Failed to toggle subtask:', error)
     }
@@ -175,6 +179,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     try {
       await unifiedTasks.deleteSubtask(subTaskId)
       await loadSubTasks()
+
+      // 親コンポーネントに更新を通知
+      onSubTaskUpdate?.(taskId)
     } catch (error) {
       console.error('Failed to delete subtask:', error)
     }
@@ -195,6 +202,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       }))
 
       await loadSubTasks()
+
+      // 親コンポーネントに更新を通知
+      onSubTaskUpdate?.(taskId)
     } catch (error) {
       console.error('Failed to add subtask:', error)
     }
@@ -228,6 +238,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       await unifiedTasks.createSubtask(editingSubTask.taskId, editingSubTask.title)
       await loadSubTasks()
       setEditingSubTask(null)
+
+      // 親コンポーネントに更新を通知
+      onSubTaskUpdate?.(editingSubTask.taskId)
     } catch (error) {
       console.error('Failed to update subtask:', error)
     }
