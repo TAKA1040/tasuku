@@ -676,9 +676,7 @@ export default function TodayPage() {
       <IncompleteTasksToggle
         rolloverData={{
           incompleteSingle: [],
-          incompleteRecurring: [],
-          overdueTasks: [],
-          incompleteTasks: []
+          incompleteRecurring: []
         }}
         isRollingOver={false}
         onRollover={() => {}}
