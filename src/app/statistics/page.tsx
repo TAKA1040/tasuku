@@ -15,7 +15,7 @@ export default function StatisticsPage() {
     return unifiedTasks.tasks.map(task => ({
       ...task,
       // 必要に応じて形式を調整
-      completed_at: task.completed_at || (task.completed ? task.updated_at.split('T')[0] : undefined)
+      completed_at: task.completed_at || (task.completed ? task.updated_at?.split('T')[0] : undefined)
     }))
   }, [unifiedTasks.tasks])
 
