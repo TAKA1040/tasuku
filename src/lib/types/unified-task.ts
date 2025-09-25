@@ -188,6 +188,15 @@ export class DisplayNumberUtils {
 
   // コンパクト番号表示（連番のみ）
   static formatCompact(displayNumber: string): string {
+    // 新形式 T001 のような形式に対応
+    if (displayNumber && displayNumber.startsWith('T') && displayNumber.length === 4) {
+      const number = displayNumber.substring(1)
+      if (/^\d{3}$/.test(number)) {
+        return number
+      }
+    }
+
+    // 旧形式 YYYYMMDDTTCCC のような形式にも対応
     const parsed = this.parseDisplayNumber(displayNumber)
     if (!parsed.isValid) return '---'
     return parsed.sequence.toString().padStart(3, '0')
