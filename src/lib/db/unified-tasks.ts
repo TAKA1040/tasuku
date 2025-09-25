@@ -34,14 +34,49 @@ export class UnifiedTasksService {
       }
 
       const lastNumber = data[0].display_number
+      console.log('generateDisplayNumber: lastNumber found:', lastNumber)
+
       if (!lastNumber || !lastNumber.startsWith('T')) {
+        console.log('generateDisplayNumber: no valid T number, returning T001')
         return 'T001'
       }
-      const number = parseInt(lastNumber.substring(1)) + 1
-      if (isNaN(number)) {
-        return 'T001'
+
+      // T001形式のみを対象にする
+      if (lastNumber.length === 4) {
+        const number = parseInt(lastNumber.substring(1)) + 1
+        if (isNaN(number)) {
+          console.log('generateDisplayNumber: parseInt failed for T001 format, returning T001')
+          return 'T001'
+        }
+        const result = `T${number.toString().padStart(3, '0')}`
+        console.log('generateDisplayNumber: T001 format, returning:', result)
+        return result
+      } else {
+        // 古い形式がある場合は、T001形式のみを検索し直す
+        console.log('generateDisplayNumber: found old format, searching for T001 format only')
+        const { data: t001Data, error: t001Error } = await supabase
+          .from('unified_tasks')
+          .select('display_number')
+          .eq('user_id', user.id)
+          .like('display_number', 'T___')  // T + 3桁の数字のパターン
+          .order('display_number', { ascending: false })
+          .limit(1)
+
+        if (t001Error || !t001Data || t001Data.length === 0) {
+          console.log('generateDisplayNumber: no T001 format found, returning T001')
+          return 'T001'
+        }
+
+        const lastT001 = t001Data[0].display_number
+        const number = parseInt(lastT001.substring(1)) + 1
+        if (isNaN(number)) {
+          console.log('generateDisplayNumber: parseInt failed for found T001, returning T001')
+          return 'T001'
+        }
+        const result = `T${number.toString().padStart(3, '0')}`
+        console.log('generateDisplayNumber: T001 format search, returning:', result)
+        return result
       }
-      return `T${number.toString().padStart(3, '0')}`
     } catch (error) {
       console.error('generateDisplayNumber error:', error)
       return 'T001'

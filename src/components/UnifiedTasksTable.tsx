@@ -507,11 +507,18 @@ export function UnifiedTasksTable({
                           fontSize: '12px',
                           border: 'none',
                           borderRadius: '3px',
-                          backgroundColor: '#3b82f6',
-                          color: 'white',
+                          backgroundColor: 'transparent',
+                          color: 'var(--text-primary)',
                           cursor: 'pointer',
                           width: '24px',
-                          height: '24px'
+                          height: '24px',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f3f4f6'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
                         }}
                         title="編集"
                       >
@@ -530,11 +537,18 @@ export function UnifiedTasksTable({
                           fontSize: '12px',
                           border: 'none',
                           borderRadius: '3px',
-                          backgroundColor: '#ef4444',
-                          color: 'white',
+                          backgroundColor: 'transparent',
+                          color: 'var(--text-primary)',
                           cursor: 'pointer',
                           width: '24px',
-                          height: '24px'
+                          height: '24px',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#fee2e2'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
                         }}
                         title="削除"
                       >

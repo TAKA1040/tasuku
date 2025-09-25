@@ -69,6 +69,16 @@ export default function TodayPage() {
     if (process.env.NODE_ENV === 'development') {
       console.log(`📊 統一データ取得完了: ${unifiedData.length}件`)
       console.log(`📊 unifiedTasks.tasks:`, unifiedTasks.tasks)
+      // display_numberをチェック
+      unifiedData.slice(0, 3).forEach((item, index) => {
+        console.log(`📊 Item ${index} display_number:`, {
+          id: item.id,
+          title: item.title,
+          display_number: item.display_number,
+          type: typeof item.display_number,
+          length: item.display_number?.length
+        })
+      })
     }
 
     return unifiedData
@@ -709,7 +719,7 @@ export default function TodayPage() {
                   title: text.trim(),
                   due_date: '2999-12-31', // 期限なしタスクの特別日付
                   task_type: 'IDEA',
-                  display_number: `T${Date.now()}-${Math.random().toString(36).substring(2, 8)}`, // ユニーク番号生成
+                  display_number: await UnifiedTasksService.generateDisplayNumber(), // 正式な番号生成
                   completed: false,
                   archived: false
                 })

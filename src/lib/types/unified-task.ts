@@ -188,17 +188,52 @@ export class DisplayNumberUtils {
 
   // コンパクト番号表示（連番のみ）
   static formatCompact(displayNumber: string): string {
+    // デバッグログ
+    if (process.env.NODE_ENV === 'development') {
+      console.log('formatCompact input:', { displayNumber, type: typeof displayNumber, length: displayNumber?.length })
+    }
+
+    // null/undefined/空文字チェック
+    if (!displayNumber) {
+      console.log('formatCompact: displayNumber is empty')
+      return '---'
+    }
+
     // 新形式 T001 のような形式に対応
-    if (displayNumber && displayNumber.startsWith('T') && displayNumber.length === 4) {
+    if (displayNumber.startsWith('T') && displayNumber.length === 4) {
       const number = displayNumber.substring(1)
       if (/^\d{3}$/.test(number)) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('formatCompact: T001 format matched, returning:', number)
+        }
         return number
+      } else {
+        console.log('formatCompact: T format but invalid number part:', number)
+      }
+    }
+
+    // 古いアイデア形式 T1234567890-abcdef に対応
+    if (displayNumber.startsWith('T') && displayNumber.includes('-')) {
+      // 最後の数文字を表示番号として使用
+      const parts = displayNumber.split('-')
+      if (parts.length >= 2) {
+        const suffix = parts[parts.length - 1]
+        if (process.env.NODE_ENV === 'development') {
+          console.log('formatCompact: old idea format, returning suffix:', suffix)
+        }
+        return suffix.substring(0, 3).toUpperCase() // 最初の3文字を大文字で
       }
     }
 
     // 旧形式 YYYYMMDDTTCCC のような形式にも対応
     const parsed = this.parseDisplayNumber(displayNumber)
-    if (!parsed.isValid) return '---'
+    if (process.env.NODE_ENV === 'development') {
+      console.log('formatCompact: parseDisplayNumber result:', parsed)
+    }
+    if (!parsed.isValid) {
+      console.log('formatCompact: parsed invalid, returning ---')
+      return '---'
+    }
     return parsed.sequence.toString().padStart(3, '0')
   }
 }

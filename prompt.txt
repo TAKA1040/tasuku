@@ -81,3 +81,19 @@ intercept-console-error.js:57 ❌ 繰り返しタスク作成エラー: Error: F
     at useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:180:13)
     at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
 error @ intercept-console-error.js:57
+C:\Windsurf\tasuku\src\app\today\page.tsx:267 統一繰り返しタスク作成: Object
+C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:165 タスク作成データ: Object
+wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/unified_tasks?select=*:1  Failed to load resource: the server responded with a status of 400 ()
+intercept-console-error.js:57 UnifiedTasksService.createUnifiedTask error: Error: Failed to create unified task: new row for relation "unified_tasks" violates check constraint "unified_tasks_recurring_pattern_check"
+    at UnifiedTasksService.createUnifiedTask (C:\Windsurf\tasuku\src\lib\db\unified-tasks.ts:178:15)
+    at async useUnifiedTasks.useCallback[createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:171:29)
+    at async withErrorHandling (C:\Windsurf\tasuku\src\lib\utils\error-handler.ts:132:12)
+    at async useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:157:20)
+    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
+error @ intercept-console-error.js:57
+intercept-console-error.js:57 [useUnifiedTasks.createTask] MEDIUM: Object
+error @ intercept-console-error.js:57
+intercept-console-error.js:57 ❌ 繰り返しタスク作成エラー: Error: Failed to create task
+    at useUnifiedTasks.useCallback[createTask] [as createTask] (C:\Windsurf\tasuku\src\hooks\useUnifiedTasks.ts:180:13)
+    at async handleCreateRecurring (C:\Windsurf\tasuku\src\app\today\page.tsx:273:7)
+error @ intercept-console-error.js:57
