@@ -32,7 +32,7 @@ export default function StatisticsPage() {
       }))
   }, [unifiedTasks.tasks])
 
-  const stats = useStatistics(allTasks as any, recurringTasksWithStatus)
+  const stats = useStatistics(allTasks as any, recurringTasksWithStatus as any)
   const loading = unifiedTasks.loading
 
   if (error) {
