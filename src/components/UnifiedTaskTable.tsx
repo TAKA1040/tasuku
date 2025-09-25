@@ -161,7 +161,7 @@ export function UnifiedTaskTable({
                   textDecoration: task.completed ? 'line-through' : 'none',
                   fontWeight: '500'
                 }}>
-                  <div>{task.title || task.text || '無題'}</div>
+                  <div>{task.title || '無題'}</div>
                   {task.category && (
                     <div style={{
                       fontSize: '11px',
