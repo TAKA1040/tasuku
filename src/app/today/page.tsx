@@ -1146,12 +1146,13 @@ export default function TodayPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f9fafb' }}>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>📷</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>期日</th>
-                      <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px' }}>操作</th>
+                      <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
+                      <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+                      <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
+                      <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1159,13 +1160,25 @@ export default function TodayPage() {
                       <tr
                         key={item.task.id}
                         style={{
-                          borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
-                          height: '28px',
-                          backgroundColor: '#fef2f2', // 期日切れは薄い赤
-                          transition: 'background-color 0.15s ease'
+                          borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
+                          backgroundColor: '#fef2f2' // 期日切れは薄い赤
                         }}
                       >
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
+                        {/* 統一番号表示 */}
+                        <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
+                          <span style={{
+                            padding: '2px 4px',
+                            borderRadius: '3px',
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                            fontWeight: '600'
+                          }}>
+                            {item.task.display_number ? DisplayNumberUtils.formatCompact(item.task.display_number) : '-'}
+                          </span>
+                        </td>
+
+                        {/* 完了チェックボックス */}
+                        <td style={{ padding: '8px', textAlign: 'center' }}>
                           <button
                             onClick={() => unifiedTasks.completeTask(item.task.id)}
                             style={{
@@ -1178,99 +1191,91 @@ export default function TodayPage() {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
+                              color: 'white',
                               transition: 'all 0.15s ease'
                             }}
+                            title="タスクを完了する"
                           >
                           </button>
                         </td>
-                        <td style={{ padding: '2px 4px' }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '14px',
-                            lineHeight: '1.2'
-                          }}>
-                            {/* 重要度インディケーター */}
-                            <div
-                              style={{
-                                width: '8px',
-                                height: '8px',
-                                borderRadius: '50%',
-                                backgroundColor: getImportanceColor(item.task.importance),
-                                flexShrink: 0
-                              }}
-                              title={`重要度: ${item.task.importance || '未設定'}`}
-                            />
 
-                            <span style={{ fontWeight: '500' }}>
-                              {item.task.title}
-                            </span>
-                            {item.task.memo && (
-                              <span style={{
-                                color: '#6b7280',
-                                fontSize: '13px',
-                                display: 'none'
-                              }}
-                              className="memo-desktop-only">
-                                - {item.task.memo}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
-                          {item.task.attachment ? '📷' : '-'}
-                        </td>
-                        <td style={{ padding: '2px', textAlign: 'center' }}>
-                          {item.task.urls && item.task.urls.length > 0 ? '🌍' : '-'}
-                        </td>
-                        <td style={{ padding: '2px 4px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                        {/* 種別 */}
+                        <td style={{ padding: '8px', fontSize: '11px', color: '#6b7280' }}>
                           <span style={{
                             padding: '2px 6px',
                             borderRadius: '4px',
-                            backgroundColor: '#f3f4f6',
-                            color: '#374151',
-                            fontSize: '10px',
+                            backgroundColor: '#fee2e2',
+                            color: '#991b1b',
+                            fontSize: '9px',
                             fontWeight: '500'
                           }}>
-                            {formatDueDateForDisplay(item.task.due_date)}
+                            期日切れ
                           </span>
                         </td>
-                        <td style={{ padding: '2px' }}>
-                          <div style={{
-                            display: 'flex',
-                            gap: '4px',
-                            alignItems: 'center',
-                            flexWrap: 'nowrap'
-                          }}>
+
+                        {/* タイトル */}
+                        <td style={{ padding: '8px', fontSize: '14px', fontWeight: '500' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {/* 重要度インディケーター */}
+                            {item.task.importance && (
+                              <ImportanceDot importance={item.task.importance} />
+                            )}
+                            <span>{item.task.title}</span>
+                          </div>
+                        </td>
+
+                        {/* カテゴリ */}
+                        <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
+                          {item.task.category || '-'}
+                        </td>
+
+                        {/* 期限 */}
+                        <td style={{ padding: '8px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                          {item.task.due_date ? (
+                            <span style={{
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              backgroundColor: '#fee2e2',
+                              color: '#991b1b',
+                              fontSize: '10px',
+                              fontWeight: '500'
+                            }}>
+                              {formatDueDateForDisplay(item.task.due_date)}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#9ca3af', fontSize: '10px' }}>-</span>
+                          )}
+                        </td>
+
+                        {/* 操作 */}
+                        <td style={{ padding: '8px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                            {/* 編集ボタン */}
                             <button
                               onClick={() => {
                                 const taskForEdit: UnifiedTask = {
                                   ...item.task,
-                                  memo: item.task.memo || undefined,
-                                  due_date: item.task.due_date || '2999-12-31',
-                                  category: item.task.category || undefined,
-                                  importance: (item.task.importance && item.task.importance >= 1 && item.task.importance <= 5) ? item.task.importance as 1|2|3|4|5 : undefined,
-                                  duration_min: item.task.duration_min || undefined,
-                                  urls: item.task.urls || undefined,
-                                  attachment: item.task.attachment || undefined,
-                                  completed: item.task.completed || false,
-                                  created_at: item.task.created_at || new Date().toISOString(),
-                                  updated_at: item.task.updated_at || new Date().toISOString(),
-                                  completed_at: item.task.completed_at || undefined,
-                                  archived: item.task.archived || false,
-                                  snoozed_until: item.task.snoozed_until || undefined
+                                  user_id: 'user_id' in item.task ? (item.task as Task & { user_id?: string }).user_id || '' : '',
+                                  display_number: 'display_number' in item.task ? (item.task as Task & { display_number?: string }).display_number || '' : '',
+                                  task_type: 'NORMAL',
+                                  recurring_pattern: undefined,
+                                  recurring_interval: undefined,
+                                  recurring_weekdays: undefined,
+                                  recurring_day: undefined
                                 }
                                 handleEditTask(taskForEdit)
                               }}
                               style={{
                                 padding: '4px',
-                                fontSize: '14px',
+                                fontSize: '12px',
                                 border: 'none',
                                 borderRadius: '3px',
                                 backgroundColor: 'transparent',
                                 color: '#6b7280',
                                 cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 width: '24px',
                                 height: '24px',
                                 transition: 'all 0.15s ease'
@@ -1279,6 +1284,8 @@ export default function TodayPage() {
                             >
                               ✏️
                             </button>
+
+                            {/* 削除ボタン */}
                             <button
                               onClick={() => {
                                 if (confirm('このタスクを削除しますか？')) {
@@ -1287,12 +1294,15 @@ export default function TodayPage() {
                               }}
                               style={{
                                 padding: '4px',
-                                fontSize: '14px',
+                                fontSize: '12px',
                                 border: 'none',
                                 borderRadius: '3px',
                                 backgroundColor: 'transparent',
                                 color: '#6b7280',
                                 cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 width: '24px',
                                 height: '24px',
                                 transition: 'all 0.15s ease'
@@ -1300,22 +1310,6 @@ export default function TodayPage() {
                               title="タスクを削除"
                             >
                               🗑️
-                            </button>
-                            <button
-                              onClick={() => handleMoveToIdeas(item.task.id)}
-                              style={{
-                                padding: '4px 8px',
-                                fontSize: '11px',
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap'
-                              }}
-                              title="期日を削除してやることリストに移動"
-                            >
-                              やることリストへ
                             </button>
                           </div>
                         </td>

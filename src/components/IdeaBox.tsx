@@ -2,6 +2,8 @@
 
 import React, { memo, useState } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { DisplayNumberUtils } from '@/lib/types/unified-task'
+import { ImportanceDot } from '@/components/ImportanceDot'
 
 // 重要度に応じた色を返すヘルパー関数
 const getImportanceColor = (importance?: number | null): string => {
@@ -162,149 +164,341 @@ function IdeaBox({ ideas, allNoDateTasks, onAdd, onToggle, onEdit, onDelete, onU
                   {tasks.length}件
                 </span>
               </div>
-              <div style={{
-                backgroundColor: category === '買い物' ? '#f0f9ff' : '#f9fafb',
-                padding: '8px',
-                borderRadius: '4px',
-                border: `1px solid ${category === '買い物' ? '#e0f2fe' : '#f3f4f6'}`
-              }}>
-                {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '4px 0',
-                      borderBottom: tasks.indexOf(task) < tasks.length - 1 ? '1px solid #f3f4f6' : 'none'
-                    }}
-                  >
-                    <span style={{
-                      fontSize: '12px',
-                      color: '#3b82f6',
-                      fontWeight: '500',
-                      minWidth: '60px'
-                    }}>
-                      {task.display_number}
-                    </span>
 
-                    {/* 重要度インディケーター */}
-                    <div
+              {/* 統一テーブル形式 */}
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f9fafb' }}>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+                    <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
+                    <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tasks.map((task, index) => (
+                    <tr
+                      key={task.id}
                       style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: getImportanceColor(task.importance),
-                        flexShrink: 0
-                      }}
-                      title={`重要度: ${task.importance || '未設定'}`}
-                    />
-
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: '14px',
-                        color: '#374151'
+                        borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
+                        backgroundColor: category === '買い物' ? '#f0f9ff' : '#fef7ff'
                       }}
                     >
-                      {task.title}
-                    </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#6b7280'
-                    }}>
-                      {category}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                      {/* 統一番号表示 */}
+                      <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
+                        <span style={{
+                          padding: '2px 4px',
+                          borderRadius: '3px',
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
+                          fontWeight: '600'
+                        }}>
+                          {task.display_number ? DisplayNumberUtils.formatCompact(task.display_number) : '-'}
+                        </span>
+                      </td>
+
+                      {/* 完了チェックボックス */}
+                      <td style={{ padding: '8px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => onToggle(task.id)}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            border: task.completed ? '2px solid #8b5cf6' : '2px solid #d1d5db',
+                            borderRadius: '4px',
+                            backgroundColor: task.completed ? '#8b5cf6' : 'transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            transition: 'all 0.15s ease'
+                          }}
+                          title="アイデアを完了する"
+                        >
+                          {task.completed && '✓'}
+                        </button>
+                      </td>
+
+                      {/* 種別 */}
+                      <td style={{ padding: '8px', fontSize: '11px', color: '#6b7280' }}>
+                        <span style={{
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          backgroundColor: '#faf5ff',
+                          color: '#7c3aed',
+                          fontSize: '9px',
+                          fontWeight: '500'
+                        }}>
+                          アイデア
+                        </span>
+                      </td>
+
+                      {/* タイトル */}
+                      <td style={{ padding: '8px', fontSize: '14px', fontWeight: '500' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {/* 重要度インディケーター */}
+                          {task.importance && (
+                            <ImportanceDot importance={task.importance} />
+                          )}
+                          <span style={{
+                            textDecoration: task.completed ? 'line-through' : 'none',
+                            color: task.completed ? '#9ca3af' : 'inherit'
+                          }}>
+                            {task.title}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* カテゴリ */}
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
+                        {category}
+                      </td>
+
+                      {/* 期限 */}
+                      <td style={{ padding: '8px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                        <span style={{ color: '#9ca3af', fontSize: '10px' }}>なし</span>
+                      </td>
+
+                      {/* 操作 */}
+                      <td style={{ padding: '8px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* 編集ボタン */}
+                          <button
+                            onClick={() => {
+                              const newText = prompt('アイデアを編集:', task.title);
+                              if (newText && newText.trim()) {
+                                onEdit(task.id, newText.trim());
+                              }
+                            }}
+                            style={{
+                              padding: '4px',
+                              fontSize: '12px',
+                              border: 'none',
+                              borderRadius: '3px',
+                              backgroundColor: 'transparent',
+                              color: '#6b7280',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '24px',
+                              height: '24px',
+                              transition: 'all 0.15s ease'
+                            }}
+                            title="アイデアを編集"
+                          >
+                            ✏️
+                          </button>
+
+                          {/* 削除ボタン */}
+                          <button
+                            onClick={() => {
+                              if (confirm('このアイデアを削除しますか？')) {
+                                onDelete(task.id);
+                              }
+                            }}
+                            style={{
+                              padding: '4px',
+                              fontSize: '12px',
+                              border: 'none',
+                              borderRadius: '3px',
+                              backgroundColor: 'transparent',
+                              color: '#6b7280',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '24px',
+                              height: '24px',
+                              transition: 'all 0.15s ease'
+                            }}
+                            title="アイデアを削除"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ))}
 
           <div style={{
-            fontSize: '12px',
-            color: '#6b7280',
-            marginBottom: '8px'
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#1f2937',
+            marginBottom: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}>
-            期限なし・自由なアイデア帳
+            📝 自由なアイデア帳
+            <span style={{
+              fontSize: '12px',
+              color: '#6b7280',
+              fontWeight: 'normal'
+            }}>
+              {pendingIdeas.length}件
+            </span>
           </div>
 
-          {/* 未完了のアイデア */}
+          {/* 自由なアイデアのテーブル */}
           {pendingIdeas.length > 0 && (
-        <div style={{ marginBottom: '12px' }}>
-          {pendingIdeas.map((idea) => (
-            <div
-              key={idea.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '4px 0',
-                borderBottom: '1px solid #f3f4f6'
-              }}
-            >
-              <button
-                onClick={() => onToggle(idea.id)}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '3px',
-                  backgroundColor: 'white',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px'
-                }}
-                title="完了にする"
-              >
-              </button>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f9fafb' }}>
+                  <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
+                  <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
+                  <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
+                  <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+                  <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+                  <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
+                  <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingIdeas.map((idea, index) => (
+                  <tr
+                    key={idea.id}
+                    style={{
+                      borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
+                      backgroundColor: '#fef7ff'
+                    }}
+                  >
+                    {/* 統一番号表示 */}
+                    <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
+                      <span style={{
+                        padding: '2px 4px',
+                        borderRadius: '3px',
+                        backgroundColor: '#f3f4f6',
+                        color: '#374151',
+                        fontWeight: '600'
+                      }}>
+                        {idea.display_number ? DisplayNumberUtils.formatCompact(idea.display_number) : '-'}
+                      </span>
+                    </td>
 
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: '14px',
-                  color: '#374151'
-                }}
-              >
-                {idea.text}
-              </span>
-              <button
-                onClick={() => onUpgradeToTask && onUpgradeToTask(idea)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#3b82f6',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  padding: '2px'
-                }}
-                title="タスクに昇格"
-              >
-                📋
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm('このアイデアを削除しますか？')) {
-                    onDelete(idea.id)
-                  }
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ef4444',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  padding: '2px'
-                }}
-                title="削除"
-              >
-                🗑️
-              </button>
-            </div>
-          ))}
-        </div>
+                    {/* 完了チェックボックス */}
+                    <td style={{ padding: '8px', textAlign: 'center' }}>
+                      <button
+                        onClick={() => onToggle(idea.id)}
+                        style={{
+                          width: '18px',
+                          height: '18px',
+                          border: idea.completed ? '2px solid #8b5cf6' : '2px solid #d1d5db',
+                          borderRadius: '4px',
+                          backgroundColor: idea.completed ? '#8b5cf6' : 'transparent',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          transition: 'all 0.15s ease'
+                        }}
+                        title="アイデアを完了する"
+                      >
+                        {idea.completed && '✓'}
+                      </button>
+                    </td>
+
+                    {/* 種別 */}
+                    <td style={{ padding: '8px', fontSize: '11px', color: '#6b7280' }}>
+                      <span style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: '#faf5ff',
+                        color: '#7c3aed',
+                        fontSize: '9px',
+                        fontWeight: '500'
+                      }}>
+                        アイデア
+                      </span>
+                    </td>
+
+                    {/* タイトル */}
+                    <td style={{ padding: '8px', fontSize: '14px', fontWeight: '500' }}>
+                      <span style={{
+                        textDecoration: idea.completed ? 'line-through' : 'none',
+                        color: idea.completed ? '#9ca3af' : 'inherit'
+                      }}>
+                        {idea.text}
+                      </span>
+                    </td>
+
+                    {/* カテゴリ */}
+                    <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
+                      アイデア
+                    </td>
+
+                    {/* 期限 */}
+                    <td style={{ padding: '8px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                      <span style={{ color: '#9ca3af', fontSize: '10px' }}>なし</span>
+                    </td>
+
+                    {/* 操作 */}
+                    <td style={{ padding: '8px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                        {/* タスクに昇格ボタン */}
+                        <button
+                          onClick={() => onUpgradeToTask && onUpgradeToTask(idea)}
+                          style={{
+                            padding: '4px',
+                            fontSize: '12px',
+                            border: 'none',
+                            borderRadius: '3px',
+                            backgroundColor: 'transparent',
+                            color: '#6b7280',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '24px',
+                            height: '24px',
+                            transition: 'all 0.15s ease'
+                          }}
+                          title="タスクに昇格"
+                        >
+                          📋
+                        </button>
+
+                        {/* 削除ボタン */}
+                        <button
+                          onClick={() => {
+                            if (confirm('このアイデアを削除しますか？')) {
+                              onDelete(idea.id);
+                            }
+                          }}
+                          style={{
+                            padding: '4px',
+                            fontSize: '12px',
+                            border: 'none',
+                            borderRadius: '3px',
+                            backgroundColor: 'transparent',
+                            color: '#6b7280',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '24px',
+                            height: '24px',
+                            transition: 'all 0.15s ease'
+                          }}
+                          title="アイデアを削除"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
 
           {/* 完了したアイデア */}

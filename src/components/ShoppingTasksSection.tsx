@@ -3,6 +3,7 @@
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
+import { DisplayNumberUtils } from '@/lib/types/unified-task'
 import { getTodayJST, getTomorrowJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import { ImportanceDot } from '@/components/ImportanceDot'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
@@ -396,12 +397,13 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ backgroundColor: '#f9fafb' }}>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>✓</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', fontSize: '11px' }}>タイトル</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>📷</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '30px', fontSize: '11px' }}>🌍</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '100px', fontSize: '11px', display: 'none' }} className="date-type-desktop-only">期日</th>
-            <th style={{ padding: '2px 4px', textAlign: 'left', width: '60px', fontSize: '11px' }}>操作</th>
+            <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
+            <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
+            <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
+            <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+            <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
+            <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
+            <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '80px' }}>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -409,26 +411,25 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
             <React.Fragment key={item.id}>
               <tr
                 style={{
-                  borderTop: index > 0 ? '1px solid #e5e7eb' : 'none',
-                  height: '28px',
-                  opacity: item.isCompleted ? 0.6 : 1,
-                  backgroundColor: '#f0fdf4', // 買い物タスクは薄い緑
-                  transition: 'background-color 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  if (!item.isCompleted) {
-                    e.currentTarget.style.backgroundColor = '#dcfce7'
-                    e.currentTarget.style.filter = 'brightness(0.95)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!item.isCompleted) {
-                    e.currentTarget.style.backgroundColor = '#f0fdf4'
-                    e.currentTarget.style.filter = 'none'
-                  }
+                  borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
+                  backgroundColor: '#f0fdf4' // 買い物タスクは薄い緑
                 }}
               >
-                <td style={{ padding: '2px', textAlign: 'center' }}>
+                {/* 統一番号表示 */}
+                <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
+                  <span style={{
+                    padding: '2px 4px',
+                    borderRadius: '3px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                    fontWeight: '600'
+                  }}>
+                    {item.display_number ? DisplayNumberUtils.formatCompact(item.display_number) : '-'}
+                  </span>
+                </td>
+
+                {/* 完了チェックボックス */}
+                <td style={{ padding: '8px', textAlign: 'center' }}>
                   <button
                     onClick={() => handleCompleteTask(item.id)}
                     style={{
@@ -444,68 +445,87 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                       color: 'white',
                       transition: 'all 0.15s ease'
                     }}
+                    title="タスクを完了する"
                   >
                     {item.isCompleted && '✓'}
                   </button>
                 </td>
-                <td style={{ padding: '2px 4px' }}>
-                  <div className="task-content" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '14px',
-                    lineHeight: '1.2',
-                    textDecoration: item.isCompleted ? 'line-through' : 'none',
-                    color: item.isCompleted ? '#9ca3af' : 'inherit'
+
+                {/* 種別 */}
+                <td style={{ padding: '8px', fontSize: '11px', color: '#6b7280' }}>
+                  <span style={{
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: '#ecfdf5',
+                    color: '#059669',
+                    fontSize: '9px',
+                    fontWeight: '500'
                   }}>
-                    <ImportanceDot importance={item.importance || 0} size={10} showTooltip />
-                    <span className="task-title" style={{ fontWeight: '500' }}>
+                    買い物
+                  </span>
+                </td>
+
+                {/* タイトル */}
+                <td style={{ padding: '8px', fontSize: '14px', fontWeight: '500' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* 重要度インディケーター */}
+                    {item.importance && (
+                      <ImportanceDot importance={item.importance} />
+                    )}
+                    <span style={{
+                      textDecoration: item.isCompleted ? 'line-through' : 'none',
+                      color: item.isCompleted ? '#9ca3af' : 'inherit'
+                    }}>
                       {item.title}
                     </span>
                     <span
                       onClick={() => toggleShoppingList(item.id)}
                       style={{
-                        fontSize: '12px',
+                        fontSize: '11px',
                         color: '#6b7280',
                         cursor: 'pointer',
-                        textDecoration: 'underline'
+                        backgroundColor: '#f0f9ff',
+                        padding: '1px 4px',
+                        borderRadius: '3px'
                       }}
                     >
-                      タスク（{subTasks[item.id]?.length || 0}件）
+                      リスト({subTasks[item.id]?.length || 0})
                     </span>
-                    {item.memo && (
-                      <span style={{
-                        color: '#6b7280',
-                        fontSize: '13px',
-                        display: 'none'
-                      }}
-                      className="memo-desktop-only">
-                        - {item.memo}
-                      </span>
-                    )}
                   </div>
                 </td>
-                <td style={{ padding: '2px', textAlign: 'center' }}>
-                  {renderFileIcon(item.attachment || undefined)}
+
+                {/* カテゴリ */}
+                <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
+                  買い物
                 </td>
-                <td style={{ padding: '2px', textAlign: 'center' }}>
-                  {renderUrlIcon(item.urls || [])}
+
+                {/* 期限 */}
+                <td style={{ padding: '8px', fontSize: '11px', color: '#374151', textAlign: 'center' }}>
+                  {item.dueDate && item.dueDate !== '2999-12-31' ? (
+                    <span style={{
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      backgroundColor: '#f3f4f6',
+                      color: '#374151',
+                      fontSize: '10px',
+                      fontWeight: '500'
+                    }}>
+                      {item.dueDate}
+                    </span>
+                  ) : (
+                    <span style={{ color: '#9ca3af', fontSize: '10px' }}>なし</span>
+                  )}
                 </td>
-                <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
-                  {formatDueDate(item.dueDate)}
-                </td>
-                <td style={{ padding: '2px' }}>
-                  <div style={{
-                    display: 'flex',
-                    gap: '4px',
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                  }}>
+
+                {/* 操作 */}
+                <td style={{ padding: '8px', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* 編集ボタン */}
                     <button
                       onClick={() => handleEdit(item.task)}
                       style={{
                         padding: '4px',
-                        fontSize: '14px',
+                        fontSize: '12px',
                         border: 'none',
                         borderRadius: '3px',
                         backgroundColor: 'transparent',
@@ -518,18 +538,12 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                         height: '24px',
                         transition: 'all 0.15s ease'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6'
-                        e.currentTarget.style.color = '#3b82f6'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                        e.currentTarget.style.color = '#6b7280'
-                      }}
                       title="タスクを編集"
                     >
                       ✏️
                     </button>
+
+                    {/* 削除ボタン */}
                     <button
                       onClick={() => {
                         if (confirm('このタスクを削除しますか？')) {
@@ -538,7 +552,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                       }}
                       style={{
                         padding: '4px',
-                        fontSize: '14px',
+                        fontSize: '12px',
                         border: 'none',
                         borderRadius: '3px',
                         backgroundColor: 'transparent',
@@ -550,14 +564,6 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                         width: '24px',
                         height: '24px',
                         transition: 'all 0.15s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#fef2f2'
-                        e.currentTarget.style.color = '#ef4444'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                        e.currentTarget.style.color = '#6b7280'
                       }}
                       title="タスクを削除"
                     >
@@ -570,7 +576,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
               {/* 買い物リスト表示行 */}
               {showShoppingLists[item.id] && (
                 <tr style={{ backgroundColor: '#f8fffe' }}>
-                  <td colSpan={6} style={{ padding: '8px 16px' }}>
+                  <td colSpan={7} style={{ padding: '8px 16px' }}>
                     <div style={{ marginLeft: '24px' }}>
                       {/* 既存のサブタスク */}
                       {subTasks[item.id] && subTasks[item.id].length > 0 && (
