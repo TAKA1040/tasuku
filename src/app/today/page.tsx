@@ -15,7 +15,7 @@ import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
-import { DisplayNumberUtils, TaskType } from '@/lib/types/unified-task'
+import { DisplayNumberUtils, TaskType, SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 
 // 統一データ表示用の型定義
@@ -87,7 +87,7 @@ const formatDueDateForDisplay = (dateString?: string | null): string => {
 // 繰り返しタスクの次回実行日を計算するヘルパー関数
 // 統一ルール: 繰り返しタスクも due_date ベースで管理
 // 複雑な計算は不要 - due_dateをそのまま表示
-const getTaskDateDisplay = (task: any): string => {
+const getTaskDateDisplay = (task: { due_date?: string | null }): string => {
   if (!task.due_date) return '日付なし'
 
   // 期限なしタスク（アイデア等）
@@ -114,7 +114,7 @@ export default function TodayPage() {
   }, [])
 
   // 買い物リスト（サブタスク）管理 - データベース連携
-  const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: any[]}>({})
+  const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: SubTask[]}>({})
   const [expandedShoppingLists, setExpandedShoppingLists] = useState<{[taskId: string]: boolean}>({})
 
   // 統一システムのみを使用
