@@ -14,7 +14,8 @@ export default function StatisticsPage() {
   const allTasks = useMemo(() => {
     return unifiedTasks.tasks.map(task => ({
       ...task,
-      // 必要に応じて形式を調整
+      memo: task.memo || undefined, // nullをundefinedに変換
+      category: task.category || undefined, // nullをundefinedに変換
       completed_at: task.completed_at || (task.completed ? task.updated_at?.split('T')[0] : undefined)
     }))
   }, [unifiedTasks.tasks])
@@ -31,7 +32,7 @@ export default function StatisticsPage() {
       }))
   }, [unifiedTasks.tasks])
 
-  const stats = useStatistics(allTasks, recurringTasksWithStatus)
+  const stats = useStatistics(allTasks as any, recurringTasksWithStatus)
   const loading = unifiedTasks.loading
 
   if (error) {
