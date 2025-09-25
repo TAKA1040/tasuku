@@ -36,10 +36,9 @@ export default function SearchPage() {
         const searchLower = searchTerm.toLowerCase()
         const titleMatch = task.title?.toLowerCase().includes(searchLower)
         const memoMatch = task.memo?.toLowerCase().includes(searchLower)
-        const textMatch = task.text?.toLowerCase().includes(searchLower)
         const categoryMatch = task.category?.toLowerCase().includes(searchLower)
 
-        if (!titleMatch && !memoMatch && !textMatch && !categoryMatch) {
+        if (!titleMatch && !memoMatch && !categoryMatch) {
           return false
         }
       }
@@ -94,7 +93,7 @@ export default function SearchPage() {
 
   // 個別のタスクを削除
   const deleteTaskItem = async (task: UnifiedTask) => {
-    if (!confirm(`「${task.title || task.text}」を削除しますか？`)) return
+    if (!confirm(`「${task.title || '無題'}」を削除しますか？`)) return
 
     try {
       await deleteUnifiedTask(task.id)
@@ -471,7 +470,7 @@ export default function SearchPage() {
                       textDecoration: task.completed ? 'line-through' : 'none',
                       fontWeight: '500'
                     }}>
-                      <div>{task.title || task.text || '無題'}</div>
+                      <div>{task.title || '無題'}</div>
                       {task.category && (
                         <div style={{
                           fontSize: '11px',
