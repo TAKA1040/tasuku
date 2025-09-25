@@ -13,24 +13,10 @@ export default function HomePage() {
               background:'#2563eb',
               color:'#fff',
               textDecoration:'none',
-              borderRadius:8,
-              marginRight:'12px'
-            }}
-          >
-            今日のタスク
-          </a>
-          <a 
-            href="/simple-today" 
-            style={{
-              display:'inline-block',
-              padding:'12px 24px',
-              background:'#059669',
-              color:'#fff',
-              textDecoration:'none',
               borderRadius:8
             }}
           >
-            シンプル版
+            今日のタスク
           </a>
         </div>
       </div>

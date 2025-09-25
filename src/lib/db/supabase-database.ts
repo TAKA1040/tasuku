@@ -68,7 +68,10 @@ class SupabaseTasukuDatabase {
 
     // user_idを除いてTaskを返す
     const { user_id, ...taskData } = data
-    return taskData as Task
+    return {
+      ...taskData,
+      attachment: taskData.attachment as Task['attachment']
+    } as Task
   }
 
   async getTask(id: string): Promise<Task | null> {
@@ -84,7 +87,10 @@ class SupabaseTasukuDatabase {
     }
     
     const { user_id, ...taskData } = data
-    return taskData as Task
+    return {
+      ...taskData,
+      attachment: taskData.attachment as Task['attachment']
+    } as Task
   }
 
   async getAllTasks(): Promise<Task[]> {
@@ -95,7 +101,10 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...task }) => task as Task)
+    return data.map(({ user_id, ...task }) => ({
+      ...task,
+      attachment: task.attachment as Task['attachment']
+    } as Task))
   }
 
   async getTasksByDate(date: string): Promise<Task[]> {
@@ -107,7 +116,10 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...task }) => task as Task)
+    return data.map(({ user_id, ...task }) => ({
+      ...task,
+      attachment: task.attachment as Task['attachment']
+    } as Task))
   }
 
   // Remove this method as the view doesn't exist
@@ -124,7 +136,10 @@ class SupabaseTasukuDatabase {
     if (error) throw error
     
     const { user_id, ...taskData } = data
-    return taskData as Task
+    return {
+      ...taskData,
+      attachment: taskData.attachment as Task['attachment']
+    } as Task
   }
 
   async deleteTask(id: string): Promise<void> {

@@ -16,8 +16,8 @@ interface RecurringSettings {
 
 interface TaskCreateForm2Props {
   isVisible: boolean
-  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
-  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => void
+  onSubmitRegular: (title: string, memo: string, dueDate: string, category?: string, importance?: number, durationMin?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[]) => void
+  onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, durationMin?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[]) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
 }
@@ -41,6 +41,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [saveAsIdea, setSaveAsIdea] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
+
+  // 買い物リスト管理
+  const [shoppingItems, setShoppingItems] = useState<string[]>([])
+  const [newShoppingItem, setNewShoppingItem] = useState('')
 
   // ファイル添付処理
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,19 +84,32 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     setAttachedFileUrl('')
   }
 
-  const handleSubmit = async () => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('TaskCreateForm2: handleSubmit called')
-      console.log('TaskCreateForm2: title:', title)
-      console.log('TaskCreateForm2: taskType:', taskType)
-      console.log('TaskCreateForm2: saveAsIdea:', saveAsIdea)
-      console.log('TaskCreateForm2: category:', category)
+  // 買い物リスト操作
+  const addShoppingItem = () => {
+    if (newShoppingItem.trim()) {
+      console.log('🛒 買い物リスト追加前:', { shoppingItems, newShoppingItem })
+      const newItems = [...shoppingItems, newShoppingItem.trim()]
+      setShoppingItems(newItems)
+      console.log('🛒 買い物リスト追加後:', { newItems })
+      setNewShoppingItem('')
+    } else {
+      console.log('🛒 買い物リスト追加: 空の入力のためスキップ')
     }
+  }
 
+  const removeShoppingItem = (index: number) => {
+    setShoppingItems(shoppingItems.filter((_, i) => i !== index))
+  }
+
+  const handleShoppingItemKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addShoppingItem()
+    }
+  }
+
+  const handleSubmit = async () => {
     if (!title.trim()) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('TaskCreateForm2: No title, returning early')
-      }
       return
     }
 
@@ -118,9 +135,6 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           file_size: attachedFile.size,
           file_data: fileBase64
         }
-        if (process.env.NODE_ENV === 'development') {
-          console.log('TaskCreateForm2: File converted to base64, size:', attachment.file_data.length)
-        }
       } catch (error) {
         console.error('TaskCreateForm2: File conversion failed:', error)
         alert('ファイルの変換に失敗しました')
@@ -129,29 +143,43 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     }
 
     if (saveAsIdea) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('TaskCreateForm2: Saving as idea')
-      }
       handleAddToIdeas()
-    } else if (taskType === 'once' || taskType === 'deadline') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('TaskCreateForm2: Submitting regular task with category:', category)
-      }
-      onSubmitRegular(title, memo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment)
-      resetForm()
     } else {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('TaskCreateForm2: Submitting recurring task')
+      // 買い物カテゴリーで入力フィールドに文字がある場合、自動で追加
+      let finalShoppingItems = [...shoppingItems]
+      if (category === '買い物' && newShoppingItem.trim()) {
+        finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
+        console.log('🛒 入力フィールドの内容を自動追加:', newShoppingItem.trim())
       }
-      onSubmitRecurring(title, memo, {
-        pattern: recurringPattern,
-        intervalDays,
-        selectedWeekdays,
-        dayOfMonth,
-        monthOfYear,
-        dayOfYear
-      }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category, attachment)
-      resetForm()
+
+      // 買い物リストをmemoに統合
+      let finalMemo = memo
+      if (category === '買い物' && finalShoppingItems.length > 0) {
+        const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
+        finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
+      }
+
+      if (taskType === 'once' || taskType === 'deadline') {
+        console.log('🛒 TaskCreateForm2 - 買い物リスト送信:', {
+          category,
+          shoppingItems: finalShoppingItems,
+          shoppingItemsLength: finalShoppingItems.length,
+          isShopping: category === '買い物',
+          itemsToSend: category === '買い物' ? finalShoppingItems : undefined
+        })
+        onSubmitRegular(title, finalMemo, dueDate, category, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, attachment, category === '買い物' ? finalShoppingItems : undefined)
+        resetForm()
+      } else {
+        onSubmitRecurring(title, finalMemo, {
+          pattern: recurringPattern,
+          intervalDays,
+          selectedWeekdays,
+          dayOfMonth,
+          monthOfYear,
+          dayOfYear
+        }, importance, durationMin || undefined, urls.length > 0 ? urls : undefined, category, attachment)
+        resetForm()
+      }
     }
   }
 
@@ -186,6 +214,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     }
     setAttachedFile(null)
     setAttachedFileUrl('')
+
+    // 買い物リストのリセット
+    setShoppingItems([])
+    setNewShoppingItem('')
   }
 
   const toggleWeekday = (day: number) => {
@@ -397,6 +429,95 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               </select>
             </div>
           </div>
+
+          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
+          {category === '買い物' && (
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '4px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#6b7280'
+              }}>
+                買い物リスト
+              </label>
+
+              {/* 買い物アイテム追加 */}
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  value={newShoppingItem}
+                  onChange={(e) => setNewShoppingItem(e.target.value)}
+                  onKeyPress={handleShoppingItemKeyPress}
+                  placeholder="買い物アイテムを入力"
+                  style={{
+                    flex: 1,
+                    padding: '4px 6px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '12px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={addShoppingItem}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '12px',
+                    background: '#f3f4f6',
+                    cursor: 'pointer'
+                  }}
+                >
+                  追加
+                </button>
+              </div>
+
+              {/* 買い物リスト表示 */}
+              {shoppingItems.length > 0 && (
+                <div style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  padding: '6px',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                  background: '#f9fafb'
+                }}>
+                  {shoppingItems.map((item, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '2px 4px',
+                      margin: '2px 0',
+                      background: '#ffffff',
+                      borderRadius: '2px',
+                      fontSize: '12px'
+                    }}>
+                      <span>{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeShoppingItem(index)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#dc2626',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0 4px'
+                        }}
+                        title="削除"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* URL管理セクション */}

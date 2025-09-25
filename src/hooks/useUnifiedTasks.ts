@@ -7,6 +7,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { UnifiedTask, TaskFilters, SPECIAL_DATES } from '@/lib/types/unified-task'
 import { withErrorHandling } from '@/lib/utils/error-handler'
+import { createClient } from '@/lib/supabase/client'
+import { getTodayJST } from '@/lib/utils/date-jst'
 
 const NO_DUE_DATE = '2999-12-31'
 
@@ -26,10 +28,17 @@ interface UseUnifiedTasksResult {
   getCompletedTasks: () => UnifiedTask[]
 
   // 操作関数
+  createTask: (task: Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => Promise<UnifiedTask>
   completeTask: (id: string) => Promise<void>
   uncompleteTask: (id: string) => Promise<void>
   deleteTask: (id: string) => Promise<void>
   updateTask: (id: string, updates: Partial<UnifiedTask>) => Promise<void>
+
+  // サブタスク管理関数
+  getSubtasks: (parentTaskId: string) => Promise<any[]>
+  createSubtask: (parentTaskId: string, title: string) => Promise<void>
+  toggleSubtask: (subtaskId: string) => Promise<void>
+  deleteSubtask: (subtaskId: string) => Promise<void>
 }
 
 export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult {
@@ -43,6 +52,7 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
       async () => {
         setLoading(true)
         const allTasks = await UnifiedTasksService.getAllUnifiedTasks()
+
         setTasks(allTasks)
         setError(null)
       },
@@ -54,11 +64,11 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
 
   // フィルター関数群（統一ルール）
   const getTodayTasks = useCallback((): UnifiedTask[] => {
-    const today = new Date().toISOString().split('T')[0]
-    return tasks.filter(task =>
-      !task.completed &&
-      task.due_date === today
-    ).sort((a, b) => {
+    const today = getTodayJST() // JST日付を使用
+    const filtered = tasks.filter(task => {
+      return !task.completed && task.due_date === today
+    })
+    return filtered.sort((a, b) => {
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
 
@@ -73,11 +83,12 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
   }, [tasks])
 
   const getShoppingTasks = useCallback((): UnifiedTask[] => {
-    return tasks.filter(task =>
+    const shoppingTasks = tasks.filter(task =>
       !task.completed &&
-      task.category === '買い物' &&
-      task.due_date === NO_DUE_DATE // 期限なし買い物リスト
-    ).sort((a, b) => {
+      task.category === '買い物'
+    )
+
+    return shoppingTasks.sort((a, b) => {
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
 
@@ -111,7 +122,7 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
   const getRecurringTasks = useCallback((): UnifiedTask[] => {
     return tasks.filter(task =>
       !task.completed &&
-      task.recurring_pattern // 繰り返しパターンがある
+      (task.recurring_pattern || task.task_type === 'RECURRING') // 繰り返しパターンまたは繰り返しタイプ
     ).sort((a, b) => {
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
@@ -142,6 +153,36 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
   }, [tasks])
 
   // タスク操作関数
+  const createTask = useCallback(async (task: Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<UnifiedTask> => {
+    const result = await withErrorHandling(
+      async () => {
+        // user_idを自動で取得してタスクを作成
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user?.id) {
+          throw new Error('User not authenticated')
+        }
+
+        const taskWithUserId = {
+          ...task,
+          user_id: user.id
+        }
+
+        const createdTask = await UnifiedTasksService.createUnifiedTask(taskWithUserId)
+        await loadTasks() // データを再読み込み
+        return createdTask
+      },
+      'useUnifiedTasks.createTask',
+      setError
+    )
+
+    if (!result) {
+      throw new Error('Failed to create task')
+    }
+
+    return result
+  }, [loadTasks])
+
   const completeTask = useCallback(async (id: string) => {
     await withErrorHandling(
       async () => {
@@ -186,6 +227,45 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     )
   }, [loadTasks])
 
+  // サブタスク管理関数
+  const getSubtasks = useCallback(async (parentTaskId: string) => {
+    return await UnifiedTasksService.getSubtasks(parentTaskId)
+  }, [])
+
+
+  const createSubtask = useCallback(async (parentTaskId: string, title: string) => {
+    await withErrorHandling(
+      async () => {
+        await UnifiedTasksService.createSubtask(parentTaskId, title)
+        // サブタスクの変更はタスクリストの再読み込みは不要
+      },
+      'useUnifiedTasks.createSubtask',
+      setError
+    )
+  }, [])
+
+  const toggleSubtask = useCallback(async (subtaskId: string) => {
+    await withErrorHandling(
+      async () => {
+        await UnifiedTasksService.toggleSubtask(subtaskId)
+        // サブタスクの変更はタスクリストの再読み込みは不要
+      },
+      'useUnifiedTasks.toggleSubtask',
+      setError
+    )
+  }, [])
+
+  const deleteSubtask = useCallback(async (subtaskId: string) => {
+    await withErrorHandling(
+      async () => {
+        await UnifiedTasksService.deleteSubtask(subtaskId)
+        // サブタスクの変更はタスクリストの再読み込みは不要
+      },
+      'useUnifiedTasks.deleteSubtask',
+      setError
+    )
+  }, [])
+
   // 初期読み込み
   useEffect(() => {
     if (autoLoad) {
@@ -203,9 +283,14 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     getIdeaTasks,
     getRecurringTasks,
     getCompletedTasks,
+    createTask,
     completeTask,
     uncompleteTask,
     deleteTask,
-    updateTask
+    updateTask,
+    getSubtasks,
+    createSubtask,
+    toggleSubtask,
+    deleteSubtask
   }
 }

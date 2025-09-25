@@ -9,6 +9,16 @@ export interface FileAttachment {
   file_data: string
 }
 
+export interface SubTask {
+  id: string
+  parent_task_id: string
+  title: string
+  completed: boolean
+  created_at: string
+  updated_at: string
+  sort_order?: number
+}
+
 export interface UnifiedTask {
   id: string
   user_id: string
@@ -19,7 +29,7 @@ export interface UnifiedTask {
   importance?: number | null
   due_date: string // 必須フィールド: '2025-09-24' or '2999-12-31'(期限なし)
   urls?: string[] | null
-  attachment?: any | null // JSON型
+  attachment?: FileAttachment | null
   completed?: boolean | null
   completed_at?: string | null
   created_at?: string | null
@@ -27,6 +37,7 @@ export interface UnifiedTask {
   archived?: boolean | null
   snoozed_until?: string | null
   duration_min?: number | null
+  task_type?: string | null // 'NORMAL' | 'RECURRING' | 'IDEA' | null
 
   // 繰り返しタスク関連（完了時に次回due_dateを計算するために保持）
   recurring_pattern?: string | null // 'DAILY' | 'WEEKLY' | 'MONTHLY' | null

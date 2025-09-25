@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import type { Task } from '@/lib/db/schema'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 import { QuickMoves } from '@/lib/utils/date-jst'
 
 interface TaskEditFormProps {
-  task: Task | null
+  task: Task | UnifiedTask | null
   onSubmit: (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => Promise<void>
   onCancel: () => void
   onUncomplete?: (taskId: string) => Promise<void>

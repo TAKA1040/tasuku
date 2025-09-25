@@ -15,9 +15,11 @@ export default function LoginPage() {
       setLoading(true)
       setError(null)
 
-      console.log('Starting Google OAuth...')
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-      console.log('Redirect URL:', `${window.location.origin}/auth/callback`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Starting Google OAuth...')
+        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+        console.log('Redirect URL:', `${window.location.origin}/auth/callback`)
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

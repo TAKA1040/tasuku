@@ -206,12 +206,14 @@ export type Database = {
           completed: boolean | null
           completed_at: string | null
           created_at: string | null
+          display_number: string | null
           due_date: string | null
           duration_min: number | null
           id: string
           importance: number | null
           location_tag_id: string | null
           memo: string | null
+          order_index: number | null
           rollover_count: number | null
           snoozed_until: string | null
           title: string
@@ -226,12 +228,14 @@ export type Database = {
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string | null
+          display_number?: string | null
           due_date?: string | null
           duration_min?: number | null
           id?: string
           importance?: number | null
           location_tag_id?: string | null
           memo?: string | null
+          order_index?: number | null
           rollover_count?: number | null
           snoozed_until?: string | null
           title: string
@@ -246,18 +250,107 @@ export type Database = {
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string | null
+          display_number?: string | null
           due_date?: string | null
           duration_min?: number | null
           id?: string
           importance?: number | null
           location_tag_id?: string | null
           memo?: string | null
+          order_index?: number | null
           rollover_count?: number | null
           snoozed_until?: string | null
           title?: string
           updated_at?: string | null
           urls?: string[] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      unified_tasks: {
+        Row: {
+          active: boolean | null
+          archived: boolean | null
+          attachment: Json | null
+          category: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          display_number: string
+          due_date: string | null
+          duration_min: number | null
+          end_date: string | null
+          frequency: string | null
+          id: string
+          importance: number | null
+          interval_n: number | null
+          last_completed_date: string | null
+          memo: string | null
+          month_day: number | null
+          snoozed_until: string | null
+          start_date: string | null
+          task_type: string
+          title: string
+          updated_at: string | null
+          urls: string[] | null
+          user_id: string
+          weekdays: number[] | null
+        }
+        Insert: {
+          active?: boolean | null
+          archived?: boolean | null
+          attachment?: Json | null
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          display_number: string
+          due_date?: string | null
+          duration_min?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          importance?: number | null
+          interval_n?: number | null
+          last_completed_date?: string | null
+          memo?: string | null
+          month_day?: number | null
+          snoozed_until?: string | null
+          start_date?: string | null
+          task_type?: string
+          title: string
+          updated_at?: string | null
+          urls?: string[] | null
+          user_id: string
+          weekdays?: number[] | null
+        }
+        Update: {
+          active?: boolean | null
+          archived?: boolean | null
+          attachment?: Json | null
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          display_number?: string
+          due_date?: string | null
+          duration_min?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          importance?: number | null
+          interval_n?: number | null
+          last_completed_date?: string | null
+          memo?: string | null
+          month_day?: number | null
+          snoozed_until?: string | null
+          start_date?: string | null
+          task_type?: string
+          title?: string
+          updated_at?: string | null
+          urls?: string[] | null
+          user_id?: string
+          weekdays?: number[] | null
         }
         Relationships: []
       }
@@ -483,7 +576,64 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      check_duplicates: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          count: number
+          duplicate_key: string
+          table_name: string
+        }[]
+      }
+      check_task_duplicates: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          count: number
+          duplicate_key: string
+        }[]
+      }
+      complete_migration_to_unified: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          recurring_errors: number
+          recurring_migrated: number
+          tasks_errors: number
+          tasks_migrated: number
+          total_migrated: number
+        }[]
+      }
+      generate_display_number: {
+        Args: { p_date?: string; p_task_type: string; p_user_id: string }
+        Returns: string
+      }
+      get_cleanup_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          record_count: number
+          sample_titles: string[]
+          table_name: string
+        }[]
+      }
+      get_table_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          record_count: number
+          table_name: string
+        }[]
+      }
+      migrate_recurring_tasks_to_unified: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          error_count: number
+          migrated_count: number
+        }[]
+      }
+      migrate_tasks_to_unified: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          error_count: number
+          migrated_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

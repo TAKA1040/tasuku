@@ -2,12 +2,13 @@
 
 import React, { memo, useState } from 'react'
 import type { TaskWithUrgency, Task } from '@/lib/db/schema'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 // import { QuickMoves } from '@/lib/utils/date-jst' // 将来使用予定
 
 interface UpcomingPreviewProps {
   upcomingTasks: TaskWithUrgency[]
   onComplete: (taskId: string) => void
-  onEdit: (task: Task) => void
+  onEdit: (task: UnifiedTask) => void
   onDelete: (taskId: string) => void
 }
 
@@ -144,7 +145,16 @@ function UpcomingPreview({ upcomingTasks, onComplete, onEdit, onDelete }: Upcomi
             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               {/* 編集ボタン */}
               <button
-                onClick={() => onEdit(task)}
+                onClick={() => onEdit({
+                  ...task,
+                  user_id: 'user_id' in task ? (task as Task & { user_id?: string }).user_id || '' : '',
+                  display_number: 'display_number' in task ? (task as Task & { display_number?: string }).display_number || '' : '',
+                  task_type: 'NORMAL',
+                  recurring_pattern: undefined,
+                  recurring_interval: undefined,
+                  recurring_weekdays: undefined,
+                  recurring_day: undefined
+                } as UnifiedTask)}
                 style={{
                   padding: '4px',
                   fontSize: '14px',

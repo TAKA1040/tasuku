@@ -1,21 +1,18 @@
 'use client'
 
-import { useTasks } from '@/hooks/useTasks'
-import { useDatabase } from '@/hooks/useDatabase'
-import { TASK_CATEGORIES } from '@/lib/db/schema'
-import { subTaskService } from '@/lib/db/supabase-subtasks'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import type { SubTask, Task } from '@/lib/db/schema'
+import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { getTodayJST, getTomorrowJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import { ImportanceDot } from '@/components/ImportanceDot'
+import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 
 interface ShoppingTasksSectionProps {
-  onEdit?: (task: Task) => void
+  onEdit?: (task: UnifiedTask) => void
 }
 
 export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
-  const { isInitialized } = useDatabase()
-  const { getTodayTasks, getUpcomingTasks, completeTask, updateTask, deleteTask, createTask, allTasks } = useTasks(isInitialized)
+  const unifiedTasks = useUnifiedTasks()
   const [subTasks, setSubTasks] = useState<{ [taskId: string]: SubTask[] }>({})
   const [showShoppingLists, setShowShoppingLists] = useState<{ [taskId: string]: boolean }>({})
   const [newItemInputs, setNewItemInputs] = useState<{ [taskId: string]: string }>({})
@@ -125,78 +122,47 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     }))
   }
 
-  // 買い物カテゴリーの翌日以降のタスクのみを取得
+  // 買い物カテゴリーのタスクを取得（フィルタリング修正版）
   const getShoppingTasks = useCallback(() => {
-    if (!isInitialized) return []
+    if (unifiedTasks.loading) return []
 
-    const today = getTodayJST()
+    // 統一システムから買い物タスクを直接取得（すべての買い物タスク）
+    const shoppingTasks = unifiedTasks.getShoppingTasks()
 
-    // 翌日以降の未完了タスクのみ取得
-    const allUpcomingTasks = allTasks
-      .filter(task =>
-        !task.completed &&
-        !task.archived &&
-        (!task.snoozed_until || task.snoozed_until <= today) &&
-        task.due_date &&
-        task.due_date !== today &&
-        getDaysFromToday(task.due_date) > 0
-      )
-      .map(task => {
-        const days_from_today = getDaysFromToday(task.due_date!)
-        const urgency = getUrgencyLevel(task.due_date!)
 
-        return {
-          task,
-          urgency,
-          days_from_today
-        }
-      })
-      .sort((a, b) => a.days_from_today - b.days_from_today)
+    // すべての買い物タスクを表示対象にする（期日に関係なく）
+    const allTasks = shoppingTasks.map(task => ({
+      task,
+      urgency: 'none' as const,
+      days_from_today: 999
+    }))
 
-    // 期日なしの未完了タスクも取得
-    const noDueDateTasks = allTasks
-      .filter(task =>
-        !task.completed &&
-        !task.archived &&
-        (!task.snoozed_until || task.snoozed_until <= today) &&
-        !task.due_date
-      )
-      .map(task => ({
-        task,
-        urgency: 'none' as const,
-        days_from_today: 999 // 期日なしは最後に表示
-      }))
-
-    // 翌日以降 + 期日なしの買い物カテゴリーのみフィルタ（今日のタスクは除外）
-    const allTasksWithUrgency = [...allUpcomingTasks, ...noDueDateTasks]
-    return allTasksWithUrgency.filter(taskWithUrgency =>
-      taskWithUrgency.task.category === TASK_CATEGORIES.SHOPPING
-    )
-  }, [isInitialized, allTasks])
+    return allTasks
+  }, [unifiedTasks.loading, unifiedTasks.getShoppingTasks])
 
   // サブタスクを読み込み
   const loadSubTasks = useCallback(async () => {
-    if (!isInitialized) return
+    if (unifiedTasks.loading) return
 
     const shoppingTasks = getShoppingTasks()
     const newSubTasks: { [taskId: string]: SubTask[] } = {}
 
     for (const taskWithUrgency of shoppingTasks) {
-      const taskSubTasks = await subTaskService.getSubTasksByParentId(taskWithUrgency.task.id)
+      const taskSubTasks = await unifiedTasks.getSubtasks(taskWithUrgency.task.id)
       newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
     }
 
     setSubTasks(newSubTasks)
-  }, [isInitialized, getShoppingTasks])
+  }, [unifiedTasks.loading, getShoppingTasks, unifiedTasks.getSubtasks])
 
   useEffect(() => {
     loadSubTasks()
-  }, [isInitialized])
+  }, [loadSubTasks])
 
   // サブタスクの完了状態を切り替え
   const handleToggleSubTask = async (subTaskId: string, taskId: string) => {
     try {
-      await subTaskService.toggleSubTaskCompletion(subTaskId)
+      await unifiedTasks.toggleSubtask(subTaskId)
       await loadSubTasks()
     } catch (error) {
       console.error('Failed to toggle subtask:', error)
@@ -206,7 +172,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
   // サブタスクを削除
   const handleDeleteSubTask = async (subTaskId: string, taskId: string) => {
     try {
-      await subTaskService.deleteSubTask(subTaskId)
+      await unifiedTasks.deleteSubtask(subTaskId)
       await loadSubTasks()
     } catch (error) {
       console.error('Failed to delete subtask:', error)
@@ -219,10 +185,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     if (!newItemText) return
 
     try {
-      const existingSubTasks = subTasks[taskId] || []
-      const nextSortOrder = existingSubTasks.length
-
-      await subTaskService.createSubTask(taskId, newItemText, nextSortOrder)
+      await unifiedTasks.createSubtask(taskId, newItemText)
 
       // 入力フィールドをクリア
       setNewItemInputs(prev => ({
@@ -259,7 +222,9 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
     if (!editingSubTask) return
 
     try {
-      await subTaskService.updateSubTaskTitle(editingSubTask.subTaskId, editingSubTask.title)
+      // 統一システムではサブタスクの編集機能は未実装なので、削除して再作成
+      await unifiedTasks.deleteSubtask(editingSubTask.subTaskId)
+      await unifiedTasks.createSubtask(editingSubTask.taskId, editingSubTask.title)
       await loadSubTasks()
       setEditingSubTask(null)
     } catch (error) {
@@ -281,7 +246,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       const incompleteSubTasks = taskSubTasks.filter(subTask => !subTask.completed)
 
       // メインタスクを完了
-      await completeTask(taskId)
+      await unifiedTasks.completeTask(taskId)
 
       // 未完了のサブタスクがあれば新しいタスクを作成（期日なし）
       if (incompleteSubTasks.length > 0) {
@@ -290,51 +255,33 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
         const originalTask = shoppingTasks.find(t => t.task.id === taskId)
 
         if (originalTask) {
-          // 新しいタスクのタイトル（残り分であることを示さない、同じタイトル）
-          const newTitle = originalTask.task.title
+          try {
+            // 新しいタスクを統一システムで作成（期日なし = '2999-12-31'）
+            const displayNumber = await UnifiedTasksService.generateDisplayNumber()
+            const newTask = await unifiedTasks.createTask({
+              title: originalTask.task.title,
+              memo: originalTask.task.memo || '',
+              due_date: '2999-12-31', // 期日なし
+              category: '買い物',
+              importance: originalTask.task.importance || 1,
+              task_type: 'NORMAL',
+              display_number: displayNumber,
+              completed: false
+            })
 
-          // 期日なし（null）で新しいタスクを作成
-          const newTaskId = await createTask(
-            newTitle,
-            originalTask.task.memo,
-            undefined, // 期日なしに変更
-            TASK_CATEGORIES.SHOPPING,
-            originalTask.task.importance,
-            originalTask.task.duration_min,
-            originalTask.task.urls
-          )
-
-          // 少し待ってから新しいタスクのIDを取得し、サブタスクを作成
-          setTimeout(async () => {
-            try {
-              // タスクリストを再読み込みして新しいタスクのIDを取得
-              // 期日なしのタスクを検索
-              const allTasksList = allTasks
-              const newTask = allTasksList.find(t =>
-                t.title === newTitle &&
-                t.due_date === null &&
-                !t.completed &&
-                t.category === TASK_CATEGORIES.SHOPPING &&
-                t.created_at > new Date(Date.now() - 5000).toISOString() // 5秒以内に作成されたもの
-              )
-
-              if (newTask) {
-                // 未完了だったサブタスクのみを新しいタスクに移行
-                for (let i = 0; i < incompleteSubTasks.length; i++) {
-                  await subTaskService.createSubTask(
-                    newTask.id,
-                    incompleteSubTasks[i].title,
-                    i
-                  )
-                }
-                if (process.env.NODE_ENV === 'development') {
-                  console.log(`未完了のサブタスク ${incompleteSubTasks.length} 個を期日なしタスクに繰り越しました`)
-                }
+            if (newTask) {
+              // 未完了だったサブタスクのみを新しいタスクに移行
+              for (const incompleteSubTask of incompleteSubTasks) {
+                await unifiedTasks.createSubtask(newTask.id, incompleteSubTask.title)
               }
-            } catch (error) {
-              console.error('Failed to create subtasks for carry-over task:', error)
+
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`✅ 未完了のサブタスク ${incompleteSubTasks.length} 個を新しいタスクに繰り越しました: ${newTask.title}`)
+              }
             }
-          }, 200) // 200ms待機してからサブタスク作成
+          } catch (error) {
+            console.error('買い物リストの繰り越しに失敗:', error)
+          }
         }
       }
 
@@ -347,9 +294,10 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
 
   const shoppingTasks = getShoppingTasks()
 
+
   // 買い物タスクをテーブル形式のデータに変換
-  const shoppingTableItems = useMemo(() =>
-    shoppingTasks.map(taskWithUrgency => ({
+  const shoppingTableItems = useMemo(() => {
+    const items = shoppingTasks.map(taskWithUrgency => ({
       id: taskWithUrgency.task.id,
       title: taskWithUrgency.task.title,
       memo: taskWithUrgency.task.memo,
@@ -362,11 +310,14 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       isCompleted: taskWithUrgency.task.completed,
       task: taskWithUrgency.task,
       attachment: taskWithUrgency.task.attachment
-    })), [shoppingTasks]
-  )
+    }))
+
+
+    return items
+  }, [shoppingTasks])
 
   // 編集機能
-  const handleEdit = (task: Task) => {
+  const handleEdit = (task: UnifiedTask) => {
     if (onEdit) {
       onEdit(task)
     } else {
@@ -507,7 +458,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                     textDecoration: item.isCompleted ? 'line-through' : 'none',
                     color: item.isCompleted ? '#9ca3af' : 'inherit'
                   }}>
-                    <ImportanceDot importance={item.importance} size={10} showTooltip />
+                    <ImportanceDot importance={item.importance || 0} size={10} showTooltip />
                     <span className="task-title" style={{ fontWeight: '500' }}>
                       {item.title}
                     </span>
@@ -535,10 +486,10 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                   </div>
                 </td>
                 <td style={{ padding: '2px', textAlign: 'center' }}>
-                  {renderFileIcon(item.attachment)}
+                  {renderFileIcon(item.attachment || undefined)}
                 </td>
                 <td style={{ padding: '2px', textAlign: 'center' }}>
-                  {renderUrlIcon(item.urls)}
+                  {renderUrlIcon(item.urls || [])}
                 </td>
                 <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
                   {formatDueDate(item.dueDate)}
@@ -582,7 +533,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                     <button
                       onClick={() => {
                         if (confirm('このタスクを削除しますか？')) {
-                          deleteTask(item.id)
+                          unifiedTasks.deleteTask(item.id)
                         }
                       }}
                       style={{
@@ -647,7 +598,7 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
                                   <input
                                     type="text"
-                                    value={editingSubTask.title}
+                                    value={editingSubTask?.title || ''}
                                     onChange={(e) => handleEditInputChange(e.target.value)}
                                     onKeyDown={(e) => {
                                       if (e.key === 'Enter') {

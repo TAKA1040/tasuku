@@ -13,6 +13,16 @@ export function getTodayJST(): string {
 }
 
 /**
+ * 現在のJSTタイムスタンプを ISO 8601 形式で取得（完了日時記録用）
+ */
+export function getNowJST(): string {
+  const now = new Date()
+  // JST でのタイムスタンプを取得し、ISO 形式で返す
+  const jstTime = new Date(now.toLocaleString("en-US", { timeZone: JST_TIMEZONE }))
+  return jstTime.toISOString()
+}
+
+/**
  * 明日のJST日付を YYYY-MM-DD 形式で取得
  */
 export function getTomorrowJST(): string {
@@ -71,6 +81,35 @@ export function addDays(dateString: string, days: number): string {
   const date = parseDateJST(dateString)
   date.setDate(date.getDate() + days)
   return formatDateJST(date)
+}
+
+/**
+ * 指定日付から日数を減算
+ */
+export function subtractDays(dateString: string, days: number): string {
+  const date = parseDateJST(dateString)
+  date.setDate(date.getDate() - days)
+  return formatDateJST(date)
+}
+
+/**
+ * 指定日付の週の開始日（月曜日）を取得
+ */
+export function getStartOfWeek(dateString: string): string {
+  const date = parseDateJST(dateString)
+  const day = date.getDay() // 0=日曜, 1=月曜, ...
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1) // 月曜日に調整
+  const monday = new Date(date.setDate(diff))
+  return formatDateJST(monday)
+}
+
+/**
+ * 指定日付の月の開始日（1日）を取得
+ */
+export function getStartOfMonth(dateString: string): string {
+  const date = parseDateJST(dateString)
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
+  return formatDateJST(firstDay)
 }
 
 /**
@@ -166,6 +205,15 @@ export function formatDateForDisplay(dateString: string): string {
     day: '2-digit',
     weekday: 'short'
   })
+}
+
+/**
+ * 指定日または今日が月曜日かを判定
+ */
+export function isMonday(dateString?: string): boolean {
+  const date = dateString ? parseDateJST(dateString) : new Date()
+  const day = date.getDay()
+  return day === 1
 }
 
 /**

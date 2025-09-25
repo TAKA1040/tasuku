@@ -25,20 +25,24 @@
 
 ## 🛠️ 実装状況と計画
 
-### **🔥 Phase 0: 統一システム完全移行** ⚠️ **最優先 - 進行中**
+### **🔥 Phase 0: 統一システム完全移行** ⚡ **進行中 - 2025-09-25更新**
 
-**現状分析（2025-09-24 再評価）:**
+**現状分析（2025-09-25 最新）:**
 - 統一データベース（unified_tasks）は構築済み ✅
 - useUnifiedTasks フックは実装済み ✅
-- **問題**: today/page.tsx が古いフック（useTasks、useRecurringTasks）を使用中 ❌
-- データベースが2系統併存でUI表示が複雑化
+- **進捗**: today/page.tsx は useUnifiedTasks に移行済み ✅
+- **進捗**: 古い型定義（Task、RecurringTask）の使用箇所を修正済み ✅
+- **課題**: manage/page.tsx, done/page.tsx, statistics/page.tsx が古いフックを使用中 🔄
 
-**緊急対応が必要な作業:**
-- [ ] today/page.tsx を useUnifiedTasks に完全移行
-- [ ] 古いフック（useTasks、useRecurringTasks）削除
+**緊急対応作業（残り）:**
+- [x] today/page.tsx を useUnifiedTasks に完全移行
+- [x] 古い型定義（Task、RecurringTask）の使用箇所を修正
+- [🔄] manage/page.tsx を useUnifiedTasks に移行（進行中）
+- [ ] done/page.tsx を useUnifiedTasks に移行
+- [ ] statistics/page.tsx を useUnifiedTasks に移行
+- [ ] その他のコンポーネントを統一システムに移行
+- [ ] 古いフック（useTasks、useRecurringTasks）ファイル削除
 - [ ] 古いデータベーステーブル（tasks、recurring_tasks）削除
-- [ ] 各セクションの適切なフィルタリング実装
-- [ ] UI表示ロジックのシンプル化
 
 ### **✅ Phase 1: 統一ルール基盤** 部分完了
 - [x] 統一ルールでデータ構造を修正
@@ -57,17 +61,24 @@
 
 ## 🚀 実装予定リスト
 
-### **Phase 2: テンプレート管理システム**
-- [ ] RecurringTemplate テーブル設計
-- [ ] テンプレート CRUD 機能
-- [ ] テンプレート管理 UI
+### **✅ Phase 2: テンプレート管理システム** 完了
+- [x] RecurringTemplate テーブル設計
+- [x] テンプレート CRUD 機能
+- [x] テンプレート管理 UI
 
-### **Phase 3: バックグラウンド生成システム**
-- [ ] 日次タスク生成ジョブ
-- [ ] 週次タスク生成ジョブ
-- [ ] 月次タスク生成ジョブ
-- [ ] 年次タスク生成ジョブ
-- [ ] 重複生成防止機能
+### **✅ Phase 3: バックグラウンド生成システム** 完了
+- [x] 日次タスク生成ジョブ
+- [x] 週次タスク生成ジョブ
+- [x] 月次タスク生成ジョブ
+- [x] 年次タスク生成ジョブ（スケルトン実装）
+- [x] 重複生成防止機能
+- [x] 自動タスク生成Hookの統合
+
+### **✅ Phase 3.5: 手動作成時の自動日付付与機能** 完了 - 2025-09-25追加
+- [x] 繰り返しタスクの自動日付付与機能（UnifiedTasksService）
+- [x] useUnifiedTasksにタスク作成機能を追加
+- [x] task_type='RECURRING' + due_date未指定 → 今日の日付を自動付与
+- [x] recurring_pattern指定 + due_date未指定 → 今日の日付を自動付与
 
 ### **Phase 4: 移行・統合**
 - [ ] 既存繰り返しタスクのテンプレート化
