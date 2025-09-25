@@ -17,6 +17,8 @@ import { AuthStatus } from '@/components/AuthStatus'
 import { ShoppingTasksSection } from '@/components/ShoppingTasksSection'
 import { DisplayNumberUtils, TaskType, SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
+import { ImportanceDot } from '@/components/ImportanceDot'
+import type { Task } from '@/lib/db/schema'
 
 // 統一データ表示用の型定義
 interface UnifiedDataItem {

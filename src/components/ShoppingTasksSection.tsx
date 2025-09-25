@@ -310,7 +310,8 @@ export function ShoppingTasksSection({ onEdit }: ShoppingTasksSectionProps) {
       days: taskWithUrgency.days_from_today,
       isCompleted: taskWithUrgency.task.completed,
       task: taskWithUrgency.task,
-      attachment: taskWithUrgency.task.attachment
+      attachment: taskWithUrgency.task.attachment,
+      display_number: taskWithUrgency.task.display_number
     }))
 
 
