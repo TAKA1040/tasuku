@@ -23,7 +23,7 @@ interface UseUnifiedTasksResult {
   error: string | null
 
   // データ取得関数
-  loadTasks: () => Promise<void>
+  loadTasks: (forceRefresh?: boolean) => Promise<void>
 
   // フィルター別取得関数
   getTodayTasks: () => UnifiedTask[]
