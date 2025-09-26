@@ -15,7 +15,15 @@ const NO_DUE_DATE = '2999-12-31'
 
 // キャッシュ管理
 let taskCache: { data: UnifiedTask[]; timestamp: number } | null = null
-const CACHE_DURATION = 5000 // 5秒間キャッシュ（短縮）
+const CACHE_DURATION = 2000 // 2秒間キャッシュ（さらに短縮）
+
+// グローバルキャッシュ無効化関数
+const invalidateGlobalCache = () => {
+  taskCache = null
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🗑️ Global task cache invalidated')
+  }
+}
 
 interface UseUnifiedTasksResult {
   tasks: UnifiedTask[]
@@ -195,8 +203,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
         }
 
         const createdTask = await UnifiedTasksService.createUnifiedTask(taskWithUserId)
-        // キャッシュを無効化して強制リロード
-        taskCache = null
+        // グローバルキャッシュを無効化して強制リロード
+        invalidateGlobalCache()
         await loadTasks(true)
         return createdTask
       },
@@ -215,8 +223,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.completeTask(id)
-        // キャッシュを無効化して強制リロード
-        taskCache = null
+        // グローバルキャッシュを無効化して強制リロード
+        invalidateGlobalCache()
         await loadTasks(true)
       },
       'useUnifiedTasks.completeTask',
@@ -228,8 +236,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.uncompleteTask(id)
-        // キャッシュを無効化して強制リロード
-        taskCache = null
+        // グローバルキャッシュを無効化して強制リロード
+        invalidateGlobalCache()
         await loadTasks(true)
       },
       'useUnifiedTasks.uncompleteTask',
@@ -241,8 +249,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.deleteUnifiedTask(id)
-        // キャッシュを無効化して強制リロード
-        taskCache = null
+        // グローバルキャッシュを無効化して強制リロード
+        invalidateGlobalCache()
         await loadTasks(true)
       },
       'useUnifiedTasks.deleteTask',
@@ -254,8 +262,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.updateUnifiedTask(id, updates)
-        // キャッシュを無効化して強制リロード
-        taskCache = null
+        // グローバルキャッシュを無効化して強制リロード
+        invalidateGlobalCache()
         await loadTasks(true)
       },
       'useUnifiedTasks.updateTask',
@@ -315,16 +323,18 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
 
     const handleFocus = () => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Page focused, reloading tasks...')
+        console.log('Page focused, invalidating cache and reloading tasks...')
       }
+      invalidateGlobalCache() // キャッシュを無効化
       loadTasks(true) // 強制リロード
     }
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Page became visible, reloading tasks...')
+          console.log('Page became visible, invalidating cache and reloading tasks...')
         }
+        invalidateGlobalCache() // キャッシュを無効化
         loadTasks(true) // 強制リロード
       }
     }
