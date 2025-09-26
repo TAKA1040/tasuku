@@ -16,6 +16,8 @@ export default function SearchPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
 
+  const { isInitialized, error: dbError } = useDatabase()
+
   const {
     tasks,
     loading: isLoading,
@@ -24,7 +26,17 @@ export default function SearchPage() {
     uncompleteTask,
     updateTask: updateUnifiedTask,
     deleteTask: deleteUnifiedTask
-  } = useUnifiedTasks()
+  } = useUnifiedTasks(true) // autoLoadを明示的に有効化
+
+  // データベース初期化後にタスクを明示的にリロード
+  useEffect(() => {
+    if (isInitialized) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database initialized, reloading tasks for search page')
+      }
+      loadTasks(true) // 強制リロード
+    }
+  }, [isInitialized, loadTasks])
 
   // フィルタリングされたタスクを計算
   const filteredTasks = useMemo(() => {
@@ -186,6 +198,23 @@ export default function SearchPage() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => loadTasks(true)}
+              disabled={isLoading}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.6 : 1
+              }}
+              title="最新データを読み込み"
+            >
+              {isLoading ? '🔄' : '🔄'} 更新
+            </button>
             <ThemeToggle />
             <AuthStatus />
           </div>
