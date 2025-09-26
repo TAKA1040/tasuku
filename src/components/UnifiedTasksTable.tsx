@@ -7,10 +7,14 @@ import { DisplayNumberUtils, SubTask } from '@/lib/types/unified-task'
 
 interface UnifiedTasksTableProps {
   title: string
-  tasks: any[] // allUnifiedData型
+  tasks: UnifiedTask[]
   emptyMessage?: string
   urgent?: boolean
-  unifiedTasks: any
+  unifiedTasks: {
+    completeTask: (id: string) => Promise<void>
+    uncompleteTask: (id: string) => Promise<void>
+    deleteTask: (id: string) => Promise<void>
+  }
   handleEditTask: (task: UnifiedTask) => void
   // サブタスク関連
   shoppingSubTasks?: {[taskId: string]: SubTask[]}
@@ -132,21 +136,6 @@ const renderUrlIcon = (urls?: string[]) => {
   )
 }
 
-interface UnifiedTasksTableProps {
-  title: string
-  tasks: any[]
-  emptyMessage?: string
-  urgent?: boolean
-  unifiedTasks: any
-  handleEditTask: (task: UnifiedTask) => void
-  shoppingSubTasks?: {[taskId: string]: SubTask[]}
-  expandedShoppingLists?: {[taskId: string]: boolean}
-  toggleShoppingList?: (taskId: string) => void
-  addShoppingSubTask?: (taskId: string, itemName: string) => void
-  toggleShoppingSubTask?: (taskId: string, subTaskId: string) => void
-  deleteShoppingSubTask?: (taskId: string, subTaskId: string) => void
-  showTitle?: boolean // タイトル表示制御
-}
 
 export function UnifiedTasksTable({
   title,

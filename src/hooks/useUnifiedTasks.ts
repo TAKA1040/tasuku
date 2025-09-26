@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
-import type { UnifiedTask, TaskFilters, SPECIAL_DATES } from '@/lib/types/unified-task'
+import type { UnifiedTask, TaskFilters, SPECIAL_DATES, SubTask } from '@/lib/types/unified-task'
 import { withErrorHandling } from '@/lib/utils/error-handler'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
@@ -49,7 +49,7 @@ interface UseUnifiedTasksResult {
   updateTask: (id: string, updates: Partial<UnifiedTask>) => Promise<void>
 
   // サブタスク管理関数
-  getSubtasks: (parentTaskId: string) => Promise<any[]>
+  getSubtasks: (parentTaskId: string) => Promise<SubTask[]>
   createSubtask: (parentTaskId: string, title: string) => Promise<void>
   toggleSubtask: (subtaskId: string) => Promise<void>
   deleteSubtask: (subtaskId: string) => Promise<void>

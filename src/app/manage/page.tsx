@@ -21,9 +21,9 @@ export default function ManagePage() {
       } else {
         setCleanupStatus(`${result.deletedCount}件の孤児化したdone記録を削除しました。`)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Cleanup failed:', error)
-      const errorMessage = error?.message || 'Unknown error'
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       setCleanupStatus(`クリーンアップ中にエラーが発生しました: ${errorMessage}`)
     } finally {
       setLoading(false)

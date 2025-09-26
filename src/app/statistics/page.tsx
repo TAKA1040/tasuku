@@ -3,6 +3,8 @@
 import { useDatabase } from '@/hooks/useDatabase'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useStatistics } from '@/hooks/useStatistics'
+import type { Task } from '@/lib/db/schema'
+import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
 import { StatisticsCards } from '@/components/StatisticsCards'
 import { useMemo } from 'react'
 
@@ -32,7 +34,7 @@ export default function StatisticsPage() {
       }))
   }, [unifiedTasks.tasks])
 
-  const stats = useStatistics(allTasks as any, recurringTasksWithStatus as any)
+  const stats = useStatistics(allTasks as Task[], recurringTasksWithStatus as RecurringTaskWithStatus[])
   const loading = unifiedTasks.loading
 
   if (error) {
