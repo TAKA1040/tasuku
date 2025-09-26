@@ -96,20 +96,32 @@ export default function DonePage() {
     setShowEditForm(false)
   }
 
-  const handleUpdateTask = async (updatedData: Partial<UnifiedTask>) => {
+  const handleUpdateTask = async (
+    taskId: string,
+    title: string,
+    memo: string,
+    dueDate: string,
+    category?: string,
+    importance?: 1 | 2 | 3 | 4 | 5,
+    urls?: string[],
+    startTime?: string,
+    endTime?: string,
+    attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }
+  ) => {
     if (!editingTask) return
 
     try {
       // done/page.tsxでは基本的な情報のみ更新（時間やattachmentは無視）
-      const updateData = {
-        title: updatedData.title,
-        category: updatedData.category,
-        importance: updatedData.importance,
-        due_date: updatedData.due_date,
-        recurring_pattern: updatedData.recurring_pattern
+      const updateData: Partial<UnifiedTask> = {
+        title,
+        category,
+        importance,
+        due_date: dueDate,
+        memo,
+        urls
       }
 
-      await unifiedTasks.updateTask(editingTask.id, updateData)
+      await unifiedTasks.updateTask(taskId, updateData)
       setShowEditForm(false)
       setEditingTask(null)
     } catch (error) {
@@ -194,10 +206,11 @@ export default function DonePage() {
               </div>
             ) : (
               <UnifiedTasksTable
-                tasks={filteredCompletedTasks}
+                title="完了済みタスク"
+                tasks={filteredCompletedTasks.map(task => ({ task }))}
                 unifiedTasks={unifiedTasks}
-                onEdit={handleEdit}
-                showCompleted={true}
+                handleEditTask={handleEdit}
+                emptyMessage="該当期間に完了したタスクがありません"
               />
             )}
           </div>
