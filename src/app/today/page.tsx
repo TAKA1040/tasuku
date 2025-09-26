@@ -582,9 +582,23 @@ export default function TodayPage() {
 
           <UnifiedTasksTable
             title=""
-            tasks={allUnifiedData.filter(task =>
-              !task.completed && task.due_date === getTodayJST()
-            )}
+            tasks={allUnifiedData
+              .filter(task => task.due_date === getTodayJST())
+              .sort((a, b) => {
+                // 完了状態による並び替え：未完了を上に、完了を下に
+                if (a.completed !== b.completed) {
+                  return a.completed ? 1 : -1
+                }
+
+                // 同じ完了状態なら既存の優先度・番号順
+                const priorityA = a.importance || 0
+                const priorityB = b.importance || 0
+                if (priorityA !== priorityB) {
+                  return priorityB - priorityA
+                }
+                return (a.display_number || '').localeCompare(b.display_number || '')
+              })
+            }
             emptyMessage="今日のタスクはありません"
             unifiedTasks={unifiedTasks}
             handleEditTask={handleEditTask}
