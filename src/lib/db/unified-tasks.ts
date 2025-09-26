@@ -249,16 +249,117 @@ export class UnifiedTasksService {
   static async deleteUnifiedTask(id: string): Promise<void> {
     try {
       const supabase = createClient()
-      const { error } = await supabase
+
+      // 削除前にタスクの情報を取得（done記録削除のため）
+      const { data: task, error: fetchError } = await supabase
+        .from('unified_tasks')
+        .select('due_date, recurring_pattern')
+        .eq('id', id)
+        .single()
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch task before deletion: ${fetchError.message}`)
+      }
+
+      // タスクを削除
+      const { error: deleteError } = await supabase
         .from('unified_tasks')
         .delete()
         .eq('id', id)
 
-      if (error) {
-        throw new Error(`Failed to delete unified task: ${error.message}`)
+      if (deleteError) {
+        throw new Error(`Failed to delete unified task: ${deleteError.message}`)
+      }
+
+      // 削除したタスクに対応するdone記録も削除
+      if (task) {
+        const { error: doneDeleteError } = await supabase
+          .from('done')
+          .delete()
+          .eq('original_task_id', id)
+
+        if (doneDeleteError) {
+          console.warn('Failed to delete related done records:', doneDeleteError.message)
+          // done記録の削除に失敗してもタスク削除は成功とする
+        }
       }
     } catch (error) {
       console.error('UnifiedTasksService.deleteUnifiedTask error:', error)
+      throw error
+    }
+  }
+
+  // 孤児化したdone記録をクリーンアップ
+  static async cleanupOrphanedDoneRecords(): Promise<{ deletedCount: number }> {
+    try {
+      const supabase = createClient()
+
+      console.log('Starting cleanup of orphaned done records...')
+
+      // まず、doneテーブルが存在するか確認
+      const { data: allDoneRecords, error: doneError } = await supabase
+        .from('done')
+        .select('id, original_task_id')
+
+      if (doneError) {
+        console.error('Error fetching done records:', doneError)
+
+        // doneテーブルが存在しない場合は作成が必要
+        if (doneError.message.includes('does not exist') || doneError.message.includes('not found')) {
+          throw new Error('doneテーブルが存在しません。データベースマイグレーションを実行してください。')
+        }
+
+        throw new Error(`Failed to fetch done records: ${doneError.message}`)
+      }
+
+      console.log(`Found ${allDoneRecords?.length || 0} done records`)
+
+      if (!allDoneRecords || allDoneRecords.length === 0) {
+        console.log('No done records found, nothing to cleanup')
+        return { deletedCount: 0 }
+      }
+
+      // 全てのunified_tasksのIDを取得
+      const { data: allTasks, error: tasksError } = await supabase
+        .from('unified_tasks')
+        .select('id')
+
+      if (tasksError) {
+        console.error('Error fetching unified tasks:', tasksError)
+        throw new Error(`Failed to fetch unified tasks: ${tasksError.message}`)
+      }
+
+      console.log(`Found ${allTasks?.length || 0} unified tasks`)
+
+      const validTaskIds = new Set(allTasks?.map(t => t.id) || [])
+
+      // 孤児化したdone記録を特定
+      const orphanedRecords = allDoneRecords.filter(
+        done => !validTaskIds.has(done.original_task_id)
+      )
+
+      console.log(`Found ${orphanedRecords.length} orphaned done records`)
+
+      if (orphanedRecords.length === 0) {
+        return { deletedCount: 0 }
+      }
+
+      // 孤児化した記録を削除
+      const orphanedIds = orphanedRecords.map(r => r.id)
+      const { error: deleteError } = await supabase
+        .from('done')
+        .delete()
+        .in('id', orphanedIds)
+
+      if (deleteError) {
+        console.error('Error deleting orphaned records:', deleteError)
+        throw new Error(`Failed to delete orphaned done records: ${deleteError.message}`)
+      }
+
+      console.log(`Successfully cleaned up ${orphanedRecords.length} orphaned done records`)
+      return { deletedCount: orphanedRecords.length }
+    } catch (error) {
+      console.error('UnifiedTasksService.cleanupOrphanedDoneRecords error:', error)
       throw error
     }
   }

@@ -1,5 +1,5 @@
-今日のタスクのルール変更
-重要度、時間軸ともに
-託すが完了したものはグレー化して順番の一番下に表示
-つまり、今日のタスクに限り、未完了のタスクが上、完了のタスクが下に表示するように仕様
-そうすることで、終わったものを認識できるようになる
+manage:1  GET http://localhost:3000/manage 500 (Internal Server Error)
+manage:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+manage:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+manage:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+manage:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received

@@ -2,66 +2,37 @@
 
 import { useState, useEffect } from 'react'
 import { useDatabase } from '@/hooks/useDatabase'
-import { useTasks } from '@/hooks/useTasks'
-import { useRecurringTasks } from '@/hooks/useRecurringTasks'
+import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { formatDateForDisplay } from '@/lib/utils/date-jst'
-import { TaskTable } from '@/components/TaskTable'
+import { UnifiedTasksTable } from '@/components/UnifiedTasksTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
-import type { Task } from '@/lib/db/schema'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
 
 export default function DonePage() {
   const { isInitialized, error } = useDatabase()
-  const { loading: tasksLoading, getAllCompletedTasks, updateTask, uncompleteTask, deleteTask, reload: reloadTasks } = useTasks(isInitialized)
-  const {
-    loading: recurringLoading,
-    getTodayCompletedRecurringTasks,
-    reload: reloadRecurringTasks,
-    recurringTasks,
-    recurringLogs
-  } = useRecurringTasks(isInitialized)
+  const unifiedTasks = useUnifiedTasks(true)
 
   // 期間フィルタリング
   const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'all'>('today')
 
   // 編集状態管理
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [editingTask, setEditingTask] = useState<UnifiedTask | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
-
-  // 選択した毎日のタスクを記憶するためのstate
-  const [selectedDailyTasks, setSelectedDailyTasks] = useState<string[]>([])
 
   // データベース初期化後にタスクを再読み込み
   useEffect(() => {
-    if (isInitialized && reloadTasks && reloadRecurringTasks) {
+    if (isInitialized) {
       if (process.env.NODE_ENV === 'development') {
         console.log('Database initialized, reloading tasks for done page')
       }
-      reloadTasks()
-      reloadRecurringTasks()
+      unifiedTasks.loadTasks()
     }
-  }, [isInitialized, reloadTasks, reloadRecurringTasks])
+  }, [isInitialized])
 
-  // 選択タスクをローカルストレージから復元
-  useEffect(() => {
-    const saved = localStorage.getItem('selectedDailyTasks')
-    if (saved) {
-      try {
-        setSelectedDailyTasks(JSON.parse(saved))
-      } catch (e) {
-        console.error('Failed to parse selected daily tasks:', e)
-      }
-    }
-  }, [])
-
-  // 選択タスクをローカルストレージに保存
-  useEffect(() => {
-    localStorage.setItem('selectedDailyTasks', JSON.stringify(selectedDailyTasks))
-  }, [selectedDailyTasks])
-  
   if (error) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -70,8 +41,8 @@ export default function DonePage() {
       </div>
     )
   }
-  
-  if (!isInitialized || tasksLoading || recurringLoading || typeof getAllCompletedTasks !== 'function') {
+
+  if (!isInitialized || unifiedTasks.loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
@@ -80,151 +51,44 @@ export default function DonePage() {
     )
   }
 
-  // 期間別完了タスク取得
-  const getCompletedTasksByPeriod = () => {
-    if (typeof getAllCompletedTasks !== 'function' || !isInitialized) {
-      return []
-    }
+  // 完了済みタスクを取得
+  const completedTasks = unifiedTasks.getCompletedTasks()
 
-    const allCompleted = getAllCompletedTasks()
-    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD形式に統一
-    
+  // 期間別フィルタリング
+  const getCompletedTasksByPeriod = () => {
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD形式
+
     switch (period) {
       case 'today':
-        return allCompleted.filter(item => item.task.completed_at === today)
+        return completedTasks.filter(task =>
+          task.updated_at && task.updated_at.split('T')[0] === today
+        )
       case 'week':
         const weekAgo = new Date()
         weekAgo.setDate(weekAgo.getDate() - 7)
         const weekAgoStr = weekAgo.toISOString().split('T')[0]
-        return allCompleted.filter(item => 
-          item.task.completed_at && item.task.completed_at >= weekAgoStr
+        return completedTasks.filter(task =>
+          task.updated_at && task.updated_at.split('T')[0] >= weekAgoStr
         )
       case 'month':
         const monthAgo = new Date()
         monthAgo.setMonth(monthAgo.getMonth() - 1)
         const monthAgoStr = monthAgo.toISOString().split('T')[0]
-        return allCompleted.filter(item => 
-          item.task.completed_at && item.task.completed_at >= monthAgoStr
+        return completedTasks.filter(task =>
+          task.updated_at && task.updated_at.split('T')[0] >= monthAgoStr
         )
       case 'all':
       default:
-        return allCompleted
+        return completedTasks
     }
   }
 
-  const completedTasks = getCompletedTasksByPeriod()
-  const completedRecurringTasks = isInitialized ? getTodayCompletedRecurringTasks() : []
+  const filteredCompletedTasks = getCompletedTasksByPeriod()
 
-  // 毎日のタスク達成度追跡システム
-  const getDailyTasksAchievementData = (): Array<{
-    taskId: string;
-    taskTitle: string;
-    taskStartDate: string;
-    dates: string[];
-    completions: boolean[];
-    consecutiveDays: number;
-    recentCompletedDays: number;
-    recentTotalDays: number;
-    recentAchievementRate: number;
-    totalCompletedDays: number;
-    totalDays: number;
-    totalAchievementRate: number;
-  }> => {
-    if (!isInitialized || !recurringTasks || !recurringLogs) return []
-
-    // 過去30日間の日付配列を生成
-    const dates: string[] = []
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      dates.push(date.toISOString().split('T')[0])
-    }
-
-    // 選択された繰り返しタスクのデータを作成
-    return selectedDailyTasks
-      .map(taskId => {
-        const task = recurringTasks.find(t => t.id === taskId)
-        if (!task) return undefined
-
-        // タスクの開始日を取得（created_atまたはstart_date）
-        const taskStartDate = task.start_date || task.created_at?.split('T')[0] || dates[0]
-
-        // すべての関連ログを取得（開始日以降）
-        const allTaskLogs = recurringLogs.filter(log =>
-          log.recurring_id === taskId && log.date >= taskStartDate
-        )
-
-        // 過去30日の完了状況
-        const recentCompletions = dates.map(date => {
-          return allTaskLogs.some(log => log.date === date)
-        })
-
-        // 直近の達成率計算（過去30日または開始日から）
-        const recentStartIndex = dates.findIndex(date => date >= taskStartDate)
-        const recentValidDates = recentStartIndex >= 0 ? dates.slice(recentStartIndex) : dates
-        const recentValidCompletions = recentStartIndex >= 0 ? recentCompletions.slice(recentStartIndex) : recentCompletions
-        const recentCompletedDays = recentValidCompletions.filter(Boolean).length
-        const recentTotalDays = recentValidDates.length
-        const recentAchievementRate = recentTotalDays > 0 ? Math.round((recentCompletedDays / recentTotalDays) * 100) : 0
-
-        // 総達成率計算（開始日からすべて）
-        const today = new Date().toISOString().split('T')[0]
-        const totalDays = Math.ceil((new Date(today).getTime() - new Date(taskStartDate).getTime()) / (1000 * 60 * 60 * 24)) + 1
-        const totalCompletedDays = allTaskLogs.length
-        const totalAchievementRate = totalDays > 0 ? Math.round((totalCompletedDays / totalDays) * 100) : 0
-
-        // 連続達成日数を計算（今日から遡って計算）
-        let consecutiveDays = 0
-        for (let i = dates.length - 1; i >= 0; i--) {
-          if (recentCompletions[i]) {
-            consecutiveDays++
-          } else {
-            break
-          }
-        }
-
-        return {
-          taskId,
-          taskTitle: task.title,
-          taskStartDate,
-          dates,
-          completions: recentCompletions,
-          consecutiveDays,
-          // 直近の達成率
-          recentCompletedDays,
-          recentTotalDays,
-          recentAchievementRate,
-          // 総達成率
-          totalCompletedDays,
-          totalDays,
-          totalAchievementRate
-        }
-      })
-      .filter((item): item is NonNullable<typeof item> => item !== undefined)
-  }
-
-  // 毎日のタスク選択/選択解除
-  const toggleDailyTaskSelection = (taskId: string) => {
-    setSelectedDailyTasks(prev =>
-      prev.includes(taskId)
-        ? prev.filter(id => id !== taskId)
-        : [...prev, taskId]
-    )
-  }
-
-  const dailyTasksData = getDailyTasksAchievementData()
-
-
-
-  // 編集関数
-  const handleEditTask = (task: Task) => {
+  // 編集機能
+  const handleEdit = (task: UnifiedTask) => {
     setEditingTask(task)
     setShowEditForm(true)
-  }
-
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
-    // done/page.tsxでは基本的な情報のみ更新（時間やattachmentは無視）
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
   }
 
   const handleCancelEdit = () => {
@@ -232,608 +96,122 @@ export default function DonePage() {
     setShowEditForm(false)
   }
 
+  const handleUpdateTask = async (updatedData: Partial<UnifiedTask>) => {
+    if (!editingTask) return
+
+    try {
+      // done/page.tsxでは基本的な情報のみ更新（時間やattachmentは無視）
+      const updateData = {
+        title: updatedData.title,
+        category: updatedData.category,
+        importance: updatedData.importance,
+        due_date: updatedData.due_date,
+        recurring_pattern: updatedData.recurring_pattern
+      }
+
+      await unifiedTasks.updateTask(editingTask.id, updateData)
+      setShowEditForm(false)
+      setEditingTask(null)
+    } catch (error) {
+      console.error('タスク更新エラー:', error)
+    }
+  }
+
   return (
     <ThemedContainer>
-      <div className="page-container" style={{
-        padding: '8px',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%',
-        boxSizing: 'border-box'
+      <main style={{
+        minHeight: '100vh',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        backgroundColor: '#f8fafc'
       }}>
-      <header style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0' }}>
-            🎉 Done リスト - 完了済みタスク
-          </h1>
-          <a
-            href="/today"
-            style={{
-              background: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: '500',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            ← 今日へ戻る
-          </a>
-        </div>
-
-        {/* 期間フィルター */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '8px', 
-          marginBottom: '12px',
-          padding: '8px',
-          backgroundColor: '#f9fafb',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb'
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '20px'
         }}>
-          <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-            表示期間:
-          </span>
-          {(['today', 'week', 'month', 'all'] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
+          {/* ヘッダー */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              margin: 0,
+              color: '#1f2937'
+            }}>
+              🎉 Done リスト - 完了済みタスク
+            </h1>
+
+            {/* 期間フィルター */}
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as 'today' | 'week' | 'month' | 'all')}
               style={{
-                background: period === p ? '#3b82f6' : 'transparent',
-                color: period === p ? 'white' : '#6b7280',
+                padding: '8px 12px',
                 border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                padding: '4px 8px',
-                fontSize: '12px',
-                cursor: 'pointer'
+                borderRadius: '6px',
+                fontSize: '14px'
               }}
             >
-              {p === 'today' ? '今日' : 
-               p === 'week' ? '1週間' :
-               p === 'month' ? '1ヶ月' : '全て'}
-            </button>
-          ))}
-        </div>
+              <option value="today">今日</option>
+              <option value="week">過去1週間</option>
+              <option value="month">過去1ヶ月</option>
+              <option value="all">全期間</option>
+            </select>
+          </div>
 
-        {/* 完了統計 */}
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          padding: '12px',
-          backgroundColor: '#f0fdf4',
-          borderRadius: '8px',
-          border: '1px solid #86efac'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '18px', fontWeight: '600', color: '#059669' }}>
-              {completedTasks.length}
-            </div>
-            <div style={{ fontSize: '12px', color: '#065f46' }}>単発タスク</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '18px', fontWeight: '600', color: '#059669' }}>
-              {completedRecurringTasks.length}
-            </div>
-            <div style={{ fontSize: '12px', color: '#065f46' }}>繰り返し</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '18px', fontWeight: '600', color: '#059669' }}>
-              {completedTasks.length + completedRecurringTasks.length}
-            </div>
-            <div style={{ fontSize: '12px', color: '#065f46' }}>合計</div>
-          </div>
-        </div>
-
-        {/* 毎日のタスク達成度追跡システム */}
-        {isInitialized && recurringTasks && recurringTasks.length > 0 && (
+          {/* 統計情報 */}
           <div style={{
-            marginTop: '16px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
             padding: '16px',
-            backgroundColor: '#fefce8',
-            borderRadius: '8px',
-            border: '1px solid #facc15'
+            marginBottom: '20px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
           }}>
-            <h3 style={{
-              margin: '0 0 16px 0',
-              fontSize: '16px',
-              fontWeight: '600',
-              color: '#ca8a04'
-            }}>
-              📅 毎日のタスク達成度 (過去30日)
-            </h3>
-
-            {/* タスク選択セクション */}
-            <div style={{
-              marginBottom: '16px',
-              padding: '12px',
-              backgroundColor: '#ffffff',
-              borderRadius: '6px',
-              border: '1px solid #e5e7eb'
-            }}>
-              <h4 style={{
-                margin: '0 0 8px 0',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                追跡するタスクを選択:
-              </h4>
-
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {recurringTasks && recurringTasks.length > 0 ? (
-                  recurringTasks
-                    .filter(task => task.active && (task.frequency === 'DAILY' || task.frequency === 'WEEKLY'))
-                    .map(task => (
-                      <label
-                        key={task.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 10px',
-                          backgroundColor: selectedDailyTasks.includes(task.id) ? '#dbeafe' : '#f9fafb',
-                          border: `1px solid ${selectedDailyTasks.includes(task.id) ? '#3b82f6' : '#e5e7eb'}`,
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: selectedDailyTasks.includes(task.id) ? '500' : '400'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedDailyTasks.includes(task.id)}
-                          onChange={() => toggleDailyTaskSelection(task.id)}
-                          style={{ margin: 0 }}
-                        />
-                        {task.title}
-                      </label>
-                    ))
-                ) : (
-                  <div style={{ color: '#6b7280', fontSize: '12px' }}>
-                    利用可能な繰り返しタスクがありません
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 達成度表 */}
-            {dailyTasksData.length > 0 && (
-              <div className="achievement-bg-white achievement-border" style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                overflow: 'hidden'
-              }}>
-                <style jsx>{`
-                  .achievement-grid-header {
-                    display: grid;
-                    grid-template-columns: 150px repeat(30, 18px) 80px 90px 60px;
-                    gap: 1px;
-                    background-color: #f3f4f6;
-                    font-size: 10px;
-                    font-weight: 500;
-                  }
-                  .achievement-grid-row {
-                    display: grid;
-                    grid-template-columns: 150px repeat(30, 18px) 80px 90px 60px;
-                    gap: 1px;
-                    border-top: 1px solid #e5e7eb;
-                  }
-                  .mobile-grid {
-                    display: none;
-                  }
-
-                  /* ダークモード対応 */
-                  [data-theme="dark"] .achievement-grid-header,
-                  [data-theme="dark"] .mobile-achievement-header {
-                    background-color: #374151;
-                  }
-                  [data-theme="dark"] .achievement-grid-row,
-                  [data-theme="dark"] .mobile-achievement-row {
-                    border-top: 1px solid #4b5563;
-                  }
-                  [data-theme="dark"] .achievement-text-light {
-                    color: #d1d5db;
-                  }
-                  [data-theme="dark"] .achievement-text-gray {
-                    color: #9ca3af;
-                  }
-                  [data-theme="dark"] .achievement-border {
-                    border-color: #4b5563;
-                  }
-                  [data-theme="dark"] .achievement-bg-white {
-                    background-color: #1f2937;
-                  }
-                  [data-theme="dark"] .achievement-bg-gray {
-                    background-color: #111827;
-                  }
-                  [data-theme="dark"] .achievement-stats-good {
-                    color: #34d399 !important;
-                  }
-                  [data-theme="dark"] .achievement-stats-medium {
-                    color: #fbbf24 !important;
-                  }
-                  [data-theme="dark"] .achievement-stats-poor {
-                    color: #f87171 !important;
-                  }
-                  [data-theme="dark"] .achievement-stats-neutral {
-                    color: #9ca3af !important;
-                  }
-
-                  @media (max-width: 768px) {
-                    .achievement-grid-header,
-                    .achievement-grid-row {
-                      display: none;
-                    }
-                    .mobile-grid {
-                      display: block;
-                    }
-                    .mobile-achievement-header {
-                      display: flex;
-                      flex-direction: column;
-                      background-color: #f3f4f6;
-                      font-size: 10px;
-                      font-weight: 500;
-                    }
-                    .mobile-header-row {
-                      display: grid;
-                      grid-template-columns: 50px repeat(15, 10px) 35px 40px 30px;
-                      gap: 1px;
-                      padding: 4px 0;
-                    }
-                    .mobile-achievement-row {
-                      display: flex;
-                      flex-direction: column;
-                      border-top: 1px solid #e5e7eb;
-                    }
-                    .mobile-task-row {
-                      display: grid;
-                      grid-template-columns: 50px repeat(15, 10px) 35px 40px 30px;
-                      gap: 1px;
-                      padding: 4px 0;
-                    }
-                  }
-                `}</style>
-                {/* ヘッダー（日付） */}
-                <div className="achievement-grid-header">
-                  <div className="achievement-text-light" style={{ padding: '8px', borderRight: '1px solid #e5e7eb' }}>タスク</div>
-                  {dailyTasksData[0]?.dates.map((date, index) => {
-                    const day = new Date(date + 'T00:00:00').getDate()
-                    return (
-                      <div
-                        key={date}
-                        className="achievement-text-gray"
-                        style={{
-                          padding: '4px 1px',
-                          textAlign: 'center',
-                          color: '#6b7280',
-                          transform: 'rotate(-45deg)',
-                          fontSize: '8px'
-                        }}
-                      >
-                        {day}
-                      </div>
-                    )
-                  })}
-                  <div className="achievement-text-light" style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid #e5e7eb' }}>直近達成率</div>
-                  <div className="achievement-text-light" style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid #e5e7eb' }}>総達成率</div>
-                  <div className="achievement-text-light" style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid #e5e7eb' }}>連続記録</div>
-                </div>
-
-                {/* タスク行 */}
-                {dailyTasksData.map((taskData, taskIndex) => (
-                  <div
-                    key={taskData.taskId}
-                    className={`achievement-grid-row ${taskIndex % 2 === 0 ? 'achievement-bg-white' : 'achievement-bg-gray'}`}
-                    style={{
-                      backgroundColor: taskIndex % 2 === 0 ? '#ffffff' : '#f9fafb'
-                    }}
-                  >
-                    {/* タスク名 */}
-                    <div className="achievement-text-light achievement-border task-title" style={{
-                      padding: '8px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      borderRight: '1px solid #e5e7eb',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {taskData.taskTitle}
-                    </div>
-
-                    {/* 30日分のチェック */}
-                    {taskData.completions.map((completed, dayIndex) => (
-                      <div
-                        key={dayIndex}
-                        style={{
-                          padding: '3px',
-                          textAlign: 'center',
-                          fontSize: '10px',
-                          color: completed ? '#10b981' : '#e5e7eb'
-                        }}
-                      >
-                        {completed ? '✓' : ''}
-                      </div>
-                    ))}
-
-                    {/* 直近の達成率 */}
-                    <div className={`achievement-border ${
-                      taskData.recentAchievementRate >= 80 ? 'achievement-stats-good' :
-                      taskData.recentAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
-                    }`} style={{
-                      padding: '8px',
-                      textAlign: 'center',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: taskData.recentAchievementRate >= 80 ? '#10b981' :
-                             taskData.recentAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
-                      borderLeft: '1px solid #e5e7eb'
-                    }}>
-                      {taskData.recentAchievementRate}%
-                    </div>
-
-                    {/* 総達成率 */}
-                    <div className={`achievement-border ${
-                      taskData.totalAchievementRate >= 80 ? 'achievement-stats-good' :
-                      taskData.totalAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
-                    }`} style={{
-                      padding: '8px',
-                      textAlign: 'center',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: taskData.totalAchievementRate >= 80 ? '#10b981' :
-                             taskData.totalAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
-                      borderLeft: '1px solid #e5e7eb'
-                    }}>
-                      {taskData.totalAchievementRate}%（{taskData.totalCompletedDays}/{taskData.totalDays}）
-                    </div>
-
-                    {/* 連続達成日数 */}
-                    <div className={`achievement-border ${
-                      taskData.consecutiveDays >= 7 ? 'achievement-stats-good' :
-                      taskData.consecutiveDays >= 3 ? 'achievement-stats-medium' : 'achievement-stats-neutral'
-                    }`} style={{
-                      padding: '8px',
-                      textAlign: 'center',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: taskData.consecutiveDays >= 7 ? '#10b981' :
-                             taskData.consecutiveDays >= 3 ? '#f59e0b' : '#6b7280',
-                      borderLeft: '1px solid #e5e7eb'
-                    }}>
-                      {taskData.consecutiveDays}日
-                    </div>
-                  </div>
-                ))}
-
-                {/* モバイル向け2段表示 */}
-                <div className="mobile-grid">
-                  {/* モバイルヘッダー（2段） */}
-                  <div className="mobile-achievement-header">
-                    {/* 第1行：前半15日 */}
-                    <div className="mobile-header-row">
-                      <div className="achievement-text-light achievement-border" style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}>タスク</div>
-                      {dailyTasksData[0]?.dates.slice(0, 15).map((date, index) => {
-                        const day = new Date(date + 'T00:00:00').getDate()
-                        return (
-                          <div
-                            key={date}
-                            className="achievement-text-gray"
-                            style={{
-                              padding: '4px 1px',
-                              textAlign: 'center',
-                              color: '#6b7280',
-                              fontSize: '8px'
-                            }}
-                          >
-                            {day}
-                          </div>
-                        )
-                      })}
-                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>直近</div>
-                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>総計</div>
-                      <div className="achievement-text-light achievement-border" style={{ padding: '4px 1px', textAlign: 'center', borderLeft: '1px solid #e5e7eb', fontSize: '7px' }}>連続</div>
-                    </div>
-                    {/* 第2行：後半15日 */}
-                    <div className="mobile-header-row achievement-border" style={{ borderTop: '1px solid #d1d5db' }}>
-                      <div className="achievement-border" style={{ padding: '6px 4px', borderRight: '1px solid #e5e7eb' }}></div>
-                      {dailyTasksData[0]?.dates.slice(15, 30).map((date, index) => {
-                        const day = new Date(date + 'T00:00:00').getDate()
-                        return (
-                          <div
-                            key={date}
-                            className="achievement-text-gray"
-                            style={{
-                              padding: '4px 1px',
-                              textAlign: 'center',
-                              color: '#6b7280',
-                              fontSize: '8px'
-                            }}
-                          >
-                            {day}
-                          </div>
-                        )
-                      })}
-                      <div className="achievement-border" style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
-                      <div className="achievement-border" style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
-                      <div className="achievement-border" style={{ padding: '6px 2px', borderLeft: '1px solid #e5e7eb' }}></div>
-                    </div>
-                  </div>
-
-                  {/* モバイルタスク行（2段） */}
-                  {dailyTasksData.map((taskData, taskIndex) => (
-                    <div
-                      key={taskData.taskId}
-                      className={`mobile-achievement-row ${taskIndex % 2 === 0 ? 'achievement-bg-white' : 'achievement-bg-gray'}`}
-                      style={{
-                        backgroundColor: taskIndex % 2 === 0 ? '#ffffff' : '#f9fafb'
-                      }}
-                    >
-                      {/* 第1行：タスク名 + 前半15日 + 統計情報 */}
-                      <div className="mobile-task-row">
-                        <div className="achievement-text-light achievement-border task-title" style={{
-                          padding: '6px 4px',
-                          fontSize: '10px',
-                          fontWeight: '500',
-                          borderRight: '1px solid #e5e7eb',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {taskData.taskTitle}
-                        </div>
-                        {taskData.completions.slice(0, 15).map((achieved: boolean, index: number) => (
-                          <div
-                            key={index}
-                            style={{
-                              padding: '3px 1px',
-                              textAlign: 'center',
-                              backgroundColor: achieved ? '#10b981' : '#e5e7eb',
-                              color: achieved ? '#ffffff' : '#6b7280',
-                              fontSize: '8px',
-                              fontWeight: '600'
-                            }}
-                          >
-                            {achieved ? '✓' : ''}
-                          </div>
-                        ))}
-                        <div className={`achievement-border ${
-                          taskData.recentAchievementRate >= 80 ? 'achievement-stats-good' :
-                          taskData.recentAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
-                        }`} style={{
-                          padding: '4px 1px',
-                          textAlign: 'center',
-                          fontSize: '8px',
-                          fontWeight: '600',
-                          color: taskData.recentAchievementRate >= 80 ? '#10b981' :
-                                 taskData.recentAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
-                          borderLeft: '1px solid #e5e7eb'
-                        }}>
-                          {taskData.recentAchievementRate}%
-                        </div>
-                        <div className={`achievement-border ${
-                          taskData.totalAchievementRate >= 80 ? 'achievement-stats-good' :
-                          taskData.totalAchievementRate >= 60 ? 'achievement-stats-medium' : 'achievement-stats-poor'
-                        }`} style={{
-                          padding: '4px 1px',
-                          textAlign: 'center',
-                          fontSize: '8px',
-                          fontWeight: '600',
-                          color: taskData.totalAchievementRate >= 80 ? '#10b981' :
-                                 taskData.totalAchievementRate >= 60 ? '#f59e0b' : '#ef4444',
-                          borderLeft: '1px solid #e5e7eb'
-                        }}>
-                          {taskData.totalAchievementRate}%
-                        </div>
-                        <div className={`achievement-border ${
-                          taskData.consecutiveDays >= 7 ? 'achievement-stats-good' :
-                          taskData.consecutiveDays >= 3 ? 'achievement-stats-medium' : 'achievement-stats-neutral'
-                        }`} style={{
-                          padding: '4px 1px',
-                          textAlign: 'center',
-                          fontSize: '8px',
-                          fontWeight: '600',
-                          color: taskData.consecutiveDays >= 7 ? '#10b981' :
-                                 taskData.consecutiveDays >= 3 ? '#f59e0b' : '#6b7280',
-                          borderLeft: '1px solid #e5e7eb'
-                        }}>
-                          {taskData.consecutiveDays}
-                        </div>
-                      </div>
-                      {/* 第2行：空白 + 後半15日 + 空白 */}
-                      <div className="mobile-task-row" style={{ borderTop: '1px solid #e5e7eb' }}>
-                        <div style={{ padding: '4px 2px', borderRight: '1px solid #e5e7eb' }}></div>
-                        {taskData.completions.slice(15, 30).map((achieved: boolean, index: number) => (
-                          <div
-                            key={index + 15}
-                            style={{
-                              padding: '3px 1px',
-                              textAlign: 'center',
-                              backgroundColor: achieved ? '#10b981' : '#e5e7eb',
-                              color: achieved ? '#ffffff' : '#6b7280',
-                              fontSize: '8px',
-                              fontWeight: '600'
-                            }}
-                          >
-                            {achieved ? '✓' : ''}
-                          </div>
-                        ))}
-                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
-                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
-                        <div style={{ padding: '4px 1px', borderLeft: '1px solid #e5e7eb' }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {selectedDailyTasks.length === 0 && (
-              <div style={{
-                textAlign: 'center',
-                padding: '20px',
-                color: '#6b7280',
-                fontSize: '14px'
-              }}>
-                上記から追跡したいタスクを選択してください
-              </div>
-            )}
-          </div>
-        )}
-
-      </header>
-
-      <main>
-        {completedTasks.length === 0 && completedRecurringTasks.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#6b7280',
-            backgroundColor: '#f9fafb',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎯</div>
-            <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>
-              {period === 'today' ? '今日は' :
-               period === 'week' ? '1週間以内に' :
-               period === 'month' ? '1ヶ月以内に' : 'まだ'}完了したタスクがありません
-            </h3>
-            <p style={{ margin: '0', fontSize: '14px' }}>
-              タスクを完了すると、ここに表示されます
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: '600' }}>完了状況</h3>
+            <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+              {period === 'today' ? '今日' :
+               period === 'week' ? '過去1週間' :
+               period === 'month' ? '過去1ヶ月' : '全期間'}で
+              <strong style={{ color: '#10b981' }}> {filteredCompletedTasks.length}件 </strong>
+              のタスクを完了しました
             </p>
           </div>
-        ) : (
-          <TaskTable
-            tasks={completedTasks}
-            recurringTasks={completedRecurringTasks}
-            completedTasks={[]}
-            completedRecurringTasks={[]}
-            onComplete={() => {}} // 完了済みなのでアクションなし
-            onRecurringComplete={() => {}} // 完了済みなのでアクションなし
-            onEdit={handleEditTask}
-            onUncomplete={uncompleteTask}
-            onDelete={deleteTask}
-          />
-        )}
-      </main>
 
-      {/* タスク編集フォーム */}
-      <TaskEditForm
-        task={editingTask}
-        isVisible={showEditForm}
-        onSubmit={handleUpdateTask}
-        onCancel={handleCancelEdit}
-        onUncomplete={uncompleteTask}
-      />
-      </div>
+          {/* 完了済みタスク一覧 */}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
+          }}>
+            {filteredCompletedTasks.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                <p>該当期間に完了したタスクがありません</p>
+              </div>
+            ) : (
+              <UnifiedTasksTable
+                tasks={filteredCompletedTasks}
+                unifiedTasks={unifiedTasks}
+                onEdit={handleEdit}
+                showCompleted={true}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* 編集フォーム */}
+        <TaskEditForm
+          task={editingTask}
+          isVisible={showEditForm}
+          onSubmit={handleUpdateTask}
+          onCancel={handleCancelEdit}
+          onUncomplete={(id: string) => unifiedTasks.uncompleteTask(id)}
+        />
+      </main>
     </ThemedContainer>
   )
 }

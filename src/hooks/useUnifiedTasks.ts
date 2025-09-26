@@ -4,6 +4,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { UnifiedTask, TaskFilters, SPECIAL_DATES } from '@/lib/types/unified-task'
 import { withErrorHandling } from '@/lib/utils/error-handler'
@@ -11,6 +12,10 @@ import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
 
 const NO_DUE_DATE = '2999-12-31'
+
+// キャッシュ管理
+let taskCache: { data: UnifiedTask[]; timestamp: number } | null = null
+const CACHE_DURATION = 5000 // 5秒間キャッシュ（短縮）
 
 interface UseUnifiedTasksResult {
   tasks: UnifiedTask[]
@@ -47,14 +52,35 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
   const [error, setError] = useState<string | null>(null)
 
   // 全タスクを読み込み
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (forceRefresh = false) => {
+    // キャッシュチェック（強制更新でない場合）
+    if (!forceRefresh && taskCache && Date.now() - taskCache.timestamp < CACHE_DURATION) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Using cached unified tasks data')
+      }
+      setTasks(taskCache.data)
+      setError(null)
+      setLoading(false)
+      return
+    }
+
     await withErrorHandling(
       async () => {
         setLoading(true)
         const allTasks = await UnifiedTasksService.getAllUnifiedTasks()
 
+        // キャッシュを更新
+        taskCache = {
+          data: allTasks,
+          timestamp: Date.now()
+        }
+
         setTasks(allTasks)
         setError(null)
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🔄 Unified tasks loaded: ${allTasks.length} items`)
+        }
       },
       'useUnifiedTasks.loadTasks',
       setError
@@ -169,7 +195,9 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
         }
 
         const createdTask = await UnifiedTasksService.createUnifiedTask(taskWithUserId)
-        await loadTasks() // データを再読み込み
+        // キャッシュを無効化して強制リロード
+        taskCache = null
+        await loadTasks(true)
         return createdTask
       },
       'useUnifiedTasks.createTask',
@@ -187,7 +215,9 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.completeTask(id)
-        await loadTasks() // データを再読み込み
+        // キャッシュを無効化して強制リロード
+        taskCache = null
+        await loadTasks(true)
       },
       'useUnifiedTasks.completeTask',
       setError
@@ -198,7 +228,9 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.uncompleteTask(id)
-        await loadTasks() // データを再読み込み
+        // キャッシュを無効化して強制リロード
+        taskCache = null
+        await loadTasks(true)
       },
       'useUnifiedTasks.uncompleteTask',
       setError
@@ -209,7 +241,9 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.deleteUnifiedTask(id)
-        await loadTasks() // データを再読み込み
+        // キャッシュを無効化して強制リロード
+        taskCache = null
+        await loadTasks(true)
       },
       'useUnifiedTasks.deleteTask',
       setError
@@ -220,7 +254,9 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.updateUnifiedTask(id, updates)
-        await loadTasks() // データを再読み込み
+        // キャッシュを無効化して強制リロード
+        taskCache = null
+        await loadTasks(true)
       },
       'useUnifiedTasks.updateTask',
       setError
@@ -270,6 +306,36 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
   useEffect(() => {
     if (autoLoad) {
       loadTasks()
+    }
+  }, [autoLoad, loadTasks])
+
+  // ページフォーカス時の自動リロード
+  useEffect(() => {
+    if (!autoLoad) return
+
+    const handleFocus = () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Page focused, reloading tasks...')
+      }
+      loadTasks(true) // 強制リロード
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Page became visible, reloading tasks...')
+        }
+        loadTasks(true) // 強制リロード
+      }
+    }
+
+    // フォーカス時とページが表示状態になった時にリロード
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [autoLoad, loadTasks])
 
