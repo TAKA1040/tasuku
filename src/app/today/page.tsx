@@ -55,8 +55,14 @@ export default function TodayPage() {
       displayCategory: task.category || (task.recurring_pattern ? '繰り返し' : task.due_date === '2999-12-31' ? 'アイデア' : '未分類')
     }))
 
-    // ソートモードに応じて並び替え
+    // 完了・未完了で分離してソート
     unifiedData.sort((a, b) => {
+      // 完了状態による優先度（未完了が上、完了が下）
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1
+      }
+
+      // 同じ完了状態内でのソート
       // 時間軸ソートの場合
       if (sortMode === 'time') {
         const startTimeA = a.start_time || '99:99' // 未設定は最後

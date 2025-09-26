@@ -255,7 +255,9 @@ export function UnifiedTasksTable({
                 <tr key={`${item.dataType}-${item.id}`}
                     style={{
                       borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
-                      backgroundColor: item.completed ? '#f0fdf4' : 'transparent'
+                      backgroundColor: item.completed ? '#f8f9fa' : 'transparent',
+                      opacity: item.completed ? 0.6 : 1,
+                      color: item.completed ? '#6b7280' : 'inherit'
                     }}>
                   {/* 統一番号表示 */}
                   <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
@@ -333,7 +335,10 @@ export function UnifiedTasksTable({
                       />
 
                       {/* タイトル */}
-                      <span style={{ fontWeight: '500' }}>
+                      <span style={{
+                        fontWeight: '500',
+                        textDecoration: item.completed ? 'line-through' : 'none'
+                      }}>
                         {item.displayTitle}
                       </span>
 
