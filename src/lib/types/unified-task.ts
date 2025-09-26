@@ -46,6 +46,9 @@ export interface UnifiedTask {
   recurring_interval?: number | null
   recurring_weekdays?: number[] | null
   recurring_day?: number | null
+
+  // 履歴タスクの識別フラグ（doneテーブルから取得されたタスク）
+  _isHistory?: boolean
 }
 
 // 統一ルールの定数

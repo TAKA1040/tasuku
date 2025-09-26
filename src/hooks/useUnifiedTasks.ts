@@ -39,6 +39,7 @@ interface UseUnifiedTasksResult {
   getIdeaTasks: () => UnifiedTask[]
   getRecurringTasks: () => UnifiedTask[]
   getCompletedTasks: () => UnifiedTask[]
+  getCompletedTasksWithHistory: () => Promise<UnifiedTask[]>
 
   // 操作関数
   createTask: (task: Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => Promise<UnifiedTask>
@@ -184,6 +185,59 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
       // 優先度が同じ場合は統一番号順
       return (a.display_number || '').localeCompare(b.display_number || '')
     })
+  }, [tasks])
+
+  // doneテーブルの完了履歴も含む完了タスク取得
+  const getCompletedTasksWithHistory = useCallback(async (): Promise<UnifiedTask[]> => {
+    return await withErrorHandling(
+      async () => {
+        const supabase = createClient()
+
+        // 1. 通常の完了済みタスク (unified_tasks.completed = true)
+        const completedTasks = tasks.filter(task => task.completed)
+
+        // 2. doneテーブルから完了履歴を取得
+        const { data: doneRecords, error } = await supabase
+          .from('done')
+          .select(`
+            original_task_id,
+            completed_at,
+            unified_tasks!inner(*)
+          `)
+          .order('completed_at', { ascending: false })
+
+        if (error) {
+          console.error('Failed to fetch done records:', error)
+          return completedTasks
+        }
+
+        // 3. doneレコードから仮想的な完了タスクを構築
+        const historyTasks: UnifiedTask[] = doneRecords?.map(record => ({
+          ...record.unified_tasks,
+          completed: true,
+          completed_at: record.completed_at,
+          // 履歴として識別するためのフラグ
+          _isHistory: true
+        })) || []
+
+        // 4. 重複を除去（同一タスクの複数完了履歴は最新のみ保持）
+        const uniqueHistoryTasks = historyTasks.filter((historyTask, index, array) => {
+          return array.findIndex(t => t.id === historyTask.id) === index
+        })
+
+        // 5. 結合して並び替え
+        const allCompletedTasks = [...completedTasks, ...uniqueHistoryTasks]
+
+        return allCompletedTasks.sort((a, b) => {
+          // 完了日時で降順（新しい順）
+          const dateA = a.completed_at || a.updated_at || ''
+          const dateB = b.completed_at || b.updated_at || ''
+          return dateB.localeCompare(dateA)
+        })
+      },
+      'useUnifiedTasks.getCompletedTasksWithHistory',
+      setError
+    ) || []
   }, [tasks])
 
   // タスク操作関数
@@ -359,6 +413,7 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     getIdeaTasks,
     getRecurringTasks,
     getCompletedTasks,
+    getCompletedTasksWithHistory,
     createTask,
     completeTask,
     uncompleteTask,
