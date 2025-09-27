@@ -103,72 +103,75 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
   const quickTimes = ['09:00', '12:00', '15:00', '18:00', '21:00']
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...style }}>
-      {/* 時間選択 */}
-      <select
-        value={hours}
-        onChange={handleHoursChange}
-        onKeyDown={(e) => handleKeyDown(e, 'hours')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          fontSize: '14px',
-          minWidth: '60px'
-        }}
-      >
-        <option value="">時</option>
-        {hourOptions.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      <span style={{ fontSize: '16px', fontWeight: 'bold' }}>:</span>
-
-      {/* 分選択 */}
-      <select
-        value={minutes}
-        onChange={handleMinutesChange}
-        onKeyDown={(e) => handleKeyDown(e, 'minutes')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          fontSize: '14px',
-          minWidth: '60px'
-        }}
-      >
-        <option value="">分</option>
-        {minuteOptions.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      {/* クリアボタン */}
-      {(hours || minutes) && (
-        <button
-          type="button"
-          onClick={handleClear}
+    <div style={{ ...style }}>
+      {/* 時間と分の選択 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+        <select
+          value={hours}
+          onChange={handleHoursChange}
+          onKeyDown={(e) => handleKeyDown(e, 'hours')}
           style={{
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
+            padding: '3px 6px',
+            border: '1px solid #ddd',
+            borderRadius: '3px',
             fontSize: '12px',
-            cursor: 'pointer'
+            minWidth: '50px',
+            flex: '1'
           }}
         >
-          クリア
-        </button>
-      )}
+          <option value="">時</option>
+          {hourOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#6b7280' }}>:</span>
+
+        <select
+          value={minutes}
+          onChange={handleMinutesChange}
+          onKeyDown={(e) => handleKeyDown(e, 'minutes')}
+          style={{
+            padding: '3px 6px',
+            border: '1px solid #ddd',
+            borderRadius: '3px',
+            fontSize: '12px',
+            minWidth: '50px',
+            flex: '1'
+          }}
+        >
+          <option value="">分</option>
+          {minuteOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        {/* クリアボタン */}
+        {(hours || minutes) && (
+          <button
+            type="button"
+            onClick={handleClear}
+            style={{
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              padding: '2px 6px',
+              fontSize: '10px',
+              cursor: 'pointer'
+            }}
+          >
+            ×
+          </button>
+        )}
+      </div>
 
       {/* クイック選択ボタン */}
-      <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+      <div style={{ display: 'flex', gap: '2px', flexWrap: 'wrap' }}>
         {quickTimes.map(time => (
           <button
             key={time}
@@ -184,10 +187,11 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
                 ? '#0056b3' : '#007bff',
               color: 'white',
               border: 'none',
-              borderRadius: '3px',
-              padding: '3px 6px',
-              fontSize: '11px',
-              cursor: 'pointer'
+              borderRadius: '2px',
+              padding: '2px 4px',
+              fontSize: '9px',
+              cursor: 'pointer',
+              minWidth: '32px'
             }}
           >
             {time}

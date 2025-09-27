@@ -345,7 +345,8 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             タスク設定
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '75px 65px 80px 90px', gap: '4px', marginBottom: '6px' }}>
+          {/* 重要度とカテゴリの行 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '8px' }}>
             <div>
               <label style={{
                 display: 'block',
@@ -385,52 +386,6 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 fontWeight: '500',
                 color: '#6b7280'
               }}>
-                開始時間
-              </label>
-              <TimeInput
-                value={startTime}
-                onChange={setStartTime}
-                placeholder="開始時間"
-                style={{
-                  width: '100%',
-                  padding: '4px 4px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '3px',
-                  fontSize: '13px'
-                }}
-              />
-            </div>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: '#6b7280'
-              }}>
-                終了時間
-              </label>
-              <TimeInput
-                value={endTime}
-                onChange={setEndTime}
-                placeholder="終了時間"
-                style={{
-                  width: '100%',
-                  padding: '4px 4px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '3px',
-                  fontSize: '13px'
-                }}
-              />
-            </div>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: '#6b7280'
-              }}>
                 カテゴリ
               </label>
               <select
@@ -452,6 +407,51 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 <option value="家事">家事</option>
                 <option value="買い物">買い物</option>
               </select>
+            </div>
+          </div>
+
+          {/* 時間設定の行 */}
+          <div style={{ marginBottom: '8px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '4px',
+              fontSize: '11px',
+              fontWeight: '500',
+              color: '#6b7280'
+            }}>
+              時間設定
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '2px',
+                  fontSize: '10px',
+                  color: '#9ca3af'
+                }}>
+                  開始時間
+                </label>
+                <TimeInput
+                  value={startTime}
+                  onChange={setStartTime}
+                  placeholder="開始時間"
+                />
+              </div>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '2px',
+                  fontSize: '10px',
+                  color: '#9ca3af'
+                }}>
+                  終了時間
+                </label>
+                <TimeInput
+                  value={endTime}
+                  onChange={setEndTime}
+                  placeholder="終了時間"
+                />
+              </div>
             </div>
           </div>
 
