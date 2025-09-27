@@ -228,35 +228,60 @@ export class UnifiedTasksService {
   // 繰り返しタスクからテンプレートを同期更新
   private static async syncTemplateFromTask(task: UnifiedTask): Promise<void> {
     try {
+      console.log('🔄 syncTemplateFromTask called with:', {
+        id: task.id,
+        title: task.title,
+        category: task.category,
+        template_id: task.recurring_template_id,
+        weekdays: task.recurring_weekdays
+      })
+
       const supabase = createClient()
 
       // テンプレートが存在する場合は更新
       if (task.recurring_template_id) {
+        const updatePayload = {
+          title: task.title,
+          memo: task.memo,
+          category: task.category,
+          importance: task.importance,
+          start_time: task.start_time,
+          weekdays: task.recurring_weekdays,
+          updated_at: new Date().toISOString()
+        }
+
+        console.log('🆕 Syncing template with payload:', updatePayload)
+
         const { error } = await supabase
           .from('recurring_templates')
-          .update({
-            title: task.title,
-            memo: task.memo,
-            category: task.category,
-            importance: task.importance,
-            start_time: task.start_time,
-            weekdays: task.recurring_weekdays,
-            updated_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq('id', task.recurring_template_id)
 
         if (error) {
-          console.error('Failed to sync template:', error)
+          console.error('❌ Failed to sync template:', error)
+        } else {
+          console.log('✅ Template synced successfully')
         }
+      } else {
+        console.log('⚠️ No template_id found, cannot sync')
       }
     } catch (error) {
-      console.error('UnifiedTasksService.syncTemplateFromTask error:', error)
+      console.error('❌ UnifiedTasksService.syncTemplateFromTask error:', error)
     }
   }
 
   // 繰り返しタスクから自動的にテンプレートを作成
   private static async createTemplateFromTask(task: UnifiedTask): Promise<void> {
     try {
+      console.log('🔄 createTemplateFromTask called with:', {
+        id: task.id,
+        title: task.title,
+        category: task.category,
+        pattern: task.recurring_pattern,
+        weekdays: task.recurring_weekdays,
+        user_id: task.user_id
+      })
+
       const supabase = createClient()
 
       // 既に同じテンプレートが存在するかチェック
@@ -269,8 +294,11 @@ export class UnifiedTasksService {
         .eq('category', task.category || '')
         .limit(1)
 
+      console.log('🔍 Existing template check:', existingTemplate)
+
       if (existingTemplate && existingTemplate.length > 0) {
         // 既存テンプレートのIDを設定
+        console.log('📎 Linking to existing template:', existingTemplate[0].id)
         await supabase
           .from('unified_tasks')
           .update({ recurring_template_id: existingTemplate[0].id })
@@ -279,38 +307,50 @@ export class UnifiedTasksService {
       }
 
       // 新しいテンプレートを作成
+      const templatePayload = {
+        title: task.title,
+        memo: task.memo,
+        category: task.category,
+        importance: task.importance || 1,
+        pattern: task.recurring_pattern,
+        weekdays: task.recurring_weekdays,
+        user_id: task.user_id,
+        active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('🆕 Creating new template with payload:', templatePayload)
+
       const { data: templateData, error: templateError } = await supabase
         .from('recurring_templates')
-        .insert({
-          title: task.title,
-          memo: task.memo,
-          category: task.category,
-          importance: task.importance || 1,
-          pattern: task.recurring_pattern,
-          weekdays: task.recurring_weekdays,
-          user_id: task.user_id,
-          active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+        .insert(templatePayload)
         .select()
         .single()
 
       if (templateError) {
-        console.error('Template creation error:', templateError)
+        console.error('❌ Template creation error:', templateError)
         return
       }
 
+      console.log('✅ Template created successfully:', templateData)
+
       // タスクにテンプレートIDを設定
-      await supabase
+      const { error: linkError } = await supabase
         .from('unified_tasks')
         .update({ recurring_template_id: templateData.id })
         .eq('id', task.id)
 
-      console.log(`✅ 自動テンプレート作成: ${task.title} (${task.recurring_pattern})`)
+      if (linkError) {
+        console.error('❌ Template linking error:', linkError)
+      } else {
+        console.log('🔗 Task linked to template successfully')
+      }
+
+      console.log(`✅ 自動テンプレート作成完了: ${task.title} (${task.recurring_pattern})`)
 
     } catch (error) {
-      console.error('createTemplateFromTask error:', error)
+      console.error('❌ createTemplateFromTask error:', error)
     }
   }
 
