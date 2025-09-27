@@ -272,108 +272,97 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             />
           </div>
 
-          {/* カテゴリと優先度の行 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-            <div>
-              <label style={{
-                display: 'inline-block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginRight: '8px',
-                color: '#374151'
-              }}>
-                カテゴリ
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{
-                  width: 'calc(100% - 60px)',
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  backgroundColor: '#fff'
-                }}
-              >
-                <option value="">選択</option>
-                {Object.values(TASK_CATEGORIES).map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label style={{
-                display: 'inline-block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginRight: '8px',
-                color: '#374151'
-              }}>
-                優先度
-              </label>
-              <select
-                value={importance}
-                onChange={(e) => setImportance(Number(e.target.value))}
-                style={{
-                  width: 'calc(100% - 60px)',
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  backgroundColor: '#fff'
-                }}
-              >
-                {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* 時間設定 */}
-          <div style={{ marginBottom: '16px' }}>
+          {/* カテゴリ */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
               fontSize: '14px',
               fontWeight: '500',
-              marginBottom: '8px',
-              color: '#374151'
+              color: '#374151',
+              minWidth: '60px'
             }}>
-              時間設定
+              カテゴリ
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '4px',
-                  fontSize: '12px',
-                  color: '#6b7280'
-                }}>
-                  開始時間
-                </label>
-                <TimeInput
-                  value={startTime}
-                  onChange={setStartTime}
-                  placeholder="開始時間"
-                />
-              </div>
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '4px',
-                  fontSize: '12px',
-                  color: '#6b7280'
-                }}>
-                  終了時間
-                </label>
-                <TimeInput
-                  value={endTime}
-                  onChange={setEndTime}
-                  placeholder="終了時間"
-                />
-              </div>
-            </div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px',
+                backgroundColor: '#fff'
+              }}
+            >
+              <option value="">選択</option>
+              {Object.values(TASK_CATEGORIES).map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 優先度 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              優先度
+            </label>
+            <select
+              value={importance}
+              onChange={(e) => setImportance(Number(e.target.value))}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px',
+                backgroundColor: '#fff'
+              }}
+            >
+              {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 開始時間 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              開始時間
+            </label>
+            <TimeInput
+              value={startTime}
+              onChange={setStartTime}
+              placeholder="開始時間"
+              style={{ flex: 1 }}
+            />
+          </div>
+
+          {/* 終了時間 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              終了時間
+            </label>
+            <TimeInput
+              value={endTime}
+              onChange={setEndTime}
+              placeholder="終了時間"
+              style={{ flex: 1 }}
+            />
           </div>
 
           {/* ファイル添付セクション */}
