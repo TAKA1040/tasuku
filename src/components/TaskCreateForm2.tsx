@@ -4,6 +4,7 @@ import React, { memo, useState } from 'react'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { URL_LIMITS } from '@/lib/db/schema'
 import { ImportanceDot } from '@/components/ImportanceDot'
+import { TimeInput } from '@/components/TimeInput'
 
 interface RecurringSettings {
   pattern: string
@@ -386,10 +387,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               }}>
                 開始時間
               </label>
-              <input
-                type="time"
+              <TimeInput
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                onChange={setStartTime}
+                placeholder="開始時間"
                 style={{
                   width: '100%',
                   padding: '4px 4px',
@@ -409,10 +410,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               }}>
                 終了時間
               </label>
-              <input
-                type="time"
+              <TimeInput
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                onChange={setEndTime}
+                placeholder="終了時間"
                 style={{
                   width: '100%',
                   padding: '4px 4px',
