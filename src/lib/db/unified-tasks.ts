@@ -384,6 +384,15 @@ export class UnifiedTasksService {
         throw new Error(`Failed to update unified task: ${error.message}`)
       }
 
+      // デバッグ: 更新されたタスクの情報をログ出力
+      console.log('🔍 DEBUG: Updated task info:', {
+        id: data.id,
+        title: data.title,
+        task_type: data.task_type,
+        recurring_template_id: data.recurring_template_id,
+        category: data.category
+      })
+
       // 繰り返しタスクの場合、テンプレートも同期更新
       if (data.task_type === 'RECURRING') {
         console.log('🔄 RECURRING task detected, attempting template sync...')
@@ -396,6 +405,8 @@ export class UnifiedTasksService {
           console.log('🔗 recurring_template_id found, syncing template...')
           await this.syncTemplateFromTask(data)
         }
+      } else {
+        console.log('🔍 DEBUG: Task is not RECURRING type:', data.task_type)
       }
 
       return data
