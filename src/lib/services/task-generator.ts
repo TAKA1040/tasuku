@@ -185,6 +185,7 @@ export class TaskGeneratorService {
       importance: template.importance,
       task_type: 'RECURRING',
       recurring_pattern: template.pattern,
+      recurring_weekdays: template.weekdays,
       recurring_template_id: template.id,
       display_number: displayNumber,
       completed: false,
