@@ -225,6 +225,34 @@ export class UnifiedTasksService {
     }
   }
 
+  // 繰り返しタスクからテンプレートを同期更新
+  private static async syncTemplateFromTask(task: UnifiedTask): Promise<void> {
+    try {
+      const supabase = createClient()
+
+      // テンプレートが存在する場合は更新
+      if (task.recurring_template_id) {
+        const { error } = await supabase
+          .from('recurring_templates')
+          .update({
+            title: task.title,
+            memo: task.memo,
+            category: task.category,
+            importance: task.importance,
+            start_time: task.start_time,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', task.recurring_template_id)
+
+        if (error) {
+          console.error('Failed to sync template:', error)
+        }
+      }
+    } catch (error) {
+      console.error('UnifiedTasksService.syncTemplateFromTask error:', error)
+    }
+  }
+
   // 繰り返しタスクから自動的にテンプレートを作成
   private static async createTemplateFromTask(task: UnifiedTask): Promise<void> {
     try {
@@ -288,6 +316,18 @@ export class UnifiedTasksService {
   static async updateUnifiedTask(id: string, updates: Partial<UnifiedTask>): Promise<UnifiedTask> {
     try {
       const supabase = createClient()
+
+      // まず現在のタスク情報を取得
+      const { data: currentTask, error: fetchError } = await supabase
+        .from('unified_tasks')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch current task: ${fetchError.message}`)
+      }
+
       const { data, error } = await supabase
         .from('unified_tasks')
         .update({
@@ -300,6 +340,11 @@ export class UnifiedTasksService {
 
       if (error) {
         throw new Error(`Failed to update unified task: ${error.message}`)
+      }
+
+      // 繰り返しタスクの場合、テンプレートも同期更新
+      if (data.task_type === 'RECURRING' && data.recurring_template_id) {
+        await this.syncTemplateFromTask(data)
       }
 
       return data
