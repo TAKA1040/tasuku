@@ -25,7 +25,15 @@ export class TaskGeneratorService {
 
     // 既存データから最終処理日を取得
     const lastProcessed = await this.getLastGenerationDate()
-    console.log(`タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
+    console.log(`🚀 タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
+
+    try {
+      const userId = await this.getCurrentUserId()
+      console.log('👤 ユーザーID:', userId)
+    } catch (error) {
+      console.error('❌ ユーザー認証エラー:', error)
+      return
+    }
 
     if (lastProcessed < today) {
       // 日次: 最大3日分復旧
@@ -103,7 +111,8 @@ export class TaskGeneratorService {
   // 日次タスク生成
   async generateDailyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('DAILY')
-    console.log(`日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    console.log(`🔄 日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    console.log('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, is_active: t.is_active })))
 
     for (const template of templates) {
       let currentDate = startDate

@@ -1,21 +1,4 @@
-デプロイエラー
-
-> tasuku@0.1.0 build
-> next build
-   ▲ Next.js 15.5.3
-   Creating an optimized production build ...
- ✓ Compiled successfully in 4.4s
-   Skipping linting
-   Checking validity of types ...
-Failed to compile.
-./src/lib/db/unified-tasks.ts:284:53
-Type error: Property 'supabaseUrl' is protected and only accessible within class 'SupabaseClient<Database, SchemaNameOrClientOptions, SchemaName, Schema, ClientOptions>' and its subclasses.
-  282 |           console.error('  Template ID:', task.recurring_template_id)
-  283 |           console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
-> 284 |           console.error('  Supabase URL:', supabase.supabaseUrl)
-      |                                                     ^
-  285 |           console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
-  286 |         } else {
-  287 |           console.log('✅ Template synced successfully')
-Next.js build worker exited with code: 1 and signal: null
-Error: Command "npm run build" exited with 1
+タスクの編集画面でカテゴリを買い物に変更しても
+カテゴリの下に買い物リストの入力画面が出てこない。
+タスクの追加の画面をみて修正すること。
+必ずDBとの連携も行うように。

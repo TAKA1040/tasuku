@@ -334,7 +334,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                const newCategory = e.target.value
+                console.log('🛒 TaskEditForm - カテゴリ変更:', newCategory)
+                setCategory(newCategory)
+              }}
               style={{
                 flex: 1,
                 padding: '6px 8px',
@@ -714,7 +718,10 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           </div>
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
-          {category === '買い物' && (
+          {(() => {
+            console.log('🛒 TaskEditForm - category:', category, 'isShopping:', category === '買い物')
+            return category === '買い物'
+          })() && (
             <div style={{ marginBottom: '16px' }}>
               {/* 買い物アイテム追加 */}
               <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
