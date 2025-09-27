@@ -211,7 +211,7 @@ export default function DonePage() {
             ) : (
               <UnifiedTasksTable
                 title="完了済みタスク"
-                tasks={filteredCompletedTasks.map(task => ({ task }))}
+                tasks={filteredCompletedTasks}
                 unifiedTasks={unifiedTasks}
                 handleEditTask={handleEdit}
                 emptyMessage="該当期間に完了したタスクがありません"
