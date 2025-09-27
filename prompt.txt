@@ -1,12 +1,21 @@
-page-2f3c36723a11932e.js:1 🔄 タスク生成を開始...
-page-2f3c36723a11932e.js:1 タスク生成開始: 今日=2025-09-27, 前回=2025-09-27
-page-2f3c36723a11932e.js:1 タスク生成完了
-page-2f3c36723a11932e.js:1 ✅ タスク生成完了
-380-75fbd8173cb76bac.js:1 🔍 DEBUG: Updated task info: Object
-380-75fbd8173cb76bac.js:1 🔄 RECURRING task detected, attempting template sync...
-380-75fbd8173cb76bac.js:1 🔗 recurring_template_id found, syncing template...
-380-75fbd8173cb76bac.js:1 🔄 syncTemplateFromTask called with: Object
-380-75fbd8173cb76bac.js:1 🆕 Syncing template with payload: Object
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/recurring_templates?id=eq.42c8f9c9-5ae7-4b46-ad26-ed7c8a767dfc:1  Failed to load resource: the server responded with a status of 400 ()
-380-75fbd8173cb76bac.js:1 ❌ Failed to sync template: Object
-syncTemplateFromTask @ 380-75fbd8173cb76bac.js:1
+デプロイエラー
+
+> tasuku@0.1.0 build
+> next build
+   ▲ Next.js 15.5.3
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.4s
+   Skipping linting
+   Checking validity of types ...
+Failed to compile.
+./src/lib/db/unified-tasks.ts:284:53
+Type error: Property 'supabaseUrl' is protected and only accessible within class 'SupabaseClient<Database, SchemaNameOrClientOptions, SchemaName, Schema, ClientOptions>' and its subclasses.
+  282 |           console.error('  Template ID:', task.recurring_template_id)
+  283 |           console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
+> 284 |           console.error('  Supabase URL:', supabase.supabaseUrl)
+      |                                                     ^
+  285 |           console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
+  286 |         } else {
+  287 |           console.log('✅ Template synced successfully')
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1

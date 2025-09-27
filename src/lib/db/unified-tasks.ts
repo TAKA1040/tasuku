@@ -281,7 +281,7 @@ export class UnifiedTasksService {
           console.error('  Error:', JSON.stringify(error, null, 2))
           console.error('  Template ID:', task.recurring_template_id)
           console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
-          console.error('  Supabase URL:', supabase.supabaseUrl)
+          console.error('  Supabase URL:', 'wgtrffjwdtytqgqybjwx.supabase.co')
           console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
         } else {
           console.log('✅ Template synced successfully')
