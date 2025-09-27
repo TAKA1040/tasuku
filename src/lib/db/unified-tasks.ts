@@ -380,24 +380,59 @@ export class UnifiedTasksService {
         throw new Error(`Failed to fetch task: ${fetchError.message}`)
       }
 
+      const completedAt = getNowJST()
+
+      // 全てのタスクの完了履歴をdoneテーブルに記録
+      await this.saveToDoneHistory(task, completedAt)
+
       // 繰り返しタスクの場合は次回の due_date を計算
       if (task.recurring_pattern) {
         const nextDueDate = this.calculateNextRecurringDate(task)
         return this.updateUnifiedTask(id, {
-          completed: false, // 繰り返しタスクは完了せず次回日付に更新
+          completed: false, // 繰り返しタスクは次回に向けて未完了状態に戻す
           due_date: nextDueDate,
-          completed_at: getNowJST() // 完了日時を記録
+          completed_at: undefined // 次回のために completed_at をクリア
         })
       } else {
-        // 通常タスクは完了
+        // 通常タスクは完了状態にする
         return this.updateUnifiedTask(id, {
           completed: true,
-          completed_at: getNowJST()
+          completed_at: completedAt
         })
       }
     } catch (error) {
       console.error('UnifiedTasksService.completeTask error:', error)
       throw error
+    }
+  }
+
+  // 完了履歴をdoneテーブルに保存
+  private static async saveToDoneHistory(task: UnifiedTask, completedAt: string): Promise<void> {
+    try {
+      const supabase = createClient()
+
+      const { error } = await supabase
+        .from('done')
+        .insert({
+          original_task_id: task.id,
+          original_title: task.title,
+          original_memo: task.memo,
+          original_category: task.category,
+          original_importance: task.importance,
+          original_due_date: task.due_date,
+          original_recurring_pattern: task.recurring_pattern,
+          original_display_number: task.display_number,
+          completed_at: completedAt,
+          user_id: task.user_id
+        })
+
+      if (error) {
+        console.error('Failed to save completion history to done table:', error)
+        // エラーがあってもタスク完了処理は続行する
+      }
+    } catch (error) {
+      console.error('Error saving to done history:', error)
+      // エラーがあってもタスク完了処理は続行する
     }
   }
 
