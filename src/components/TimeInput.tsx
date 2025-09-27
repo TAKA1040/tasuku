@@ -99,13 +99,10 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
     onChange('')
   }
 
-  // クイック時間選択
-  const quickTimes = ['09:00', '12:00', '15:00', '18:00', '21:00']
-
   return (
     <div style={{ ...style }}>
       {/* 時間と分の選択 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <select
           value={hours}
           onChange={handleHoursChange}
@@ -168,35 +165,6 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
             ×
           </button>
         )}
-      </div>
-
-      {/* クイック選択ボタン */}
-      <div style={{ display: 'flex', gap: '2px', flexWrap: 'wrap' }}>
-        {quickTimes.map(time => (
-          <button
-            key={time}
-            type="button"
-            onClick={() => {
-              const [h, m] = time.split(':')
-              setHours(h)
-              setMinutes(m)
-              updateTime(h, m)
-            }}
-            style={{
-              background: hours === time.split(':')[0] && minutes === time.split(':')[1]
-                ? '#0056b3' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '2px',
-              padding: '2px 4px',
-              fontSize: '9px',
-              cursor: 'pointer',
-              minWidth: '32px'
-            }}
-          >
-            {time}
-          </button>
-        ))}
       </div>
     </div>
   )
