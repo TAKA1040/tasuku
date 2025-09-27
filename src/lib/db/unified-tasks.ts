@@ -240,6 +240,7 @@ export class UnifiedTasksService {
             category: task.category,
             importance: task.importance,
             start_time: task.start_time,
+            weekdays: task.recurring_weekdays,
             updated_at: new Date().toISOString()
           })
           .eq('id', task.recurring_template_id)
@@ -286,6 +287,7 @@ export class UnifiedTasksService {
           category: task.category,
           importance: task.importance || 1,
           pattern: task.recurring_pattern,
+          weekdays: task.recurring_weekdays,
           user_id: task.user_id,
           active: true,
           created_at: new Date().toISOString(),

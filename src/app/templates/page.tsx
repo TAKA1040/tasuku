@@ -55,6 +55,17 @@ export default function TemplatesPage() {
 
   // パターンの詳細表示
   const formatPatternDetails = (template: RecurringTemplate): string => {
+    // デバッグ情報をコンソールに出力
+    if (template.pattern === 'WEEKLY') {
+      console.log('WEEKLY template debug:', {
+        id: template.id,
+        title: template.title,
+        weekdays: template.weekdays,
+        weekdaysType: typeof template.weekdays,
+        weekdaysArray: Array.isArray(template.weekdays)
+      })
+    }
+
     switch (template.pattern) {
       case 'DAILY':
         return '毎日'
