@@ -216,13 +216,13 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             タスクを編集
           </h2>
 
-          <div style={{ marginBottom: '16px' }}>
+          {/* タイトル */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
               fontSize: '14px',
               fontWeight: '500',
-              marginBottom: '4px',
-              color: '#374151'
+              color: '#374151',
+              minWidth: '60px'
             }}>
               タイトル <span style={{ color: '#dc2626' }}>*</span>
             </label>
@@ -233,10 +233,10 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               required
               placeholder="タスクのタイトルを入力"
               style={{
-                width: '100%',
-                padding: '8px 12px',
+                flex: 1,
+                padding: '6px 8px',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 fontSize: '14px',
                 boxSizing: 'border-box'
               }}
@@ -244,13 +244,14 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
+          {/* メモ */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
             <label style={{
-              display: 'block',
               fontSize: '14px',
               fontWeight: '500',
-              marginBottom: '4px',
-              color: '#374151'
+              color: '#374151',
+              minWidth: '60px',
+              paddingTop: '6px'
             }}>
               メモ
             </label>
@@ -258,12 +259,12 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               placeholder="メモ（任意）"
-              rows={3}
+              rows={2}
               style={{
-                width: '100%',
-                padding: '8px 12px',
+                flex: 1,
+                padding: '6px 8px',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 fontSize: '14px',
                 resize: 'vertical',
                 boxSizing: 'border-box'

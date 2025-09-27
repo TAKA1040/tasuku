@@ -157,13 +157,13 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
         </h2>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
+          {/* タイトル */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '4px',
               fontSize: '14px',
               fontWeight: '500',
-              color: '#1f2937'
+              color: '#1f2937',
+              minWidth: '60px'
             }}>
               タイトル *
             </label>
@@ -173,43 +173,40 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
               onChange={(e) => setTitle(e.target.value)}
               required
               style={{
-                width: '100%',
-                padding: '8px 12px',
+                flex: 1,
+                padding: '6px 8px',
                 border: '1px solid #d1d5db',
                 borderRadius: '4px',
                 fontSize: '14px',
                 backgroundColor: '#ffffff',
-                color: '#1f2937',
-                outline: 'none',
-                cursor: 'text'
+                color: '#1f2937'
               }}
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
+          {/* メモ */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '4px',
               fontSize: '14px',
               fontWeight: '500',
-              color: '#1f2937'
+              color: '#1f2937',
+              minWidth: '60px',
+              paddingTop: '6px'
             }}>
               メモ
             </label>
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              rows={3}
+              rows={2}
               style={{
-                width: '100%',
-                padding: '8px 12px',
+                flex: 1,
+                padding: '6px 8px',
                 border: '1px solid #d1d5db',
                 borderRadius: '4px',
                 fontSize: '14px',
                 backgroundColor: '#ffffff',
                 color: '#1f2937',
-                outline: 'none',
-                cursor: 'text',
                 resize: 'vertical'
               }}
             />
