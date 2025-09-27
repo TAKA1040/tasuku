@@ -365,115 +365,105 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             タスク設定
           </h3>
 
-          {/* 重要度とカテゴリの行 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '8px' }}>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: '#6b7280'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <ImportanceDot importance={importance} size={10} />
-                  重要度
-                </div>
-              </label>
-              <select
-                value={importance}
-                onChange={(e) => setImportance(Number(e.target.value))}
-                style={{
-                  width: '100%',
-                  padding: '4px 2px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '3px',
-                  fontSize: '13px'
-                }}
-              >
-                <option value={1}>🔵 最低</option>
-                <option value={2}>🟡 低</option>
-                <option value={3}>🟡 普通</option>
-                <option value={4}>🟠 高</option>
-                <option value={5}>🔴 最高</option>
-              </select>
-            </div>
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: '#6b7280'
-              }}>
-                カテゴリ
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '4px 2px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '3px',
-                  fontSize: '13px'
-                }}
-              >
-                <option value="">カテゴリ</option>
-                <option value="仕事">仕事</option>
-                <option value="プライベート">プライベート</option>
-                <option value="勉強">勉強</option>
-                <option value="健康">健康</option>
-                <option value="家事">家事</option>
-                <option value="買い物">買い物</option>
-              </select>
-            </div>
+          {/* 重要度 */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <ImportanceDot importance={importance} size={10} />
+              重要度
+            </label>
+            <select
+              value={importance}
+              onChange={(e) => setImportance(Number(e.target.value))}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
+            >
+              <option value={1}>🔵 最低</option>
+              <option value={2}>🟡 低</option>
+              <option value={3}>🟡 普通</option>
+              <option value={4}>🟠 高</option>
+              <option value={5}>🔴 最高</option>
+            </select>
           </div>
 
-          {/* 時間設定の行 */}
-          <div style={{ marginBottom: '8px' }}>
+          {/* カテゴリ */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '4px',
-              fontSize: '11px',
+              fontSize: '14px',
               fontWeight: '500',
-              color: '#6b7280'
+              color: '#374151',
+              minWidth: '60px'
             }}>
-              時間設定
+              カテゴリ
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '2px',
-                  fontSize: '10px',
-                  color: '#9ca3af'
-                }}>
-                  開始時間
-                </label>
-                <TimeInput
-                  value={startTime}
-                  onChange={setStartTime}
-                  placeholder="開始時間"
-                />
-              </div>
-              <div>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '2px',
-                  fontSize: '10px',
-                  color: '#9ca3af'
-                }}>
-                  終了時間
-                </label>
-                <TimeInput
-                  value={endTime}
-                  onChange={setEndTime}
-                  placeholder="終了時間"
-                />
-              </div>
-            </div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
+            >
+              <option value="">カテゴリ</option>
+              <option value="仕事">仕事</option>
+              <option value="プライベート">プライベート</option>
+              <option value="勉強">勉強</option>
+              <option value="健康">健康</option>
+              <option value="家事">家事</option>
+              <option value="買い物">買い物</option>
+            </select>
           </div>
+
+          {/* 開始時間 */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              開始時間
+            </label>
+            <TimeInput
+              value={startTime}
+              onChange={setStartTime}
+              placeholder="開始時間"
+              style={{ flex: 1 }}
+            />
+          </div>
+
+          {/* 終了時間 */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              終了時間
+            </label>
+            <TimeInput
+              value={endTime}
+              onChange={setEndTime}
+              placeholder="終了時間"
+              style={{ flex: 1 }}
+            />
+          </div>
+
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
           {category === '買い物' && (
@@ -873,13 +863,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
 
           {/* 指定日タスク設定 */}
           {taskType === 'once' && (
-            <div style={{ marginBottom: '6px' }}>
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
+                fontSize: '14px',
                 fontWeight: '500',
-                color: '#6b7280'
+                color: '#374151',
+                minWidth: '60px'
               }}>
                 実行日
               </label>
@@ -888,10 +877,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 style={{
-                  width: '100%',
-                  padding: '4px 6px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   fontSize: '13px'
                 }}
               />
@@ -900,13 +889,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
 
           {/* 期限設定 */}
           {taskType === 'deadline' && (
-            <div style={{ marginBottom: '6px' }}>
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <label style={{
-                display: 'block',
-                marginBottom: '2px',
-                fontSize: '11px',
+                fontSize: '14px',
                 fontWeight: '500',
-                color: '#6b7280'
+                color: '#374151',
+                minWidth: '60px'
               }}>
                 期限日
               </label>
@@ -915,10 +903,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 style={{
-                  width: '100%',
-                  padding: '4px 6px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   fontSize: '13px'
                 }}
               />
