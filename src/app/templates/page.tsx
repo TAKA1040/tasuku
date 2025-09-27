@@ -49,8 +49,36 @@ export default function TemplatesPage() {
   const [orphanTasks, setOrphanTasks] = useState<UnifiedTask[]>([])
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('')
+  const [editingTemplate, setEditingTemplate] = useState<RecurringTemplate | null>(null)
 
   const supabase = createClient()
+
+  // パターンの詳細表示
+  const formatPatternDetails = (template: RecurringTemplate): string => {
+    switch (template.pattern) {
+      case 'DAILY':
+        return '毎日'
+      case 'WEEKLY':
+        if (template.weekdays && template.weekdays.length > 0) {
+          const dayNames = ['月', '火', '水', '木', '金', '土', '日']
+          const selectedDays = template.weekdays.map(d => dayNames[d - 1]).join('、')
+          return `毎週 ${selectedDays}曜日`
+        }
+        return '毎週'
+      case 'MONTHLY':
+        if (template.day_of_month) {
+          return `毎月 ${template.day_of_month}日`
+        }
+        return '毎月'
+      case 'YEARLY':
+        if (template.month_of_year && template.day_of_year) {
+          return `毎年 ${template.month_of_year}月${template.day_of_year}日`
+        }
+        return '毎年'
+      default:
+        return template.pattern
+    }
+  }
 
   const loadData = async () => {
     try {
@@ -143,6 +171,36 @@ export default function TemplatesPage() {
 
       setStatus(`✅ ${task.title}のテンプレートを作成しました`)
       loadData() // データを再読み込み
+
+    } catch (error) {
+      setStatus(`エラー: ${error}`)
+    }
+  }
+
+  const updateTemplate = async (template: RecurringTemplate) => {
+    try {
+      setStatus(`${template.title}を更新中...`)
+
+      const { error } = await supabase
+        .from('recurring_templates')
+        .update({
+          title: template.title,
+          memo: template.memo,
+          category: template.category,
+          importance: template.importance,
+          active: template.active,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', template.id)
+
+      if (error) {
+        setStatus(`更新エラー: ${error.message}`)
+        return
+      }
+
+      setStatus(`✅ ${template.title}を更新しました`)
+      setEditingTemplate(null)
+      loadData()
 
     } catch (error) {
       setStatus(`エラー: ${error}`)
@@ -299,7 +357,7 @@ export default function TemplatesPage() {
                       backgroundColor: '#eff6ff',
                       color: '#1e40af'
                     }}>
-                      {template.pattern}
+                      {formatPatternDetails(template)}
                     </span>
                   </td>
                   <td style={{ padding: '8px', fontWeight: '500' }}>
@@ -340,6 +398,21 @@ export default function TemplatesPage() {
                   </td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
                     <button
+                      onClick={() => setEditingTemplate(template)}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        marginRight: '4px'
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
                       onClick={() => deleteTemplate(template)}
                       style={{
                         padding: '4px 8px',
@@ -361,142 +434,171 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      <h2>未関連付けの繰り返しタスク ({orphanTasks.length}件)</h2>
-      <p>これらのタスクにはテンプレートが関連付けられていないため、TaskGeneratorが動作しません。</p>
-      {orphanTasks.length === 0 ? (
+      {/* 編集モーダル */}
+      {editingTemplate && (
         <div style={{
-          padding: '20px',
-          backgroundColor: '#f0f9ff',
-          border: '1px solid #bae6fd',
-          borderRadius: '8px',
-          textAlign: 'center'
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
         }}>
-          <span style={{ fontSize: '24px', marginRight: '8px' }}>✅</span>
-          すべてのタスクがテンプレートに関連付けられています
-        </div>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '13px',
+          <div style={{
             backgroundColor: 'white',
-            border: '1px solid #fbbf24'
+            padding: '20px',
+            borderRadius: '8px',
+            width: '90%',
+            maxWidth: '500px',
+            maxHeight: '80vh',
+            overflowY: 'auto'
           }}>
-            <thead>
-              <tr style={{ backgroundColor: '#fef3c7' }}>
-                <th style={{
+            <h3>テンプレート編集</h3>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                タイトル
+              </label>
+              <input
+                type="text"
+                value={editingTemplate.title}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  title: e.target.value
+                })}
+                style={{
+                  width: '100%',
                   padding: '8px',
-                  textAlign: 'left',
-                  borderBottom: '1px solid #fbbf24',
-                  fontWeight: '600',
-                  color: '#92400e'
-                }}>パターン</th>
-                <th style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                メモ
+              </label>
+              <textarea
+                value={editingTemplate.memo || ''}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  memo: e.target.value
+                })}
+                style={{
+                  width: '100%',
                   padding: '8px',
-                  textAlign: 'left',
-                  borderBottom: '1px solid #fbbf24',
-                  fontWeight: '600',
-                  color: '#92400e'
-                }}>タイトル</th>
-                <th style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  minHeight: '60px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                カテゴリ
+              </label>
+              <select
+                value={editingTemplate.category || ''}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  category: e.target.value
+                })}
+                style={{
+                  width: '100%',
                   padding: '8px',
-                  textAlign: 'left',
-                  borderBottom: '1px solid #fbbf24',
-                  fontWeight: '600',
-                  color: '#92400e'
-                }}>カテゴリ</th>
-                <th style={{
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">カテゴリなし</option>
+                <option value="仕事">仕事</option>
+                <option value="プライベート">プライベート</option>
+                <option value="勉強">勉強</option>
+                <option value="健康">健康</option>
+                <option value="家事">家事</option>
+                <option value="買い物">買い物</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                重要度
+              </label>
+              <select
+                value={editingTemplate.importance || 3}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  importance: parseInt(e.target.value)
+                })}
+                style={{
+                  width: '100%',
                   padding: '8px',
-                  textAlign: 'center',
-                  borderBottom: '1px solid #fbbf24',
-                  fontWeight: '600',
-                  color: '#92400e'
-                }}>重要度</th>
-                <th style={{
-                  padding: '8px',
-                  textAlign: 'center',
-                  borderBottom: '1px solid #fbbf24',
-                  fontWeight: '600',
-                  color: '#92400e'
-                }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orphanTasks.map(task => (
-                <tr key={task.id} style={{
-                  backgroundColor: '#fffbeb',
-                  borderBottom: '1px solid #fde68a'
-                }}>
-                  <td style={{ padding: '8px' }}>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: '500',
-                      backgroundColor: '#dbeafe',
-                      color: '#1e40af'
-                    }}>
-                      {task.recurring_pattern}
-                    </span>
-                  </td>
-                  <td style={{ padding: '8px', fontWeight: '500' }}>
-                    {task.title}
-                    {task.memo && (
-                      <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
-                        {task.memo}
-                      </div>
-                    )}
-                  </td>
-                  <td style={{ padding: '8px' }}>
-                    {task.category ? (
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        backgroundColor: '#f3f4f6',
-                        color: '#374151'
-                      }}>
-                        📁 {task.category}
-                      </span>
-                    ) : (
-                      <span style={{ color: '#9ca3af', fontSize: '11px' }}>なし</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '8px', textAlign: 'center' }}>
-                    <span style={{
-                      display: 'inline-block',
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      backgroundColor: getImportanceColor(task.importance)
-                    }}></span>
-                    <span style={{ marginLeft: '4px', fontSize: '11px' }}>
-                      {task.importance || 1}/5
-                    </span>
-                  </td>
-                  <td style={{ padding: '8px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => createTemplateFromTask(task)}
-                      style={{
-                        padding: '4px 8px',
-                        backgroundColor: '#10b981',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      ✨ 作成
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value={1}>🔵 最低</option>
+                <option value={2}>🟡 低</option>
+                <option value={3}>🟡 普通</option>
+                <option value={4}>🟠 高</option>
+                <option value={5}>🔴 最高</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', fontWeight: '500' }}>
+                <input
+                  type="checkbox"
+                  checked={editingTemplate.active}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    active: e.target.checked
+                  })}
+                  style={{ marginRight: '8px' }}
+                />
+                アクティブ
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setEditingTemplate(null)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={() => updateTemplate(editingTemplate)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                更新
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
