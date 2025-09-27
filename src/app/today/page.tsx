@@ -23,7 +23,7 @@ export default function TodayPage() {
   const unifiedTasks = useUnifiedTasks(isInitialized)
 
   // 自動タスク生成フック（データベース初期化後に実行）
-  const { isGenerating, lastError: generationError } = useTaskGenerator(isInitialized)
+  const { isGenerating, lastError: generationError, generateMissingTasks } = useTaskGenerator(isInitialized)
 
   // ページタイトルを設定
   useEffect(() => {
@@ -383,6 +383,26 @@ export default function TodayPage() {
               今日 - {formatDateForDisplay(getTodayJST())}
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-buttons">
+              {/* デバッグ: 繰り返しタスク生成ボタン */}
+              <button
+                onClick={() => {
+                  console.log('🔥 手動でタスク生成を実行...')
+                  generateMissingTasks()
+                }}
+                disabled={isGenerating}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isGenerating ? 'not-allowed' : 'pointer',
+                  opacity: isGenerating ? 0.5 : 1
+                }}
+              >
+                {isGenerating ? '生成中...' : '🔄 タスク生成'}
+              </button>
               <ThemeToggle />
             <a
               href="/search"

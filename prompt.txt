@@ -2,3 +2,14 @@
 カテゴリの下に買い物リストの入力画面が出てこない。
 タスクの追加の画面をみて修正すること。
 必ずDBとの連携も行うように。
+
+これコンソール
+page-2d38968738a2b949.js:1 🔄 タスク生成を開始...
+page-2d38968738a2b949.js:1 タスク生成開始: 今日=2025-09-28, 前回=2025-09-28
+page-2d38968738a2b949.js:1 タスク生成完了
+page-2d38968738a2b949.js:1 ✅ タスク生成完了
+today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received

@@ -35,7 +35,12 @@ export class TaskGeneratorService {
       return
     }
 
-    if (lastProcessed < today) {
+    console.log('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
+
+    // デバッグ: 強制的に今日のタスクを生成
+    const forceGenerate = true
+    if (lastProcessed < today || forceGenerate) {
+      console.log('🎯 タスク生成を実行します (forceGenerate:', forceGenerate, ')')
       // 日次: 最大3日分復旧
       const startDate = Math.max(
         this.parseDate(addDays(lastProcessed, 1)),
