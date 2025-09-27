@@ -301,7 +301,7 @@ export class UnifiedTasksService {
         console.log('📎 Linking to existing template:', existingTemplate[0].id)
         await supabase
           .from('unified_tasks')
-          .update({ recurring_template_id: existingTemplate[0].id })
+          .update({ recurring_template_id: existingTemplate[0].id.toString() })
           .eq('id', task.id)
         return
       }
@@ -338,7 +338,7 @@ export class UnifiedTasksService {
       // タスクにテンプレートIDを設定
       const { error: linkError } = await supabase
         .from('unified_tasks')
-        .update({ recurring_template_id: templateData.id })
+        .update({ recurring_template_id: templateData.id.toString() })
         .eq('id', task.id)
 
       if (linkError) {
