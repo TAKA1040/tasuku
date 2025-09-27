@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface TimeInputProps {
   value: string
@@ -12,8 +12,17 @@ interface TimeInputProps {
 export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: TimeInputProps) {
   const [hours, setHours] = useState<string>('')
   const [minutes, setMinutes] = useState<string>('')
-  const [isEditing, setIsEditing] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+
+  // 時間と分のオプション生成
+  const hourOptions = Array.from({ length: 24 }, (_, i) => ({
+    value: i.toString().padStart(2, '0'),
+    label: i.toString().padStart(2, '0')
+  }))
+
+  const minuteOptions = Array.from({ length: 6 }, (_, i) => ({
+    value: (i * 10).toString().padStart(2, '0'),
+    label: (i * 10).toString().padStart(2, '0')
+  }))
 
   // 初期値を設定
   useEffect(() => {
@@ -37,90 +46,49 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
     }
   }
 
-  // 時間の調整（上下キー）
-  const adjustHours = (direction: 'up' | 'down') => {
-    const currentHours = parseInt(hours || '0')
-    let newHours: number
+  // 時間変更ハンドラー
+  const handleHoursChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newHours = e.target.value
+    setHours(newHours)
+    if (newHours && minutes) {
+      updateTime(newHours, minutes)
+    }
+  }
 
-    if (direction === 'up') {
-      newHours = currentHours >= 23 ? 0 : currentHours + 1
+  // 分変更ハンドラー
+  const handleMinutesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMinutes = e.target.value
+    setMinutes(newMinutes)
+    if (hours && newMinutes) {
+      updateTime(hours, newMinutes)
+    }
+  }
+
+  // キーボードナビゲーション
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLSelectElement>, type: 'hours' | 'minutes') => {
+    const options = type === 'hours' ? hourOptions : minuteOptions
+    const currentValue = type === 'hours' ? hours : minutes
+    const currentIndex = options.findIndex(opt => opt.value === currentValue)
+
+    let newIndex = currentIndex
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      newIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      newIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0
     } else {
-      newHours = currentHours <= 0 ? 23 : currentHours - 1
+      return
     }
 
-    const newHoursStr = newHours.toString().padStart(2, '0')
-    setHours(newHoursStr)
-    updateTime(newHoursStr, minutes || '00')
-  }
-
-  // 分の調整（10分刻み）
-  const adjustMinutes = (direction: 'up' | 'down') => {
-    const currentMinutes = parseInt(minutes || '0')
-    let newMinutes: number
-
-    if (direction === 'up') {
-      newMinutes = currentMinutes >= 50 ? 0 : currentMinutes + 10
+    const newValue = options[newIndex].value
+    if (type === 'hours') {
+      setHours(newValue)
+      if (newValue && minutes) updateTime(newValue, minutes)
     } else {
-      newMinutes = currentMinutes <= 0 ? 50 : currentMinutes - 10
-    }
-
-    const newMinutesStr = newMinutes.toString().padStart(2, '0')
-    setMinutes(newMinutesStr)
-    updateTime(hours || '00', newMinutesStr)
-  }
-
-  // キーボードイベント
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isEditing) return
-
-    e.preventDefault()
-
-    switch (e.key) {
-      case 'ArrowUp':
-        if (e.shiftKey) {
-          adjustMinutes('up')
-        } else {
-          adjustHours('up')
-        }
-        break
-      case 'ArrowDown':
-        if (e.shiftKey) {
-          adjustMinutes('down')
-        } else {
-          adjustHours('down')
-        }
-        break
-      case 'Tab':
-        e.preventDefault()
-        if (e.shiftKey) {
-          adjustMinutes('down')
-        } else {
-          adjustMinutes('up')
-        }
-        break
-      case 'Escape':
-        setIsEditing(false)
-        inputRef.current?.blur()
-        break
-      case 'Enter':
-        setIsEditing(false)
-        inputRef.current?.blur()
-        break
-    }
-  }
-
-  // 直接入力の処理
-  const handleDirectInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value.replace(/[^0-9:]/g, '')
-
-    if (input.includes(':')) {
-      const [h, m] = input.split(':')
-      const validHours = Math.min(parseInt(h || '0'), 23).toString().padStart(2, '0')
-      const validMinutes = Math.min(parseInt(m || '0'), 59).toString().padStart(2, '0')
-
-      setHours(validHours)
-      setMinutes(validMinutes)
-      updateTime(validHours, validMinutes)
+      setMinutes(newValue)
+      if (hours && newValue) updateTime(hours, newValue)
     }
   }
 
@@ -131,99 +99,101 @@ export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: Tim
     onChange('')
   }
 
-  // 時間選択ボタン
+  // クイック時間選択
   const quickTimes = ['09:00', '12:00', '15:00', '18:00', '21:00']
 
-  const displayValue = hours && minutes ? `${hours}:${minutes}` : ''
-
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
-      <input
-        ref={inputRef}
-        type="text"
-        value={displayValue}
-        onChange={handleDirectInput}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => setIsEditing(false)}
-        placeholder={placeholder}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...style }}>
+      {/* 時間選択 */}
+      <select
+        value={hours}
+        onChange={handleHoursChange}
+        onKeyDown={(e) => handleKeyDown(e, 'hours')}
         style={{
-          ...style,
-          paddingRight: '60px' // クリアボタンのスペース
+          padding: '4px 8px',
+          border: '1px solid #ddd',
+          borderRadius: '4px',
+          fontSize: '14px',
+          minWidth: '60px'
         }}
-      />
+      >
+        <option value="">時</option>
+        {hourOptions.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+
+      <span style={{ fontSize: '16px', fontWeight: 'bold' }}>:</span>
+
+      {/* 分選択 */}
+      <select
+        value={minutes}
+        onChange={handleMinutesChange}
+        onKeyDown={(e) => handleKeyDown(e, 'minutes')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #ddd',
+          borderRadius: '4px',
+          fontSize: '14px',
+          minWidth: '60px'
+        }}
+      >
+        <option value="">分</option>
+        {minuteOptions.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
 
       {/* クリアボタン */}
-      {displayValue && (
+      {(hours || minutes) && (
         <button
           type="button"
           onClick={handleClear}
           style={{
-            position: 'absolute',
-            right: '4px',
-            top: '50%',
-            transform: 'translateY(-50%)',
             background: '#dc3545',
             color: 'white',
             border: 'none',
-            borderRadius: '2px',
-            padding: '1px 4px',
-            fontSize: '10px',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '12px',
             cursor: 'pointer'
           }}
         >
-          ×
+          クリア
         </button>
       )}
 
-      {/* キーボードヘルプ */}
-      {isEditing && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: '0',
-          right: '0',
-          backgroundColor: '#f8f9fa',
-          border: '1px solid #dee2e6',
-          borderRadius: '3px',
-          padding: '8px',
-          fontSize: '11px',
-          zIndex: 1000,
-          marginTop: '2px'
-        }}>
-          <div>↑↓: 時間 | Shift+↑↓: 分(10分刻み)</div>
-          <div>Tab: 分+10 | Enter: 確定</div>
-
-          {/* クイック時間選択 */}
-          <div style={{ marginTop: '4px' }}>
-            {quickTimes.map(time => (
-              <button
-                key={time}
-                type="button"
-                onClick={() => {
-                  const [h, m] = time.split(':')
-                  setHours(h)
-                  setMinutes(m)
-                  updateTime(h, m)
-                  setIsEditing(false)
-                }}
-                style={{
-                  background: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '2px',
-                  padding: '2px 4px',
-                  fontSize: '10px',
-                  marginRight: '2px',
-                  cursor: 'pointer'
-                }}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* クイック選択ボタン */}
+      <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+        {quickTimes.map(time => (
+          <button
+            key={time}
+            type="button"
+            onClick={() => {
+              const [h, m] = time.split(':')
+              setHours(h)
+              setMinutes(m)
+              updateTime(h, m)
+            }}
+            style={{
+              background: hours === time.split(':')[0] && minutes === time.split(':')[1]
+                ? '#0056b3' : '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              padding: '3px 6px',
+              fontSize: '11px',
+              cursor: 'pointer'
+            }}
+          >
+            {time}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
