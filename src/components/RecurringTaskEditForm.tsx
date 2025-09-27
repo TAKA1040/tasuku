@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { RecurringTask } from '@/lib/db/schema'
 import { ImportanceDot } from '@/components/ImportanceDot'
+import { TimeInput } from '@/components/TimeInput'
 
 interface RecurringTaskEditFormProps {
   task: RecurringTask | null
@@ -33,7 +34,22 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<1 | 2 | 3 | 4 | 5 | undefined>(undefined)
   const [durationMin, setDurationMin] = useState<number | undefined>(undefined)
+  const [durationTime, setDurationTime] = useState<string>('')
   const [urls, setUrls] = useState<string[]>([''])
+
+  // 分数を時:分形式に変換
+  const minutesToTimeString = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`
+  }
+
+  // 時:分形式を分数に変換
+  const timeStringToMinutes = (timeString: string): number => {
+    if (!timeString.includes(':')) return 0
+    const [hours, minutes] = timeString.split(':').map(Number)
+    return hours * 60 + minutes
+  }
 
   useEffect(() => {
     if (task) {
@@ -46,6 +62,7 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
       setCategory(task.category || '')
       setImportance(task.importance)
       setDurationMin(task.duration_min)
+      setDurationTime(task.duration_min ? minutesToTimeString(task.duration_min) : '')
       setUrls(task.urls || [''])
     }
   }, [task])
@@ -91,6 +108,16 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
     const newUrls = [...urls]
     newUrls[index] = value
     setUrls(newUrls)
+  }
+
+  const handleDurationTimeChange = (value: string) => {
+    setDurationTime(value)
+    if (value) {
+      const minutes = timeStringToMinutes(value)
+      setDurationMin(minutes > 0 ? minutes : undefined)
+    } else {
+      setDurationMin(undefined)
+    }
   }
 
   if (!isVisible || !task) return null
@@ -403,24 +430,14 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
               fontWeight: '500',
               color: '#1f2937'
             }}>
-              予想時間 (分)
+              予想時間
             </label>
-            <input
-              type="number"
-              value={durationMin || ''}
-              onChange={(e) => setDurationMin(e.target.value ? parseInt(e.target.value) : undefined)}
-              min="1"
-              placeholder="例: 30"
+            <TimeInput
+              value={durationTime}
+              onChange={handleDurationTimeChange}
+              placeholder="HH:MM"
               style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                fontSize: '14px',
-                backgroundColor: '#ffffff',
-                color: '#1f2937',
-                outline: 'none',
-                cursor: 'text'
+                width: '100%'
               }}
             />
           </div>
