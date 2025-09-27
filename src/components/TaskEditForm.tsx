@@ -271,64 +271,63 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '4px',
-              color: '#374151'
-            }}>
-              カテゴリ
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
+          {/* カテゴリと優先度の行 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div>
+              <label style={{
+                display: 'inline-block',
                 fontSize: '14px',
-                backgroundColor: '#fff',
-                boxSizing: 'border-box'
-              }}
-            >
-              <option value="">カテゴリを選択（任意）</option>
-              {Object.values(TASK_CATEGORIES).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* 優先度 */}
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '4px',
-              color: '#374151'
-            }}>
-              優先度
-            </label>
-            <select
-              value={importance}
-              onChange={(e) => setImportance(Number(e.target.value))}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                fontWeight: '500',
+                marginRight: '8px',
+                color: '#374151'
+              }}>
+                カテゴリ
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                style={{
+                  width: 'calc(100% - 60px)',
+                  padding: '6px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '13px',
+                  backgroundColor: '#fff'
+                }}
+              >
+                <option value="">選択</option>
+                {Object.values(TASK_CATEGORIES).map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{
+                display: 'inline-block',
                 fontSize: '14px',
-                backgroundColor: '#fff',
-                boxSizing: 'border-box'
-              }}
-            >
-              {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
+                fontWeight: '500',
+                marginRight: '8px',
+                color: '#374151'
+              }}>
+                優先度
+              </label>
+              <select
+                value={importance}
+                onChange={(e) => setImportance(Number(e.target.value))}
+                style={{
+                  width: 'calc(100% - 60px)',
+                  padding: '6px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '13px',
+                  backgroundColor: '#fff'
+                }}
+              >
+                {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* 時間設定 */}
