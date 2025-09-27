@@ -23,10 +23,6 @@ export default function DonePage() {
   const [editingTask, setEditingTask] = useState<UnifiedTask | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
 
-  // 完了履歴データ
-  const [completedTasksWithHistory, setCompletedTasksWithHistory] = useState<UnifiedTask[]>([])
-  const [historyLoading, setHistoryLoading] = useState(false)
-
   // データベース初期化後にタスクを再読み込み
   useEffect(() => {
     if (isInitialized) {
@@ -37,28 +33,6 @@ export default function DonePage() {
     }
   }, [isInitialized])
 
-  // 完了履歴を取得
-  useEffect(() => {
-    const loadCompletedHistory = async () => {
-      if (!isInitialized) return
-
-      setHistoryLoading(true)
-      try {
-        const history = await unifiedTasks.getCompletedTasksWithHistory()
-        setCompletedTasksWithHistory(history)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('📋 Completed tasks with history loaded:', history.length)
-        }
-      } catch (error) {
-        console.error('Failed to load completed history:', error)
-      } finally {
-        setHistoryLoading(false)
-      }
-    }
-
-    loadCompletedHistory()
-  }, [isInitialized, unifiedTasks.tasks])
-
   if (error) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -68,7 +42,7 @@ export default function DonePage() {
     )
   }
 
-  if (!isInitialized || unifiedTasks.loading || historyLoading) {
+  if (!isInitialized || unifiedTasks.loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <h1>読み込み中...</h1>
@@ -77,13 +51,17 @@ export default function DonePage() {
     )
   }
 
-  // 期間別フィルタリング（履歴データを使用）
+  // 完了済みタスクを取得
+  const completedTasks = unifiedTasks.getCompletedTasks()
+
+  // 期間別フィルタリング
   const getCompletedTasksByPeriod = () => {
     const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD形式
 
     switch (period) {
       case 'today':
-        return completedTasksWithHistory.filter(task => {
+        return completedTasks.filter(task => {
+          // completed_atがあればそれを優先、なければupdated_atを使用
           const taskDate = task.completed_at?.split('T')[0] || task.updated_at?.split('T')[0] || ''
           return taskDate === today
         })
@@ -91,7 +69,7 @@ export default function DonePage() {
         const weekAgo = new Date()
         weekAgo.setDate(weekAgo.getDate() - 7)
         const weekAgoStr = weekAgo.toISOString().split('T')[0]
-        return completedTasksWithHistory.filter(task => {
+        return completedTasks.filter(task => {
           const taskDate = task.completed_at?.split('T')[0] || task.updated_at?.split('T')[0] || ''
           return taskDate >= weekAgoStr
         })
@@ -99,13 +77,13 @@ export default function DonePage() {
         const monthAgo = new Date()
         monthAgo.setMonth(monthAgo.getMonth() - 1)
         const monthAgoStr = monthAgo.toISOString().split('T')[0]
-        return completedTasksWithHistory.filter(task => {
+        return completedTasks.filter(task => {
           const taskDate = task.completed_at?.split('T')[0] || task.updated_at?.split('T')[0] || ''
           return taskDate >= monthAgoStr
         })
       case 'all':
       default:
-        return completedTasksWithHistory
+        return completedTasks
     }
   }
 
@@ -233,7 +211,7 @@ export default function DonePage() {
             ) : (
               <UnifiedTasksTable
                 title="完了済みタスク"
-                tasks={filteredCompletedTasks}
+                tasks={filteredCompletedTasks.map(task => ({ task }))}
                 unifiedTasks={unifiedTasks}
                 handleEditTask={handleEdit}
                 emptyMessage="該当期間に完了したタスクがありません"
