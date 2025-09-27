@@ -222,8 +222,8 @@ export default function DonePage() {
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, durationMin?: number, urls?: string[]) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, duration_min: durationMin, urls })
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
   }
 
   const handleCancelEdit = () => {
@@ -787,16 +787,15 @@ export default function DonePage() {
           overflow: 'hidden'
         }}>
           <TaskTable
-            title="単発タスク"
-            tasks={completedTasks}
+            tasks={[]}
+            recurringTasks={[]}
+            completedTasks={completedTasks}
             completedRecurringTasks={completedRecurringTasks}
-            loading={tasksLoading || recurringLoading}
-            onEditTask={handleEditTask}
-            onCompleteTask={() => {}}
-            onDeleteTask={deleteTask}
-            urgent={false}
-            showCompletedTasks={true}
-            emptyMessage="該当期間に完了したタスクがありません"
+            onComplete={() => {}}
+            onRecurringComplete={() => {}}
+            onEdit={handleEditTask}
+            onUncomplete={uncompleteTask}
+            onDelete={deleteTask}
           />
         </div>
 
