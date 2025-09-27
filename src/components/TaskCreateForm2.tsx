@@ -301,34 +301,54 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           新しいタスク
         </h2>
 
-        {/* 共通フィールド */}
-        <div style={{ marginBottom: '10px' }}>
+        {/* タイトル */}
+        <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            minWidth: '60px'
+          }}>
+            タイトル
+          </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="何をしますか？"
             style={{
-              width: '100%',
+              flex: 1,
               padding: '6px 8px',
               border: '1px solid #d1d5db',
               borderRadius: '4px',
               fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '6px'
+              fontWeight: '500'
             }}
           />
+        </div>
+
+        {/* メモ */}
+        <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+          <label style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            minWidth: '60px',
+            paddingTop: '6px'
+          }}>
+            メモ
+          </label>
           <textarea
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="詳細があれば..."
             style={{
-              width: '100%',
+              flex: 1,
               padding: '6px 8px',
               border: '1px solid #d1d5db',
               borderRadius: '4px',
               fontSize: '13px',
-              minHeight: '40px',
+              minHeight: '32px',
               resize: 'vertical'
             }}
           />
