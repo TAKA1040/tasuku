@@ -29,10 +29,47 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // 買い物リスト管理
+  const [shoppingItems, setShoppingItems] = useState<string[]>([])
+  const [newShoppingItem, setNewShoppingItem] = useState('')
+
+  // 買い物リストをmemoから抽出する関数
+  const extractShoppingList = (memoText: string): { cleanMemo: string; shoppingItems: string[] } => {
+    if (!memoText) return { cleanMemo: '', shoppingItems: [] }
+
+    const shoppingListMatch = memoText.match(/【買い物リスト】\n((?:• .+\n?)+)/)
+    if (!shoppingListMatch) return { cleanMemo: memoText, shoppingItems: [] }
+
+    const shoppingListText = shoppingListMatch[1]
+    const items = shoppingListText.split('\n')
+      .map(line => line.replace(/^• /, '').trim())
+      .filter(item => item.length > 0)
+
+    const cleanMemo = memoText.replace(/\n?\n?【買い物リスト】\n(?:• .+\n?)+/, '').trim()
+    return { cleanMemo, shoppingItems: items }
+  }
+
+  // 買い物リスト操作
+  const addShoppingItem = () => {
+    if (newShoppingItem.trim()) {
+      setShoppingItems([...shoppingItems, newShoppingItem.trim()])
+      setNewShoppingItem('')
+    }
+  }
+
+  const removeShoppingItem = (index: number) => {
+    setShoppingItems(shoppingItems.filter((_, i) => i !== index))
+  }
+
   useEffect(() => {
     if (task) {
       setTitle(task.title)
-      setMemo(task.memo || '')
+
+      // memoから買い物リストを抽出
+      const { cleanMemo, shoppingItems: extractedItems } = extractShoppingList(task.memo || '')
+      setMemo(cleanMemo)
+      setShoppingItems(extractedItems)
+
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
@@ -115,7 +152,20 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         }
       }
 
-      await onSubmit(task.id, title, memo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
+      // 買い物カテゴリーで入力フィールドに文字がある場合、自動で追加
+      let finalShoppingItems = [...shoppingItems]
+      if (category === '買い物' && newShoppingItem.trim()) {
+        finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
+      }
+
+      // 買い物リストをmemoに統合
+      let finalMemo = memo
+      if (category === '買い物' && finalShoppingItems.length > 0) {
+        const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
+        finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
+      }
+
+      await onSubmit(task.id, title, finalMemo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
       onCancel()
     } catch (error) {
       console.error('Failed to update task:', error)
@@ -662,6 +712,100 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               </div>
             )}
           </div>
+
+          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
+          {category === '買い物' && (
+            <div style={{ marginBottom: '16px' }}>
+              {/* 買い物アイテム追加 */}
+              <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  minWidth: '60px'
+                }}>
+                  買い物リスト
+                </label>
+                <input
+                  type="text"
+                  value={newShoppingItem}
+                  onChange={(e) => setNewShoppingItem(e.target.value)}
+                  placeholder="買い物アイテムを入力"
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addShoppingItem())}
+                />
+                <button
+                  type="button"
+                  onClick={addShoppingItem}
+                  disabled={!newShoppingItem.trim()}
+                  style={{
+                    padding: '6px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    color: '#374151',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    opacity: !newShoppingItem.trim() ? 0.5 : 1
+                  }}
+                >
+                  追加
+                </button>
+              </div>
+
+              {/* 買い物リスト表示 */}
+              {shoppingItems.length > 0 && (
+                <div style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                  backgroundColor: '#f9fafb'
+                }}>
+                  {shoppingItems.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        borderBottom: index < shoppingItems.length - 1 ? '1px solid #e5e7eb' : 'none'
+                      }}
+                    >
+                      <span style={{
+                        fontSize: '14px',
+                        color: '#374151'
+                      }}>
+                        🛒 {item}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeShoppingItem(index)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0 4px'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{
             display: 'flex',
