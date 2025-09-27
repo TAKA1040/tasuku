@@ -385,21 +385,12 @@ export class UnifiedTasksService {
       // 全てのタスクの完了履歴をdoneテーブルに記録
       await this.saveToDoneHistory(task, completedAt)
 
-      // 繰り返しタスクの場合は次回の due_date を計算
-      if (task.recurring_pattern) {
-        const nextDueDate = this.calculateNextRecurringDate(task)
-        return this.updateUnifiedTask(id, {
-          completed: false, // 繰り返しタスクは次回に向けて未完了状態に戻す
-          due_date: nextDueDate,
-          completed_at: undefined // 次回のために completed_at をクリア
-        })
-      } else {
-        // 通常タスクは完了状態にする
-        return this.updateUnifiedTask(id, {
-          completed: true,
-          completed_at: completedAt
-        })
-      }
+      // 繰り返しタスクも通常タスクも同じ処理：完了状態にする
+      // 新しい日のタスクはTaskGeneratorServiceが日付変更時に自動生成
+      return this.updateUnifiedTask(id, {
+        completed: true,
+        completed_at: completedAt
+      })
     } catch (error) {
       console.error('UnifiedTasksService.completeTask error:', error)
       throw error

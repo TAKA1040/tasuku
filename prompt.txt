@@ -1,19 +1,46 @@
-Running build in Washington, D.C., USA (East) – iad1
-Build machine configuration: 2 cores, 8 GB
-Cloning github.com/TAKA1040/tasuku (Branch: main, Commit: 96cac05)
-Cloning completed: 316.000ms
-Restored build cache from previous deployment (4esg9uhADcuQwZ1RXX8EMRZX9q2b)
-Running "vercel build"
-Vercel CLI 48.1.6
-Installing dependencies...
-up to date in 1s
-133 packages are looking for funding
-  run `npm fund` for details
-Detected Next.js version: 15.5.3
-Running "npm run build"
-> tasuku@0.1.0 build
-> next build
-   ▲ Next.js 15.5.3
-   Creating an optimized production build ...
- ✓ Compiled successfully in 3.5s
-   Skipping linting
+検索結果
+4件
+全選択
+選択
+状態
+タイプ
+タイトル
+メモ
+期限
+操作
+
+未完
+繰返
+ジャンプ朝
+📁 健康
+-
+2025-10-03
+✓
+🗑️
+
+未完
+繰返
+ジャンプ夜
+📁 健康
+-
+2025-09-27
+✓
+🗑️
+
+未完
+繰返
+股関節ストレッチ
+📁 健康
+-
+2025-09-27
+✓
+🗑️
+
+未完
+繰返
+X投稿＆朝活
+📁 仕事
+-
+2025-09-27
+✓
+🗑️
