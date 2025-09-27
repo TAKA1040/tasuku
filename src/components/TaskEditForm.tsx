@@ -61,6 +61,13 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     setShoppingItems(shoppingItems.filter((_, i) => i !== index))
   }
 
+  const handleShoppingItemKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addShoppingItem()
+    }
+  }
+
   useEffect(() => {
     if (task) {
       setTitle(task.title)
@@ -334,11 +341,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </label>
             <select
               value={category}
-              onChange={(e) => {
-                const newCategory = e.target.value
-                console.log('🛒 TaskEditForm - カテゴリ変更:', newCategory, '買い物判定:', newCategory === '買い物')
-                setCategory(newCategory)
-              }}
+              onChange={(e) => setCategory(e.target.value)}
               style={{
                 flex: 1,
                 padding: '6px 8px',
@@ -348,10 +351,13 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 backgroundColor: '#fff'
               }}
             >
-              <option value="">選択</option>
-              {Object.values(TASK_CATEGORIES).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
+              <option value="">カテゴリ</option>
+              <option value="仕事">仕事</option>
+              <option value="プライベート">プライベート</option>
+              <option value="勉強">勉強</option>
+              <option value="健康">健康</option>
+              <option value="家事">家事</option>
+              <option value="買い物">買い物</option>
             </select>
           </div>
 
@@ -719,9 +725,9 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
           {category === '買い物' && (
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '8px' }}>
               {/* 買い物アイテム追加 */}
-              <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <label style={{
                   fontSize: '14px',
                   fontWeight: '500',
@@ -734,30 +740,26 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                   type="text"
                   value={newShoppingItem}
                   onChange={(e) => setNewShoppingItem(e.target.value)}
+                  onKeyPress={handleShoppingItemKeyPress}
                   placeholder="買い物アイテムを入力"
                   style={{
                     flex: 1,
                     padding: '6px 8px',
                     border: '1px solid #d1d5db',
                     borderRadius: '4px',
-                    fontSize: '14px',
-                    boxSizing: 'border-box'
+                    fontSize: '13px'
                   }}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addShoppingItem())}
                 />
                 <button
                   type="button"
                   onClick={addShoppingItem}
-                  disabled={!newShoppingItem.trim()}
                   style={{
-                    padding: '6px 12px',
+                    padding: '4px 8px',
                     border: '1px solid #d1d5db',
-                    borderRadius: '4px',
-                    backgroundColor: '#fff',
-                    color: '#374151',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    opacity: !newShoppingItem.trim() ? 0.5 : 1
+                    borderRadius: '3px',
+                    fontSize: '12px',
+                    background: '#f3f4f6',
+                    cursor: 'pointer'
                   }}
                 >
                   追加
@@ -768,39 +770,36 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               {shoppingItems.length > 0 && (
                 <div style={{
                   border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
+                  padding: '6px',
                   maxHeight: '120px',
                   overflowY: 'auto',
-                  backgroundColor: '#f9fafb'
+                  background: '#f9fafb'
                 }}>
                   {shoppingItems.map((item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '8px 12px',
-                        borderBottom: index < shoppingItems.length - 1 ? '1px solid #e5e7eb' : 'none'
-                      }}
-                    >
-                      <span style={{
-                        fontSize: '14px',
-                        color: '#374151'
-                      }}>
-                        🛒 {item}
-                      </span>
+                    <div key={index} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '2px 4px',
+                      margin: '2px 0',
+                      background: '#ffffff',
+                      borderRadius: '2px',
+                      fontSize: '12px'
+                    }}>
+                      <span>{item}</span>
                       <button
                         type="button"
                         onClick={() => removeShoppingItem(index)}
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: '#ef4444',
+                          color: '#dc2626',
                           cursor: 'pointer',
                           fontSize: '14px',
                           padding: '0 4px'
                         }}
+                        title="削除"
                       >
                         ×
                       </button>

@@ -1,15 +1,17 @@
 タスクの編集画面でカテゴリを買い物に変更しても
-カテゴリの下に買い物リストの入力画面が出てこない。
-タスクの追加の画面をみて修正すること。
-必ずDBとの連携も行うように。
+買い物リストが出てこない問題について
+このプロジェクトのコードにバグや不具合がないかを、徹底的に調査・分析してください。
 
-これコンソール
-page-2d38968738a2b949.js:1 🔄 タスク生成を開始...
-page-2d38968738a2b949.js:1 タスク生成開始: 今日=2025-09-28, 前回=2025-09-28
-page-2d38968738a2b949.js:1 タスク生成完了
-page-2d38968738a2b949.js:1 ✅ タスク生成完了
-today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
-today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
-today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
-today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
-today:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+- UltraThink を使用して深く読み解いてください
+- Playwright を用いたUIやUXの挙動テストも検討してください
+- 潜在的なバグ・非推奨コード・改善ポイントもすべて洗い出してください
+- 不具合があれば修正案を提示し、可能なら直接修正してください
+- 修正後のコードについても問題がないか再チェックしてください
+- 最後に、**改善された内容をGitにプッシュし、Vercelへデプロイ**してください
+
+- **注意：過去のコミットへ戻す、ページや機能を削除して簡易化するなど、内容を失う可能性がある方法は絶対に選択してはいけません。その場合は必ず私から明示的に指示します。**
+
+- **修正は必ず小さな単位に分け、各修正ごとに自動でビルドとテストを実行し、既存機能に影響が出ていないかセルフチェックしてください。**
+- **修正や改善は独立して進めてください。こちらに承認を求める必要はありません。**
+
+　

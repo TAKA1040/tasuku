@@ -365,7 +365,12 @@ export default function DonePage() {
             tasks={[]}
             recurringTasks={[]}
             completedTasks={filteredCompletedTasks.map(task => ({
-              task: task as any, // UnifiedTaskをTaskとして扱う
+              task: {
+                ...task,
+                memo: task.memo || undefined,
+                urls: task.urls || undefined,
+                attachment: task.attachment || undefined
+              } as any, // 型の完全な互換性を確保
               urgency: 'Normal' as const,
               days_from_today: 0
             }))}

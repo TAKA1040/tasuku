@@ -117,7 +117,7 @@ export class TaskGeneratorService {
   async generateDailyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('DAILY')
     console.log(`🔄 日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
-    console.log('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, is_active: t.is_active })))
+    console.log('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, active: t.active })))
 
     for (const template of templates) {
       let currentDate = startDate

@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 
 export default function DebugPage() {
-  const [data, setData] = useState<any[]>([])
-  const [completedData, setCompletedData] = useState<any[]>([])
-  const [doneData, setDoneData] = useState<any[]>([])
+  const [data, setData] = useState<UnifiedTask[]>([])
+  const [completedData, setCompletedData] = useState<UnifiedTask[]>([])
+  const [doneData, setDoneData] = useState<Record<string, unknown>[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -93,12 +94,12 @@ export default function DebugPage() {
         {doneData.length === 0 ? (
           <p>No done records</p>
         ) : (
-          doneData.map(record => (
-            <div key={record.id} style={{ marginBottom: '10px', padding: '5px', border: '1px solid #ccc' }}>
-              <strong>Done ID: {record.id}</strong><br/>
-              original_task_id: {record.original_task_id}<br/>
-              completed_at: {record.completed_at}<br/>
-              original_title: {record.original_title}<br/>
+          doneData.map((record, index) => (
+            <div key={record.id as string || index} style={{ marginBottom: '10px', padding: '5px', border: '1px solid #ccc' }}>
+              <strong>Done ID: {String(record.id)}</strong><br/>
+              original_task_id: {String(record.original_task_id || '')}<br/>
+              completed_at: {String(record.completed_at || '')}<br/>
+              original_title: {String(record.original_title || '')}<br/>
             </div>
           ))
         )}
