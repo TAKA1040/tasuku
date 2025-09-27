@@ -212,72 +212,71 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
             />
           </div>
 
-          {/* カテゴリと重要度の行 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-            <div>
-              <label style={{
-                display: 'inline-block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginRight: '8px',
-                color: '#1f2937'
-              }}>
-                カテゴリ
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{
-                  width: 'calc(100% - 70px)',
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  backgroundColor: '#ffffff'
-                }}
-              >
-                <option value="">選択</option>
-                <option value="仕事">仕事</option>
-                <option value="プライベート">プライベート</option>
-                <option value="勉強">勉強</option>
-                <option value="健康">健康</option>
-                <option value="家事">家事</option>
-                <option value="買い物">買い物</option>
-              </select>
-            </div>
-            <div>
-              <label style={{
-                display: 'inline-block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginRight: '8px',
-                color: '#1f2937'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <ImportanceDot importance={importance} size={10} />
-                  重要度
-                </div>
-              </label>
-              <select
-                value={importance || ''}
-                onChange={(e) => setImportance(e.target.value ? parseInt(e.target.value) as 1 | 2 | 3 | 4 | 5 : undefined)}
-                style={{
-                  width: 'calc(100% - 70px)',
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  backgroundColor: '#ffffff'
-                }}
-              >
-                <option value="">選択なし</option>
-                <option value="1">🔵 1 (低)</option>
-                <option value="2">🟦 2</option>
-                <option value="3">🟡 3 (中)</option>
-                <option value="4">🟠 4</option>
-                <option value="5">🔴 5 (高)</option>
-              </select>
-            </div>
+          {/* カテゴリ */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#1f2937',
+              minWidth: '60px'
+            }}>
+              カテゴリ
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px',
+                backgroundColor: '#ffffff'
+              }}
+            >
+              <option value="">選択</option>
+              <option value="仕事">仕事</option>
+              <option value="プライベート">プライベート</option>
+              <option value="勉強">勉強</option>
+              <option value="健康">健康</option>
+              <option value="家事">家事</option>
+              <option value="買い物">買い物</option>
+            </select>
+          </div>
+
+          {/* 重要度 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#1f2937',
+              minWidth: '60px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <ImportanceDot importance={importance} size={10} />
+              重要度
+            </label>
+            <select
+              value={importance || ''}
+              onChange={(e) => setImportance(e.target.value ? parseInt(e.target.value) as 1 | 2 | 3 | 4 | 5 : undefined)}
+              style={{
+                flex: 1,
+                padding: '6px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                fontSize: '13px',
+                backgroundColor: '#ffffff'
+              }}
+            >
+              <option value="">選択なし</option>
+              <option value="1">🔵 1 (低)</option>
+              <option value="2">🟦 2</option>
+              <option value="3">🟡 3 (中)</option>
+              <option value="4">🟠 4</option>
+              <option value="5">🔴 5 (高)</option>
+            </select>
           </div>
 
           <div style={{ marginBottom: '16px' }}>
@@ -416,13 +415,13 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
           )}
 
 
-          <div style={{ marginBottom: '16px' }}>
+          {/* 予想時間 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
-              marginBottom: '4px',
               fontSize: '14px',
               fontWeight: '500',
-              color: '#1f2937'
+              color: '#1f2937',
+              minWidth: '60px'
             }}>
               予想時間
             </label>
@@ -430,9 +429,7 @@ export function RecurringTaskEditForm({ task, isVisible, onSubmit, onCancel }: R
               value={durationTime}
               onChange={handleDurationTimeChange}
               placeholder="HH:MM"
-              style={{
-                width: '100%'
-              }}
+              style={{ flex: 1 }}
             />
           </div>
 

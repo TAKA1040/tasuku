@@ -454,111 +454,84 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
+          {/* 実行日 */}
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
-              display: 'block',
               fontSize: '14px',
               fontWeight: '500',
-              marginBottom: '4px',
-              color: '#374151'
+              color: '#374151',
+              minWidth: '60px'
             }}>
-              終了したい日
+              実行日
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               style={{
-                width: '100%',
-                padding: '8px 12px',
+                flex: 1,
+                padding: '6px 8px',
                 border: '1px solid #d1d5db',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 fontSize: '14px',
                 boxSizing: 'border-box'
               }}
             />
+          </div>
 
-            {/* クイック移動ボタン */}
-            <div style={{
-              display: 'flex',
-              gap: '8px',
-              marginTop: '8px',
-              alignItems: 'center'
-            }}>
-              <span style={{ fontSize: '12px', color: '#6b7280' }}>クイック設定:</span>
-              <button
-                type="button"
-                onClick={() => setDueDate(QuickMoves.tomorrow())}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  backgroundColor: '#fff',
-                  color: '#374151',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#9ca3af'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fff'
-                  e.currentTarget.style.borderColor = '#d1d5db'
-                }}
-              >
-                明日
-              </button>
-              <button
-                type="button"
-                onClick={() => setDueDate(QuickMoves.plus3Days())}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  backgroundColor: '#fff',
-                  color: '#374151',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#9ca3af'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fff'
-                  e.currentTarget.style.borderColor = '#d1d5db'
-                }}
-              >
-                +3日
-              </button>
-              <button
-                type="button"
-                onClick={() => setDueDate(QuickMoves.endOfMonth())}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  backgroundColor: '#fff',
-                  color: '#374151',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#9ca3af'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#fff'
-                  e.currentTarget.style.borderColor = '#d1d5db'
-                }}
-              >
-                月末
-              </button>
-            </div>
+          {/* クイック移動ボタン */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '12px',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontSize: '12px', color: '#6b7280', minWidth: '60px' }}>日付設定:</span>
+            <button
+              type="button"
+              onClick={() => setDueDate(QuickMoves.tomorrow())}
+              style={{
+                padding: '3px 6px',
+                fontSize: '11px',
+                border: '1px solid #d1d5db',
+                borderRadius: '3px',
+                backgroundColor: '#fff',
+                color: '#374151',
+                cursor: 'pointer'
+              }}
+            >
+              明日
+            </button>
+            <button
+              type="button"
+              onClick={() => setDueDate(QuickMoves.plus3Days())}
+              style={{
+                padding: '3px 6px',
+                fontSize: '11px',
+                border: '1px solid #d1d5db',
+                borderRadius: '3px',
+                backgroundColor: '#fff',
+                color: '#374151',
+                cursor: 'pointer'
+              }}
+            >
+              +3日
+            </button>
+            <button
+              type="button"
+              onClick={() => setDueDate(QuickMoves.endOfMonth())}
+              style={{
+                padding: '3px 6px',
+                fontSize: '11px',
+                border: '1px solid #d1d5db',
+                borderRadius: '3px',
+                backgroundColor: '#fff',
+                color: '#374151',
+                cursor: 'pointer'
+              }}
+            >
+              月末
+            </button>
           </div>
 
           {/* URL管理セクション */}
