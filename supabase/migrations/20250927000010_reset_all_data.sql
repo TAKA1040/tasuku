@@ -1,0 +1,15 @@
+-- 全データをリセットして1から検証
+-- RLSを一時的に無効にして削除
+ALTER TABLE unified_tasks DISABLE ROW LEVEL SECURITY;
+ALTER TABLE done DISABLE ROW LEVEL SECURITY;
+ALTER TABLE recurring_templates DISABLE ROW LEVEL SECURITY;
+
+-- 全てのテーブルのデータを削除
+DELETE FROM done;
+DELETE FROM unified_tasks;
+DELETE FROM recurring_templates;
+
+-- RLSを再有効化
+ALTER TABLE unified_tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE done ENABLE ROW LEVEL SECURITY;
+ALTER TABLE recurring_templates ENABLE ROW LEVEL SECURITY;

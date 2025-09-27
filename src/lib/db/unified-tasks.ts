@@ -213,10 +213,74 @@ export class UnifiedTasksService {
         throw new Error(`Failed to create unified task: ${error.message}`)
       }
 
+      // 繰り返しタスクの場合、自動的にテンプレートを作成
+      if (data.task_type === 'RECURRING' && data.recurring_pattern) {
+        await this.createTemplateFromTask(data)
+      }
+
       return data
     } catch (error) {
       console.error('UnifiedTasksService.createUnifiedTask error:', error)
       throw error
+    }
+  }
+
+  // 繰り返しタスクから自動的にテンプレートを作成
+  private static async createTemplateFromTask(task: UnifiedTask): Promise<void> {
+    try {
+      const supabase = createClient()
+
+      // 既に同じテンプレートが存在するかチェック
+      const { data: existingTemplate } = await supabase
+        .from('recurring_templates')
+        .select('id')
+        .eq('user_id', task.user_id)
+        .eq('title', task.title)
+        .eq('pattern', task.recurring_pattern)
+        .eq('category', task.category || '')
+        .limit(1)
+
+      if (existingTemplate && existingTemplate.length > 0) {
+        // 既存テンプレートのIDを設定
+        await supabase
+          .from('unified_tasks')
+          .update({ recurring_template_id: existingTemplate[0].id })
+          .eq('id', task.id)
+        return
+      }
+
+      // 新しいテンプレートを作成
+      const { data: templateData, error: templateError } = await supabase
+        .from('recurring_templates')
+        .insert({
+          title: task.title,
+          memo: task.memo,
+          category: task.category,
+          importance: task.importance || 1,
+          pattern: task.recurring_pattern,
+          user_id: task.user_id,
+          active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (templateError) {
+        console.error('Template creation error:', templateError)
+        return
+      }
+
+      // タスクにテンプレートIDを設定
+      await supabase
+        .from('unified_tasks')
+        .update({ recurring_template_id: templateData.id })
+        .eq('id', task.id)
+
+      console.log(`✅ 自動テンプレート作成: ${task.title} (${task.recurring_pattern})`)
+
+    } catch (error) {
+      console.error('createTemplateFromTask error:', error)
     }
   }
 
