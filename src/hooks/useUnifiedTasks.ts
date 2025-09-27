@@ -215,10 +215,8 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
         const historyTasks: UnifiedTask[] = doneRecords?.map(record => ({
           ...record.unified_tasks,
           completed: true,
-          completed_at: record.completed_at,
-          // 履歴として識別するためのフラグ
-          _isHistory: true
-        })) || []
+          completed_at: record.completed_at
+        } as unknown as UnifiedTask)) || []
 
         // 4. 重複を除去（同一タスクの複数完了履歴は最新のみ保持）
         const uniqueHistoryTasks = historyTasks.filter((historyTask, index, array) => {

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import { getTodayJST } from '@/lib/utils/date-jst'
 import { DisplayNumberUtils, SubTask } from '@/lib/types/unified-task'
 
 interface UnifiedTasksTableProps {
@@ -23,6 +22,7 @@ interface UnifiedTasksTableProps {
   addShoppingSubTask?: (taskId: string, itemName: string) => void
   toggleShoppingSubTask?: (taskId: string, subTaskId: string) => void
   deleteShoppingSubTask?: (taskId: string, subTaskId: string) => void
+  showTitle?: boolean
 }
 
 // 重要度に応じた色を返すヘルパー関数
@@ -54,6 +54,13 @@ const formatDueDateForDisplay = (dateString?: string | null): string => {
   return `${month}/${day}`
 }
 
+// タスクの種別を判定するヘルパー関数
+const getTaskDataType = (task: UnifiedTask): 'task' | 'recurring' | 'idea' => {
+  if (task.task_type === 'IDEA') return 'idea'
+  if (task.task_type === 'RECURRING') return 'recurring'
+  return 'task'
+}
+
 // 繰り返しタスクの次回実行日を計算するヘルパー関数
 const getTaskDateDisplay = (task: { due_date?: string | null }): string => {
   if (!task.due_date) return '日付なし'
@@ -79,7 +86,7 @@ const isValidUrl = (url: string): boolean => {
 }
 
 // URL一括開きアイコンのレンダリング関数
-const renderUrlIcon = (urls?: string[]) => {
+const renderUrlIcon = (urls?: string[] | null) => {
   if (!urls || urls.length === 0) return '-'
 
   return (
@@ -240,8 +247,10 @@ export function UnifiedTasksTable({
               </tr>
             </thead>
             <tbody>
-              {tasks.map((item, index) => (
-                <tr key={`${item.dataType}-${item.id}`}
+              {tasks.map((item, index) => {
+                const dataType = getTaskDataType(item)
+                return (
+                <tr key={`${dataType}-${item.id}`}
                     style={{
                       borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
                       backgroundColor: item.completed ? '#f8f9fa' : 'transparent',
@@ -297,14 +306,14 @@ export function UnifiedTasksTable({
                       fontSize: '10px',
                       fontWeight: '600',
                       backgroundColor:
-                        item.dataType === 'task' ? '#dbeafe' :
-                        item.dataType === 'recurring' ? '#f0fdf4' : '#fef3c7',
+                        dataType === 'task' ? '#dbeafe' :
+                        dataType === 'recurring' ? '#f0fdf4' : '#fef3c7',
                       color:
-                        item.dataType === 'task' ? '#1e40af' :
-                        item.dataType === 'recurring' ? '#166534' : '#92400e'
+                        dataType === 'task' ? '#1e40af' :
+                        dataType === 'recurring' ? '#166534' : '#92400e'
                     }}>
-                      {item.dataType === 'task' ? 'タスク' :
-                       item.dataType === 'recurring' ? '繰り返し' : 'アイデア'}
+                      {dataType === 'task' ? 'タスク' :
+                       dataType === 'recurring' ? '繰り返し' : 'アイデア'}
                     </span>
                   </td>
 
@@ -328,14 +337,14 @@ export function UnifiedTasksTable({
                         fontWeight: '500',
                         textDecoration: item.completed ? 'line-through' : 'none'
                       }}>
-                        {item.displayTitle}
+                        {item.title}
                       </span>
 
                       {/* 添付ファイルアイコン */}
                       {item.attachment && renderFileIcon(item.attachment)}
 
                       {/* 買い物カテゴリの場合、「リスト」リンクを右に表示 */}
-                      {item.dataType === 'task' && item.category === '買い物' && toggleShoppingList && (
+                      {dataType === 'task' && item.category === '買い物' && toggleShoppingList && (
                         <button
                           onClick={() => toggleShoppingList(item.id)}
                           style={{
@@ -354,7 +363,7 @@ export function UnifiedTasksTable({
                       )}
 
                       {/* 買い物カテゴリ以外のメモを右に表示 */}
-                      {((item.dataType === 'task' && item.category !== '買い物') || item.dataType === 'recurring') && item.memo && (
+                      {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && (
                         <span style={{
                           fontSize: '12px',
                           color: '#6b7280',
@@ -366,7 +375,7 @@ export function UnifiedTasksTable({
                     </div>
 
                     {/* サブタスクリスト（展開時） */}
-                    {item.dataType === 'task' && item.category === '買い物' && expandedShoppingLists[item.id] && (
+                    {dataType === 'task' && item.category === '買い物' && expandedShoppingLists && expandedShoppingLists[item.id] && (
                       <div style={{
                         marginTop: '8px',
                         paddingLeft: '12px',
@@ -458,7 +467,7 @@ export function UnifiedTasksTable({
 
                   {/* カテゴリ */}
                   <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
-                    {item.displayCategory}
+                    {item.category || '-'}
                   </td>
 
                   {/* URL一括開きアイコン */}
@@ -479,7 +488,7 @@ export function UnifiedTasksTable({
                       }}>
                         {formatDueDateForDisplay(item.due_date)}
                       </span>
-                    ) : item.dataType === 'recurring' ? (
+                    ) : dataType === 'recurring' ? (
                       <span style={{
                         padding: '2px 6px',
                         borderRadius: '4px',
@@ -505,7 +514,7 @@ export function UnifiedTasksTable({
                       {/* 編集ボタン */}
                       <button
                         onClick={() => {
-                          if (item.dataType === 'task') {
+                          if (dataType === 'task') {
                             const taskForEdit: UnifiedTask = {
                               id: item.id,
                               user_id: item.user_id || '',
@@ -531,12 +540,13 @@ export function UnifiedTasksTable({
                               recurring_day: item.recurring_day || undefined
                             }
                             handleEditTask(taskForEdit)
-                          } else if (item.dataType === 'recurring') {
-                            handleEditTask(item as unknown as UnifiedTask)
-                          } else if (item.dataType === 'idea') {
+                          } else if (dataType === 'recurring') {
+                            handleEditTask(item)
+                          } else if (dataType === 'idea') {
                             if (process.env.NODE_ENV === 'development') {
                               console.log('アイデア編集:', item.title)
                             }
+                            handleEditTask(item)
                           }
                         }}
                         style={{
@@ -565,7 +575,7 @@ export function UnifiedTasksTable({
                       {/* 削除ボタン */}
                       <button
                         onClick={() => {
-                          if (confirm(`この${item.dataType === 'task' ? 'タスク' : item.dataType === 'recurring' ? '繰り返しタスク' : 'アイデア'}を削除しますか？`)) {
+                          if (confirm(`この${dataType === 'task' ? 'タスク' : dataType === 'recurring' ? '繰り返しタスク' : 'アイデア'}を削除しますか？`)) {
                             unifiedTasks.deleteTask(item.id)
                           }
                         }}
@@ -594,7 +604,7 @@ export function UnifiedTasksTable({
                     </div>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>

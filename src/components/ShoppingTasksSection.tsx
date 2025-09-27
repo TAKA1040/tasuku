@@ -151,7 +151,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
 
     for (const taskWithUrgency of shoppingTasks) {
       const taskSubTasks = await unifiedTasks.getSubtasks(taskWithUrgency.task.id)
-      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
+      newSubTasks[taskWithUrgency.task.id] = taskSubTasks.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
     }
 
     setSubTasks(newSubTasks)

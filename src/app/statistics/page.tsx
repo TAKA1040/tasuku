@@ -27,7 +27,23 @@ export default function StatisticsPage() {
     return unifiedTasks.tasks
       .filter(task => task.task_type === 'RECURRING')
       .map(task => ({
-        task,
+        task: {
+          id: task.id,
+          title: task.title,
+          memo: task.memo,
+          frequency: (task.recurring_pattern || 'DAILY') as 'DAILY' | 'INTERVAL_DAYS' | 'WEEKLY' | 'MONTHLY',
+          interval_n: 1,
+          start_date: task.due_date || task.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          active: !task.completed,
+          created_at: task.created_at || '',
+          updated_at: task.updated_at || '',
+          display_number: task.display_number,
+          duration_min: task.duration_min,
+          importance: task.importance,
+          category: task.category,
+          urls: task.urls,
+          attachment: task.attachment
+        },
         occursToday: false,
         completedToday: task.completed,
         displayName: task.title

@@ -4,6 +4,16 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function TestPage() {
+  // Disable test page in production
+  if (process.env.NODE_ENV !== 'development') {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Page Not Available</h1>
+        <p>This test page is only available in development mode.</p>
+      </div>
+    )
+  }
+
   const [status, setStatus] = useState('接続テスト中...')
   const [error, setError] = useState('')
 
