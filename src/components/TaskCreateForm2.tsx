@@ -467,19 +467,17 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
           {category === '買い物' && (
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '4px',
-                fontSize: '11px',
-                fontWeight: '500',
-                color: '#6b7280'
-              }}>
-                買い物リスト
-              </label>
-
+            <div style={{ marginBottom: '8px' }}>
               {/* 買い物アイテム追加 */}
-              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  minWidth: '60px'
+                }}>
+                  買い物リスト
+                </label>
                 <input
                   type="text"
                   value={newShoppingItem}
@@ -488,10 +486,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                   placeholder="買い物アイテムを入力"
                   style={{
                     flex: 1,
-                    padding: '4px 6px',
+                    padding: '6px 8px',
                     border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '12px'
+                    borderRadius: '4px',
+                    fontSize: '13px'
                   }}
                 />
                 <button
