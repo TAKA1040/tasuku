@@ -186,7 +186,7 @@ export class TaskGeneratorService {
       task_type: 'RECURRING',
       recurring_pattern: template.pattern,
       recurring_weekdays: template.weekdays,
-      recurring_template_id: template.id.toString(), // 文字列に変換
+      recurring_template_id: template.id, // template.idは既にstring型
       display_number: displayNumber,
       completed: false,
       user_id: userId

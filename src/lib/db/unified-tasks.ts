@@ -245,7 +245,6 @@ export class UnifiedTasksService {
           memo: task.memo,
           category: task.category,
           importance: task.importance,
-          start_time: task.start_time,
           weekdays: task.recurring_weekdays,
           updated_at: new Date().toISOString()
         }
@@ -258,7 +257,13 @@ export class UnifiedTasksService {
           .eq('id', task.recurring_template_id)
 
         if (error) {
-          console.error('❌ Failed to sync template:', error)
+          console.error('❌ Failed to sync template - Full error details:', {
+            error,
+            templateId: task.recurring_template_id,
+            payload: updatePayload,
+            supabaseUrl: supabase.supabaseUrl,
+            query: `recurring_templates.update().eq('id', '${task.recurring_template_id}')`
+          })
         } else {
           console.log('✅ Template synced successfully')
         }
@@ -301,7 +306,7 @@ export class UnifiedTasksService {
         console.log('📎 Linking to existing template:', existingTemplate[0].id)
         await supabase
           .from('unified_tasks')
-          .update({ recurring_template_id: existingTemplate[0].id.toString() })
+          .update({ recurring_template_id: existingTemplate[0].id })
           .eq('id', task.id)
         return
       }
@@ -338,7 +343,7 @@ export class UnifiedTasksService {
       // タスクにテンプレートIDを設定
       const { error: linkError } = await supabase
         .from('unified_tasks')
-        .update({ recurring_template_id: templateData.id.toString() })
+        .update({ recurring_template_id: templateData.id })
         .eq('id', task.id)
 
       if (linkError) {
