@@ -5,6 +5,7 @@ import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 import { QuickMoves } from '@/lib/utils/date-jst'
+import { TimeInput } from '@/components/TimeInput'
 
 interface TaskEditFormProps {
   task: Task | UnifiedTask | null
@@ -300,87 +301,83 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 100px', gap: '12px', marginBottom: '16px' }}>
-            <div>
-              <label style={{
-                display: 'block',
+          {/* 優先度 */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '4px',
+              color: '#374151'
+            }}>
+              優先度
+            </label>
+            <select
+              value={importance}
+              onChange={(e) => setImportance(Number(e.target.value))}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
                 fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '4px',
-                color: '#374151'
-              }}>
-                優先度
-              </label>
-              <select
-                value={importance}
-                onChange={(e) => setImportance(Number(e.target.value))}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: '#fff',
-                  boxSizing: 'border-box'
-                }}
-              >
-                {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
+                backgroundColor: '#fff',
+                boxSizing: 'border-box'
+              }}
+            >
+              {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
 
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '4px',
-                color: '#374151'
-              }}>
-                開始時間
-              </label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
+          {/* 時間設定 */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '8px',
+              color: '#374151'
+            }}>
+              時間設定
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '4px',
+                  fontSize: '12px',
+                  color: '#6b7280'
+                }}>
+                  開始時間
+                </label>
+                <TimeInput
+                  value={startTime}
+                  onChange={setStartTime}
+                  placeholder="開始時間"
+                />
+              </div>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '4px',
+                  fontSize: '12px',
+                  color: '#6b7280'
+                }}>
+                  終了時間
+                </label>
+                <TimeInput
+                  value={endTime}
+                  onChange={setEndTime}
+                  placeholder="終了時間"
+                />
+              </div>
             </div>
+          </div>
 
-            <div>
-              <label style={{
-                display: 'block',
-                marginBottom: '4px',
-                fontSize: '12px',
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                終了時間
-              </label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            {/* ファイル添付セクション */}
+          {/* ファイル添付セクション */}
+          <div style={{ marginBottom: '16px' }}>
             <div>
               <label style={{
                 display: 'block',
