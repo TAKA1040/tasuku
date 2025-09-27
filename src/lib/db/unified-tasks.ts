@@ -240,6 +240,26 @@ export class UnifiedTasksService {
 
       // テンプレートが存在する場合は更新
       if (task.recurring_template_id) {
+        // まず、テンプレートが存在するかチェック
+        console.log('🔍 Checking if template exists:', task.recurring_template_id)
+        const { data: existingTemplate, error: checkError } = await supabase
+          .from('recurring_templates')
+          .select('id, title')
+          .eq('id', task.recurring_template_id)
+          .single()
+
+        if (checkError) {
+          console.error('❌ Error checking template existence:', JSON.stringify(checkError, null, 2))
+          return
+        }
+
+        if (!existingTemplate) {
+          console.error('❌ Template not found:', task.recurring_template_id)
+          return
+        }
+
+        console.log('✅ Template exists:', existingTemplate)
+
         const updatePayload = {
           title: task.title,
           memo: task.memo,
@@ -249,7 +269,7 @@ export class UnifiedTasksService {
           updated_at: new Date().toISOString()
         }
 
-        console.log('🆕 Syncing template with payload:', updatePayload)
+        console.log('🆕 Syncing template with payload:', JSON.stringify(updatePayload, null, 2))
 
         const { error } = await supabase
           .from('recurring_templates')
@@ -257,13 +277,12 @@ export class UnifiedTasksService {
           .eq('id', task.recurring_template_id)
 
         if (error) {
-          console.error('❌ Failed to sync template - Full error details:', {
-            error,
-            templateId: task.recurring_template_id,
-            payload: updatePayload,
-            supabaseUrl: supabase.supabaseUrl,
-            query: `recurring_templates.update().eq('id', '${task.recurring_template_id}')`
-          })
+          console.error('❌ Failed to sync template - Full error details:')
+          console.error('  Error:', JSON.stringify(error, null, 2))
+          console.error('  Template ID:', task.recurring_template_id)
+          console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
+          console.error('  Supabase URL:', supabase.supabaseUrl)
+          console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
         } else {
           console.log('✅ Template synced successfully')
         }
