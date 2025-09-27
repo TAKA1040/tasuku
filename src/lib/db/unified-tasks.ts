@@ -385,8 +385,17 @@ export class UnifiedTasksService {
       }
 
       // 繰り返しタスクの場合、テンプレートも同期更新
-      if (data.task_type === 'RECURRING' && data.recurring_template_id) {
-        await this.syncTemplateFromTask(data)
+      if (data.task_type === 'RECURRING') {
+        console.log('🔄 RECURRING task detected, attempting template sync...')
+
+        // recurring_template_idがない場合は、テンプレートを探すか作成
+        if (!data.recurring_template_id) {
+          console.log('⚠️ No recurring_template_id found, searching for existing template...')
+          await this.createTemplateFromTask(data)
+        } else {
+          console.log('🔗 recurring_template_id found, syncing template...')
+          await this.syncTemplateFromTask(data)
+        }
       }
 
       return data
