@@ -89,6 +89,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     }
   }, [task])
 
+  // Force re-render when category changes (to ensure shopping list appears)
+  useEffect(() => {
+    console.log('🛒 TaskEditForm category changed:', category)
+  }, [category])
+
   // ファイル添付処理
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -360,6 +365,98 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               <option value="買い物">買い物</option>
             </select>
           </div>
+
+          {/* DEBUG: Always show current category state */}
+          <div style={{ backgroundColor: '#fef3c7', padding: '5px', margin: '5px 0', fontSize: '12px', border: '1px solid #f59e0b' }}>
+            DEBUG TaskEditForm: category="{category}" | isShopping={String(category === '買い物')} | task.category="{task?.category || 'undefined'}"
+          </div>
+
+          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
+          {category === '買い物' && (
+            <div key={`shopping-list-${category}`} style={{ marginBottom: '8px' }}>
+              {/* 買い物アイテム追加 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <label style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  minWidth: '60px'
+                }}>
+                  買い物リスト
+                </label>
+                <input
+                  type="text"
+                  value={newShoppingItem}
+                  onChange={(e) => setNewShoppingItem(e.target.value)}
+                  onKeyPress={handleShoppingItemKeyPress}
+                  placeholder="買い物アイテムを入力"
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '13px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={addShoppingItem}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '3px',
+                    fontSize: '12px',
+                    background: '#f3f4f6',
+                    cursor: 'pointer'
+                  }}
+                >
+                  追加
+                </button>
+              </div>
+
+              {/* 買い物リスト表示 */}
+              {shoppingItems.length > 0 && (
+                <div style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  padding: '6px',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                  background: '#f9fafb'
+                }}>
+                  {shoppingItems.map((item, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '2px 4px',
+                      margin: '2px 0',
+                      background: '#ffffff',
+                      borderRadius: '2px',
+                      fontSize: '12px'
+                    }}>
+                      <span>{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeShoppingItem(index)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#dc2626',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0 4px'
+                        }}
+                        title="削除"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 優先度 */}
           <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -722,93 +819,6 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               </div>
             )}
           </div>
-
-          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
-          {category === '買い物' && (
-            <div style={{ marginBottom: '8px' }}>
-              {/* 買い物アイテム追加 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  minWidth: '60px'
-                }}>
-                  買い物リスト
-                </label>
-                <input
-                  type="text"
-                  value={newShoppingItem}
-                  onChange={(e) => setNewShoppingItem(e.target.value)}
-                  onKeyPress={handleShoppingItemKeyPress}
-                  placeholder="買い物アイテムを入力"
-                  style={{
-                    flex: 1,
-                    padding: '6px 8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '4px',
-                    fontSize: '13px'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={addShoppingItem}
-                  style={{
-                    padding: '4px 8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '12px',
-                    background: '#f3f4f6',
-                    cursor: 'pointer'
-                  }}
-                >
-                  追加
-                </button>
-              </div>
-
-              {/* 買い物リスト表示 */}
-              {shoppingItems.length > 0 && (
-                <div style={{
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
-                  padding: '6px',
-                  maxHeight: '120px',
-                  overflowY: 'auto',
-                  background: '#f9fafb'
-                }}>
-                  {shoppingItems.map((item, index) => (
-                    <div key={index} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '2px 4px',
-                      margin: '2px 0',
-                      background: '#ffffff',
-                      borderRadius: '2px',
-                      fontSize: '12px'
-                    }}>
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeShoppingItem(index)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#dc2626',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          padding: '0 4px'
-                        }}
-                        title="削除"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           <div style={{
             display: 'flex',

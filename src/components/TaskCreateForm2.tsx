@@ -464,6 +464,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             />
           </div>
 
+          {/* DEBUG: Always show current category state */}
+          <div style={{ backgroundColor: '#dcfce7', padding: '5px', margin: '5px 0', fontSize: '12px', border: '1px solid #16a34a' }}>
+            DEBUG TaskCreateForm2: category="{category}" | isShopping={String(category === '買い物')}
+          </div>
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
           {category === '買い物' && (
