@@ -61,7 +61,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     setShoppingItems(shoppingItems.filter((_, i) => i !== index))
   }
 
-  const handleShoppingItemKeyDown = (e: React.KeyboardEvent) => {
+  const handleShoppingItemKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       addShoppingItem()
@@ -380,7 +380,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                   type="text"
                   value={newShoppingItem}
                   onChange={(e) => setNewShoppingItem(e.target.value)}
-                  onKeyDown={handleShoppingItemKeyDown}
+                  onKeyPress={handleShoppingItemKeyPress}
                   placeholder="買い物アイテムを入力"
                   style={{
                     flex: 1,
