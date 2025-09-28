@@ -226,6 +226,12 @@ export default function TemplatesPage() {
     try {
       setStatus(`${template.title}を更新中...`)
 
+      console.log('🔄 テンプレート更新:', {
+        title: template.title,
+        urls: template.urls,
+        urlsLength: template.urls?.length || 0
+      })
+
       const { error } = await supabase
         .from('recurring_templates')
         .update({
@@ -239,14 +245,18 @@ export default function TemplatesPage() {
           month_of_year: template.month_of_year,
           day_of_year: template.day_of_year,
           active: template.active,
+          urls: template.urls,
           updated_at: new Date().toISOString()
         })
         .eq('id', template.id)
 
       if (error) {
+        console.error('❌ テンプレート更新エラー:', error)
         setStatus(`更新エラー: ${error.message}`)
         return
       }
+
+      console.log('✅ テンプレート更新成功')
 
       setStatus(`✅ ${template.title}を更新しました`)
       setEditingTemplate(null)
