@@ -37,41 +37,53 @@ export class TaskGeneratorService {
 
     console.log('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
 
-    // デバッグ: 強制的に今日のタスクを生成
-    const forceGenerate = true
-    if (lastProcessed < today || forceGenerate) {
-      console.log('🎯 タスク生成を実行します (forceGenerate:', forceGenerate, ', forceToday:', forceToday, ')')
+    // 生成判定: 手動の場合は強制実行、自動の場合は日付チェック
+    if (lastProcessed < today || forceToday) {
+      console.log('🎯 タスク生成を実行します (forceToday:', forceToday, ')')
 
-      // 日次: 手動の場合は今日を含む、自動の場合は最大3日分復旧
-      let startDate: number
       if (forceToday) {
-        startDate = this.parseDate(today) // 今日から生成
-        console.log('🎯 手動生成: 今日を強制生成')
-      } else {
-        startDate = Math.max(
+        // 手動生成: 自動生成と同じセキュリティルール適用
+        console.log('🎯 手動生成: セキュリティルール適用')
+
+        // 日次: 3日制限適用
+        const startDate = Math.max(
           this.parseDate(addDays(lastProcessed, 1)),
           this.parseDate(subtractDays(today, 3))
         )
-      }
-      await this.generateDailyTasks(this.formatDate(startDate), today)
+        await this.generateDailyTasks(this.formatDate(startDate), today)
 
-      // 週次: 手動の場合は今週のみ、自動の場合は週が変わった場合のみ
-      if (forceToday || this.isNewWeek(lastProcessed, today)) {
-        const thisMonday = getStartOfWeek(today)
-        if (forceToday) {
-          // 手動の場合は今日のみ生成（安全のため）
-          await this.generateWeeklyTasksForToday(today)
-          console.log('🎯 手動週次生成: 今日のみ生成 (安全モード)')
-        } else {
-          // 自動の場合は今週全体
+        // 週次: 週が変わった場合のみ今週分
+        if (this.isNewWeek(lastProcessed, today)) {
+          const thisMonday = getStartOfWeek(today)
+          await this.generateWeeklyTasks(thisMonday, today)
+          console.log('🎯 手動週次生成: 今週分生成')
+        }
+
+        // 月次: 月が変わった場合のみ今月分
+        if (this.isNewMonth(lastProcessed, today)) {
+          const thisFirstDay = getStartOfMonth(today)
+          await this.generateMonthlyTasks(thisFirstDay, today)
+          console.log('🎯 手動月次生成: 今月分生成')
+        }
+      } else {
+        // 自動生成: 制限付き復旧
+        const startDate = Math.max(
+          this.parseDate(addDays(lastProcessed, 1)),
+          this.parseDate(subtractDays(today, 3))
+        )
+        await this.generateDailyTasks(this.formatDate(startDate), today)
+
+        // 週次: 週が変わった場合のみ
+        if (this.isNewWeek(lastProcessed, today)) {
+          const thisMonday = getStartOfWeek(today)
           await this.generateWeeklyTasks(thisMonday, today)
         }
-      }
 
-      // 月次: 月が変わった場合のみ
-      if (this.isNewMonth(lastProcessed, today)) {
-        const thisFirstDay = getStartOfMonth(today)
-        await this.generateMonthlyTasks(thisFirstDay, today)
+        // 月次: 月が変わった場合のみ
+        if (this.isNewMonth(lastProcessed, today)) {
+          const thisFirstDay = getStartOfMonth(today)
+          await this.generateMonthlyTasks(thisFirstDay, today)
+        }
       }
 
       // 最終更新日を更新
