@@ -30,12 +30,6 @@ export default function TodayPage() {
     document.title = 'TASUKU - 今日のタスク'
   }, [])
 
-  // ソートモード変更監視
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      console.log('🔄 sortMode変更:', sortMode)
-    }
-  }, [sortMode])
 
   // 買い物リスト（サブタスク）管理 - データベース連携
   const [shoppingSubTasks, setShoppingSubTasks] = useState<{[taskId: string]: SubTask[]}>({})
@@ -46,9 +40,6 @@ export default function TodayPage() {
 
   // 統一データベースから直接データを取得
   const allUnifiedData = useMemo(() => {
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.log('📊 allUnifiedData計算中:', { isInitialized, loading: unifiedTasks.loading, tasksLength: unifiedTasks.tasks.length, sortMode })
-    }
     if (!isInitialized || unifiedTasks.loading) return []
 
     const allTasks = unifiedTasks.tasks
@@ -110,10 +101,6 @@ export default function TodayPage() {
       return (a.display_number || '').localeCompare(b.display_number || '')
     })
 
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.log(`📊 統一データ取得完了: ${unifiedData.length}件, sortMode: ${sortMode}`)
-      console.log('📋 ソート後のタスク順:', unifiedData.slice(0, 5).map(t => `${t.title}(重要度:${t.importance || 0},時間:${t.start_time || 'なし'})`))
-    }
 
     return unifiedData
   }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
@@ -589,10 +576,7 @@ export default function TodayPage() {
               gap: '2px'
             }}>
               <button
-                onClick={() => {
-                  console.log('🔄 重要度ボタンクリック: sortMode変更前=', sortMode)
-                  setSortMode('priority')
-                }}
+                onClick={() => setSortMode('priority')}
                 style={{
                   background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'priority' ? 'white' : '#6b7280',
@@ -608,10 +592,7 @@ export default function TodayPage() {
                 重要度
               </button>
               <button
-                onClick={() => {
-                  console.log('⏰ 時間軸ボタンクリック: sortMode変更前=', sortMode)
-                  setSortMode('time')
-                }}
+                onClick={() => setSortMode('time')}
                 style={{
                   background: sortMode === 'time' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'time' ? 'white' : '#6b7280',
