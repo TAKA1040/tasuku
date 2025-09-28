@@ -160,7 +160,40 @@ export default function TemplatesPage() {
 
       console.log('📋 生データ全体:', templatesData)
 
-      setTemplates(templatesData || [])
+      // URLsフィールドを正規化（文字列を配列に変換）
+      const normalizedTemplates = templatesData?.map(template => {
+        let normalizedUrls = []
+
+        if (template.urls) {
+          if (Array.isArray(template.urls)) {
+            normalizedUrls = template.urls
+          } else if (typeof template.urls === 'string') {
+            // 文字列の場合、JSONとしてパースを試行
+            try {
+              const parsed = JSON.parse(template.urls)
+              normalizedUrls = Array.isArray(parsed) ? parsed : [template.urls]
+            } catch {
+              // JSONパースに失敗した場合、単一の文字列として扱う
+              normalizedUrls = template.urls.trim() ? [template.urls] : []
+            }
+          }
+        }
+
+        return {
+          ...template,
+          urls: normalizedUrls
+        }
+      }) || []
+
+      console.log('📋 正規化後:', normalizedTemplates.map(t => ({
+        id: t.id,
+        title: t.title,
+        urls: t.urls,
+        urlsType: typeof t.urls,
+        isArray: Array.isArray(t.urls)
+      })))
+
+      setTemplates(normalizedTemplates)
 
       // テンプレートIDがnullの繰り返しタスクを取得
       const { data: tasksData, error: tasksError } = await supabase
