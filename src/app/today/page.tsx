@@ -348,6 +348,13 @@ export default function TodayPage() {
 
   const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     await unifiedTasks.updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls, start_time: startTime, end_time: endTime, attachment })
+
+    // フォームを閉じる
+    setShowEditForm(false)
+    setEditingTask(null)
+
+    // タスクリストを再読み込み（買い物リストの変更を反映）
+    await unifiedTasks.loadTasks(true)
   }
 
   const handleCancelEdit = () => {

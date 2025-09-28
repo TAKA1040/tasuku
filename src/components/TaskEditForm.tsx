@@ -232,7 +232,7 @@ Items: ${JSON.stringify(finalShoppingItems)}`)
         }
       }, 1000)
 
-      onCancel()
+      // onCancel() - today/page.tsxのhandleUpdateTaskで処理される
     } catch (error) {
       console.error('Failed to update task:', error)
     } finally {
