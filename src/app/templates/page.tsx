@@ -331,6 +331,14 @@ export default function TemplatesPage() {
                   textAlign: 'center',
                   borderBottom: '1px solid #e5e7eb',
                   fontWeight: '600',
+                  color: '#374151',
+                  width: '40px'
+                }}>🌍</th>
+                <th style={{
+                  padding: '8px',
+                  textAlign: 'center',
+                  borderBottom: '1px solid #e5e7eb',
+                  fontWeight: '600',
                   color: '#374151'
                 }}>操作</th>
               </tr>
@@ -402,6 +410,42 @@ export default function TemplatesPage() {
                     <span style={{ marginLeft: '4px', fontSize: '11px' }}>
                       {template.importance}/5
                     </span>
+                  </td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>
+                    {template.urls && template.urls.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const validUrls = template.urls?.filter(url => {
+                            try {
+                              new URL(url)
+                              return true
+                            } catch {
+                              return false
+                            }
+                          }) || []
+                          if (validUrls.length === 0) {
+                            alert('有効なURLが見つかりませんでした。')
+                            return
+                          }
+                          if (confirm(`${validUrls.length}個のURLを開きますか？`)) {
+                            validUrls.forEach(url => window.open(url, '_blank', 'noopener,noreferrer'))
+                          }
+                        }}
+                        style={{
+                          border: 'none',
+                          background: 'none',
+                          fontSize: '16px',
+                          cursor: 'pointer',
+                          padding: '2px'
+                        }}
+                        title={`${template.urls.length}個のURLを一括で開く`}
+                      >
+                        🌍
+                      </button>
+                    ) : (
+                      <span style={{ color: '#9ca3af', fontSize: '11px' }}>-</span>
+                    )}
                   </td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
                     <button
@@ -560,6 +604,35 @@ export default function TemplatesPage() {
                 <option value={4}>🟠 高</option>
                 <option value={5}>🔴 最高</option>
               </select>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                関連URL (1行に1つずつ)
+              </label>
+              <textarea
+                value={editingTemplate.urls?.join('\n') || ''}
+                onChange={(e) => {
+                  const urls = e.target.value.split('\n').filter(url => url.trim())
+                  setEditingTemplate({
+                    ...editingTemplate,
+                    urls: urls.length > 0 ? urls : undefined
+                  })
+                }}
+                placeholder="https://example.com&#10;https://another-site.com"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  minHeight: '80px',
+                  resize: 'vertical'
+                }}
+              />
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                URLを入力すると、タスク一覧で🌍アイコンから一括で開けます
+              </div>
             </div>
 
             <div style={{ marginBottom: '15px' }}>
