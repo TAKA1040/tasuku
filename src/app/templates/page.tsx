@@ -188,6 +188,11 @@ export default function TemplatesPage() {
           memo: template.memo,
           category: template.category,
           importance: template.importance,
+          pattern: template.pattern,
+          weekdays: template.weekdays,
+          day_of_month: template.day_of_month,
+          month_of_year: template.month_of_year,
+          day_of_year: template.day_of_year,
           active: template.active,
           updated_at: new Date().toISOString()
         })
@@ -554,6 +559,143 @@ export default function TemplatesPage() {
                 <option value={5}>🔴 最高</option>
               </select>
             </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                繰り返しパターン
+              </label>
+              <select
+                value={editingTemplate.pattern}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  pattern: e.target.value as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+                })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="DAILY">毎日</option>
+                <option value="WEEKLY">毎週</option>
+                <option value="MONTHLY">毎月</option>
+                <option value="YEARLY">毎年</option>
+              </select>
+            </div>
+
+            {editingTemplate.pattern === 'WEEKLY' && (
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                  曜日選択
+                </label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {['月', '火', '水', '木', '金', '土', '日'].map((day, index) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => {
+                        const dayValue = index + 1
+                        const newWeekdays = editingTemplate.weekdays?.includes(dayValue)
+                          ? editingTemplate.weekdays.filter(w => w !== dayValue)
+                          : [...(editingTemplate.weekdays || []), dayValue]
+                        setEditingTemplate({
+                          ...editingTemplate,
+                          weekdays: newWeekdays
+                        })
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '4px',
+                        background: editingTemplate.weekdays?.includes(index + 1) ? '#3b82f6' : 'white',
+                        color: editingTemplate.weekdays?.includes(index + 1) ? 'white' : '#374151',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {editingTemplate.pattern === 'MONTHLY' && (
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                  日付
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={editingTemplate.day_of_month || 1}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    day_of_month: parseInt(e.target.value) || 1
+                  })}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            )}
+
+            {editingTemplate.pattern === 'YEARLY' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                    月
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={editingTemplate.month_of_year || 1}
+                    onChange={(e) => setEditingTemplate({
+                      ...editingTemplate,
+                      month_of_year: parseInt(e.target.value) || 1
+                    })}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                    日
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={editingTemplate.day_of_year || 1}
+                    onChange={(e) => setEditingTemplate({
+                      ...editingTemplate,
+                      day_of_year: parseInt(e.target.value) || 1
+                    })}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'flex', alignItems: 'center', fontWeight: '500' }}>
