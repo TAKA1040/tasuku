@@ -57,10 +57,10 @@ export default function HelpPage() {
         <h2 style={{ fontSize: '20px', color: '#374151', marginBottom: '16px' }}>📖 目次</h2>
         <ul style={{ lineHeight: 1.8, color: '#6b7280' }}>
           <li><a href="#basic-usage" style={{ color: '#3b82f6', textDecoration: 'none' }}>基本的な使い方</a></li>
-          <li><a href="#today-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>今日のタスク</a></li>
+          <li><a href="#today-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>今日のタスク（ソート機能・手動生成）</a></li>
           <li><a href="#overdue-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>期日切れタスク</a></li>
           <li><a href="#shopping-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>買い物機能</a></li>
-          <li><a href="#recurring-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>毎日タスク</a></li>
+          <li><a href="#recurring-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>繰り返しタスク（テンプレート管理）</a></li>
           <li><a href="#idea-list" style={{ color: '#3b82f6', textDecoration: 'none' }}>やることリスト</a></li>
           <li><a href="#upcoming-tasks" style={{ color: '#3b82f6', textDecoration: 'none' }}>近々の予定</a></li>
           <li><a href="#rollover" style={{ color: '#3b82f6', textDecoration: 'none' }}>繰り越し機能</a></li>
@@ -78,14 +78,23 @@ export default function HelpPage() {
 
         <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>📝 タスクの作成</h3>
         <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
-          <li><strong>「+ 追加」ボタン</strong>をクリックしてタスクを作成</li>
+          <li><strong>「+ タスク追加」ボタン</strong>をクリックしてタスクを作成</li>
           <li><strong>タイトル</strong>：必須項目</li>
           <li><strong>期日</strong>：設定すると今日のタスクや期日切れに表示</li>
           <li><strong>カテゴリー</strong>：仕事、プライベート、買い物など</li>
           <li><strong>重要度</strong>：1〜5で設定（色付きドットで表示）</li>
-          <li><strong>所要時間</strong>：見積もり時間を設定</li>
+          <li><strong>開始時間・終了時間</strong>：時間軸ソートで使用</li>
           <li><strong>URL</strong>：関連リンクを複数設定可能</li>
           <li><strong>ファイル添付</strong>：画像やPDFを添付可能</li>
+          <li><strong>買い物リスト</strong>：買い物カテゴリ時は個別アイテム追加可能</li>
+        </ul>
+
+        <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>🔄 繰り返しタスク作成</h3>
+        <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
+          <li><strong>タスクタイプ</strong>：「1回のみ」「繰り返し」「期限設定」から選択</li>
+          <li><strong>繰り返しパターン</strong>：毎日、毎週、毎月、毎年</li>
+          <li><strong>曜日指定</strong>：毎週の場合は特定曜日を複数選択可能</li>
+          <li><strong>⚙️ テンプレートボタン</strong>：既存の繰り返し設定を管理</li>
         </ul>
 
         <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>✅ タスクの完了</h3>
@@ -100,13 +109,29 @@ export default function HelpPage() {
       {/* 今日のタスク */}
       <section id="today-tasks" style={{ marginBottom: '32px' }}>
         <h2 style={{ fontSize: '22px', color: '#374151', marginBottom: '16px' }}>📅 今日のタスク</h2>
-        <ul style={{ lineHeight: 1.8, color: '#6b7280' }}>
+        <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
           <li><strong>今日が期日</strong>のタスクが自動的に表示</li>
-          <li><strong>毎日タスク</strong>も同じ場所に表示</li>
+          <li><strong>繰り返しタスク</strong>も同じ場所に表示</li>
           <li><strong>テーブル形式</strong>で見やすく整理</li>
           <li><strong>写真アイコン（📷）</strong>：添付ファイル表示・プレビュー</li>
           <li><strong>地球アイコン（🌍）</strong>：関連URLを一括オープン</li>
           <li><strong>重要度ドット</strong>：色で優先度を視覚化</li>
+        </ul>
+
+        <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>🔄 ソート機能</h3>
+        <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
+          <li><strong>重要度ソート</strong>：重要度の高い順に表示（デフォルト）</li>
+          <li><strong>時間軸ソート</strong>：開始時間順に表示</li>
+          <li><strong>切り替えボタン</strong>：「重要度」「時間軸」で瞬時に切り替え</li>
+          <li><strong>時間未設定タスク</strong>：時間軸ソート時は最後に表示</li>
+        </ul>
+
+        <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>⚙️ 手動タスク生成</h3>
+        <ul style={{ lineHeight: 1.8, color: '#6b7280' }}>
+          <li><strong>「タスク生成」ボタン</strong>：自動生成が失敗した時の緊急用</li>
+          <li><strong>安全制限</strong>：最大3日分まで遡って生成</li>
+          <li><strong>重複防止</strong>：既存タスクと重複しない</li>
+          <li><strong>通常は不要</strong>：毎日の自動生成で十分</li>
         </ul>
       </section>
 
@@ -156,21 +181,30 @@ export default function HelpPage() {
         </div>
       </section>
 
-      {/* 毎日タスク */}
+      {/* 繰り返しタスク */}
       <section id="recurring-tasks" style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '22px', color: '#374151', marginBottom: '16px' }}>🔄 毎日タスク</h2>
+        <h2 style={{ fontSize: '22px', color: '#374151', marginBottom: '16px' }}>🔄 繰り返しタスク</h2>
         <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
           <li><strong>繰り返し設定</strong>：毎日、毎週、毎月、毎年</li>
-          <li><strong>曜日指定</strong>：毎週のタスクは特定曜日を指定可能</li>
-          <li><strong>自動表示</strong>：該当日に自動的に今日のタスクに表示</li>
+          <li><strong>曜日指定</strong>：毎週のタスクは特定曜日を複数指定可能</li>
+          <li><strong>自動生成</strong>：該当日に自動的に今日のタスクに表示</li>
           <li><strong>完了管理</strong>：日ごとに個別に完了管理</li>
+          <li><strong>テンプレート管理</strong>：⚙️ テンプレートボタンから設定変更</li>
+        </ul>
+
+        <h3 style={{ fontSize: '18px', color: '#4b5563', marginBottom: '12px' }}>⚙️ テンプレート管理</h3>
+        <ul style={{ lineHeight: 1.8, color: '#6b7280', marginBottom: '16px' }}>
+          <li><strong>パターン編集</strong>：DAILY/WEEKLY/MONTHLY/YEARLY の変更</li>
+          <li><strong>曜日編集</strong>：毎週タスクの曜日を後から変更</li>
+          <li><strong>アクティブ切り替え</strong>：一時的に無効化・再有効化</li>
+          <li><strong>リアルタイム更新</strong>：変更は即座に反映</li>
         </ul>
 
         <div style={{ backgroundColor: '#fefce8', padding: '16px', borderRadius: '8px', border: '1px solid #fde047' }}>
-          <h4 style={{ margin: '0 0 8px 0', color: '#ca8a04' }}>⏰ 前日分の表示ルール</h4>
+          <h4 style={{ margin: '0 0 8px 0', color: '#ca8a04' }}>⏰ 自動生成ルール</h4>
           <p style={{ margin: 0, color: '#374151' }}>
-            毎日タスクは<strong>前日分の未完了も表示</strong>されます（「前日分」と表示）。
-            ただし、前々日以前の毎日タスクは表示されません（管理が煩雑になるのを防ぐため）。
+            繰り返しタスクは<strong>毎日の起動時に自動生成</strong>されます。
+            生成に失敗した場合のみ、手動で「タスク生成」ボタンを使用してください（最大3日分まで安全に復旧）。
           </p>
         </div>
       </section>
