@@ -746,11 +746,53 @@ export default function TemplatesPage() {
 
       <div style={{ marginTop: '30px' }}>
         <h3>ナビゲーション</h3>
-        <ul>
-          <li><a href="/today">今日のページ</a></li>
-          <li><a href="/search">検索ページ</a></li>
-          <li><a href="/debug">デバッグページ</a></li>
-        </ul>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <a
+            href="/today"
+            style={{
+              display: 'inline-block',
+              padding: '8px 16px',
+              background: '#2563eb',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            📅 今日のタスク
+          </a>
+          <a
+            href="/search"
+            style={{
+              display: 'inline-block',
+              padding: '8px 16px',
+              background: '#6b7280',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            🔍 検索
+          </a>
+          <a
+            href="/statistics"
+            style={{
+              display: 'inline-block',
+              padding: '8px 16px',
+              background: '#6b7280',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            📊 統計
+          </a>
+        </div>
       </div>
     </div>
   )

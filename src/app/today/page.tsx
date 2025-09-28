@@ -450,6 +450,25 @@ export default function TodayPage() {
               📊 統計
             </a>
             <a
+              href="/templates"
+              style={{
+                background: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              ⚙️ テンプレート
+            </a>
+            <a
               href="/done"
               style={{
                 background: '#10b981',
