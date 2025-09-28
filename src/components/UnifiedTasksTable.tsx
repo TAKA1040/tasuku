@@ -37,6 +37,31 @@ const getImportanceColor = (importance?: number | null): string => {
   }
 }
 
+// memoから買い物リストを抽出する関数
+const extractShoppingListFromMemo = (memo?: string): string[] => {
+  if (!memo) return []
+
+  const shoppingListRegex = /【買い物リスト】\n((?:• .+(?:\n|$))+)/
+  const match = memo.match(shoppingListRegex)
+
+  if (!match) return []
+
+  const shoppingSection = match[1]
+  return shoppingSection
+    .split('\n')
+    .map(line => line.replace(/^• /, '').trim())
+    .filter(item => item.length > 0)
+}
+
+// memoから買い物リスト以外の部分を取得する関数
+const getCleanMemoFromShoppingTask = (memo?: string): string => {
+  if (!memo) return ''
+
+  return memo
+    .replace(/\n*【買い物リスト】\n(?:• .+(?:\n|$))+/, '')
+    .trim()
+}
+
 // 日付を日本語形式でフォーマットするヘルパー関数
 const formatDueDateForDisplay = (dateString?: string | null): string => {
   if (!dateString) return '-'
@@ -343,24 +368,44 @@ export function UnifiedTasksTable({
                       {/* 添付ファイルアイコン */}
                       {item.attachment && renderFileIcon(item.attachment)}
 
-                      {/* 買い物カテゴリの場合、「リスト」リンクを右に表示 */}
-                      {dataType === 'task' && item.category === '買い物' && toggleShoppingList && (
-                        <button
-                          onClick={() => toggleShoppingList(item.id)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#3b82f6',
-                            cursor: 'pointer',
-                            fontSize: '11px',
-                            textDecoration: 'underline',
-                            padding: '0'
-                          }}
-                          title="買い物リストを表示/非表示"
-                        >
-                          🛒 リスト ({(shoppingSubTasks[item.id] || []).length})
-                        </button>
-                      )}
+                      {/* 買い物カテゴリの場合、買い物リスト情報を表示 */}
+                      {dataType === 'task' && item.category === '買い物' && (() => {
+                        const shoppingList = extractShoppingListFromMemo(item.memo)
+                        const cleanMemo = getCleanMemoFromShoppingTask(item.memo)
+                        const legacySubTasks = shoppingSubTasks?.[item.id] || []
+                        const totalItems = shoppingList.length + legacySubTasks.length
+
+                        return (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {totalItems > 0 && toggleShoppingList && (
+                              <button
+                                onClick={() => toggleShoppingList(item.id)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: '#3b82f6',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  textDecoration: 'underline',
+                                  padding: '0'
+                                }}
+                                title="買い物リストを表示/非表示"
+                              >
+                                🛒 リスト ({totalItems})
+                              </button>
+                            )}
+                            {cleanMemo && (
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#6b7280',
+                                fontStyle: 'italic'
+                              }}>
+                                - {cleanMemo}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })()}
 
                       {/* 買い物カテゴリ以外のメモを右に表示 */}
                       {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && (
@@ -403,6 +448,31 @@ export function UnifiedTasksTable({
                             + 追加
                           </button>
                         </div>
+                        {/* memoから抽出した買い物リストを表示 */}
+                        {extractShoppingListFromMemo(item.memo).map((shoppingItem, index) => (
+                          <div key={`memo-${index}`} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            marginBottom: '4px',
+                            fontSize: '11px',
+                            backgroundColor: '#f0f9ff',
+                            padding: '2px 4px',
+                            borderRadius: '3px'
+                          }}>
+                            <span style={{ color: '#1d4ed8' }}>🛒</span>
+                            <span style={{ color: '#1e40af' }}>{shoppingItem}</span>
+                            <span style={{
+                              fontSize: '9px',
+                              color: '#6b7280',
+                              fontStyle: 'italic'
+                            }}>
+                              (タスク編集で管理)
+                            </span>
+                          </div>
+                        ))}
+
+                        {/* 従来のサブタスクシステム */}
                         {(shoppingSubTasks[item.id] || []).map((subTask) => (
                           <div key={subTask.id} style={{
                             display: 'flex',
