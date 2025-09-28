@@ -40,6 +40,11 @@ export default function TodayPage() {
 
   // 統一データベースから直接データを取得
   const allUnifiedData = useMemo(() => {
+    console.log('🚀🚀🚀 allUnifiedData useMemo 再計算実行！')
+    console.log('🚀 sortMode:', sortMode)
+    console.log('🚀 isInitialized:', isInitialized)
+    console.log('🚀 unifiedTasks.loading:', unifiedTasks.loading)
+
     if (!isInitialized || unifiedTasks.loading) return []
 
     const allTasks = unifiedTasks.tasks
@@ -54,6 +59,8 @@ export default function TodayPage() {
     }))
 
     // 🔧 不変性を保ったソート処理
+    console.log('🔄🔄🔄 ソート処理開始, sortMode:', sortMode)
+    console.log('🔄 unifiedData.length:', unifiedData.length)
     const sortedData = [...unifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）
       if (a.completed !== b.completed) {
