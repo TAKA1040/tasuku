@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
@@ -53,14 +52,8 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   // 買い物リスト操作
   const addShoppingItem = () => {
     if (newShoppingItem.trim()) {
-      console.log('🛒 TaskEditForm: 買い物アイテム追加前:', { shoppingItems, newShoppingItem })
-      alert(`🛒 DEBUG: アイテム追加 "${newShoppingItem.trim()}" → リスト長: ${shoppingItems.length + 1}`)
-      const newItems = [...shoppingItems, newShoppingItem.trim()]
-      setShoppingItems(newItems)
+      setShoppingItems([...shoppingItems, newShoppingItem.trim()])
       setNewShoppingItem('')
-      console.log('🛒 TaskEditForm: 買い物アイテム追加後:', { newItems })
-    } else {
-      console.log('🛒 TaskEditForm: 空の入力のためスキップ')
     }
   }
 
@@ -68,7 +61,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     setShoppingItems(shoppingItems.filter((_, i) => i !== index))
   }
 
-  const handleShoppingItemKeyPress = (e: React.KeyboardEvent) => {
+  const handleShoppingItemKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       addShoppingItem()
@@ -170,67 +163,16 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       let finalShoppingItems = [...shoppingItems]
       if (category === '買い物' && newShoppingItem.trim()) {
         finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
-        console.log('🛒 TaskEditForm: 入力フィールドの内容を自動追加:', newShoppingItem.trim())
       }
-
-      console.log('🛒 TaskEditForm: 送信時の状態:', {
-        category,
-        shoppingItems,
-        finalShoppingItems,
-        newShoppingItem,
-        isShopping: category === '買い物'
-      })
-
-      alert(`🛒 DEBUG: 送信時の状態
-Category: ${category}
-Shopping Items: ${finalShoppingItems.length}個
-Items: ${JSON.stringify(finalShoppingItems)}`)
 
       // 買い物リストをmemoに統合
       let finalMemo = memo
       if (category === '買い物' && finalShoppingItems.length > 0) {
         const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
         finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
-        console.log('🛒 TaskEditForm: 買い物リストをmemoに統合:', { finalMemo, shoppingListText })
-      } else {
-        console.log('🛒 TaskEditForm: 買い物リストの統合をスキップ:', {
-          category,
-          finalShoppingItemsLength: finalShoppingItems.length,
-          condition: category === '買い物' && finalShoppingItems.length > 0
-        })
       }
 
       await onSubmit(task.id, title, finalMemo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
-
-      // データベース更新確認用のデバッグ
-      console.log('✅ onSubmit completed, verifying database update...')
-
-      // 更新されたタスクを再取得して確認
-      setTimeout(async () => {
-        try {
-          const supabase = createClient()
-          const { data: updatedTask, error } = await supabase
-            .from('unified_tasks')
-            .select('memo')
-            .eq('id', task.id)
-            .single()
-
-          if (!error && updatedTask) {
-            console.log('🔍 Database verification - Updated memo in DB:', updatedTask.memo)
-            if (updatedTask.memo?.includes('【買い物リスト】')) {
-              console.log('✅ Shopping list successfully saved to database!')
-              alert('✅ 買い物リストがデータベースに保存されました')
-            } else {
-              console.log('❌ Shopping list NOT found in database memo')
-              alert('❌ 買い物リストがデータベースに保存されていません')
-            }
-          } else {
-            console.error('❌ Failed to verify database update:', error)
-          }
-        } catch (verifyError) {
-          console.error('❌ Database verification error:', verifyError)
-        }
-      }, 1000)
 
       // onCancel() - today/page.tsxのhandleUpdateTaskで処理される
     } catch (error) {
@@ -438,7 +380,7 @@ Items: ${JSON.stringify(finalShoppingItems)}`)
                   type="text"
                   value={newShoppingItem}
                   onChange={(e) => setNewShoppingItem(e.target.value)}
-                  onKeyPress={handleShoppingItemKeyPress}
+                  onKeyDown={handleShoppingItemKeyDown}
                   placeholder="買い物アイテムを入力"
                   style={{
                     flex: 1,
