@@ -478,6 +478,13 @@ export default function TemplatesPage() {
                     </span>
                   </td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
+                    {/* デバッグ表示: URLの状態を常に表示 */}
+                    <div style={{ fontSize: '10px', marginBottom: '2px' }}>
+                      {template.urls === undefined ? 'undefined' :
+                       template.urls === null ? 'null' :
+                       Array.isArray(template.urls) ? `[${template.urls.length}]` :
+                       typeof template.urls}
+                    </div>
                     {template.urls && template.urls.length > 0 ? (
                       <button
                         type="button"
