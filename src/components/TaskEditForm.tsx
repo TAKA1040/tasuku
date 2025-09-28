@@ -89,11 +89,6 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     }
   }, [task])
 
-  // Force re-render when category changes (to ensure shopping list appears)
-  useEffect(() => {
-    console.log('🛒 TaskEditForm category changed:', category)
-  }, [category])
-
   // ファイル添付処理
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -364,11 +359,6 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               <option value="家事">家事</option>
               <option value="買い物">買い物</option>
             </select>
-          </div>
-
-          {/* DEBUG: Always show current category state */}
-          <div style={{ backgroundColor: '#fef3c7', padding: '5px', margin: '5px 0', fontSize: '12px', border: '1px solid #f59e0b' }}>
-            DEBUG TaskEditForm: category="{category}" | isShopping={String(category === '買い物')} | task.category="{task?.category || 'undefined'}"
           </div>
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}

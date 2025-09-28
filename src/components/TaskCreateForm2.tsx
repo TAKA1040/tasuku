@@ -428,47 +428,6 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             </select>
           </div>
 
-          {/* 開始時間 */}
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              minWidth: '60px'
-            }}>
-              開始時間
-            </label>
-            <TimeInput
-              value={startTime}
-              onChange={setStartTime}
-              placeholder="開始時間"
-              style={{ flex: 1 }}
-            />
-          </div>
-
-          {/* 終了時間 */}
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              minWidth: '60px'
-            }}>
-              終了時間
-            </label>
-            <TimeInput
-              value={endTime}
-              onChange={setEndTime}
-              placeholder="終了時間"
-              style={{ flex: 1 }}
-            />
-          </div>
-
-          {/* DEBUG: Always show current category state */}
-          <div style={{ backgroundColor: '#dcfce7', padding: '5px', margin: '5px 0', fontSize: '12px', border: '1px solid #16a34a' }}>
-            DEBUG TaskCreateForm2: category="{category}" | isShopping={String(category === '買い物')}
-          </div>
-
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
           {category === '買い物' && (
             <div style={{ marginBottom: '8px' }}>
@@ -555,6 +514,42 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               )}
             </div>
           )}
+
+          {/* 開始時間 */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              開始時間
+            </label>
+            <TimeInput
+              value={startTime}
+              onChange={setStartTime}
+              placeholder="開始時間"
+              style={{ flex: 1 }}
+            />
+          </div>
+
+          {/* 終了時間 */}
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              minWidth: '60px'
+            }}>
+              終了時間
+            </label>
+            <TimeInput
+              value={endTime}
+              onChange={setEndTime}
+              placeholder="終了時間"
+              style={{ flex: 1 }}
+            />
+          </div>
         </div>
 
         {/* URL管理セクション */}
