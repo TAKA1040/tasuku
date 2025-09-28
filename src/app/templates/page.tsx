@@ -153,8 +153,12 @@ export default function TemplatesPage() {
         title: t.title,
         urls: t.urls,
         urlsType: typeof t.urls,
-        urlsLength: t.urls?.length
+        urlsLength: t.urls?.length,
+        hasUrls: t.urls && t.urls.length > 0,
+        rawData: t
       })))
+
+      console.log('📋 生データ全体:', templatesData)
 
       setTemplates(templatesData || [])
 
