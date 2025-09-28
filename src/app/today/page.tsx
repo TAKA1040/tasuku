@@ -105,6 +105,11 @@ export default function TodayPage() {
     return unifiedData
   }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
 
+  // sortMode変更を追跡
+  useEffect(() => {
+    console.log('🔥 sortMode変更:', sortMode)
+  }, [sortMode])
+
   // 買い物タスクのサブタスクを自動で取得（データベース参照と同時に）
   useEffect(() => {
     const loadShoppingSubTasks = async () => {
