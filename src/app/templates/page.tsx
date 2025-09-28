@@ -52,8 +52,51 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState('')
   const [editingTemplate, setEditingTemplate] = useState<RecurringTemplate | null>(null)
+  const [newUrl, setNewUrl] = useState('')
 
   const supabase = createClient()
+
+  // URL管理ヘルパー関数
+  const handleAddUrl = () => {
+    if (newUrl.trim() && editingTemplate) {
+      try {
+        new URL(newUrl.trim())
+        const currentUrls = editingTemplate.urls || []
+        if (currentUrls.length >= 5) {
+          alert('URLは最大5個まで追加できます')
+          return
+        }
+        setEditingTemplate({
+          ...editingTemplate,
+          urls: [...currentUrls, newUrl.trim()]
+        })
+        setNewUrl('')
+      } catch {
+        alert('有効なURLを入力してください')
+      }
+    }
+  }
+
+  const handleRemoveUrl = (index: number) => {
+    if (editingTemplate) {
+      const newUrls = editingTemplate.urls?.filter((_, i) => i !== index) || []
+      setEditingTemplate({
+        ...editingTemplate,
+        urls: newUrls.length > 0 ? newUrls : undefined
+      })
+    }
+  }
+
+  const handleOpenAllUrls = () => {
+    if (!editingTemplate?.urls || editingTemplate.urls.length === 0) return
+
+    const confirmMessage = `${editingTemplate.urls.length}個のURLを開きますか？`
+    if (confirm(confirmMessage)) {
+      editingTemplate.urls.forEach(url => {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      })
+    }
+  }
 
   // パターンの詳細表示
   const formatPatternDetails = (template: RecurringTemplate): string => {
@@ -207,6 +250,7 @@ export default function TemplatesPage() {
 
       setStatus(`✅ ${template.title}を更新しました`)
       setEditingTemplate(null)
+      setNewUrl('')
       loadData()
 
     } catch (error) {
@@ -449,7 +493,10 @@ export default function TemplatesPage() {
                   </td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
                     <button
-                      onClick={() => setEditingTemplate(template)}
+                      onClick={() => {
+                        setEditingTemplate(template)
+                        setNewUrl('')
+                      }}
                       style={{
                         padding: '4px 8px',
                         backgroundColor: '#3b82f6',
@@ -608,28 +655,119 @@ export default function TemplatesPage() {
 
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                関連URL (1行に1つずつ)
+                関連URL（最大5個）
+                {editingTemplate.urls && editingTemplate.urls.length > 3 && (
+                  <span style={{ color: '#f59e0b', fontSize: '10px', marginLeft: '6px' }}>
+                    推奨数（3個）を超えています
+                  </span>
+                )}
               </label>
-              <textarea
-                value={editingTemplate.urls?.join('\n') || ''}
-                onChange={(e) => {
-                  const urls = e.target.value.split('\n').filter(url => url.trim())
-                  setEditingTemplate({
-                    ...editingTemplate,
-                    urls: urls.length > 0 ? urls : undefined
-                  })
-                }}
-                placeholder="https://example.com&#10;https://another-site.com"
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  minHeight: '80px',
-                  resize: 'vertical'
-                }}
-              />
+
+              {/* URL入力エリア */}
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                <input
+                  type="url"
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  placeholder="https://example.com"
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '12px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddUrl}
+                  disabled={!newUrl.trim() || (editingTemplate.urls?.length || 0) >= 5}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    opacity: (!newUrl.trim() || (editingTemplate.urls?.length || 0) >= 5) ? 0.5 : 1
+                  }}
+                >
+                  追加
+                </button>
+              </div>
+
+              {/* URL一覧 */}
+              {editingTemplate.urls && editingTemplate.urls.length > 0 && (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                      {editingTemplate.urls.length}個のURL
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleOpenAllUrls}
+                      style={{
+                        padding: '2px 6px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '3px',
+                        fontSize: '9px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🌍 全て開く
+                    </button>
+                  </div>
+                  <div style={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    maxHeight: '120px',
+                    overflowY: 'auto'
+                  }}>
+                    {editingTemplate.urls.map((url, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '4px 6px',
+                          borderBottom: index < editingTemplate.urls!.length - 1 ? '1px solid #f3f4f6' : 'none'
+                        }}
+                      >
+                        <span
+                          style={{
+                            flex: 1,
+                            fontSize: '11px',
+                            color: '#374151',
+                            wordBreak: 'break-all',
+                            lineHeight: '1.3'
+                          }}
+                        >
+                          {url}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveUrl(index)}
+                          style={{
+                            padding: '2px 4px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '2px',
+                            fontSize: '9px',
+                            cursor: 'pointer',
+                            marginLeft: '4px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
                 URLを入力すると、タスク一覧で🌍アイコンから一括で開けます
               </div>
@@ -789,7 +927,10 @@ export default function TemplatesPage() {
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => setEditingTemplate(null)}
+                onClick={() => {
+                  setEditingTemplate(null)
+                  setNewUrl('')
+                }}
                 style={{
                   padding: '8px 16px',
                   backgroundColor: '#6b7280',
