@@ -576,7 +576,10 @@ export default function TodayPage() {
               gap: '2px'
             }}>
               <button
-                onClick={() => setSortMode('priority')}
+                onClick={() => {
+                  console.log('🔥 重要度クリック')
+                  setSortMode('priority')
+                }}
                 style={{
                   background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'priority' ? 'white' : '#6b7280',
@@ -592,7 +595,10 @@ export default function TodayPage() {
                 重要度
               </button>
               <button
-                onClick={() => setSortMode('time')}
+                onClick={() => {
+                  console.log('🔥 時間軸クリック')
+                  setSortMode('time')
+                }}
                 style={{
                   background: sortMode === 'time' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'time' ? 'white' : '#6b7280',
