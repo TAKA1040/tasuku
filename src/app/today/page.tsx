@@ -38,17 +38,13 @@ export default function TodayPage() {
   // ソート設定状態（今日のタスク用）
   const [sortMode, setSortMode] = useState<'priority' | 'time'>('priority')
 
-  // 統一データベースから直接データを取得
-  const allUnifiedData = useMemo(() => {
-    console.log('🚀🚀🚀 allUnifiedData useMemo 再計算実行！')
-    console.log('🚀 sortMode:', sortMode)
-    console.log('🚀 isInitialized:', isInitialized)
-    console.log('🚀 unifiedTasks.loading:', unifiedTasks.loading)
-
+  // まず生データを統一形式に変換
+  const rawUnifiedData = useMemo(() => {
+    console.log('🔧 rawUnifiedData useMemo 実行')
     if (!isInitialized || unifiedTasks.loading) return []
 
     const allTasks = unifiedTasks.tasks
-    const unifiedData = allTasks.map((task) => ({
+    return allTasks.map((task) => ({
       ...task,
       // 統一ルール: due_date で種別を判断
       dataType: task.due_date === '2999-12-31' ? 'idea' as const :
@@ -57,13 +53,19 @@ export default function TodayPage() {
                     task.due_date === '2999-12-31' ? `💡 ${task.title}` : task.title,
       displayCategory: task.category || (task.recurring_pattern ? '繰り返し' : task.due_date === '2999-12-31' ? 'アイデア' : '未分類')
     }))
+  }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading])
 
-    // 🔧 不変性を保ったソート処理
-    console.log('🔄🔄🔄 ソート処理開始, sortMode:', sortMode)
-    console.log('🔄 unifiedData.length:', unifiedData.length)
-    console.log('🔄 ソート前の順番:', unifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
+  // 次にソートを適用
+  const allUnifiedData = useMemo(() => {
+    console.log('🚀🚀🚀 allUnifiedData ソート処理実行！')
+    console.log('🚀 sortMode:', sortMode)
+    console.log('🚀 rawUnifiedData.length:', rawUnifiedData.length)
 
-    const sortedData = [...unifiedData].sort((a, b) => {
+    if (rawUnifiedData.length === 0) return []
+
+    console.log('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
+
+    const sortedData = [...rawUnifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1
@@ -110,10 +112,9 @@ export default function TodayPage() {
       return (a.display_number || '').localeCompare(b.display_number || '')
     })
 
-
     console.log('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
     return sortedData
-  }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
+  }, [rawUnifiedData, sortMode])
 
   // 買い物タスクのサブタスクを自動で取得（データベース参照と同時に）
   useEffect(() => {
