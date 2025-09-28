@@ -63,12 +63,21 @@ export default function TodayPage() {
 
     if (rawUnifiedData.length === 0) return []
 
-    console.log('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
+    console.log('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
 
     const sortedData = [...rawUnifiedData].sort((a, b) => {
+      // T007を含む比較のみログ出力
+      if (a.display_number === 'T007' || b.display_number === 'T007') {
+        console.log(`🔍 T007比較: ${a.display_number}(完了:${a.completed},imp:${a.importance}) vs ${b.display_number}(完了:${b.completed},imp:${b.importance})`)
+      }
+
       // 完了状態による優先度（未完了が上、完了が下）
       if (a.completed !== b.completed) {
-        return a.completed ? 1 : -1
+        const result = a.completed ? 1 : -1
+        if (a.display_number === 'T007' || b.display_number === 'T007') {
+          console.log(`🔍 T007完了状態分離 → ${result}`)
+        }
+        return result
       }
 
       // 同じ完了状態内でのソート
@@ -100,19 +109,26 @@ export default function TodayPage() {
       }
 
       // 優先度ソート（従来通り）
+      if (a.display_number === 'T007' || b.display_number === 'T007') {
+        console.log(`🔍 T007優先度ソート: ${a.display_number}(imp:${a.importance}) vs ${b.display_number}(imp:${b.importance})`)
+      }
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
 
       // 優先度が異なる場合は優先度で比較（高い方が先）
       if (priorityA !== priorityB) {
-        return priorityB - priorityA
+        const result = priorityB - priorityA
+        if (a.display_number === 'T007' || b.display_number === 'T007') {
+          console.log(`🔍 T007優先度比較: ${priorityB} - ${priorityA} = ${result}`)
+        }
+        return result
       }
 
       // 優先度が同じ場合は統一番号順
       return (a.display_number || '').localeCompare(b.display_number || '')
     })
 
-    console.log('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
+    console.log('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
     return sortedData
   }, [rawUnifiedData, sortMode])
 
