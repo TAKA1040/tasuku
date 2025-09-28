@@ -57,12 +57,15 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       .replace(/\n*【買い物リスト】\n(?:• .+(?:\n|$))+/, '')
       .trim()
 
-    console.log('🛒 extractShoppingList:', {
-      originalMemo: memoText,
-      match: match[0],
-      items,
-      cleanMemo
-    })
+    // デバッグログ
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🛒 extractShoppingList:', {
+        originalMemo: memoText,
+        match: match[0],
+        items,
+        cleanMemo
+      })
+    }
 
     return { cleanMemo, shoppingItems: items }
   }
@@ -88,11 +91,14 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
   useEffect(() => {
     if (task) {
-      console.log('🛒 TaskEditForm useEffect:', {
-        taskId: task.id,
-        category: task.category,
-        memo: task.memo
-      })
+      // デバッグログ
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🛒 TaskEditForm useEffect:', {
+          taskId: task.id,
+          category: task.category,
+          memo: task.memo
+        })
+      }
 
       setTitle(task.title)
 
@@ -101,10 +107,13 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       setMemo(cleanMemo)
       setShoppingItems(extractedItems)
 
-      console.log('🛒 TaskEditForm 抽出結果:', {
-        cleanMemo,
-        extractedItems
-      })
+      // デバッグログ
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🛒 TaskEditForm 抽出結果:', {
+          cleanMemo,
+          extractedItems
+        })
+      }
 
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
