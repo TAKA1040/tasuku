@@ -271,10 +271,16 @@ export default function TemplatesPage() {
     try {
       setStatus(`${template.title}を更新中...`)
 
+      // URLsを正規化（配列として確実に保存）
+      const normalizedUrls = Array.isArray(template.urls)
+        ? template.urls.filter(url => url && url.trim())  // 空文字列を除去
+        : []
+
       console.log('🔄 テンプレート更新:', {
         title: template.title,
-        urls: template.urls,
-        urlsLength: template.urls?.length || 0
+        originalUrls: template.urls,
+        normalizedUrls: normalizedUrls,
+        urlsLength: normalizedUrls.length
       })
 
       const { error } = await supabase
@@ -290,7 +296,7 @@ export default function TemplatesPage() {
           month_of_year: template.month_of_year,
           day_of_year: template.day_of_year,
           active: template.active,
-          urls: template.urls,
+          urls: normalizedUrls,  // 正規化されたURLsを保存
           updated_at: new Date().toISOString()
         })
         .eq('id', template.id)
@@ -511,12 +517,12 @@ export default function TemplatesPage() {
                     </span>
                   </td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>
-                    {/* デバッグ表示: URLの状態を常に表示 */}
-                    <div style={{ fontSize: '10px', marginBottom: '2px' }}>
-                      {template.urls === undefined ? 'undefined' :
-                       template.urls === null ? 'null' :
-                       Array.isArray(template.urls) ? `[${template.urls.length}]` :
-                       typeof template.urls}
+                    {/* デバッグ表示: URLの詳細な状態を表示 */}
+                    <div style={{ fontSize: '9px', marginBottom: '2px', backgroundColor: '#f9f9f9', padding: '2px', borderRadius: '2px' }}>
+                      {template.urls === undefined ? '❌ undefined' :
+                       template.urls === null ? '⚪ null' :
+                       Array.isArray(template.urls) ? `✅ [${template.urls.length}]` :
+                       `⚠️ ${typeof template.urls}: "${String(template.urls).substring(0, 20)}..."`}
                     </div>
                     {template.urls && template.urls.length > 0 ? (
                       <button
