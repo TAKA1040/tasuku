@@ -53,6 +53,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const addShoppingItem = () => {
     if (newShoppingItem.trim()) {
       console.log('🛒 TaskEditForm: 買い物アイテム追加前:', { shoppingItems, newShoppingItem })
+      alert(`🛒 DEBUG: アイテム追加 "${newShoppingItem.trim()}" → リスト長: ${shoppingItems.length + 1}`)
       const newItems = [...shoppingItems, newShoppingItem.trim()]
       setShoppingItems(newItems)
       setNewShoppingItem('')
@@ -178,6 +179,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         newShoppingItem,
         isShopping: category === '買い物'
       })
+
+      alert(`🛒 DEBUG: 送信時の状態
+Category: ${category}
+Shopping Items: ${finalShoppingItems.length}個
+Items: ${JSON.stringify(finalShoppingItems)}`)
 
       // 買い物リストをmemoに統合
       let finalMemo = memo
@@ -383,6 +389,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           </div>
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
+          {console.log('🛒 TaskEditForm RENDER: category=', category, 'isShopping=', category === '買い物')}
           {category === '買い物' && (
             <div key={`shopping-list-${category}`} style={{ marginBottom: '8px' }}>
               {/* 買い物アイテム追加 */}
