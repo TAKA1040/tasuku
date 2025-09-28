@@ -37,15 +37,33 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const extractShoppingList = (memoText: string): { cleanMemo: string; shoppingItems: string[] } => {
     if (!memoText) return { cleanMemo: '', shoppingItems: [] }
 
-    const shoppingListMatch = memoText.match(/【買い物リスト】\n((?:• .+\n?)+)/)
-    if (!shoppingListMatch) return { cleanMemo: memoText, shoppingItems: [] }
+    // 買い物リストのパターンを探す
+    const shoppingListRegex = /【買い物リスト】\n((?:• .+(?:\n|$))+)/
+    const match = memoText.match(shoppingListRegex)
 
-    const shoppingListText = shoppingListMatch[1]
-    const items = shoppingListText.split('\n')
+    if (!match) {
+      return { cleanMemo: memoText, shoppingItems: [] }
+    }
+
+    // 買い物アイテムを抽出
+    const shoppingSection = match[1]
+    const items = shoppingSection
+      .split('\n')
       .map(line => line.replace(/^• /, '').trim())
       .filter(item => item.length > 0)
 
-    const cleanMemo = memoText.replace(/\n?\n?【買い物リスト】\n(?:• .+\n?)+/, '').trim()
+    // memoから買い物リスト部分を除去
+    const cleanMemo = memoText
+      .replace(/\n*【買い物リスト】\n(?:• .+(?:\n|$))+/, '')
+      .trim()
+
+    console.log('🛒 extractShoppingList:', {
+      originalMemo: memoText,
+      match: match[0],
+      items,
+      cleanMemo
+    })
+
     return { cleanMemo, shoppingItems: items }
   }
 
@@ -70,12 +88,23 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
   useEffect(() => {
     if (task) {
+      console.log('🛒 TaskEditForm useEffect:', {
+        taskId: task.id,
+        category: task.category,
+        memo: task.memo
+      })
+
       setTitle(task.title)
 
       // memoから買い物リストを抽出
       const { cleanMemo, shoppingItems: extractedItems } = extractShoppingList(task.memo || '')
       setMemo(cleanMemo)
       setShoppingItems(extractedItems)
+
+      console.log('🛒 TaskEditForm 抽出結果:', {
+        cleanMemo,
+        extractedItems
+      })
 
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
