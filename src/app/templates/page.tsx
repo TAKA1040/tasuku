@@ -148,6 +148,14 @@ export default function TemplatesPage() {
         return
       }
 
+      console.log('📋 テンプレート読み込み結果:', templatesData?.map(t => ({
+        id: t.id,
+        title: t.title,
+        urls: t.urls,
+        urlsType: typeof t.urls,
+        urlsLength: t.urls?.length
+      })))
+
       setTemplates(templatesData || [])
 
       // テンプレートIDがnullの繰り返しタスクを取得
