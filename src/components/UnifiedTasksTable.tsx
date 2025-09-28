@@ -370,8 +370,8 @@ export function UnifiedTasksTable({
 
                       {/* 買い物カテゴリの場合、買い物リスト情報を表示 */}
                       {dataType === 'task' && item.category === '買い物' && (() => {
-                        const shoppingList = extractShoppingListFromMemo(item.memo)
-                        const cleanMemo = getCleanMemoFromShoppingTask(item.memo)
+                        const shoppingList = extractShoppingListFromMemo(item.memo || undefined)
+                        const cleanMemo = getCleanMemoFromShoppingTask(item.memo || undefined)
                         const legacySubTasks = shoppingSubTasks?.[item.id] || []
                         const totalItems = shoppingList.length + legacySubTasks.length
 
@@ -449,7 +449,7 @@ export function UnifiedTasksTable({
                           </button>
                         </div>
                         {/* memoから抽出した買い物リストを表示 */}
-                        {extractShoppingListFromMemo(item.memo).map((shoppingItem, index) => (
+                        {extractShoppingListFromMemo(item.memo || undefined).map((shoppingItem, index) => (
                           <div key={`memo-${index}`} style={{
                             display: 'flex',
                             alignItems: 'center',

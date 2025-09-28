@@ -1,16 +1,19 @@
-page-84e6e27ebb0c6992.js:1 🔄 タスク生成を開始...
-page-84e6e27ebb0c6992.js:1 🚀 タスク生成開始: 今日=2025-09-28, 前回=2025-09-28
-page-84e6e27ebb0c6992.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
-page-84e6e27ebb0c6992.js:1 🔍 生成判定: lastProcessed (2025-09-28) < today (2025-09-28) = false
-page-84e6e27ebb0c6992.js:1 🎯 タスク生成を実行します (forceGenerate: true )
-page-84e6e27ebb0c6992.js:1 🔄 日次タスク生成: 2025-09-29 - 2025-09-28, テンプレート数: 2
-page-84e6e27ebb0c6992.js:1 🔄 日次テンプレート一覧: (2) [{…}, {…}]
-page-84e6e27ebb0c6992.js:1 タスク生成完了
-page-84e6e27ebb0c6992.js:1 ✅ タスク生成完了
-361-1c088e7eb2374a1d.js:1 🛒 TaskEditForm: 買い物アイテム追加前: {shoppingItems: Array(2), newShoppingItem: 'ついか'}
-361-1c088e7eb2374a1d.js:1 🛒 TaskEditForm: 買い物アイテム追加後: {newItems: Array(3)}
-361-1c088e7eb2374a1d.js:1 🛒 TaskEditForm: 送信時の状態: {category: '買い物', shoppingItems: Array(3), finalShoppingItems: Array(3), newShoppingItem: '', isShopping: true}
-361-1c088e7eb2374a1d.js:1 🛒 TaskEditForm: 買い物リストをmemoに統合: {finalMemo: '【買い物リスト】\n• USD⇨ミニHDMIコード\n• USB電源付コード\n• ついか', shoppingListText: '【買い物リスト】\n• USD⇨ミニHDMIコード\n• USB電源付コード\n• ついか'}
-380-eb1ba69f99e15c91.js:1 🔍 DEBUG: Updated task info: {id: '1b42a16d-37f2-4441-a12e-cc4aaa8eb49f', title: 'トライアル', task_type: 'NORMAL', recurring_template_id: null, category: '買い物'}
-380-eb1ba69f99e15c91.js:1 🔍 DEBUG: Task is not RECURRING type: NORMAL
-
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Cloning github.com/TAKA1040/tasuku (Branch: main, Commit: 8a9af43)
+Cloning completed: 288.000ms
+Restored build cache from previous deployment (F5WxZ8XW9LzJpxusMuN1STx5Jovf)
+Running "vercel build"
+Vercel CLI 48.1.6
+Installing dependencies...
+up to date in 1s
+136 packages are looking for funding
+  run `npm fund` for details
+Detected Next.js version: 15.5.3
+Running "npm run build"
+> tasuku@0.1.0 build
+> next build
+   ▲ Next.js 15.5.3
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.5s
+   Skipping linting

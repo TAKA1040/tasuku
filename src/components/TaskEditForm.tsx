@@ -401,7 +401,6 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           </div>
 
           {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
-          {console.log('🛒 TaskEditForm RENDER: category=', category, 'isShopping=', category === '買い物')}
           {category === '買い物' && (
             <div key={`shopping-list-${category}`} style={{ marginBottom: '8px' }}>
               {/* 買い物アイテム追加 */}
