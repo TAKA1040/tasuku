@@ -73,22 +73,16 @@ export default function TodayPage() {
         const startTimeA = a.start_time || '99:99' // 未設定は最後
         const startTimeB = b.start_time || '99:99'
 
-        console.log(`⏰ 時間軸ソート比較: ${a.title}(${startTimeA}) vs ${b.title}(${startTimeB})`)
-
         // 両方とも時間設定がある場合は時間順
         if (startTimeA !== '99:99' && startTimeB !== '99:99') {
-          const result = startTimeA.localeCompare(startTimeB)
-          console.log(`⏰ 時間比較結果: ${result}`)
-          return result
+          return startTimeA.localeCompare(startTimeB)
         }
 
         // 一方のみ時間設定がある場合は設定済みを優先
         if (startTimeA !== '99:99' && startTimeB === '99:99') {
-          console.log(`⏰ Aが時間設定済み`)
           return -1
         }
         if (startTimeA === '99:99' && startTimeB !== '99:99') {
-          console.log(`⏰ Bが時間設定済み`)
           return 1
         }
 
@@ -96,7 +90,6 @@ export default function TodayPage() {
         const priorityA = a.importance || 0
         const priorityB = b.importance || 0
         if (priorityA !== priorityB) {
-          console.log(`⏰ 時間未設定→優先度比較: ${priorityA} vs ${priorityB}`)
           return priorityB - priorityA
         }
         return (a.display_number || '').localeCompare(b.display_number || '')
@@ -106,13 +99,9 @@ export default function TodayPage() {
       const priorityA = a.importance || 0
       const priorityB = b.importance || 0
 
-      console.log(`🔥 重要度ソート比較: ${a.title}(${priorityA}) vs ${b.title}(${priorityB})`)
-
       // 優先度が異なる場合は優先度で比較（高い方が先）
       if (priorityA !== priorityB) {
-        const result = priorityB - priorityA
-        console.log(`🔥 重要度比較結果: ${result}`)
-        return result
+        return priorityB - priorityA
       }
 
       // 優先度が同じ場合は統一番号順
@@ -120,9 +109,8 @@ export default function TodayPage() {
     })
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`📊 統一データ取得完了: ${unifiedData.length}件`)
-      console.log('📋 ソート後のタスク順:', unifiedData.map(t => `${t.title}(重要度:${t.importance},時間:${t.start_time})`))
-      console.log(`📊 unifiedTasks.tasks:`, unifiedTasks.tasks)
+      console.log(`📊 統一データ取得完了: ${unifiedData.length}件, sortMode: ${sortMode}`)
+      console.log('📋 ソート後のタスク順:', unifiedData.slice(0, 5).map(t => `${t.title}(重要度:${t.importance},時間:${t.start_time})`))
       // display_numberをチェック
       unifiedData.slice(0, 3).forEach((item, index) => {
         console.log(`📊 Item ${index} display_number:`, {
