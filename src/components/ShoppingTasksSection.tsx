@@ -252,52 +252,11 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
     setEditingSubTask({ ...editingSubTask, title: value })
   }
 
-  // タスク完了（未完了サブタスクの自動繰り越し付き）
+  // タスク完了（統一システムの子タスク処理を使用）
   const handleCompleteTask = async (taskId: string) => {
     try {
-      // 完了前に未完了のサブタスクを確認
-      const taskSubTasks = subTasks[taskId] || []
-      const incompleteSubTasks = taskSubTasks.filter(subTask => !subTask.completed)
-
-      // メインタスクを完了
+      // 統一システムのcompleteTaskが買い物タスクの子タスク処理を自動実行
       await unifiedTasks.completeTask(taskId)
-
-      // 未完了のサブタスクがあれば新しいタスクを作成（期日なし）
-      if (incompleteSubTasks.length > 0) {
-        // 元のタスク情報を取得
-        const shoppingTasks = getShoppingTasks()
-        const originalTask = shoppingTasks.find(t => t.task.id === taskId)
-
-        if (originalTask) {
-          try {
-            // 新しいタスクを統一システムで作成（期日なし = '2999-12-31'）
-            const displayNumber = await UnifiedTasksService.generateDisplayNumber()
-            const newTask = await unifiedTasks.createTask({
-              title: originalTask.task.title,
-              memo: originalTask.task.memo || '',
-              due_date: '2999-12-31', // 期日なし
-              category: '買い物',
-              importance: originalTask.task.importance || 1,
-              task_type: 'NORMAL',
-              display_number: displayNumber,
-              completed: false
-            })
-
-            if (newTask) {
-              // 未完了だったサブタスクのみを新しいタスクに移行
-              for (const incompleteSubTask of incompleteSubTasks) {
-                await unifiedTasks.createSubtask(newTask.id, incompleteSubTask.title)
-              }
-
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`✅ 未完了のサブタスク ${incompleteSubTasks.length} 個を新しいタスクに繰り越しました: ${newTask.title}`)
-              }
-            }
-          } catch (error) {
-            console.error('買い物リストの繰り越しに失敗:', error)
-          }
-        }
-      }
 
       // サブタスクリストを再読み込み
       await loadSubTasks()

@@ -561,9 +561,9 @@ export class UnifiedTasksService {
 
   // タスクを完了にする（統一ルール）
   static async completeTask(id: string): Promise<UnifiedTask> {
-    try {
-      const supabase = createClient()
+    const supabase = createClient()
 
+    try {
       // 現在のタスクを取得
       const { data: task, error: fetchError } = await supabase
         .from('unified_tasks')
@@ -577,6 +577,17 @@ export class UnifiedTasksService {
 
       const completedAt = getNowJST()
 
+      // 買い物タスクの場合、未完了の子タスクを処理（完了前に実行）
+      if (task.category === '買い物') {
+        try {
+          await this.handleShoppingTaskCompletion(task)
+        } catch (shoppingError) {
+          console.error('買い物タスク子タスク処理エラー:', shoppingError)
+          // 子タスク処理に失敗した場合でも、メインタスクの完了は続行
+          // ユーザーには警告メッセージを表示するべき
+        }
+      }
+
       // 全てのタスクの完了履歴をdoneテーブルに記録
       await this.saveToDoneHistory(task, completedAt)
 
@@ -588,6 +599,47 @@ export class UnifiedTasksService {
       })
     } catch (error) {
       console.error('UnifiedTasksService.completeTask error:', error)
+      throw error
+    }
+  }
+
+  // 買い物タスク完了時の子タスク処理
+  private static async handleShoppingTaskCompletion(task: UnifiedTask): Promise<void> {
+    try {
+      // 未完了の子タスクを取得
+      const incompleteSubTasks = await this.getSubtasks(task.id)
+      const uncompletedSubTasks = incompleteSubTasks.filter(subTask => !subTask.completed)
+
+      if (uncompletedSubTasks.length > 0) {
+        console.log(`🛒 買い物タスク「${task.title}」に未完了の子タスクが ${uncompletedSubTasks.length} 個あります`)
+
+        // 新しいタスクを期日なし（やることリスト）として作成
+        const displayNumber = await this.generateDisplayNumber()
+        const newTaskData = {
+          title: task.title,
+          memo: task.memo || '',
+          due_date: '2999-12-31', // 期日なし = やることリスト
+          category: '買い物',
+          importance: task.importance || 1,
+          task_type: 'NORMAL' as const,
+          display_number: displayNumber,
+          completed: false,
+          user_id: task.user_id
+        }
+
+        const newTask = await this.createUnifiedTask(newTaskData)
+        console.log(`📝 新しい買い物タスク（やることリスト）を作成: ${newTask.title} (${newTask.id})`)
+
+        // 未完了の子タスクを新しいタスクに移行
+        for (const uncompletedSubTask of uncompletedSubTasks) {
+          await this.createSubtask(newTask.id, uncompletedSubTask.title)
+          console.log(`  ✅ 子タスク移行: ${uncompletedSubTask.title}`)
+        }
+
+        console.log(`🎯 買い物リストの未完了項目 ${uncompletedSubTasks.length} 個をやることリストに繰り越しました`)
+      }
+    } catch (error) {
+      console.error('買い物タスク完了処理エラー:', error)
       throw error
     }
   }

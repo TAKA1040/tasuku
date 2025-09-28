@@ -13,6 +13,7 @@ interface UnifiedTasksTableProps {
     completeTask: (id: string) => Promise<void>
     uncompleteTask: (id: string) => Promise<void>
     deleteTask: (id: string) => Promise<void>
+    updateTask: (id: string, updates: Partial<UnifiedTask>) => Promise<void>
   }
   handleEditTask: (task: UnifiedTask) => void
   // サブタスク関連
@@ -38,7 +39,7 @@ const getImportanceColor = (importance?: number | null): string => {
 }
 
 // memoから買い物リストを抽出する関数
-const extractShoppingListFromMemo = (memo?: string): string[] => {
+const extractShoppingListFromMemo = (memo?: string): Array<{item: string, completed: boolean}> => {
   if (!memo) return []
 
   const shoppingListRegex = /【買い物リスト】\n((?:• .+(?:\n|$))+)/
@@ -51,6 +52,12 @@ const extractShoppingListFromMemo = (memo?: string): string[] => {
     .split('\n')
     .map(line => line.replace(/^• /, '').trim())
     .filter(item => item.length > 0)
+    .map(item => {
+      // ✓ で始まる項目は完了済み
+      const completed = item.startsWith('✓ ')
+      const cleanItem = completed ? item.substring(2).trim() : item
+      return { item: cleanItem, completed }
+    })
 }
 
 // memoから買い物リスト以外の部分を取得する関数
@@ -60,6 +67,40 @@ const getCleanMemoFromShoppingTask = (memo?: string): string => {
   return memo
     .replace(/\n*【買い物リスト】\n(?:• .+(?:\n|$))+/, '')
     .trim()
+}
+
+// memoの買い物リスト項目の完了状態を更新する関数
+const updateShoppingItemInMemo = (memo: string, itemIndex: number, completed: boolean): string => {
+  if (!memo) return memo
+
+  const shoppingListRegex = /【買い物リスト】\n((?:• .+(?:\n|$))+)/
+  const match = memo.match(shoppingListRegex)
+
+  if (!match) return memo
+
+  const shoppingSection = match[1]
+  const items = shoppingSection
+    .split('\n')
+    .map(line => line.replace(/^• /, '').trim())
+    .filter(item => item.length > 0)
+
+  if (itemIndex >= 0 && itemIndex < items.length) {
+    // 完了状態を更新
+    const item = items[itemIndex]
+    const wasCompleted = item.startsWith('✓ ')
+    const cleanItem = wasCompleted ? item.substring(2).trim() : item
+
+    items[itemIndex] = completed ? `✓ ${cleanItem}` : cleanItem
+
+    // 新しい買い物リストセクションを構築
+    const newShoppingSection = items.map(item => `• ${item}`).join('\n')
+    const newShoppingList = `【買い物リスト】\n${newShoppingSection}`
+
+    // memoを更新
+    return memo.replace(shoppingListRegex, newShoppingList)
+  }
+
+  return memo
 }
 
 // 日付を日本語形式でフォーマットするヘルパー関数
@@ -455,19 +496,42 @@ export function UnifiedTasksTable({
                             alignItems: 'center',
                             gap: '6px',
                             marginBottom: '4px',
-                            fontSize: '11px',
-                            backgroundColor: '#f0f9ff',
-                            padding: '2px 4px',
-                            borderRadius: '3px'
+                            fontSize: '11px'
                           }}>
-                            <span style={{ color: '#1d4ed8' }}>🛒</span>
-                            <span style={{ color: '#1e40af' }}>{shoppingItem}</span>
+                            <button
+                              onClick={async () => {
+                                if (!item.memo || !unifiedTasks?.updateTask) return
+                                const updatedMemo = updateShoppingItemInMemo(item.memo, index, !shoppingItem.completed)
+                                await unifiedTasks.updateTask(item.id, { memo: updatedMemo })
+                              }}
+                              style={{
+                                width: '14px',
+                                height: '14px',
+                                border: `1px solid ${shoppingItem.completed ? '#10b981' : '#d1d5db'}`,
+                                borderRadius: '2px',
+                                backgroundColor: shoppingItem.completed ? '#10b981' : 'transparent',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '8px',
+                                color: 'white'
+                              }}
+                            >
+                              {shoppingItem.completed ? '✓' : ''}
+                            </button>
+                            <span style={{
+                              color: shoppingItem.completed ? '#6b7280' : '#1e40af',
+                              textDecoration: shoppingItem.completed ? 'line-through' : 'none'
+                            }}>
+                              🛒 {shoppingItem.item}
+                            </span>
                             <span style={{
                               fontSize: '9px',
                               color: '#6b7280',
                               fontStyle: 'italic'
                             }}>
-                              (タスク編集で管理)
+                              (memo)
                             </span>
                           </div>
                         ))}
