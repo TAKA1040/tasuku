@@ -52,8 +52,13 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   // 買い物リスト操作
   const addShoppingItem = () => {
     if (newShoppingItem.trim()) {
-      setShoppingItems([...shoppingItems, newShoppingItem.trim()])
+      console.log('🛒 TaskEditForm: 買い物アイテム追加前:', { shoppingItems, newShoppingItem })
+      const newItems = [...shoppingItems, newShoppingItem.trim()]
+      setShoppingItems(newItems)
       setNewShoppingItem('')
+      console.log('🛒 TaskEditForm: 買い物アイテム追加後:', { newItems })
+    } else {
+      console.log('🛒 TaskEditForm: 空の入力のためスキップ')
     }
   }
 
@@ -163,13 +168,29 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       let finalShoppingItems = [...shoppingItems]
       if (category === '買い物' && newShoppingItem.trim()) {
         finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
+        console.log('🛒 TaskEditForm: 入力フィールドの内容を自動追加:', newShoppingItem.trim())
       }
+
+      console.log('🛒 TaskEditForm: 送信時の状態:', {
+        category,
+        shoppingItems,
+        finalShoppingItems,
+        newShoppingItem,
+        isShopping: category === '買い物'
+      })
 
       // 買い物リストをmemoに統合
       let finalMemo = memo
       if (category === '買い物' && finalShoppingItems.length > 0) {
         const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
         finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
+        console.log('🛒 TaskEditForm: 買い物リストをmemoに統合:', { finalMemo, shoppingListText })
+      } else {
+        console.log('🛒 TaskEditForm: 買い物リストの統合をスキップ:', {
+          category,
+          finalShoppingItemsLength: finalShoppingItems.length,
+          condition: category === '買い物' && finalShoppingItems.length > 0
+        })
       }
 
       await onSubmit(task.id, title, finalMemo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
@@ -883,7 +904,8 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                   cursor: title.trim() && !isSubmitting ? 'pointer' : 'not-allowed'
                 }}
               >
-                {isSubmitting ? '保存中...' : '保存'}
+                {isSubmitting ? '保存中...' :
+                 category === '買い物' && shoppingItems.length > 0 ? '買い物リスト付きで保存' : '保存'}
               </button>
             </div>
           </div>
