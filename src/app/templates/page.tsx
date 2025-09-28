@@ -9,6 +9,7 @@ interface RecurringTemplate {
   memo?: string
   category?: string
   importance?: number
+  urls?: string[]
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
   weekdays?: number[]
   day_of_month?: number
@@ -26,6 +27,7 @@ interface UnifiedTask {
   memo?: string
   category?: string
   importance?: number
+  urls?: string[]
   recurring_pattern?: string
   recurring_template_id?: string
   task_type: string
