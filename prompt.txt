@@ -1,3 +1,180 @@
+ 正規化後: 
+(3) [{…}, {…}, {…}]
+0
+: 
+id
+: 
+"0dbaca9e-5240-4e00-8729-16e883e65da7"
+isArray
+: 
+true
+title
+: 
+"𝕏ポスト"
+urls
+: 
+Array(2)
+0
+: 
+"https://x.com/search?q=list%3A1769487534948794610%20-filter%3Anativeretweets%20-filter%3Aretweets%20-filter%3Aquote%20-filter%3Areplies&src=typed_query&f=live"
+1
+: 
+"list:1778669827957358973 -filter:nativeretweets -filter:retweets -filter:quote -filter:replies"
+length
+: 
+2
+[[Prototype]]
+: 
+Array(0)
+at
+: 
+ƒ at()
+concat
+: 
+ƒ concat()
+constructor
+: 
+ƒ Array()
+copyWithin
+: 
+ƒ copyWithin()
+entries
+: 
+ƒ entries()
+every
+: 
+ƒ every()
+fill
+: 
+ƒ fill()
+filter
+: 
+ƒ filter()
+find
+: 
+ƒ find()
+findIndex
+: 
+ƒ findIndex()
+findLast
+: 
+ƒ findLast()
+findLastIndex
+: 
+ƒ findLastIndex()
+flat
+: 
+ƒ flat()
+flatMap
+: 
+ƒ flatMap()
+forEach
+: 
+ƒ forEach()
+includes
+: 
+ƒ includes()
+indexOf
+: 
+ƒ indexOf()
+join
+: 
+ƒ join()
+keys
+: 
+ƒ keys()
+lastIndexOf
+: 
+ƒ lastIndexOf()
+length
+: 
+0
+map
+: 
+ƒ map()
+pop
+: 
+ƒ pop()
+push
+: 
+ƒ push()
+reduce
+: 
+ƒ reduce()
+reduceRight
+: 
+ƒ reduceRight()
+reverse
+: 
+ƒ reverse()
+shift
+: 
+ƒ shift()
+slice
+: 
+ƒ slice()
+some
+: 
+ƒ some()
+sort
+: 
+ƒ sort()
+splice
+: 
+ƒ splice()
+toLocaleString
+: 
+ƒ toLocaleString()
+toReversed
+: 
+ƒ toReversed()
+toSorted
+: 
+ƒ toSorted()
+toSpliced
+: 
+ƒ toSpliced()
+toString
+: 
+ƒ toString()
+unshift
+: 
+ƒ unshift()
+values
+: 
+ƒ values()
+with
+: 
+ƒ with()
+Symbol(Symbol.iterator)
+: 
+ƒ values()
+Symbol(Symbol.unscopables)
+: 
+{at: true, copyWithin: true, entries: true, fill: true, find: true, …}
+[[Prototype]]
+: 
+Object
+urlsType
+: 
+"object"
+[[Prototype]]
+: 
+Object
+1
+: 
+{id: '34dd0ec4-1e29-4c44-951e-b1c5d8c78daa', title: '100回夜ジャンプ', urls: Array(0), urlsType: 'object', isArray: true}
+2
+: 
+{id: '42c8f9c9-5ae7-4b46-ad26-ed7c8a767dfc', title: '100回朝ジャンプ', urls: Array(0), urlsType: 'object', isArray: true}
+length
+: 
+3
+[[Prototype]]
+: 
+Array(0)
+
+
 page-9defdbfd78a5bdda.js:1 🔧 rawUnifiedData useMemo 実行
 page-9defdbfd78a5bdda.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
 page-9defdbfd78a5bdda.js:1 🚀 sortMode: priority
@@ -11,27 +188,17 @@ page-9defdbfd78a5bdda.js:1 🔧 rawUnifiedData useMemo 実行
 page-9defdbfd78a5bdda.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
 page-9defdbfd78a5bdda.js:1 🚀 sortMode: priority
 page-9defdbfd78a5bdda.js:1 🚀 rawUnifiedData.length: 0
+page-9defdbfd78a5bdda.js:1 🚀 タスク生成開始: 今日=2025-09-29, 前回=2025-09-29
 page-9defdbfd78a5bdda.js:1 🔧 rawUnifiedData useMemo 実行
 page-9defdbfd78a5bdda.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
 page-9defdbfd78a5bdda.js:1 🚀 sortMode: priority
 page-9defdbfd78a5bdda.js:1 🚀 rawUnifiedData.length: 15
 page-9defdbfd78a5bdda.js:1 🔄 ソート前の順番: (15) ['T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:false)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T014:𝕏ポスト(imp:3,start:null,完了:false)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:false)']
 page-9defdbfd78a5bdda.js:1 🔄 ソート後の順番: (15) ['T004:𝕏ポスト(imp:3,start:null,完了:false)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T014:𝕏ポスト(imp:3,start:null,完了:false)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)']
-page-9defdbfd78a5bdda.js:1 🚀 タスク生成開始: 今日=2025-09-29, 前回=2025-09-29
 page-9defdbfd78a5bdda.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
 page-9defdbfd78a5bdda.js:1 🔍 生成判定: lastProcessed (2025-09-29) < today (2025-09-29) = false
 page-9defdbfd78a5bdda.js:1 タスク生成完了
 page-9defdbfd78a5bdda.js:1 ✅ タスク生成完了
-page-9defdbfd78a5bdda.js:1 🔧 rawUnifiedData useMemo 実行
-page-9defdbfd78a5bdda.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
-page-9defdbfd78a5bdda.js:1 🚀 sortMode: priority
-page-9defdbfd78a5bdda.js:1 🚀 rawUnifiedData.length: 0
-page-9defdbfd78a5bdda.js:1 🔧 rawUnifiedData useMemo 実行
-page-9defdbfd78a5bdda.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
-page-9defdbfd78a5bdda.js:1 🚀 sortMode: priority
-page-9defdbfd78a5bdda.js:1 🚀 rawUnifiedData.length: 15
-page-9defdbfd78a5bdda.js:1 🔄 ソート前の順番: (15) ['T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:false)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T014:𝕏ポスト(imp:3,start:null,完了:false)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:false)']
-page-9defdbfd78a5bdda.js:1 🔄 ソート後の順番: (15) ['T004:𝕏ポスト(imp:3,start:null,完了:false)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T014:𝕏ポスト(imp:3,start:null,完了:false)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)']
 page-9defdbfd78a5bdda.js:1 🔥 手動でタスク生成を実行...
 page-9defdbfd78a5bdda.js:1 🔄 タスク生成を開始...
 page-9defdbfd78a5bdda.js:1 🚀 タスク生成開始: 今日=2025-09-29, 前回=2025-09-29
