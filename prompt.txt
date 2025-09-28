@@ -1,33 +1,99 @@
-page-0f4dbf5005a6714e.js:1 🔄 タスク生成を開始...
-page-0f4dbf5005a6714e.js:1 🚀 タスク生成開始: 今日=2025-09-29, 前回=2025-09-29
-page-0f4dbf5005a6714e.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
-page-0f4dbf5005a6714e.js:1 🔍 生成判定: lastProcessed (2025-09-29) < today (2025-09-29) = false
-page-0f4dbf5005a6714e.js:1 タスク生成完了
-page-0f4dbf5005a6714e.js:1 ✅ タスク生成完了
-page-0f4dbf5005a6714e.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 ⏰ Current sortMode: priority
-page-0f4dbf5005a6714e.js:1 ⏰ setSortMode(time) 実行完了
-page-0f4dbf5005a6714e.js:1 🔥🔥🔥 重要度ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 🔥 Current sortMode: time
-page-0f4dbf5005a6714e.js:1 🔥 setSortMode(priority) 実行完了
-page-0f4dbf5005a6714e.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 ⏰ Current sortMode: priority
-page-0f4dbf5005a6714e.js:1 ⏰ setSortMode(time) 実行完了
-page-0f4dbf5005a6714e.js:1 🔥🔥🔥 重要度ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 🔥 Current sortMode: time
-page-0f4dbf5005a6714e.js:1 🔥 setSortMode(priority) 実行完了
-page-0f4dbf5005a6714e.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 ⏰ Current sortMode: priority
-page-0f4dbf5005a6714e.js:1 ⏰ setSortMode(time) 実行完了
-page-0f4dbf5005a6714e.js:1 🔥🔥🔥 重要度ボタンクリック検出！
-page-0f4dbf5005a6714e.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
-page-0f4dbf5005a6714e.js:1 🔥 Current sortMode: time
-page-0f4dbf5005a6714e.js:1 🔥 setSortMode(priority) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: false
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 0
+page-f71e5bb5d63ff25b.js:1 🔄 タスク生成を開始...
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: true
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 🚀 タスク生成開始: 今日=2025-09-29, 前回=2025-09-29
+page-f71e5bb5d63ff25b.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+page-f71e5bb5d63ff25b.js:1 🔍 生成判定: lastProcessed (2025-09-29) < today (2025-09-29) = false
+page-f71e5bb5d63ff25b.js:1 タスク生成完了
+page-f71e5bb5d63ff25b.js:1 ✅ タスク生成完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: true
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 ⏰ Current sortMode: priority
+page-f71e5bb5d63ff25b.js:1 ⏰ setSortMode(time) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: time
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 🔥🔥🔥 重要度ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 🔥 Current sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔥 setSortMode(priority) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 ⏰ Current sortMode: priority
+page-f71e5bb5d63ff25b.js:1 ⏰ setSortMode(time) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: time
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 🔥🔥🔥 重要度ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 🔥 Current sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔥 setSortMode(priority) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 ⏰⏰⏰ 時間軸ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 ⏰ Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 ⏰ Current sortMode: priority
+page-f71e5bb5d63ff25b.js:1 ⏰ setSortMode(time) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: time
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
+page-f71e5bb5d63ff25b.js:1 🔥🔥🔥 重要度ボタンクリック検出！
+page-f71e5bb5d63ff25b.js:1 🔥 Event: n {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button, …}
+page-f71e5bb5d63ff25b.js:1 🔥 Current sortMode: time
+page-f71e5bb5d63ff25b.js:1 🔥 setSortMode(priority) 実行完了
+page-f71e5bb5d63ff25b.js:1 🚀🚀🚀 allUnifiedData useMemo 再計算実行！
+page-f71e5bb5d63ff25b.js:1 🚀 sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🚀 isInitialized: true
+page-f71e5bb5d63ff25b.js:1 🚀 unifiedTasks.loading: false
+page-f71e5bb5d63ff25b.js:1 🔄🔄🔄 ソート処理開始, sortMode: priority
+page-f71e5bb5d63ff25b.js:1 🔄 unifiedData.length: 15
 
 
 コンソールだけは動いた

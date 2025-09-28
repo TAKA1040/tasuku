@@ -61,6 +61,8 @@ export default function TodayPage() {
     // 🔧 不変性を保ったソート処理
     console.log('🔄🔄🔄 ソート処理開始, sortMode:', sortMode)
     console.log('🔄 unifiedData.length:', unifiedData.length)
+    console.log('🔄 ソート前の順番:', unifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
+
     const sortedData = [...unifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）
       if (a.completed !== b.completed) {
@@ -109,6 +111,7 @@ export default function TodayPage() {
     })
 
 
+    console.log('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time})`))
     return sortedData
   }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
 
