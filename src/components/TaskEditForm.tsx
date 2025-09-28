@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
@@ -200,6 +201,37 @@ Items: ${JSON.stringify(finalShoppingItems)}`)
       }
 
       await onSubmit(task.id, title, finalMemo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
+
+      // データベース更新確認用のデバッグ
+      console.log('✅ onSubmit completed, verifying database update...')
+
+      // 更新されたタスクを再取得して確認
+      setTimeout(async () => {
+        try {
+          const supabase = createClient()
+          const { data: updatedTask, error } = await supabase
+            .from('unified_tasks')
+            .select('memo')
+            .eq('id', task.id)
+            .single()
+
+          if (!error && updatedTask) {
+            console.log('🔍 Database verification - Updated memo in DB:', updatedTask.memo)
+            if (updatedTask.memo?.includes('【買い物リスト】')) {
+              console.log('✅ Shopping list successfully saved to database!')
+              alert('✅ 買い物リストがデータベースに保存されました')
+            } else {
+              console.log('❌ Shopping list NOT found in database memo')
+              alert('❌ 買い物リストがデータベースに保存されていません')
+            }
+          } else {
+            console.error('❌ Failed to verify database update:', error)
+          }
+        } catch (verifyError) {
+          console.error('❌ Database verification error:', verifyError)
+        }
+      }, 1000)
+
       onCancel()
     } catch (error) {
       console.error('Failed to update task:', error)
