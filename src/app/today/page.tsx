@@ -394,7 +394,7 @@ export default function TodayPage() {
               <button
                 onClick={() => {
                   console.log('🔥 手動でタスク生成を実行...')
-                  generateMissingTasks()
+                  generateMissingTasks(true) // 手動フラグをtrueに
                 }}
                 disabled={isGenerating}
                 style={{

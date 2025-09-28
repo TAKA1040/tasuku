@@ -20,7 +20,7 @@ export class TaskGeneratorService {
   }
 
   // メイン処理: 不足分のタスクを生成
-  async generateMissingTasks(): Promise<void> {
+  async generateMissingTasks(forceToday: boolean = false): Promise<void> {
     const today = getTodayJST()
 
     // 既存データから最終処理日を取得
@@ -40,16 +40,23 @@ export class TaskGeneratorService {
     // デバッグ: 強制的に今日のタスクを生成
     const forceGenerate = true
     if (lastProcessed < today || forceGenerate) {
-      console.log('🎯 タスク生成を実行します (forceGenerate:', forceGenerate, ')')
-      // 日次: 最大3日分復旧
-      const startDate = Math.max(
-        this.parseDate(addDays(lastProcessed, 1)),
-        this.parseDate(subtractDays(today, 3))
-      )
+      console.log('🎯 タスク生成を実行します (forceGenerate:', forceGenerate, ', forceToday:', forceToday, ')')
+
+      // 日次: 手動の場合は今日を含む、自動の場合は最大3日分復旧
+      let startDate: number
+      if (forceToday) {
+        startDate = this.parseDate(today) // 今日から生成
+        console.log('🎯 手動生成: 今日を強制生成')
+      } else {
+        startDate = Math.max(
+          this.parseDate(addDays(lastProcessed, 1)),
+          this.parseDate(subtractDays(today, 3))
+        )
+      }
       await this.generateDailyTasks(this.formatDate(startDate), today)
 
-      // 週次: 週が変わった場合のみ
-      if (this.isNewWeek(lastProcessed, today)) {
+      // 週次: 手動の場合は強制実行、自動の場合は週が変わった場合のみ
+      if (forceToday || this.isNewWeek(lastProcessed, today)) {
         const thisMonday = getStartOfWeek(today)
         await this.generateWeeklyTasks(thisMonday, today)
       }
