@@ -55,10 +55,17 @@ export class TaskGeneratorService {
       }
       await this.generateDailyTasks(this.formatDate(startDate), today)
 
-      // 週次: 手動の場合は強制実行、自動の場合は週が変わった場合のみ
+      // 週次: 手動の場合は今週のみ、自動の場合は週が変わった場合のみ
       if (forceToday || this.isNewWeek(lastProcessed, today)) {
         const thisMonday = getStartOfWeek(today)
-        await this.generateWeeklyTasks(thisMonday, today)
+        if (forceToday) {
+          // 手動の場合は今日のみ生成（安全のため）
+          await this.generateWeeklyTasksForToday(today)
+          console.log('🎯 手動週次生成: 今日のみ生成 (安全モード)')
+        } else {
+          // 自動の場合は今週全体
+          await this.generateWeeklyTasks(thisMonday, today)
+        }
       }
 
       // 月次: 月が変わった場合のみ
@@ -135,7 +142,24 @@ export class TaskGeneratorService {
     }
   }
 
-  // 週次タスク生成
+  // 週次タスク生成（今日のみ・安全版）
+  async generateWeeklyTasksForToday(today: string): Promise<void> {
+    const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
+    console.log(`週次タスク生成（今日のみ）: ${today}, テンプレート数: ${templates.length}`)
+
+    const todayWeekday = new Date(today).getDay()
+    const todayIsoWeekday = todayWeekday === 0 ? 7 : todayWeekday // 日曜=7に変換
+
+    for (const template of templates) {
+      // 今日が指定された曜日かチェック
+      if (template.weekdays?.includes(todayIsoWeekday)) {
+        console.log(`今日用タスク作成: ${template.title} (${today})`)
+        await this.createTaskFromTemplate(template, today)
+      }
+    }
+  }
+
+  // 週次タスク生成（範囲指定版）
   async generateWeeklyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
     console.log(`週次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
