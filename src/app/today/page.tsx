@@ -32,7 +32,9 @@ export default function TodayPage() {
 
   // ソートモード変更監視
   useEffect(() => {
-    console.log('🔄 sortMode変更:', sortMode)
+    if (typeof window !== 'undefined') {
+      console.log('🔄 sortMode変更:', sortMode)
+    }
   }, [sortMode])
 
   // 買い物リスト（サブタスク）管理 - データベース連携
@@ -44,7 +46,7 @@ export default function TodayPage() {
 
   // 統一データベースから直接データを取得
   const allUnifiedData = useMemo(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
       console.log('📊 allUnifiedData計算中:', { isInitialized, loading: unifiedTasks.loading, tasksLength: unifiedTasks.tasks.length, sortMode })
     }
     if (!isInitialized || unifiedTasks.loading) return []
@@ -108,19 +110,9 @@ export default function TodayPage() {
       return (a.display_number || '').localeCompare(b.display_number || '')
     })
 
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
       console.log(`📊 統一データ取得完了: ${unifiedData.length}件, sortMode: ${sortMode}`)
-      console.log('📋 ソート後のタスク順:', unifiedData.slice(0, 5).map(t => `${t.title}(重要度:${t.importance},時間:${t.start_time})`))
-      // display_numberをチェック
-      unifiedData.slice(0, 3).forEach((item, index) => {
-        console.log(`📊 Item ${index} display_number:`, {
-          id: item.id,
-          title: item.title,
-          display_number: item.display_number,
-          type: typeof item.display_number,
-          length: item.display_number?.length
-        })
-      })
+      console.log('📋 ソート後のタスク順:', unifiedData.slice(0, 5).map(t => `${t.title}(重要度:${t.importance || 0},時間:${t.start_time || 'なし'})`))
     }
 
     return unifiedData
