@@ -592,10 +592,19 @@ export default function TodayPage() {
               background: '#f3f4f6',
               borderRadius: '6px',
               padding: '2px',
-              gap: '2px'
+              gap: '2px',
+              position: 'relative',
+              zIndex: 9999,
+              pointerEvents: 'auto'
             }}>
               <button
-                onClick={() => setSortMode('priority')}
+                onClick={(e) => {
+                  console.log('🔥🔥🔥 重要度ボタンクリック検出！')
+                  console.log('🔥 Event:', e)
+                  console.log('🔥 Current sortMode:', sortMode)
+                  setSortMode('priority')
+                  console.log('🔥 setSortMode(priority) 実行完了')
+                }}
                 style={{
                   background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'priority' ? 'white' : '#6b7280',
@@ -605,13 +614,21 @@ export default function TodayPage() {
                   fontSize: '12px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  pointerEvents: 'auto',
+                  zIndex: 10000
                 }}
               >
                 重要度
               </button>
               <button
-                onClick={() => setSortMode('time')}
+                onClick={(e) => {
+                  console.log('⏰⏰⏰ 時間軸ボタンクリック検出！')
+                  console.log('⏰ Event:', e)
+                  console.log('⏰ Current sortMode:', sortMode)
+                  setSortMode('time')
+                  console.log('⏰ setSortMode(time) 実行完了')
+                }}
                 style={{
                   background: sortMode === 'time' ? '#3b82f6' : 'transparent',
                   color: sortMode === 'time' ? 'white' : '#6b7280',
@@ -621,7 +638,9 @@ export default function TodayPage() {
                   fontSize: '12px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  pointerEvents: 'auto',
+                  zIndex: 10000
                 }}
               >
                 時間軸
