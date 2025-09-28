@@ -53,8 +53,8 @@ export default function TodayPage() {
       displayCategory: task.category || (task.recurring_pattern ? '繰り返し' : task.due_date === '2999-12-31' ? 'アイデア' : '未分類')
     }))
 
-    // 完了・未完了で分離してソート
-    unifiedData.sort((a, b) => {
+    // 🔧 不変性を保ったソート処理
+    const sortedData = [...unifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1
@@ -102,7 +102,7 @@ export default function TodayPage() {
     })
 
 
-    return unifiedData
+    return sortedData
   }, [isInitialized, unifiedTasks.tasks, unifiedTasks.loading, sortMode])
 
   // 買い物タスクのサブタスクを自動で取得（データベース参照と同時に）
