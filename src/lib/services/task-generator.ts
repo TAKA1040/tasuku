@@ -240,6 +240,7 @@ export class TaskGeneratorService {
       due_date: dueDate,
       category: template.category,
       importance: template.importance,
+      urls: template.urls, // テンプレートのURLsを引き継ぎ
       task_type: 'RECURRING',
       recurring_pattern: template.pattern,
       recurring_weekdays: template.weekdays,
