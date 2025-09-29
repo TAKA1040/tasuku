@@ -133,7 +133,7 @@ export function useUnifiedRecurringTasks(
     try {
       setLoading(true)
       await Promise.all([
-        unifiedTasks.refresh(),
+        unifiedTasks.loadTasks(true),
         completionTracker.refresh()
       ])
       setError(null)
@@ -143,7 +143,7 @@ export function useUnifiedRecurringTasks(
     } finally {
       setLoading(false)
     }
-  }, [unifiedTasks.refresh, completionTracker.refresh])
+  }, [unifiedTasks.loadTasks, completionTracker.refresh])
 
   // ===================================
   // Effects
@@ -187,9 +187,9 @@ export function useUnifiedRecurringTasks(
 function shouldOccurToday(task: UnifiedTask): boolean {
   if (task.task_type !== 'RECURRING') return false
 
-  // 簡易実装: アクティブな繰り返しタスクは毎日発生するとみなす
+  // 簡易実装: 完了していない繰り返しタスクは毎日発生するとみなす
   // 実際の実装では recurring_pattern, recurring_weekdays 等をチェック
-  return task.active !== false
+  return !task.completed
 }
 
 /**
@@ -232,11 +232,11 @@ export function useRecurringTasksCompat(isDbInitialized: boolean = false) {
         title: unifiedTask.task.title,
         memo: unifiedTask.task.memo || undefined,
         category: unifiedTask.task.category || undefined,
-        frequency: unifiedTask.task.frequency || 'DAILY',
-        active: unifiedTask.task.active !== false,
+        frequency: unifiedTask.task.recurring_pattern || 'DAILY',
+        active: !unifiedTask.task.completed,
         created_at: unifiedTask.task.created_at || new Date().toISOString(),
         updated_at: unifiedTask.task.updated_at || new Date().toISOString(),
-        user_id: 'dummy' // レガシー互換性のため
+        user_id: unifiedTask.task.user_id || 'dummy' // レガシー互換性のため
       },
       occursToday: unifiedTask.occursToday,
       completedToday: unifiedTask.completedToday,

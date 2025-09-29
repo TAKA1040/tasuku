@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useCallback, memo } from 'react'
 import type { TaskWithUrgency, Task, RecurringTask, SubTask } from '@/lib/db/schema'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
 import { ImportanceDot } from '@/components/ImportanceDot'
@@ -16,7 +17,7 @@ interface TaskTableProps {
   onComplete: (taskId: string) => void
   onRecurringComplete: (taskId: string) => void
   onEdit?: (task: Task) => void
-  onEditRecurring?: (task: RecurringTask) => void
+  onEditRecurring?: (task: UnifiedTask) => void
   onUncomplete?: (taskId: string) => void
   onRecurringUncomplete?: (taskId: string) => void
   onDelete?: (taskId: string) => void
