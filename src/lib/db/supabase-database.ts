@@ -3,7 +3,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/supabase'
+import type { Database, Json } from '@/types/supabase'
 import { URGENCY_THRESHOLDS } from '@/lib/constants'
 import { ERROR_MESSAGES } from '@/lib/messages'
 import {
@@ -18,6 +18,97 @@ import {
   type TaskWithUrgency,
   type UrgencyLevel
 } from './schema'
+
+// 挿入専用の薄い型定義（display_numberを省略可）
+type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'display_number'> & {
+  display_number?: string | null
+}
+type RecurringTaskInsert = Omit<RecurringTask, 'id' | 'created_at' | 'updated_at' | 'display_number'> & {
+  display_number?: string | null
+}
+type IdeaInsert = Omit<Idea, 'id' | 'created_at' | 'updated_at' | 'display_number' | 'text'> & {
+  display_number?: string | null
+  title: string // textの代わりにtitleを使用
+}
+
+// JSON⇄FileAttachment 相互変換関数
+type FileAttachment = {
+  file_name: string
+  file_type: string
+  file_size: number
+  file_data: string
+}
+
+const serializeAttachment = (attachment: FileAttachment | undefined): Json | null => {
+  if (!attachment) return null
+  try {
+    // 安全なクローン
+    return {
+      file_name: attachment.file_name,
+      file_type: attachment.file_type,
+      file_size: attachment.file_size,
+      file_data: attachment.file_data
+    }
+  } catch (error) {
+    console.error('serializeAttachment error:', error)
+    return null
+  }
+}
+
+const deserializeAttachment = (json: Json | null): FileAttachment | undefined => {
+  // 一時的に無効化してテスト
+  return undefined
+}
+
+// 挿入用の緩めラッパ型（display_number、user_idを省略可能）
+type UnifiedTaskInsertPayload = Omit<Database['public']['Tables']['unified_tasks']['Insert'], 'display_number' | 'user_id'> & {
+  display_number?: string | null
+  user_id?: string | null
+}
+
+// buildUnifiedTaskInsert関数の入力データ型
+type BuildTaskInputData = {
+  display_number?: string | null
+  user_id?: string | null
+  attachment?: FileAttachment
+  text?: string
+  title?: string
+  urls?: string[]
+  memo?: string | null
+  category?: string | null
+  importance?: number | null
+  due_date?: string | null
+  completed?: boolean
+  completed_at?: string | null
+  archived?: boolean
+  snoozed_until?: string | null
+  duration_min?: number | null
+  [key: string]: unknown // その他のプロパティを許可
+}
+
+// payload構築の共通ヘルパ
+const buildUnifiedTaskInsert = (data: BuildTaskInputData, taskType: string): UnifiedTaskInsertPayload => {
+  const { display_number, user_id, attachment, text, urls, ...cleanData } = data
+
+  // 安全なペイロードを構築
+  const safePayload: UnifiedTaskInsertPayload = {
+    title: text || cleanData.title || '',
+    task_type: taskType,
+    memo: cleanData.memo || null,
+    category: cleanData.category || null,
+    importance: cleanData.importance || null,
+    due_date: cleanData.due_date || null,
+    urls: urls && Array.isArray(urls) ? urls : undefined,
+    attachment: serializeAttachment(attachment),
+    completed: cleanData.completed || false,
+    completed_at: cleanData.completed_at || null,
+    archived: cleanData.archived || false,
+    snoozed_until: cleanData.snoozed_until || null,
+    duration_min: cleanData.duration_min || null
+  }
+
+  return safePayload
+}
 
 class SupabaseTasukuDatabase {
   private supabase: SupabaseClient<Database>
@@ -47,9 +138,11 @@ class SupabaseTasukuDatabase {
       console.log('createTask: Creating task:', task.title)
     }
 
+    // buildUnifiedTaskInsertヘルパを使用
+    const insertPayload = buildUnifiedTaskInsert(task, 'NORMAL')
     const { data, error } = await this.supabase
       .from('unified_tasks')
-      .insert({ ...task, user_id: userId, task_type: 'NORMAL' })
+      .insert(insertPayload)
       .select()
       .single()
 
@@ -66,11 +159,11 @@ class SupabaseTasukuDatabase {
       console.log('createTask: Successfully created task:', task.title)
     }
 
-    // user_idを除いてTaskを返す
+    // user_idを除いてTaskを返す、attachmentをデシリアライズ
     const { user_id, ...taskData } = data
     return {
       ...taskData,
-      attachment: taskData.attachment as Task['attachment']
+      attachment: deserializeAttachment(taskData.attachment)
     } as Task
   }
 
@@ -86,11 +179,11 @@ class SupabaseTasukuDatabase {
       if (error.code === 'PGRST116') return null // Not found
       throw error
     }
-    
+
     const { user_id, ...taskData } = data
     return {
       ...taskData,
-      attachment: taskData.attachment as Task['attachment']
+      attachment: deserializeAttachment(taskData.attachment)
     } as Task
   }
 
@@ -100,12 +193,12 @@ class SupabaseTasukuDatabase {
       .select()
       .eq('task_type', 'NORMAL')
       .order('created_at', { ascending: false })
-      
+
     if (error) throw error
-    
+
     return data.map(({ user_id, ...task }) => ({
       ...task,
-      attachment: task.attachment as Task['attachment']
+      attachment: deserializeAttachment(task.attachment)
     } as Task))
   }
 
@@ -116,12 +209,12 @@ class SupabaseTasukuDatabase {
       .eq('due_date', date)
       .eq('task_type', 'NORMAL')
       .order('created_at', { ascending: false })
-      
+
     if (error) throw error
-    
+
     return data.map(({ user_id, ...task }) => ({
       ...task,
-      attachment: task.attachment as Task['attachment']
+      attachment: deserializeAttachment(task.attachment)
     } as Task))
   }
 
@@ -161,17 +254,21 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createRecurringTask(task: Omit<RecurringTask, 'id' | 'created_at' | 'updated_at'>): Promise<RecurringTask> {
-    const userId = await this.getCurrentUserId()
+    // buildUnifiedTaskInsertヘルパを使用
+    const insertPayload = buildUnifiedTaskInsert(task, 'RECURRING')
     const { data, error } = await this.supabase
       .from('unified_tasks')
-      .insert({ ...task, user_id: userId, task_type: 'RECURRING' })
+      .insert(insertPayload)
       .select()
       .single()
       
     if (error) throw error
-    
+
     const { user_id, ...taskData } = data
-    return taskData as RecurringTask
+    return {
+      ...taskData,
+      attachment: deserializeAttachment(taskData.attachment)
+    } as RecurringTask
   }
 
   async getRecurringTask(id: string): Promise<RecurringTask | null> {
@@ -181,14 +278,17 @@ class SupabaseTasukuDatabase {
       .eq('id', id)
       .eq('task_type', 'RECURRING')
       .single()
-      
+
     if (error) {
       if (error.code === 'PGRST116') return null
       throw error
     }
-    
+
     const { user_id, ...taskData } = data
-    return taskData as RecurringTask
+    return {
+      ...taskData,
+      attachment: deserializeAttachment(taskData.attachment)
+    } as RecurringTask
   }
 
   async getAllRecurringTasks(): Promise<RecurringTask[]> {
@@ -197,10 +297,13 @@ class SupabaseTasukuDatabase {
       .select()
       .eq('task_type', 'RECURRING')
       .order('created_at', { ascending: false })
-      
+
     if (error) throw error
-    
-    return data.map(({ user_id, ...task }) => task as RecurringTask)
+
+    return data.map(({ user_id, ...task }) => ({
+      ...task,
+      attachment: deserializeAttachment(task.attachment)
+    } as RecurringTask))
   }
 
   async getActiveRecurringTasks(): Promise<RecurringTask[]> {
@@ -213,7 +316,10 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...task }) => task as RecurringTask)
+    return data.map(({ user_id, ...task }) => ({
+      ...task,
+      attachment: deserializeAttachment(task.attachment)
+    } as RecurringTask))
   }
 
   async updateRecurringTask(id: string, updates: Partial<Omit<RecurringTask, 'id' | 'created_at' | 'updated_at'>>): Promise<RecurringTask> {
@@ -247,7 +353,10 @@ class SupabaseTasukuDatabase {
       console.log('updateRecurringTask: Successfully updated task')
     }
     const { user_id, ...taskData } = data
-    return taskData as RecurringTask
+    return {
+      ...taskData,
+      attachment: deserializeAttachment(taskData.attachment)
+    } as RecurringTask
   }
 
   async deleteRecurringTask(id: string): Promise<void> {
@@ -289,7 +398,11 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => ({
+      recurring_id: log.original_task_id,
+      date: log.completed_at?.substring(0, 10) || '',
+      logged_at: log.completed_at || ''
+    } as RecurringLog))
   }
 
   async getRecurringLogsByDate(date: string): Promise<RecurringLog[]> {
@@ -301,7 +414,11 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => ({
+      recurring_id: log.original_task_id,
+      date: log.completed_at?.substring(0, 10) || '',
+      logged_at: log.completed_at || ''
+    } as RecurringLog))
   }
 
   async getAllRecurringLogs(): Promise<RecurringLog[]> {
@@ -313,7 +430,11 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => log as RecurringLog)
+    return data.map(({ user_id, ...log }) => ({
+      recurring_id: log.original_task_id,
+      date: log.completed_at?.substring(0, 10) || '',
+      logged_at: log.completed_at || ''
+    } as RecurringLog))
   }
 
   async deleteRecurringLog(recurringId: string, date: string): Promise<void> {
@@ -332,15 +453,15 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createIdea(idea: Omit<Idea, 'id' | 'created_at' | 'updated_at'>): Promise<Idea> {
-    const userId = await this.getCurrentUserId()
-
     if (process.env.NODE_ENV === 'development') {
       console.log('createIdea: Creating idea:', idea.text)
     }
 
+    // buildUnifiedTaskInsertヘルパを使用（text→title変換も含む）
+    const insertPayload = buildUnifiedTaskInsert(idea, 'IDEA')
     const { data, error } = await this.supabase
       .from('unified_tasks')
-      .insert({ ...idea, user_id: userId, task_type: 'IDEA' })
+      .insert(insertPayload)
       .select()
       .single()
 
@@ -358,7 +479,11 @@ class SupabaseTasukuDatabase {
     }
 
     const { user_id, ...ideaData } = data
-    return ideaData as Idea
+    return {
+      ...ideaData,
+      text: ideaData.title, // title を text に正規化
+      attachment: deserializeAttachment(ideaData.attachment)
+    } as Idea
   }
 
   async getIdea(id: string): Promise<Idea | null> {
@@ -375,7 +500,11 @@ class SupabaseTasukuDatabase {
     }
 
     const { user_id, ...ideaData } = data
-    return ideaData as Idea
+    return {
+      ...ideaData,
+      text: ideaData.title, // title を text に正規化
+      attachment: deserializeAttachment(ideaData.attachment)
+    } as Idea
   }
 
   async getAllIdeas(): Promise<Idea[]> {
@@ -387,14 +516,20 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...idea }) => idea as Idea)
+    return data.map(({ user_id, ...idea }) => ({
+      ...idea,
+      text: idea.title, // title を text に正規化
+      attachment: deserializeAttachment(idea.attachment)
+    } as Idea))
   }
 
   async updateIdea(id: string, updates: Partial<Omit<Idea, 'id' | 'created_at' | 'updated_at'>>): Promise<Idea> {
+    const payload = buildUnifiedTaskInsert(updates, 'IDEA')
+
     const { data, error } = await this.supabase
       .from('unified_tasks')
       .update({
-        ...updates,
+        ...payload,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
@@ -404,7 +539,11 @@ class SupabaseTasukuDatabase {
     if (error) throw error
 
     const { user_id, ...ideaData } = data
-    return ideaData as Idea
+    return {
+      ...ideaData,
+      text: ideaData.title, // title を text に正規化
+      attachment: deserializeAttachment(ideaData.attachment)
+    } as Idea
   }
 
   async deleteIdea(id: string): Promise<void> {

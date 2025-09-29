@@ -140,7 +140,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
     }))
 
     return allTasks
-  }, [unifiedTasks.loading, unifiedTasks.getShoppingTasks])
+  }, [unifiedTasks])
 
   // サブタスクを読み込み
   const loadSubTasks = useCallback(async () => {
@@ -155,7 +155,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
     }
 
     setSubTasks(newSubTasks)
-  }, [unifiedTasks.loading, getShoppingTasks, unifiedTasks.getSubtasks])
+  }, [unifiedTasks, getShoppingTasks])
 
   useEffect(() => {
     loadSubTasks()

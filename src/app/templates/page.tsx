@@ -375,7 +375,7 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [loadData])
 
   if (loading) return <div>読み込み中...</div>
 

@@ -41,37 +41,130 @@ export type Database = {
     Tables: {
       done: {
         Row: {
-          completion_context: Json | null
-          completion_date: string
-          completion_time: string | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          original_category: string | null
+          original_display_number: string | null
+          original_due_date: string | null
+          original_importance: string | null
+          original_memo: string | null
+          original_recurring_pattern: string | null
+          original_task_id: string
+          original_title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          original_category?: string | null
+          original_display_number?: string | null
+          original_due_date?: string | null
+          original_importance?: string | null
+          original_memo?: string | null
+          original_recurring_pattern?: string | null
+          original_task_id: string
+          original_title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          original_category?: string | null
+          original_display_number?: string | null
+          original_due_date?: string | null
+          original_importance?: string | null
+          original_memo?: string | null
+          original_recurring_pattern?: string | null
+          original_task_id?: string
+          original_title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ideas: {
+        Row: {
+          completed: boolean
           created_at: string
           id: string
-          original_task_id: string | null
-          task_title: string
-          task_type: string
+          text: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          completion_context?: Json | null
-          completion_date: string
-          completion_time?: string | null
+          completed?: boolean
           created_at?: string
           id?: string
-          original_task_id?: string | null
-          task_title: string
-          task_type: string
+          text: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          completion_context?: Json | null
-          completion_date?: string
-          completion_time?: string | null
+          completed?: boolean
           created_at?: string
           id?: string
-          original_task_id?: string | null
-          task_title?: string
-          task_type?: string
+          text?: string
+          updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      recurring_templates: {
+        Row: {
+          active: boolean | null
+          category: string | null
+          created_at: string | null
+          day_of_month: number | null
+          day_of_year: number | null
+          id: string
+          importance: number | null
+          memo: string | null
+          month_of_year: number | null
+          pattern: string
+          title: string
+          updated_at: string | null
+          urls: string[]
+          user_id: string
+          weekdays: number[] | null
+        }
+        Insert: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          day_of_month?: number | null
+          day_of_year?: number | null
+          id?: string
+          importance?: number | null
+          memo?: string | null
+          month_of_year?: number | null
+          pattern: string
+          title: string
+          updated_at?: string | null
+          urls?: string[]
+          user_id: string
+          weekdays?: number[] | null
+        }
+        Update: {
+          active?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          day_of_month?: number | null
+          day_of_year?: number | null
+          id?: string
+          importance?: number | null
+          memo?: string | null
+          month_of_year?: number | null
+          pattern?: string
+          title?: string
+          updated_at?: string | null
+          urls?: string[]
+          user_id?: string
+          weekdays?: number[] | null
         }
         Relationships: []
       }
@@ -118,6 +211,7 @@ export type Database = {
           due_date: string | null
           duration_min: number | null
           end_date: string | null
+          end_time: string | null
           frequency: string | null
           id: string
           importance: number | null
@@ -125,12 +219,18 @@ export type Database = {
           last_completed_date: string | null
           memo: string | null
           month_day: number | null
+          recurring_day: number | null
+          recurring_month: number | null
+          recurring_pattern: string | null
+          recurring_template_id: string | null
+          recurring_weekdays: number[] | null
           snoozed_until: string | null
           start_date: string | null
+          start_time: string | null
           task_type: string
           title: string
           updated_at: string | null
-          urls: string[] | null
+          urls: string[]
           user_id: string
           weekdays: number[] | null
         }
@@ -146,6 +246,7 @@ export type Database = {
           due_date?: string | null
           duration_min?: number | null
           end_date?: string | null
+          end_time?: string | null
           frequency?: string | null
           id?: string
           importance?: number | null
@@ -153,12 +254,18 @@ export type Database = {
           last_completed_date?: string | null
           memo?: string | null
           month_day?: number | null
+          recurring_day?: number | null
+          recurring_month?: number | null
+          recurring_pattern?: string | null
+          recurring_template_id?: string | null
+          recurring_weekdays?: number[] | null
           snoozed_until?: string | null
           start_date?: string | null
+          start_time?: string | null
           task_type?: string
           title: string
           updated_at?: string | null
-          urls?: string[] | null
+          urls?: string[]
           user_id: string
           weekdays?: number[] | null
         }
@@ -174,6 +281,7 @@ export type Database = {
           due_date?: string | null
           duration_min?: number | null
           end_date?: string | null
+          end_time?: string | null
           frequency?: string | null
           id?: string
           importance?: number | null
@@ -181,14 +289,47 @@ export type Database = {
           last_completed_date?: string | null
           memo?: string | null
           month_day?: number | null
+          recurring_day?: number | null
+          recurring_month?: number | null
+          recurring_pattern?: string | null
+          recurring_template_id?: string | null
+          recurring_weekdays?: number[] | null
           snoozed_until?: string | null
           start_date?: string | null
+          start_time?: string | null
           task_type?: string
           title?: string
           updated_at?: string | null
-          urls?: string[] | null
+          urls?: string[]
           user_id?: string
           weekdays?: number[] | null
+        }
+        Relationships: []
+      }
+      user_metadata: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: string
         }
         Relationships: []
       }
@@ -224,63 +365,7 @@ export type Database = {
       }
     }
     Views: {
-      active_recurring_tasks: {
-        Row: {
-          active: boolean | null
-          created_at: string | null
-          duration_min: number | null
-          end_date: string | null
-          frequency: string | null
-          id: string | null
-          importance: number | null
-          interval_n: number | null
-          memo: string | null
-          month_day: number | null
-          start_date: string | null
-          title: string | null
-          updated_at: string | null
-          urls: string[] | null
-          user_id: string | null
-          weekdays: number[] | null
-        }
-        Insert: {
-          active?: boolean | null
-          created_at?: string | null
-          duration_min?: number | null
-          end_date?: string | null
-          frequency?: string | null
-          id?: string | null
-          importance?: number | null
-          interval_n?: number | null
-          memo?: string | null
-          month_day?: number | null
-          start_date?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urls?: string[] | null
-          user_id?: string | null
-          weekdays?: number[] | null
-        }
-        Update: {
-          active?: boolean | null
-          created_at?: string | null
-          duration_min?: number | null
-          end_date?: string | null
-          frequency?: string | null
-          id?: string | null
-          importance?: number | null
-          interval_n?: number | null
-          memo?: string | null
-          month_day?: number | null
-          start_date?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urls?: string[] | null
-          user_id?: string | null
-          weekdays?: number[] | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_duplicates: {

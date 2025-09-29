@@ -84,7 +84,7 @@ export function useDatabase() {
 
           // Make seedDummyData available globally for manual use
           if (typeof window !== 'undefined') {
-            (window as any).seedDummyData = seedDummyData
+            (window as Window & { seedDummyData?: typeof seedDummyData }).seedDummyData = seedDummyData
           }
         }
 
