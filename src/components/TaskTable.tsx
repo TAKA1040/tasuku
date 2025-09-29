@@ -318,7 +318,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     
     if (!a.isRecurring && !b.isRecurring) {
       // 2. 期限切れ・重要度の複合スコア算出
-      const getSmartPriorityScore = (item: { urgency?: string; importance?: number; days?: number }) => {
+      const getSmartPriorityScore = (item: { urgency?: string; importance?: number | null; days?: number }) => {
         // 緊急度ベーススコア（高いほど優先）
         const urgencyScore = PRIORITY_SCORES.URGENCY[item.urgency as keyof typeof PRIORITY_SCORES.URGENCY] || PRIORITY_SCORES.URGENCY.NORMAL
         
