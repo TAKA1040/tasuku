@@ -575,7 +575,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                 </div>
               </td>
               <td style={{ padding: '2px', textAlign: 'center' }}>
-                {renderUrlIcon(item.urls)}
+                {renderUrlIcon(item.urls || undefined)}
               </td>
               <td style={{ padding: '2px 4px', fontSize: '13px', display: 'none' }} className="date-type-desktop-only">
                 {getDateTypeDisplay(item)}
