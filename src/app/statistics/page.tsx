@@ -50,7 +50,7 @@ export default function StatisticsPage() {
       }))
   }, [unifiedTasks.tasks])
 
-  const stats = useStatistics(allTasks as Task[], recurringTasksWithStatus as RecurringTaskWithStatus[])
+  const stats = useStatistics(allTasks as Task[], recurringTasksWithStatus as UnifiedRecurringTaskWithStatus[])
   const loading = unifiedTasks.loading
 
   if (error) {
