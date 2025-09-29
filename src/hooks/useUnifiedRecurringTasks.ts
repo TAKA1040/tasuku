@@ -224,7 +224,7 @@ function getDisplayName(task: UnifiedTask): string {
 export function useRecurringTasksCompat(isDbInitialized: boolean = false) {
   const unified = useUnifiedRecurringTasks(isDbInitialized)
 
-  // 旧形式のRecurringTaskWithStatusに変換
+  // 旧形式のUnifiedRecurringTaskWithStatusに変換
   const convertToLegacyFormat = (unifiedTask: UnifiedRecurringTaskWithStatus) => {
     return {
       task: {

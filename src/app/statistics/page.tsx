@@ -22,7 +22,7 @@ export default function StatisticsPage() {
     }))
   }, [unifiedTasks.tasks])
 
-  // 繰り返しタスクをRecurringTaskWithStatusに変換
+  // 繰り返しタスクをUnifiedRecurringTaskWithStatusに変換
   const recurringTasksWithStatus = useMemo(() => {
     return unifiedTasks.tasks
       .filter(task => task.task_type === 'RECURRING')

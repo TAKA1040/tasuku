@@ -292,7 +292,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       isRecurring: false,
       isCompleted: false,
       task: item.task,
-      recurringTask: null as RecurringTaskWithStatus | null
+      recurringTask: null as UnifiedRecurringTaskWithStatus | null
     })),
     ...recurringTasks.filter(item => item.task).map(item => ({
       id: item.task.id,
@@ -378,7 +378,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       isRecurring: false,
       isCompleted: true,
       task: item.task,
-      recurringTask: null as RecurringTaskWithStatus | null
+      recurringTask: null as UnifiedRecurringTaskWithStatus | null
     })),
     ...completedRecurringTasks.filter(item => item.task).map(item => ({
       id: item.task.id,
