@@ -437,8 +437,8 @@ export default function TemplatesPage() {
                   borderBottom: '1px solid #e5e7eb',
                   fontWeight: '600',
                   color: '#374151',
-                  width: '40px'
-                }}>🌍</th>
+                  width: '120px'
+                }}>🌍 URLs (デバッグ)</th>
                 <th style={{
                   padding: '8px',
                   textAlign: 'center',
