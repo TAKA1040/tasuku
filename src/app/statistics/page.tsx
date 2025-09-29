@@ -46,7 +46,9 @@ export default function StatisticsPage() {
         },
         occursToday: false,
         completedToday: task.completed,
-        displayName: task.title
+        displayName: task.title,
+        currentStreak: 0,
+        totalCompletions: 0
       }))
   }, [unifiedTasks.tasks])
 
