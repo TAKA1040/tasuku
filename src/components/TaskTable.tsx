@@ -541,7 +541,10 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   <span className="task-title" style={{ fontWeight: '500' }}>
                     {item.title}
                   </span>
-                  {(item.task?.attachment || item.recurringTask?.task?.attachment) && renderFileIcon(item.task?.attachment || item.recurringTask?.task?.attachment)}
+                  {(() => {
+                    const attachment = item.task?.attachment || item.recurringTask?.task?.attachment;
+                    return attachment && renderFileIcon(attachment);
+                  })()}
 
                   {/* 買い物カテゴリーの場合は買い物リストの件数を表示 */}
                   {item.category === TASK_CATEGORIES.SHOPPING ? (
