@@ -48,8 +48,8 @@ class SupabaseTasukuDatabase {
     }
 
     const { data, error } = await this.supabase
-      .from('tasks')
-      .insert({ ...task, user_id: userId })
+      .from('unified_tasks')
+      .insert({ ...task, user_id: userId, task_type: 'NORMAL' })
       .select()
       .single()
 
@@ -76,9 +76,10 @@ class SupabaseTasukuDatabase {
 
   async getTask(id: string): Promise<Task | null> {
     const { data, error } = await this.supabase
-      .from('tasks')
+      .from('unified_tasks')
       .select()
       .eq('id', id)
+      .eq('task_type', 'NORMAL')
       .single()
       
     if (error) {
@@ -95,8 +96,9 @@ class SupabaseTasukuDatabase {
 
   async getAllTasks(): Promise<Task[]> {
     const { data, error } = await this.supabase
-      .from('tasks')
+      .from('unified_tasks')
       .select()
+      .eq('task_type', 'NORMAL')
       .order('created_at', { ascending: false })
       
     if (error) throw error
@@ -109,9 +111,10 @@ class SupabaseTasukuDatabase {
 
   async getTasksByDate(date: string): Promise<Task[]> {
     const { data, error } = await this.supabase
-      .from('tasks')
+      .from('unified_tasks')
       .select()
       .eq('due_date', date)
+      .eq('task_type', 'NORMAL')
       .order('created_at', { ascending: false })
       
     if (error) throw error
@@ -127,9 +130,10 @@ class SupabaseTasukuDatabase {
 
   async updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'created_at' | 'updated_at'>>): Promise<Task> {
     const { data, error } = await this.supabase
-      .from('tasks')
+      .from('unified_tasks')
       .update(updates)
       .eq('id', id)
+      .eq('task_type', 'NORMAL')
       .select()
       .single()
       
@@ -144,9 +148,10 @@ class SupabaseTasukuDatabase {
 
   async deleteTask(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('tasks')
+      .from('unified_tasks')
       .delete()
       .eq('id', id)
+      .eq('task_type', 'NORMAL')
       
     if (error) throw error
   }
@@ -158,8 +163,8 @@ class SupabaseTasukuDatabase {
   async createRecurringTask(task: Omit<RecurringTask, 'id' | 'created_at' | 'updated_at'>): Promise<RecurringTask> {
     const userId = await this.getCurrentUserId()
     const { data, error } = await this.supabase
-      .from('recurring_tasks')
-      .insert({ ...task, user_id: userId })
+      .from('unified_tasks')
+      .insert({ ...task, user_id: userId, task_type: 'RECURRING' })
       .select()
       .single()
       
@@ -171,9 +176,10 @@ class SupabaseTasukuDatabase {
 
   async getRecurringTask(id: string): Promise<RecurringTask | null> {
     const { data, error } = await this.supabase
-      .from('recurring_tasks')
+      .from('unified_tasks')
       .select()
       .eq('id', id)
+      .eq('task_type', 'RECURRING')
       .single()
       
     if (error) {
@@ -187,8 +193,9 @@ class SupabaseTasukuDatabase {
 
   async getAllRecurringTasks(): Promise<RecurringTask[]> {
     const { data, error } = await this.supabase
-      .from('recurring_tasks')
+      .from('unified_tasks')
       .select()
+      .eq('task_type', 'RECURRING')
       .order('created_at', { ascending: false })
       
     if (error) throw error
@@ -198,8 +205,9 @@ class SupabaseTasukuDatabase {
 
   async getActiveRecurringTasks(): Promise<RecurringTask[]> {
     const { data, error } = await this.supabase
-      .from('recurring_tasks')
+      .from('unified_tasks')
       .select()
+      .eq('task_type', 'RECURRING')
       .eq('active', true)
       .order('created_at', { ascending: false })
       
@@ -214,7 +222,7 @@ class SupabaseTasukuDatabase {
     }
 
     const { data, error } = await this.supabase
-      .from('recurring_tasks')
+      .from('unified_tasks')
       .update({
         ...updates,
         updated_at: new Date().toISOString()
@@ -244,9 +252,10 @@ class SupabaseTasukuDatabase {
 
   async deleteRecurringTask(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('recurring_tasks')
+      .from('unified_tasks')
       .delete()
       .eq('id', id)
+      .eq('task_type', 'RECURRING')
       
     if (error) throw error
   }
@@ -258,11 +267,13 @@ class SupabaseTasukuDatabase {
   async logRecurringTask(recurringId: string, date: string): Promise<void> {
     const userId = await this.getCurrentUserId()
     const { error } = await this.supabase
-      .from('recurring_logs')
+      .from('done')
       .insert({
         user_id: userId,
-        recurring_id: recurringId,
-        date: date
+        original_task_id: recurringId,
+        task_type: 'RECURRING',
+        task_title: 'Legacy recurring task',
+        completion_date: date
       })
       
     if (error) throw error
@@ -270,10 +281,11 @@ class SupabaseTasukuDatabase {
 
   async getRecurringLogs(recurringId: string): Promise<RecurringLog[]> {
     const { data, error } = await this.supabase
-      .from('recurring_logs')
+      .from('done')
       .select()
-      .eq('recurring_id', recurringId)
-      .order('date', { ascending: false })
+      .eq('original_task_id', recurringId)
+      .eq('task_type', 'RECURRING')
+      .order('completion_date', { ascending: false })
       
     if (error) throw error
     
@@ -282,9 +294,10 @@ class SupabaseTasukuDatabase {
 
   async getRecurringLogsByDate(date: string): Promise<RecurringLog[]> {
     const { data, error } = await this.supabase
-      .from('recurring_logs')
+      .from('done')
       .select()
-      .eq('date', date)
+      .eq('completion_date', date)
+      .eq('task_type', 'RECURRING')
       
     if (error) throw error
     
@@ -293,9 +306,10 @@ class SupabaseTasukuDatabase {
 
   async getAllRecurringLogs(): Promise<RecurringLog[]> {
     const { data, error } = await this.supabase
-      .from('recurring_logs')
+      .from('done')
       .select()
-      .order('date', { ascending: false })
+      .eq('task_type', 'RECURRING')
+      .order('completion_date', { ascending: false })
       
     if (error) throw error
     
@@ -304,10 +318,11 @@ class SupabaseTasukuDatabase {
 
   async deleteRecurringLog(recurringId: string, date: string): Promise<void> {
     const { error } = await this.supabase
-      .from('recurring_logs')
+      .from('done')
       .delete()
-      .eq('recurring_id', recurringId)
-      .eq('date', date)
+      .eq('original_task_id', recurringId)
+      .eq('completion_date', date)
+      .eq('task_type', 'RECURRING')
 
     if (error) throw error
   }
@@ -324,8 +339,8 @@ class SupabaseTasukuDatabase {
     }
 
     const { data, error } = await this.supabase
-      .from('ideas')
-      .insert({ ...idea, user_id: userId })
+      .from('unified_tasks')
+      .insert({ ...idea, user_id: userId, task_type: 'IDEA' })
       .select()
       .single()
 
@@ -348,9 +363,10 @@ class SupabaseTasukuDatabase {
 
   async getIdea(id: string): Promise<Idea | null> {
     const { data, error } = await this.supabase
-      .from('ideas')
+      .from('unified_tasks')
       .select()
       .eq('id', id)
+      .eq('task_type', 'IDEA')
       .single()
 
     if (error) {
@@ -364,8 +380,9 @@ class SupabaseTasukuDatabase {
 
   async getAllIdeas(): Promise<Idea[]> {
     const { data, error } = await this.supabase
-      .from('ideas')
+      .from('unified_tasks')
       .select()
+      .eq('task_type', 'IDEA')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -375,7 +392,7 @@ class SupabaseTasukuDatabase {
 
   async updateIdea(id: string, updates: Partial<Omit<Idea, 'id' | 'created_at' | 'updated_at'>>): Promise<Idea> {
     const { data, error } = await this.supabase
-      .from('ideas')
+      .from('unified_tasks')
       .update({
         ...updates,
         updated_at: new Date().toISOString()
@@ -392,9 +409,10 @@ class SupabaseTasukuDatabase {
 
   async deleteIdea(id: string): Promise<void> {
     const { error } = await this.supabase
-      .from('ideas')
+      .from('unified_tasks')
       .delete()
       .eq('id', id)
+      .eq('task_type', 'IDEA')
 
     if (error) throw error
   }
@@ -731,7 +749,7 @@ class SupabaseTasukuDatabase {
     const userId = await this.getCurrentUserId()
 
     // Only clear tables that exist
-    const tables = ['subtasks', 'recurring_logs', 'tasks', 'recurring_tasks', 'ideas', 'user_settings'] as const
+    const tables = ['subtasks', 'unified_tasks', 'done', 'user_settings'] as const
 
     for (const table of tables) {
       const { error } = await this.supabase

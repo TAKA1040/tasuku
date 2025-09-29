@@ -2,19 +2,19 @@
 
 import { useMemo } from 'react'
 import type { TaskWithUrgency } from '@/lib/db/schema'
-import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
+import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import type { SearchFilterOptions } from '@/components/TaskSearchFilter'
 
 interface UseTaskFilterResult {
   filteredTasks: TaskWithUrgency[]
-  filteredRecurringTasks: RecurringTaskWithStatus[]
+  filteredRecurringTasks: UnifiedRecurringTaskWithStatus[]
   totalCount: number
   filteredCount: number
 }
 
 export function useTaskFilter(
   tasks: TaskWithUrgency[],
-  recurringTasks: RecurringTaskWithStatus[],
+  recurringTasks: UnifiedRecurringTaskWithStatus[],
   filters: SearchFilterOptions
 ): UseTaskFilterResult {
   return useMemo(() => {

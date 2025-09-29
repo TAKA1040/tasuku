@@ -62,20 +62,29 @@ export function useDatabase() {
         }
 
         // Development: Add dummy data if no tasks exist
+        // Note: Auto-seeding disabled to prevent unwanted data regeneration
+        // To manually add dummy data, use: window.seedDummyData() in console
         if (process.env.NODE_ENV === 'development') {
           if (process.env.NODE_ENV === 'development') {
-            console.log('Checking for dummy data...')
+            console.log('Checking for dummy data... (auto-seeding disabled)')
           }
           const { checkDatabaseState, seedDummyData } = await import('@/lib/db/seed')
           const state = await checkDatabaseState()
           if (process.env.NODE_ENV === 'development') {
             console.log('Database state:', state)
           }
-          if (state.tasks === 0) {
-            await seedDummyData()
-            if (process.env.NODE_ENV === 'development') {
-              console.log('Seeded dummy data for development')
-            }
+
+          // Auto-seeding disabled - users can manually seed via console
+          // if (state.tasks === 0) {
+          //   await seedDummyData()
+          //   if (process.env.NODE_ENV === 'development') {
+          //     console.log('Seeded dummy data for development')
+          //   }
+          // }
+
+          // Make seedDummyData available globally for manual use
+          if (typeof window !== 'undefined') {
+            (window as any).seedDummyData = seedDummyData
           }
         }
 

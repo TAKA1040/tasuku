@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import type { Task, RecurringTask } from '@/lib/db/schema'
-import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
+import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { getTodayJST, getWeekStartJST, getMonthStartJST, getMonthEndJST, getUrgencyLevel } from '@/lib/utils/date-jst'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
 
@@ -233,7 +233,7 @@ function getDateDaysAgo(fromDate: string, daysAgo: number): string {
 // レガシー統計フック（既存コンポーネント用）
 export function useStatistics(
   tasks: Task[] = [], 
-  recurringTasks: RecurringTaskWithStatus[] = []
+  recurringTasks: UnifiedRecurringTaskWithStatus[] = []
 ): StatisticsData {
   return useMemo(() => {
     const today = getTodayJST()

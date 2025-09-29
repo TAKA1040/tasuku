@@ -15,6 +15,7 @@ export default function SearchPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isDeleting, setIsDeleting] = useState(false)
+  const [sortOrder, setSortOrder] = useState('newest') // 新しい順をデフォルト
 
   const { isInitialized, error: dbError } = useDatabase()
 
@@ -38,11 +39,12 @@ export default function SearchPage() {
     }
   }, [isInitialized, loadTasks])
 
-  // フィルタリングされたタスクを計算
+  // フィルタリング＆ソートされたタスクを計算
   const filteredTasks = useMemo(() => {
     if (!tasks?.length) return []
 
-    return tasks.filter(task => {
+    // フィルタリング処理
+    const filtered = tasks.filter(task => {
       // 検索語によるフィルタリング
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase()
@@ -81,7 +83,40 @@ export default function SearchPage() {
 
       return true
     })
-  }, [tasks, searchTerm, categoryFilter, typeFilter, statusFilter])
+
+    // ソート処理
+    return filtered.sort((a, b) => {
+      switch (sortOrder) {
+        case 'newest':
+          // 新しい順（作成日時降順）
+          return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+
+        case 'oldest':
+          // 古い順（作成日時昇順）
+          return new Date(a.created_at || '').getTime() - new Date(b.created_at || '').getTime()
+
+        case 'title':
+          // タイトル順（あいうえお順）
+          return (a.title || '').localeCompare(b.title || '', 'ja')
+
+        case 'due_date':
+          // 期限順（近い順、期限なしは最後）
+          const aDueDate = a.due_date && a.due_date !== '2999-12-31' ? a.due_date : '9999-12-31'
+          const bDueDate = b.due_date && b.due_date !== '2999-12-31' ? b.due_date : '9999-12-31'
+          return aDueDate.localeCompare(bDueDate)
+
+        case 'type':
+          // タイプ順（タスク > 繰り返し > アイデア）
+          const typeOrder = { 'NORMAL': 0, 'TASK': 0, 'RECURRING': 1, 'IDEA': 2 }
+          const aType = typeOrder[a.task_type as keyof typeof typeOrder] ?? 3
+          const bType = typeOrder[b.task_type as keyof typeof typeOrder] ?? 3
+          return aType - bType
+
+        default:
+          return 0
+      }
+    })
+  }, [tasks, searchTerm, categoryFilter, typeFilter, statusFilter, sortOrder])
 
   // ユニークなカテゴリを取得
   const categories = useMemo(() => {
@@ -305,6 +340,25 @@ export default function SearchPage() {
               <option value="completed">完了済み</option>
               <option value="incomplete">未完了</option>
             </select>
+
+            {/* ソート順フィルター */}
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid var(--border)',
+                borderRadius: '6px',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+              }}
+            >
+              <option value="newest">📅 新しい順</option>
+              <option value="oldest">📅 古い順</option>
+              <option value="title">🔤 タイトル順</option>
+              <option value="due_date">⏰ 期限順</option>
+              <option value="type">📁 タイプ順</option>
+            </select>
           </div>
         </div>
 
@@ -400,7 +454,7 @@ export default function SearchPage() {
               {/* テーブルヘッダー */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '40px 60px 80px 1fr 150px 100px 80px',
+                gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
                 gap: '8px',
                 padding: '12px',
                 background: 'var(--bg-primary)',
@@ -415,6 +469,7 @@ export default function SearchPage() {
                 <div>タイトル</div>
                 <div>メモ</div>
                 <div>期限</div>
+                <div>作成日時</div>
                 <div>操作</div>
               </div>
 
@@ -430,7 +485,7 @@ export default function SearchPage() {
                     key={itemId}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '40px 60px 80px 1fr 150px 100px 80px',
+                      gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
                       gap: '8px',
                       padding: '12px',
                       borderBottom: index < filteredTasks.length - 1 ? '1px solid var(--border)' : 'none',
@@ -529,6 +584,19 @@ export default function SearchPage() {
                       color: 'var(--text-secondary)'
                     }}>
                       {task.due_date && task.due_date !== '2999-12-31' ? task.due_date : '-'}
+                    </div>
+
+                    {/* 作成日時 */}
+                    <div style={{
+                      fontSize: '11px',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      {task.created_at ? new Date(task.created_at).toLocaleDateString('ja-JP', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
                     </div>
 
                     {/* 操作ボタン */}

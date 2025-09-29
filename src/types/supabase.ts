@@ -39,132 +39,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      ideas: {
+      done: {
         Row: {
-          completed: boolean
+          completion_context: Json | null
+          completion_date: string
+          completion_time: string | null
           created_at: string
           id: string
-          text: string
-          updated_at: string
+          original_task_id: string | null
+          task_title: string
+          task_type: string
           user_id: string
         }
         Insert: {
-          completed?: boolean
+          completion_context?: Json | null
+          completion_date: string
+          completion_time?: string | null
           created_at?: string
           id?: string
-          text: string
-          updated_at?: string
+          original_task_id?: string | null
+          task_title: string
+          task_type: string
           user_id: string
         }
         Update: {
-          completed?: boolean
+          completion_context?: Json | null
+          completion_date?: string
+          completion_time?: string | null
           created_at?: string
           id?: string
-          text?: string
-          updated_at?: string
+          original_task_id?: string | null
+          task_title?: string
+          task_type?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      recurring_logs: {
-        Row: {
-          date: string
-          logged_at: string | null
-          recurring_id: string
-          user_id: string
-        }
-        Insert: {
-          date: string
-          logged_at?: string | null
-          recurring_id: string
-          user_id: string
-        }
-        Update: {
-          date?: string
-          logged_at?: string | null
-          recurring_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "recurring_logs_recurring_id_fkey"
-            columns: ["recurring_id"]
-            isOneToOne: false
-            referencedRelation: "active_recurring_tasks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "recurring_logs_recurring_id_fkey"
-            columns: ["recurring_id"]
-            isOneToOne: false
-            referencedRelation: "recurring_tasks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      recurring_tasks: {
-        Row: {
-          active: boolean | null
-          attachment: Json | null
-          category: string | null
-          created_at: string | null
-          duration_min: number | null
-          end_date: string | null
-          frequency: string
-          id: string
-          importance: number | null
-          interval_n: number | null
-          max_occurrences: number | null
-          memo: string | null
-          month_day: number | null
-          start_date: string
-          title: string
-          updated_at: string | null
-          urls: string[] | null
-          user_id: string
-          weekdays: number[] | null
-        }
-        Insert: {
-          active?: boolean | null
-          attachment?: Json | null
-          category?: string | null
-          created_at?: string | null
-          duration_min?: number | null
-          end_date?: string | null
-          frequency: string
-          id?: string
-          importance?: number | null
-          interval_n?: number | null
-          max_occurrences?: number | null
-          memo?: string | null
-          month_day?: number | null
-          start_date?: string
-          title: string
-          updated_at?: string | null
-          urls?: string[] | null
-          user_id: string
-          weekdays?: number[] | null
-        }
-        Update: {
-          active?: boolean | null
-          attachment?: Json | null
-          category?: string | null
-          created_at?: string | null
-          duration_min?: number | null
-          end_date?: string | null
-          frequency?: string
-          id?: string
-          importance?: number | null
-          interval_n?: number | null
-          max_occurrences?: number | null
-          memo?: string | null
-          month_day?: number | null
-          start_date?: string
-          title?: string
-          updated_at?: string | null
-          urls?: string[] | null
-          user_id?: string
-          weekdays?: number[] | null
         }
         Relationships: []
       }
@@ -194,75 +101,6 @@ export type Database = {
           parent_task_id?: string
           sort_order?: number
           title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      tasks: {
-        Row: {
-          archived: boolean | null
-          attachment: Json | null
-          category: string | null
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          display_number: string | null
-          due_date: string | null
-          duration_min: number | null
-          id: string
-          importance: number | null
-          location_tag_id: string | null
-          memo: string | null
-          order_index: number | null
-          rollover_count: number | null
-          snoozed_until: string | null
-          title: string
-          updated_at: string | null
-          urls: string[] | null
-          user_id: string
-        }
-        Insert: {
-          archived?: boolean | null
-          attachment?: Json | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          display_number?: string | null
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string
-          importance?: number | null
-          location_tag_id?: string | null
-          memo?: string | null
-          order_index?: number | null
-          rollover_count?: number | null
-          snoozed_until?: string | null
-          title: string
-          updated_at?: string | null
-          urls?: string[] | null
-          user_id: string
-        }
-        Update: {
-          archived?: boolean | null
-          attachment?: Json | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          display_number?: string | null
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string
-          importance?: number | null
-          location_tag_id?: string | null
-          memo?: string | null
-          order_index?: number | null
-          rollover_count?: number | null
-          snoozed_until?: string | null
-          title?: string
-          updated_at?: string | null
-          urls?: string[] | null
           user_id?: string
         }
         Relationships: []
@@ -440,137 +278,6 @@ export type Database = {
           urls?: string[] | null
           user_id?: string | null
           weekdays?: number[] | null
-        }
-        Relationships: []
-      }
-      tasks_with_urgency: {
-        Row: {
-          archived: boolean | null
-          category: string | null
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          days_from_today: number | null
-          due_date: string | null
-          duration_min: number | null
-          id: string | null
-          importance: number | null
-          memo: string | null
-          snoozed_until: string | null
-          title: string | null
-          updated_at: string | null
-          urgency: string | null
-          urls: string[] | null
-          user_id: string | null
-        }
-        Insert: {
-          archived?: boolean | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          days_from_today?: never
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string | null
-          importance?: number | null
-          memo?: string | null
-          snoozed_until?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urgency?: never
-          urls?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          archived?: boolean | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          days_from_today?: never
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string | null
-          importance?: number | null
-          memo?: string | null
-          snoozed_until?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urgency?: never
-          urls?: string[] | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      today_tasks: {
-        Row: {
-          archived: boolean | null
-          category: string | null
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          days_from_today: number | null
-          due_date: string | null
-          duration_min: number | null
-          id: string | null
-          importance: number | null
-          memo: string | null
-          snoozed_until: string | null
-          title: string | null
-          updated_at: string | null
-          urgency: string | null
-          urls: string[] | null
-          user_id: string | null
-        }
-        Insert: {
-          archived?: boolean | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          days_from_today?: never
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string | null
-          importance?: number | null
-          memo?: string | null
-          snoozed_until?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urgency?: never
-          urls?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          archived?: boolean | null
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          days_from_today?: never
-          due_date?: string | null
-          duration_min?: number | null
-          id?: string | null
-          importance?: number | null
-          memo?: string | null
-          snoozed_until?: string | null
-          title?: string | null
-          updated_at?: string | null
-          urgency?: never
-          urls?: string[] | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_task_stats: {
-        Row: {
-          avg_duration_min: number | null
-          completed_tasks: number | null
-          overdue_tasks: number | null
-          today_tasks: number | null
-          total_tasks: number | null
-          user_id: string | null
         }
         Relationships: []
       }

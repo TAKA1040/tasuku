@@ -4,7 +4,7 @@ import { useDatabase } from '@/hooks/useDatabase'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useStatistics } from '@/hooks/useStatistics'
 import type { Task } from '@/lib/db/schema'
-import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
+import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { StatisticsCards } from '@/components/StatisticsCards'
 import { useMemo } from 'react'
 

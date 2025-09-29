@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useCallback, memo } from 'react'
 import type { TaskWithUrgency, Task, RecurringTask, SubTask } from '@/lib/db/schema'
-import type { RecurringTaskWithStatus } from '@/hooks/useRecurringTasks'
+import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'
 import { ImportanceDot } from '@/components/ImportanceDot'
 import { TASK_CATEGORIES } from '@/lib/db/schema'
@@ -10,9 +10,9 @@ import { subTaskService } from '@/lib/db/supabase-subtasks'
 
 interface TaskTableProps {
   tasks: TaskWithUrgency[]
-  recurringTasks: RecurringTaskWithStatus[]
+  recurringTasks: UnifiedRecurringTaskWithStatus[]
   completedTasks?: TaskWithUrgency[]
-  completedRecurringTasks?: RecurringTaskWithStatus[]
+  completedRecurringTasks?: UnifiedRecurringTaskWithStatus[]
   onComplete: (taskId: string) => void
   onRecurringComplete: (taskId: string) => void
   onEdit?: (task: Task) => void
