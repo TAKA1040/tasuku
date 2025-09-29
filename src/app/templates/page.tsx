@@ -309,7 +309,35 @@ export default function TemplatesPage() {
 
       console.log('✅ テンプレート更新成功')
 
-      setStatus(`✅ ${template.title}を更新しました`)
+      // 関連タスクのURLsも更新
+      const { data: relatedTasks, error: tasksError } = await supabase
+        .from('unified_tasks')
+        .select('id, title')
+        .eq('recurring_template_id', template.id)
+        .eq('completed', false) // 未完了タスクのみ
+
+      if (tasksError) {
+        console.warn('関連タスク取得エラー:', tasksError)
+      } else if (relatedTasks && relatedTasks.length > 0) {
+        console.log(`🔄 関連タスク ${relatedTasks.length}件のURLsを更新中...`)
+
+        const { error: updateTasksError } = await supabase
+          .from('unified_tasks')
+          .update({ urls: normalizedUrls })
+          .eq('recurring_template_id', template.id)
+          .eq('completed', false)
+
+        if (updateTasksError) {
+          console.error('関連タスク更新エラー:', updateTasksError)
+          setStatus(`テンプレート更新成功、但し関連タスク更新失敗: ${updateTasksError.message}`)
+        } else {
+          console.log(`✅ 関連タスク ${relatedTasks.length}件のURLsを更新完了`)
+          setStatus(`✅ ${template.title}と関連タスク${relatedTasks.length}件を更新しました`)
+        }
+      } else {
+        setStatus(`✅ ${template.title}を更新しました`)
+      }
+
       setEditingTemplate(null)
       setNewUrl('')
       loadData()
