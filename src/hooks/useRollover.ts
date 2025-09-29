@@ -62,7 +62,7 @@ export function useRollover(
     }
 
     loadRolloverData()
-  }, [singleTasks, recurringTasks, isDbInitialized])
+  }, [singleTasks, recurringTasks, isDbInitialized, autoRollover])
 
   // 繰り越し候補があるかチェック
   const hasRolloverCandidates = rolloverData && (

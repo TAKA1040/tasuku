@@ -331,7 +331,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   // Load tasks when database is initialized or component mounts
   useEffect(() => {
     loadTasks()
-  }, [isDbInitialized]) // Remove loadTasks from dependencies to prevent infinite loops
+  }, [isDbInitialized, loadTasks])
 
   return {
     tasks,

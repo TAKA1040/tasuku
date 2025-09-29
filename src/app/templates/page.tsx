@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface RecurringTemplate {
@@ -125,7 +125,7 @@ export default function TemplatesPage() {
     }
   }
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
 
@@ -216,7 +216,7 @@ export default function TemplatesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const createTemplateFromTask = async (task: UnifiedTask) => {
     try {

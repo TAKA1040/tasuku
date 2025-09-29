@@ -5,7 +5,7 @@ import { getTodayJST } from '@/lib/utils/date-jst'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 
 interface TaskCreateFormProps {
-  onSubmit: (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[]) => Promise<void>
+  onSubmit: (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], durationMin?: number) => Promise<void>
   onCancel: () => void
   isVisible: boolean
 }
@@ -16,6 +16,7 @@ export function TaskCreateForm({ onSubmit, onCancel, isVisible }: TaskCreateForm
   const [dueDate, setDueDate] = useState(getTodayJST())
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<number>(TASK_IMPORTANCE.MEDIUM)
+  const [durationMin, setDurationMin] = useState<number | undefined>(undefined)
   const [urls, setUrls] = useState<string[]>([])
   const [newUrl, setNewUrl] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -26,13 +27,14 @@ export function TaskCreateForm({ onSubmit, onCancel, isVisible }: TaskCreateForm
 
     setIsSubmitting(true)
     try {
-      await onSubmit(title, memo, dueDate, category || undefined, importance, urls.length > 0 ? urls : undefined)
+      await onSubmit(title, memo, dueDate, category || undefined, importance, urls.length > 0 ? urls : undefined, durationMin)
       // Reset form
       setTitle('')
       setMemo('')
       setDueDate(getTodayJST())
       setCategory('')
       setImportance(TASK_IMPORTANCE.MEDIUM)
+      setDurationMin(undefined)
       setUrls([])
       setNewUrl('')
       onCancel()
@@ -49,6 +51,7 @@ export function TaskCreateForm({ onSubmit, onCancel, isVisible }: TaskCreateForm
     setDueDate(getTodayJST())
     setCategory('')
     setImportance(TASK_IMPORTANCE.MEDIUM)
+    setDurationMin(undefined)
     setUrls([])
     setNewUrl('')
     onCancel()
@@ -243,6 +246,34 @@ export function TaskCreateForm({ onSubmit, onCancel, isVisible }: TaskCreateForm
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '4px',
+              color: '#374151'
+            }}>
+              予想作業時間（分）
+            </label>
+            <input
+              type="number"
+              value={durationMin || ''}
+              onChange={(e) => setDurationMin(e.target.value ? Number(e.target.value) : undefined)}
+              placeholder="例: 30"
+              min="1"
+              max="1440"
               style={{
                 width: '100%',
                 padding: '8px 12px',

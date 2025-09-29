@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
-import { formatDateForDisplay } from '@/lib/utils/date-jst'
+// import { formatDateForDisplay } from '@/lib/utils/date-jst'  // Unused import
 import { TaskTable } from '@/components/TaskTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
@@ -20,7 +20,7 @@ export default function DonePage() {
     updateTask,
     uncompleteTask,
     deleteTask,
-    loadTasks
+    // loadTasks  // Unused
   } = useUnifiedTasks()
 
   // 期間フィルタリング
@@ -188,7 +188,7 @@ export default function DonePage() {
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], _startTime?: string, _endTime?: string, _attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
     setEditingTask(null)
     setShowEditForm(false)

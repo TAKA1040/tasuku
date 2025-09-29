@@ -60,11 +60,8 @@ const deserializeAttachment = (json: Json | null): FileAttachment | undefined =>
   return undefined
 }
 
-// 挿入用の緩めラッパ型（display_number、user_idを省略可能）
-type UnifiedTaskInsertPayload = Omit<Database['public']['Tables']['unified_tasks']['Insert'], 'display_number' | 'user_id'> & {
-  display_number?: string | null
-  user_id?: string | null
-}
+// 挿入用の型をDatabase型から直接使用
+type UnifiedTaskInsertPayload = Database['public']['Tables']['unified_tasks']['Insert']
 
 // buildUnifiedTaskInsert関数の入力データ型
 type BuildTaskInputData = {
@@ -104,7 +101,9 @@ const buildUnifiedTaskInsert = (data: BuildTaskInputData, taskType: string): Uni
     completed_at: cleanData.completed_at || null,
     archived: cleanData.archived || false,
     snoozed_until: cleanData.snoozed_until || null,
-    duration_min: cleanData.duration_min || null
+    duration_min: cleanData.duration_min || null,
+    display_number: display_number || '',
+    user_id: user_id || ''
   }
 
   return safePayload

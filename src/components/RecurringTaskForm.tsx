@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 
 interface RecurringTaskFormProps {
-  onSubmit: (title: string, memo: string, pattern: string, dayOfWeek?: number, dayOfMonth?: number) => Promise<void>
+  onSubmit: (title: string, memo: string, pattern: string, dayOfWeek?: number, dayOfMonth?: number, category?: string, importance?: number, urls?: string[], durationMin?: number, startDate?: string, endDate?: string) => Promise<void>
   onCancel: () => void
   isVisible: boolean
 }
@@ -14,6 +15,13 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
   const [pattern, setPattern] = useState('DAILY')
   const [dayOfWeek, setDayOfWeek] = useState<number>(1) // 月曜日
   const [dayOfMonth, setDayOfMonth] = useState<number>(1) // 1日
+  const [category, setCategory] = useState('')
+  const [importance, setImportance] = useState<number>(TASK_IMPORTANCE.MEDIUM)
+  const [durationMin, setDurationMin] = useState<number | undefined>(undefined)
+  const [urls, setUrls] = useState<string[]>([])
+  const [newUrl, setNewUrl] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +35,13 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
         memo,
         pattern,
         pattern === 'WEEKLY' ? dayOfWeek : undefined,
-        pattern === 'MONTHLY' ? dayOfMonth : undefined
+        pattern === 'MONTHLY' ? dayOfMonth : undefined,
+        category || undefined,
+        importance,
+        urls.length > 0 ? urls : undefined,
+        durationMin,
+        startDate || undefined,
+        endDate || undefined
       )
       // Reset form
       setTitle('')
@@ -35,6 +49,13 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
       setPattern('DAILY')
       setDayOfWeek(1)
       setDayOfMonth(1)
+      setCategory('')
+      setImportance(TASK_IMPORTANCE.MEDIUM)
+      setDurationMin(undefined)
+      setUrls([])
+      setNewUrl('')
+      setStartDate('')
+      setEndDate('')
       onCancel()
     } catch (error) {
       console.error('Failed to create recurring task:', error)
@@ -49,7 +70,42 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
     setPattern('DAILY')
     setDayOfWeek(1)
     setDayOfMonth(1)
+    setCategory('')
+    setImportance(TASK_IMPORTANCE.MEDIUM)
+    setDurationMin(undefined)
+    setUrls([])
+    setNewUrl('')
+    setStartDate('')
+    setEndDate('')
     onCancel()
+  }
+
+  const handleAddUrl = () => {
+    if (newUrl.trim() && urls.length < URL_LIMITS.MAX_ALLOWED) {
+      // 簡易URL検証
+      try {
+        new URL(newUrl.trim())
+        setUrls([...urls, newUrl.trim()])
+        setNewUrl('')
+      } catch {
+        alert('有効なURLを入力してください')
+      }
+    }
+  }
+
+  const handleRemoveUrl = (index: number) => {
+    setUrls(urls.filter((_, i) => i !== index))
+  }
+
+  const handleOpenAllUrls = () => {
+    if (urls.length === 0) return
+
+    const confirmMessage = `${urls.length}個のURLを開きますか？`
+    if (confirm(confirmMessage)) {
+      urls.forEach(url => {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      })
+    }
   }
 
   const weekdays = [
@@ -158,6 +214,93 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
               marginBottom: '4px',
               color: '#374151'
             }}>
+              カテゴリ
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                backgroundColor: '#fff',
+                boxSizing: 'border-box'
+              }}
+            >
+              <option value="">カテゴリを選択（任意）</option>
+              {Object.values(TASK_CATEGORIES).map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '4px',
+              color: '#374151'
+            }}>
+              優先度
+            </label>
+            <select
+              value={importance}
+              onChange={(e) => setImportance(Number(e.target.value))}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                backgroundColor: '#fff',
+                boxSizing: 'border-box'
+              }}
+            >
+              {Object.entries(TASK_IMPORTANCE_LABELS).map(([value, label]) => (
+                <option key={value} value={Number(value)}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '4px',
+              color: '#374151'
+            }}>
+              予想作業時間（分）
+            </label>
+            <input
+              type="number"
+              value={durationMin || ''}
+              onChange={(e) => setDurationMin(e.target.value ? Number(e.target.value) : undefined)}
+              placeholder="例: 30"
+              min="1"
+              max="1440"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              marginBottom: '4px',
+              color: '#374151'
+            }}>
               繰り返しパターン
             </label>
             <select
@@ -249,6 +392,187 @@ export function RecurringTaskForm({ onSubmit, onCancel, isVisible }: RecurringTa
               </div>
             </div>
           )}
+
+          {/* 開始・終了日設定 */}
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                marginBottom: '4px',
+                color: '#374151'
+              }}>
+                開始日（任意）
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                marginBottom: '4px',
+                color: '#374151'
+              }}>
+                終了日（任意）
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* URL管理セクション */}
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              関連URL（最大5個）
+              {urls.length > URL_LIMITS.RECOMMENDED && (
+                <span style={{ color: '#f59e0b', fontSize: '12px', marginLeft: '8px' }}>
+                  推奨数（{URL_LIMITS.RECOMMENDED}個）を超えています
+                </span>
+              )}
+            </label>
+
+            {/* URL入力エリア */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+              <input
+                type="url"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                placeholder="https://example.com"
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
+              />
+              <button
+                type="button"
+                onClick={handleAddUrl}
+                disabled={!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1
+                }}
+              >
+                追加
+              </button>
+            </div>
+
+            {/* URL一覧 */}
+            {urls.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                    {urls.length}個のURL
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleOpenAllUrls}
+                    style={{
+                      padding: '4px 8px',
+                      border: '1px solid #3b82f6',
+                      borderRadius: '4px',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      fontWeight: '500'
+                    }}
+                  >
+                    🚀 全て開く
+                  </button>
+                </div>
+                <div style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  maxHeight: '120px',
+                  overflowY: 'auto'
+                }}>
+                  {urls.map((url, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '8px 12px',
+                        borderBottom: index < urls.length - 1 ? '1px solid #f3f4f6' : 'none'
+                      }}
+                    >
+                      <span
+                        style={{
+                          flex: 1,
+                          fontSize: '12px',
+                          color: '#374151',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {url}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUrl(index)}
+                        style={{
+                          marginLeft: '8px',
+                          padding: '4px',
+                          border: 'none',
+                          borderRadius: '4px',
+                          backgroundColor: '#fee2e2',
+                          color: '#dc2626',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          lineHeight: 1
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <div style={{
             display: 'flex',

@@ -50,7 +50,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
       setError
     )
     setLoading(false)
-  }, [])
+  }, [templatesService])
 
   // Create new template
   const createTemplate = useCallback(async (template: RecurringTemplateCreate) => {
@@ -62,7 +62,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
       'useRecurringTemplates.createTemplate',
       setError
     )
-  }, [loadTemplates])
+  }, [loadTemplates, templatesService])
 
   // Update template
   const updateTemplate = useCallback(async (id: string, updates: RecurringTemplateUpdate) => {
@@ -74,7 +74,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
       'useRecurringTemplates.updateTemplate',
       setError
     )
-  }, [loadTemplates])
+  }, [loadTemplates, templatesService])
 
   // Delete template
   const deleteTemplate = useCallback(async (id: string) => {
@@ -86,7 +86,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
       'useRecurringTemplates.deleteTemplate',
       setError
     )
-  }, [loadTemplates])
+  }, [loadTemplates, templatesService])
 
   // Toggle template active status
   const toggleTemplate = useCallback(async (id: string) => {
@@ -98,7 +98,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
       'useRecurringTemplates.toggleTemplate',
       setError
     )
-  }, [loadTemplates])
+  }, [loadTemplates, templatesService])
 
   // Get active templates only
   const getActiveTemplates = useCallback((): RecurringTemplate[] => {

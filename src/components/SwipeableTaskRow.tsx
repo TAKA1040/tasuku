@@ -177,7 +177,7 @@ export function SwipeableTaskRow({
       document.removeEventListener('mousemove', handleGlobalMouseMove)
       document.removeEventListener('mouseup', handleGlobalMouseUp)
     }
-  }, [isDragging, disabled, isCompleted])
+  }, [isDragging, disabled, isCompleted, handleMouseUp])
 
   const getActionIcon = () => {
     if (isCompleted) {

@@ -43,7 +43,7 @@ export function useTaskGenerator(autoGenerate: boolean = true): UseTaskGenerator
     )
 
     setIsGenerating(false)
-  }, [isGenerating])
+  }, [isGenerating, generatorService])
 
   // Auto-generation on component mount
   useEffect(() => {

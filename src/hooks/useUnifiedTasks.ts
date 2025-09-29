@@ -4,9 +4,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+// import { useRouter } from 'next/navigation'  // Unused import
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
-import type { UnifiedTask, TaskFilters, SPECIAL_DATES, SubTask } from '@/lib/types/unified-task'
+import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
+// import type { TaskFilters, SPECIAL_DATES } from '@/lib/types/unified-task'  // Unused imports
 import { withErrorHandling } from '@/lib/utils/error-handler'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'

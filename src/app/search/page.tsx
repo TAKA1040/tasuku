@@ -17,7 +17,7 @@ export default function SearchPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [sortOrder, setSortOrder] = useState('newest') // 新しい順をデフォルト
 
-  const { isInitialized, error: dbError } = useDatabase()
+  const { isInitialized, error: _dbError } = useDatabase()
 
   const {
     tasks,
@@ -25,7 +25,7 @@ export default function SearchPage() {
     loadTasks,
     completeTask,
     uncompleteTask,
-    updateTask: updateUnifiedTask,
+    updateTask: _updateUnifiedTask,
     deleteTask: deleteUnifiedTask
   } = useUnifiedTasks(true) // autoLoadを明示的に有効化
 
