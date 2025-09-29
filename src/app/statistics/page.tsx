@@ -42,7 +42,9 @@ export default function StatisticsPage() {
           importance: task.importance,
           category: task.category,
           urls: task.urls,
-          attachment: task.attachment
+          attachment: task.attachment,
+          user_id: '',
+          due_date: task.due_date
         },
         occursToday: false,
         completedToday: task.completed,
