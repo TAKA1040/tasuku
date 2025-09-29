@@ -21,6 +21,9 @@ export interface RecurringTemplate {
   // For yearly: day specification (1-31)
   day_of_year?: number
 
+  // URLs associated with this template
+  urls?: string[]
+
   active: boolean
   user_id: string
   created_at: string
