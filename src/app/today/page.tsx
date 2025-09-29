@@ -15,9 +15,11 @@ import { AuthStatus } from '@/components/AuthStatus'
 import { UnifiedTasksTable } from '@/components/UnifiedTasksTable'
 import { SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
+import { createClient } from '@/lib/supabase/client'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
+  const supabase = createClient()
 
   // 統一データベースフック
   const unifiedTasks = useUnifiedTasks(isInitialized)
@@ -335,7 +337,35 @@ export default function TodayPage() {
   }
 
   const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], startTime?: string, endTime?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+    // タスクを更新
     await unifiedTasks.updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls, start_time: startTime, end_time: endTime, attachment })
+
+    // 繰り返しタスクの場合、テンプレートも更新
+    if (editingTask?.recurring_template_id) {
+      console.log(`🔄 繰り返しタスク ${editingTask.title} の編集→テンプレート ${editingTask.recurring_template_id} も更新`)
+
+      try {
+        const { error: templateError } = await supabase
+          .from('recurring_templates')
+          .update({
+            title,
+            memo,
+            category,
+            importance,
+            urls: urls || [],
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingTask.recurring_template_id)
+
+        if (templateError) {
+          console.error('❌ テンプレート更新エラー:', templateError)
+        } else {
+          console.log('✅ テンプレートも更新しました')
+        }
+      } catch (error) {
+        console.error('❌ テンプレート更新処理エラー:', error)
+      }
+    }
 
     // フォームを閉じる
     setShowEditForm(false)
