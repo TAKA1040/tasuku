@@ -537,7 +537,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                   textDecoration: item.isCompleted ? 'line-through' : 'none',
                   color: item.isCompleted ? '#9ca3af' : 'inherit'
                 }}>
-                  <ImportanceDot importance={item.importance} size={10} showTooltip />
+                  <ImportanceDot importance={item.importance || undefined} size={10} showTooltip />
                   <span className="task-title" style={{ fontWeight: '500' }}>
                     {item.title}
                   </span>
