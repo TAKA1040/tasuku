@@ -547,25 +547,6 @@ export default function TodayPage() {
             >
               ⚙️ テンプレート
             </a>
-            <a
-              href="/help"
-              style={{
-                background: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '4px 8px',
-                fontSize: '12px',
-                fontWeight: '500',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              className="today-button"
-            >
-              📖 ヘルプ
-            </a>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-actions">
               <button
                 onClick={() => setShowCreateForm(true)}
@@ -997,6 +978,39 @@ export default function TodayPage() {
         onUpdateShoppingItem={(taskId, subTaskId, newTitle) => updateShoppingSubTask(taskId, subTaskId, { title: newTitle })}
         onDeleteShoppingItem={deleteShoppingSubTask}
       />
+
+      {/* マニュアル */}
+      <div style={{
+        marginTop: '40px',
+        paddingTop: '20px',
+        borderTop: '2px solid #e5e7eb',
+        textAlign: 'center'
+      }}>
+        <a
+          href="/help"
+          style={{
+            display: 'inline-block',
+            padding: '12px 24px',
+            backgroundColor: '#f3f4f6',
+            color: '#374151',
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            border: '1px solid #d1d5db',
+            transition: 'all 0.2s'
+          }}
+        >
+          📖 マニュアル
+        </a>
+        <p style={{
+          marginTop: '12px',
+          fontSize: '13px',
+          color: '#6b7280'
+        }}>
+          TASUKUの使い方や機能の詳細を確認できます
+        </p>
+      </div>
 
       </div>
     </ThemedContainer>

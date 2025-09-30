@@ -13,7 +13,7 @@ import type { UnifiedTask } from '@/lib/types/unified-task'
 export default function StatisticsPage() {
   const { isInitialized, error } = useDatabase()
   const unifiedTasks = useUnifiedTasks(isInitialized)
-  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('calendar')
   const [selectedDailyTasks, setSelectedDailyTasks] = useState<string[]>([])
   const [completedTasks, setCompletedTasks] = useState<UnifiedTask[]>([])
 
@@ -270,23 +270,6 @@ export default function StatisticsPage() {
           borderBottom: '2px solid #e5e7eb'
         }}>
           <button
-            onClick={() => setActiveTab('stats')}
-            style={{
-              padding: '12px 24px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: activeTab === 'stats' ? '#3b82f6' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'stats' ? '2px solid #3b82f6' : '2px solid transparent',
-              cursor: 'pointer',
-              marginBottom: '-2px',
-              transition: 'all 0.2s'
-            }}
-          >
-            統計・分析
-          </button>
-          <button
             onClick={() => setActiveTab('calendar')}
             style={{
               padding: '12px 24px',
@@ -303,61 +286,28 @@ export default function StatisticsPage() {
           >
             達成記録（30日カレンダー）
           </button>
+          <button
+            onClick={() => setActiveTab('stats')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: activeTab === 'stats' ? '#3b82f6' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'stats' ? '2px solid #3b82f6' : '2px solid transparent',
+              cursor: 'pointer',
+              marginBottom: '-2px',
+              transition: 'all 0.2s'
+            }}
+          >
+            統計・分析
+          </button>
         </div>
       </header>
 
       <main>
-        {activeTab === 'stats' ? (
-          <>
-            <StatisticsCards stats={stats} />
-        
-        {/* データが少ない場合のメッセージ */}
-        {stats.totalTasks === 0 && (
-          <div style={{
-            backgroundColor: '#fef3c7',
-            border: '1px solid #f59e0b',
-            borderRadius: '8px',
-            padding: '16px',
-            marginTop: '24px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '16px',
-              fontWeight: '500',
-              color: '#92400e',
-              marginBottom: '8px'
-            }}>
-              まだタスクがありません
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: '#92400e'
-            }}>
-              タスクを作成すると、ここに統計情報が表示されます。<br />
-              「今日」ページから新しいタスクを追加してください。
-            </div>
-          </div>
-        )}
-
-        {stats.totalTasks > 0 && stats.totalTasks < 5 && (
-          <div style={{
-            backgroundColor: '#dbeafe',
-            border: '1px solid #3b82f6',
-            borderRadius: '8px',
-            padding: '16px',
-            marginTop: '24px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              color: '#1e40af'
-            }}>
-              💡 <strong>ヒント:</strong> より詳細な統計を得るために、もっとタスクを作成してカテゴリや重要度を設定してみましょう！
-            </div>
-          </div>
-        )}
-          </>
-        ) : (
+        {activeTab === 'calendar' ? (
           // 30日カレンダータブ
           <div style={{ marginTop: '20px' }}>
             {/* タスク選択 */}
@@ -552,6 +502,57 @@ export default function StatisticsPage() {
               </div>
             )}
           </div>
+        ) : (
+          // 統計・分析タブ
+          <>
+            <StatisticsCards stats={stats} />
+
+            {/* データが少ない場合のメッセージ */}
+            {stats.totalTasks === 0 && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                padding: '16px',
+                marginTop: '24px',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  color: '#92400e',
+                  marginBottom: '8px'
+                }}>
+                  まだタスクがありません
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#92400e'
+                }}>
+                  タスクを作成すると、ここに統計情報が表示されます。<br />
+                  「今日」ページから新しいタスクを追加してください。
+                </div>
+              </div>
+            )}
+
+            {stats.totalTasks > 0 && stats.totalTasks < 5 && (
+              <div style={{
+                backgroundColor: '#dbeafe',
+                border: '1px solid #3b82f6',
+                borderRadius: '8px',
+                padding: '16px',
+                marginTop: '24px',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#1e40af'
+                }}>
+                  💡 <strong>ヒント:</strong> より詳細な統計を得るために、もっとタスクを作成してカテゴリや重要度を設定してみましょう！
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

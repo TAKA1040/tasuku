@@ -419,21 +419,6 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      <button
-        onClick={loadData}
-        style={{
-          padding: '10px 20px',
-          marginBottom: '20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer'
-        }}
-      >
-        データを再読み込み
-      </button>
-
       <h2>登録済みテンプレート ({templates.length}件)</h2>
       {templates.length === 0 ? (
         <p>テンプレートが登録されていません</p>
