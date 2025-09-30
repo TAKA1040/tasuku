@@ -1,7 +1,7 @@
 // 未完了タスク繰り越し機能のカスタムフック
 // PHASE 1.2 実装
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   findIncompleTasks, 
   rolloverSingleTask, 
@@ -62,7 +62,7 @@ export function useRollover(
     }
 
     loadRolloverData()
-  }, [singleTasks, recurringTasks, isDbInitialized, autoRollover])
+  }, [singleTasks, recurringTasks, isDbInitialized, autoRollover, executeAutoRollover])
 
   // 繰り越し候補があるかチェック
   const hasRolloverCandidates = rolloverData && (
@@ -71,11 +71,11 @@ export function useRollover(
   )
 
   // 繰り越し表示テキスト
-  const rolloverDisplayText = rolloverData ? 
+  const rolloverDisplayText = rolloverData ?
     getRolloverDisplayText(rolloverData.incompleteSingle, rolloverData.incompleteRecurring) : ''
 
   // 自動繰り越し実行（単発タスクのみ）
-  const executeAutoRollover = async (incompleteTasks: Task[]) => {
+  const executeAutoRollover = useCallback(async (incompleteTasks: Task[]) => {
     if (isRollingOver || incompleteTasks.length === 0) return
 
     setIsRollingOver(true)
@@ -130,7 +130,7 @@ export function useRollover(
     } finally {
       setIsRollingOver(false)
     }
-  }
+  }, [isRollingOver])
 
   // 手動繰り越し実行
   const executeRollover = async (options: {

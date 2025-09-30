@@ -58,8 +58,6 @@ export function useUnifiedRecurringTasks(
   // ===================================
 
   const recurringTasksWithStatus = useMemo(() => {
-    const today = getTodayJST()
-
     return unifiedTasks.tasks
       .filter(task => task.task_type === 'RECURRING')
       .map(task => {
@@ -80,7 +78,7 @@ export function useUnifiedRecurringTasks(
           displayName: getDisplayName(task)
         }
       })
-  }, [unifiedTasks.tasks, completionTracker.recurringStats, completionTracker.isCompletedToday, completionTracker])
+  }, [unifiedTasks.tasks, completionTracker])
 
   // 今日の繰り返しタスク
   const todayRecurringTasks = useMemo(() => {
@@ -143,7 +141,7 @@ export function useUnifiedRecurringTasks(
     } finally {
       setLoading(false)
     }
-  }, [unifiedTasks.loadTasks, completionTracker.refresh, completionTracker, unifiedTasks])
+  }, [unifiedTasks, completionTracker])
 
   // ===================================
   // Effects

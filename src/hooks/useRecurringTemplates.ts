@@ -3,7 +3,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
 import type {
   RecurringTemplate,
@@ -35,7 +35,7 @@ export function useRecurringTemplates(autoLoad: boolean = true): UseRecurringTem
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const templatesService = new RecurringTemplatesService()
+  const templatesService = useMemo(() => new RecurringTemplatesService(), [])
 
   // Load templates with optional filters
   const loadTemplates = useCallback(async (filters?: RecurringTemplateFilters) => {

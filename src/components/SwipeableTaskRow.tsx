@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 interface SwipeableTaskRowProps {
   children: React.ReactNode
@@ -98,10 +98,10 @@ export function SwipeableTaskRow({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || disabled) return
-    
+
     currentX.current = e.clientX
     const deltaX = currentX.current - startX.current
-    
+
     if (isCompleted) {
       if (deltaX > 0) {
         setTranslateX(Math.min(deltaX, MAX_TRANSLATE))
@@ -113,7 +113,7 @@ export function SwipeableTaskRow({
     }
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     if (!isDragging || disabled) return
     
     setIsDragging(false)
@@ -142,7 +142,7 @@ export function SwipeableTaskRow({
         setTranslateX(0)
       }
     }
-  }
+  }, [isDragging, disabled, isCompleted, onSwipeComplete, onSwipeUndo])
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {

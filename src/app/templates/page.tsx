@@ -216,9 +216,9 @@ export default function TemplatesPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [supabase])
 
-  const createTemplateFromTask = async (task: UnifiedTask) => {
+  const createTemplateFromTask = useCallback(async (task: UnifiedTask) => {
     try {
       setStatus(`${task.title}のテンプレートを作成中...`)
 
@@ -265,7 +265,7 @@ export default function TemplatesPage() {
     } catch (error) {
       setStatus(`エラー: ${error}`)
     }
-  }
+  }, [supabase, loadData])
 
   const updateTemplate = async (template: RecurringTemplate) => {
     try {
