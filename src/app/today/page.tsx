@@ -959,6 +959,7 @@ export default function TodayPage() {
         onSubmit={handleUpdateTask}
         onCancel={handleCancelEdit}
         onUncomplete={(id: string) => unifiedTasks.uncompleteTask(id)}
+        shoppingSubTasks={shoppingSubTasks}
       />
 
       </div>

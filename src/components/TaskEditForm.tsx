@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { Task } from '@/lib/db/schema'
+import type { Task, SubTask } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 import { QuickMoves } from '@/lib/utils/date-jst'
@@ -13,9 +13,10 @@ interface TaskEditFormProps {
   onCancel: () => void
   onUncomplete?: (taskId: string) => Promise<void>
   isVisible: boolean
+  shoppingSubTasks?: {[taskId: string]: SubTask[]}
 }
 
-export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible }: TaskEditFormProps) {
+export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible, shoppingSubTasks }: TaskEditFormProps) {
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -337,7 +338,47 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </select>
           </div>
 
-          {/* 買い物リストの編集は一覧画面で行います（ここでは表示のみ） */}
+          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示 - 読み取り専用） */}
+          {category === '買い物' && task && shoppingSubTasks?.[task.id] && shoppingSubTasks[task.id].length > 0 && (
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                marginBottom: '8px'
+              }}>
+                買い物リスト（編集は一覧画面で）
+              </label>
+              <div style={{
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                padding: '8px',
+                maxHeight: '120px',
+                overflowY: 'auto',
+                background: '#f9fafb'
+              }}>
+                {shoppingSubTasks[task.id].map((subTask) => (
+                  <div key={subTask.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px 8px',
+                    margin: '2px 0',
+                    background: '#ffffff',
+                    borderRadius: '2px',
+                    fontSize: '13px',
+                    color: subTask.completed ? '#9ca3af' : '#374151',
+                    textDecoration: subTask.completed ? 'line-through' : 'none'
+                  }}>
+                    <span style={{ marginRight: '8px' }}>
+                      {subTask.completed ? '✓' : '○'}
+                    </span>
+                    <span>{subTask.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 優先度 */}
           <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
