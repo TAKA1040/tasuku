@@ -265,9 +265,7 @@ export function UnifiedTasksTable({
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#f9fafb' }}>
-                <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '60px' }}>番号</th>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
-                <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '60px' }}>種別</th>
                 <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
                 <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '30px' }}>🌍</th>
@@ -286,19 +284,6 @@ export function UnifiedTasksTable({
                       opacity: item.completed ? 0.6 : 1,
                       color: item.completed ? '#6b7280' : 'inherit'
                     }}>
-                  {/* 統一番号表示 */}
-                  <td style={{ padding: '8px', textAlign: 'center', fontSize: '11px', fontFamily: 'monospace' }}>
-                    <span style={{
-                      padding: '2px 4px',
-                      borderRadius: '3px',
-                      backgroundColor: '#f3f4f6',
-                      color: '#374151',
-                      fontWeight: '600'
-                    }}>
-                      {DisplayNumberUtils.formatCompact(item.display_number)}
-                    </span>
-                  </td>
-
                   {/* 完了チェックボックス */}
                   <td style={{ padding: '8px', textAlign: 'center' }}>
                     <button
@@ -325,25 +310,6 @@ export function UnifiedTasksTable({
                     >
                       {item.completed ? '✓' : ''}
                     </button>
-                  </td>
-
-                  {/* 種別 */}
-                  <td style={{ padding: '8px', fontSize: '12px', fontWeight: '500' }}>
-                    <span style={{
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      fontSize: '10px',
-                      fontWeight: '600',
-                      backgroundColor:
-                        dataType === 'task' ? '#dbeafe' :
-                        dataType === 'recurring' ? '#f0fdf4' : '#fef3c7',
-                      color:
-                        dataType === 'task' ? '#1e40af' :
-                        dataType === 'recurring' ? '#166534' : '#92400e'
-                    }}>
-                      {dataType === 'task' ? 'タスク' :
-                       dataType === 'recurring' ? '繰り返し' : 'アイデア'}
-                    </span>
                   </td>
 
                   {/* タイトル + メモ（1段表示） */}
