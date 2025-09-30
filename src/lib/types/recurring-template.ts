@@ -1,6 +1,13 @@
 // Recurring Template Types - Phase 2: Template Management System
 // Based on RECURRING_REDESIGN_LOG.md specification
 
+export interface FileAttachment {
+  file_name: string
+  file_type: string
+  file_size: number
+  file_data: string
+}
+
 export interface RecurringTemplate {
   id: string
   title: string
@@ -23,6 +30,16 @@ export interface RecurringTemplate {
 
   // URLs associated with this template
   urls?: string[]
+
+  // Time fields
+  start_time?: string  // HH:MM format (e.g., "09:00")
+  end_time?: string    // HH:MM format (e.g., "17:00")
+
+  // Attachment (stored as separate fields in DB)
+  attachment_file_name?: string
+  attachment_file_type?: string
+  attachment_file_size?: number
+  attachment_file_data?: string
 
   active: boolean
   user_id: string

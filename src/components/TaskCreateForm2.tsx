@@ -179,7 +179,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           dayOfMonth,
           monthOfYear,
           dayOfYear
-        }, importance, urls.length > 0 ? urls : undefined, category, attachment, undefined, startTime || undefined, endTime || undefined)
+        }, importance, urls.length > 0 ? urls : undefined, category, attachment, category === '買い物' ? finalShoppingItems : undefined, startTime || undefined, endTime || undefined)
         resetForm()
       }
     }

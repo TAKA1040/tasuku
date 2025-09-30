@@ -117,15 +117,21 @@ export type Database = {
       recurring_templates: {
         Row: {
           active: boolean | null
+          attachment_file_data: string | null
+          attachment_file_name: string | null
+          attachment_file_size: number | null
+          attachment_file_type: string | null
           category: string | null
           created_at: string | null
           day_of_month: number | null
           day_of_year: number | null
+          end_time: string | null
           id: string
           importance: number | null
           memo: string | null
           month_of_year: number | null
           pattern: string
+          start_time: string | null
           title: string
           updated_at: string | null
           urls: string[]
@@ -134,15 +140,21 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          attachment_file_data?: string | null
+          attachment_file_name?: string | null
+          attachment_file_size?: number | null
+          attachment_file_type?: string | null
           category?: string | null
           created_at?: string | null
           day_of_month?: number | null
           day_of_year?: number | null
+          end_time?: string | null
           id?: string
           importance?: number | null
           memo?: string | null
           month_of_year?: number | null
           pattern: string
+          start_time?: string | null
           title: string
           updated_at?: string | null
           urls?: string[]
@@ -151,15 +163,21 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          attachment_file_data?: string | null
+          attachment_file_name?: string | null
+          attachment_file_size?: number | null
+          attachment_file_type?: string | null
           category?: string | null
           created_at?: string | null
           day_of_month?: number | null
           day_of_year?: number | null
+          end_time?: string | null
           id?: string
           importance?: number | null
           memo?: string | null
           month_of_year?: number | null
           pattern?: string
+          start_time?: string | null
           title?: string
           updated_at?: string | null
           urls?: string[]

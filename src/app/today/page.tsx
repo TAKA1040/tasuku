@@ -311,30 +311,71 @@ export default function TodayPage() {
     dayOfYear: number
   }, importance?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
-      console.log('統一繰り返しタスク作成:', { title, memo, settings, importance, urls, category, attachment })
+      console.log('✨ 繰り返しタスクテンプレート作成開始:', { title, memo, settings, importance, urls, category, attachment, shoppingItems, startTime, endTime })
 
-      // display_numberを正式に生成
-      const displayNumber = await UnifiedTasksService.generateDisplayNumber()
+      // 1. recurring_templatesにテンプレートを保存
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('ユーザー認証エラー')
 
-      // 統一タスクとして作成
-      await unifiedTasks.createTask({
+      const templateData: any = {
         title: title.trim(),
-        memo: memo.trim() || undefined,
-        due_date: getTodayJST(), // 明示的に今日の日付を設定
-        category: category || undefined,
-        importance: importance || undefined,
-        start_time: startTime || undefined,
-        end_time: endTime || undefined,
-        urls: urls && urls.length > 0 ? urls : undefined,
-        task_type: 'RECURRING',
-        recurring_pattern: settings.pattern,
-        display_number: displayNumber,
-        completed: false,
-        archived: false
-      })
+        memo: memo.trim() || null,
+        category: category || null,
+        importance: importance || 3,
+        pattern: settings.pattern,
+        start_time: startTime || null,
+        end_time: endTime || null,
+        urls: urls && urls.length > 0 ? urls : [],
+        active: true,
+        user_id: user.id
+      }
+
+      // パターン別の設定
+      if (settings.pattern === 'WEEKLY') {
+        templateData.weekdays = settings.selectedWeekdays
+      } else if (settings.pattern === 'MONTHLY') {
+        templateData.day_of_month = settings.dayOfMonth
+      } else if (settings.pattern === 'YEARLY') {
+        templateData.month_of_year = settings.monthOfYear
+        templateData.day_of_year = settings.dayOfYear
+      }
+
+      // 添付ファイルがあれば追加
+      if (attachment) {
+        templateData.attachment_file_name = attachment.file_name
+        templateData.attachment_file_type = attachment.file_type
+        templateData.attachment_file_size = attachment.file_size
+        templateData.attachment_file_data = attachment.file_data
+      }
+
+      const { data: template, error: templateError } = await supabase
+        .from('recurring_templates')
+        .insert(templateData)
+        .select()
+        .single()
+
+      if (templateError) {
+        console.error('❌ テンプレート保存エラー:', templateError)
+        throw templateError
+      }
+
+      console.log('✅ テンプレート保存完了:', template.id)
+
+      // 2. 買い物リストがあればsubtasksに保存（parent_task_id = template.id）
+      if (shoppingItems && shoppingItems.length > 0 && category === '買い物') {
+        for (const item of shoppingItems) {
+          await unifiedTasks.createSubtask(template.id, item)
+        }
+        console.log(`✅ テンプレートの買い物リスト保存完了: ${shoppingItems.length}件`)
+      }
+
+      // 3. 今日の分のタスクを初回生成（自動生成システムに任せる）
+      // generateMissingTasks を呼び出すことで、新しいテンプレートから自動生成される
+      await generateMissingTasks(true)
 
       console.log('✅ 繰り返しタスク作成完了:', title)
-      setShowCreateForm(false) // フォームを閉じる
+      setShowCreateForm(false)
     } catch (error) {
       console.error('❌ 繰り返しタスク作成エラー:', error)
     }

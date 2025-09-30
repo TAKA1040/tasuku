@@ -233,33 +233,74 @@ export class TaskGeneratorService {
     // 統一番号を生成
     const displayNumber = await this.generateDisplayNumber()
 
-    // タスク作成
-    const taskData = {
+    // タスク作成（テンプレートのすべてのフィールドを引き継ぐ）
+    const taskData: any = {
       title: template.title,
       memo: template.memo,
       due_date: dueDate,
       category: template.category,
       importance: template.importance,
       urls: template.urls, // テンプレートのURLsを引き継ぎ
+      start_time: template.start_time, // 開始時刻を引き継ぎ
+      end_time: template.end_time, // 終了時刻を引き継ぎ
       task_type: 'RECURRING',
       recurring_pattern: template.pattern,
       recurring_weekdays: template.weekdays,
-      recurring_template_id: template.id, // template.idは既にstring型
+      recurring_template_id: template.id,
       display_number: displayNumber,
       completed: false,
       user_id: userId
     }
 
-    const { error } = await this.supabase
+    // 添付ファイルがあれば引き継ぎ
+    if (template.attachment_file_name) {
+      taskData.attachment_file_name = template.attachment_file_name
+      taskData.attachment_file_type = template.attachment_file_type
+      taskData.attachment_file_size = template.attachment_file_size
+      taskData.attachment_file_data = template.attachment_file_data
+    }
+
+    const { data: newTask, error } = await this.supabase
       .from('unified_tasks')
       .insert(taskData)
+      .select()
+      .single()
 
     if (error) {
       console.error(`タスク作成エラー: ${template.title} (${dueDate})`, error)
       throw error
     }
 
-    console.log(`タスク作成: ${template.title} (${dueDate})`)
+    console.log(`✅ タスク作成: ${template.title} (${dueDate})`)
+
+    // 買い物リストがある場合、subtasksもコピー
+    if (template.category === '買い物') {
+      const { data: templateSubtasks } = await this.supabase
+        .from('subtasks')
+        .select('*')
+        .eq('parent_task_id', template.id)
+        .order('sort_order', { ascending: true })
+
+      if (templateSubtasks && templateSubtasks.length > 0) {
+        const newSubtasks = templateSubtasks.map(sub => ({
+          parent_task_id: newTask.id, // 新しいタスクのIDに変更
+          title: sub.title,
+          completed: false, // 初期状態は未完了
+          sort_order: sub.sort_order,
+          user_id: userId
+        }))
+
+        const { error: subtasksError } = await this.supabase
+          .from('subtasks')
+          .insert(newSubtasks)
+
+        if (subtasksError) {
+          console.error(`買い物リストコピーエラー: ${template.title}`, subtasksError)
+        } else {
+          console.log(`✅ 買い物リストコピー完了: ${newSubtasks.length}件`)
+        }
+      }
+    }
   }
 
   // 統一番号生成

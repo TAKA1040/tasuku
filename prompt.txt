@@ -1,35 +1,55 @@
-Running build in Washington, D.C., USA (East) – iad1
-Build machine configuration: 2 cores, 8 GB
-Cloning github.com/TAKA1040/tasuku (Branch: main, Commit: 47c8f72)
-Cloning completed: 329.000ms
-Restored build cache from previous deployment (5uK2iNJr2RFqDvJ3r2wdyeJNHVMw)
-Running "vercel build"
-Vercel CLI 48.1.6
-Installing dependencies...
-up to date in 1s
-136 packages are looking for funding
-  run `npm fund` for details
-Detected Next.js version: 15.5.3
-Running "npm run build"
-> tasuku@0.1.0 build
-> next build
-   ▲ Next.js 15.5.3
-   Creating an optimized production build ...
- ✓ Compiled successfully in 5.4s
-   Skipping linting
-
-このエラーが続いています。
-根本的なエラーの改善に取り組んでください。このプロジェクトのコードにバグや不具合がないかを、徹底的に調査・分析してください。
-
-- UltraThink を使用して深く読み解いてください
-- Playwright を用いたUIやUXの挙動テストも検討してください
-- 潜在的なバグ・非推奨コード・改善ポイントもすべて洗い出してください
-- 不具合があれば修正案を提示し、可能なら直接修正してください
-- 修正後のコードについても問題がないか再チェックしてください
-- 最後に、**改善された内容をGitにプッシュし、Vercelへデプロイ**してください
-
-- **注意：過去のコミットへ戻す、ページや機能を削除して簡易化するなど、内容を失う可能性がある方法は絶対に選択してはいけません。その場合は必ず私から明示的に指示します。**
-
-- **修正は必ず小さな単位に分け、各修正ごとに自動でビルドとテストを実行し、既存機能に影響が出ていないかセルフチェックしてください。**
-- **修正や改善は独立して進めてください。こちらに承認を求める必要はありません。**
-
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🔄 タスク生成を開始...
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🚀 タスク生成開始: 今日=2025-09-30, 前回=2025-09-30
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 19
+page-0637e2a4066c54c9.js:1 🔄 ソート前の順番: Array(19)
+page-0637e2a4066c54c9.js:1 🔄 ソート後の順番: Array(19)
+page-0637e2a4066c54c9.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+page-0637e2a4066c54c9.js:1 🔍 生成判定: lastProcessed (2025-09-30) < today (2025-09-30) = false
+page-0637e2a4066c54c9.js:1 タスク生成完了
+page-0637e2a4066c54c9.js:1 ✅ タスク生成完了
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 19
+page-0637e2a4066c54c9.js:1 🔄 ソート前の順番: Array(19)
+page-0637e2a4066c54c9.js:1 🔄 ソート後の順番: Array(19)
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 19
+page-0637e2a4066c54c9.js:1 🔄 ソート前の順番: (19) ['T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:true)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T014:𝕏ポスト(imp:3,start:null,完了:true)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T017:𝕏ポスト(imp:3,start:null,完了:false)', 'T018:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T019:paypal設定(imp:3,start:null,完了:false)', 'T020:生成AIパスポート(imp:4,start:null,完了:false)']
+page-0637e2a4066c54c9.js:1 🔄 ソート後の順番: (19) ['T020:生成AIパスポート(imp:4,start:null,完了:false)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T017:𝕏ポスト(imp:3,start:null,完了:false)', 'T018:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T019:paypal設定(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:true)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T014:𝕏ポスト(imp:3,start:null,完了:true)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:true)']
+[Violation] 'click' handler took 3820ms
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 0
+page-0637e2a4066c54c9.js:1 🔧 rawUnifiedData useMemo 実行
+page-0637e2a4066c54c9.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-0637e2a4066c54c9.js:1 🚀 sortMode: priority
+page-0637e2a4066c54c9.js:1 🚀 rawUnifiedData.length: 19
+page-0637e2a4066c54c9.js:1 🔄 ソート前の順番: (19) ['T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:true)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T014:𝕏ポスト(imp:3,start:null,完了:true)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T017:𝕏ポスト(imp:3,start:null,完了:false)', 'T018:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T019:paypal設定(imp:3,start:null,完了:false)', 'T020:生成AIパスポート(imp:4,start:null,完了:false)']
+page-0637e2a4066c54c9.js:1 🔄 ソート後の順番: (19) ['T020:生成AIパスポート(imp:4,start:null,完了:false)', 'T008:買い回り(imp:3,start:null,完了:false)', 'T017:𝕏ポスト(imp:3,start:null,完了:false)', 'T018:100回夜ジャンプ(imp:3,start:null,完了:false)', 'T019:paypal設定(imp:3,start:null,完了:false)', 'T007:資金移動(imp:5,start:07:00:00,完了:true)', 'T001:100回朝ジャンプ(imp:3,start:05:50:00,完了:true)', 'T002:100回夜ジャンプ(imp:3,start:23:00:00,完了:true)', 'T003:𝕏ポスト(imp:3,start:06:10:00,完了:true)', 'T004:𝕏ポスト(imp:3,start:null,完了:true)', 'T005:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T009:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T010:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T011:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T012:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T013:100回朝ジャンプ(imp:3,start:null,完了:true)', 'T014:𝕏ポスト(imp:3,start:null,完了:true)', 'T015:100回夜ジャンプ(imp:3,start:null,完了:true)', 'T016:100回朝ジャンプ(imp:3,start:null,完了:true)']
