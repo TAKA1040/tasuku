@@ -3,6 +3,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
+import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { getTodayJST, addDays, subtractDays, isMonday, getStartOfWeek, getStartOfMonth } from '@/lib/utils/date-jst'
@@ -86,11 +87,54 @@ export class TaskGeneratorService {
         }
       }
 
+      // 前日完了した買い物タスクの未完了子タスクを処理
+      await this.processCompletedShoppingTasks()
+
       // 最終更新日を更新
       await this.updateLastGenerationDate(today)
     }
 
     console.log('タスク生成完了')
+  }
+
+  // 前日完了した買い物タスクの未完了子タスク処理
+  private async processCompletedShoppingTasks(): Promise<void> {
+    try {
+      const today = getTodayJST()
+      const yesterday = subtractDays(today, 1)
+
+      console.log(`🛒 買い物タスク処理: ${yesterday}に完了したタスクをチェック`)
+
+      // 前日に完了した買い物タスクを取得
+      const { data: completedShoppingTasks, error } = await this.supabase
+        .from('unified_tasks')
+        .select('*')
+        .eq('category', '買い物')
+        .eq('completed', true)
+        .gte('completed_at', `${yesterday}T00:00:00`)
+        .lt('completed_at', `${today}T00:00:00`)
+
+      if (error) {
+        console.error('❌ 完了買い物タスク取得エラー:', error)
+        return
+      }
+
+      if (!completedShoppingTasks || completedShoppingTasks.length === 0) {
+        console.log('✅ 前日完了の買い物タスクなし')
+        return
+      }
+
+      console.log(`📋 ${completedShoppingTasks.length}件の買い物タスクを処理`)
+
+      // 各タスクの未完了子タスクを処理
+      for (const task of completedShoppingTasks) {
+        await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
+      }
+
+      console.log('✅ 買い物タスク処理完了')
+    } catch (error) {
+      console.error('❌ 買い物タスク処理エラー:', error)
+    }
   }
 
   // 最終処理日取得（既存のタスクから推定）

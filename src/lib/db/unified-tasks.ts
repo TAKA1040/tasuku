@@ -577,16 +577,8 @@ export class UnifiedTasksService {
 
       const completedAt = getNowJST()
 
-      // 買い物タスクの場合、未完了の子タスクを処理（完了前に実行）
-      if (task.category === '買い物') {
-        try {
-          await this.handleShoppingTaskCompletion(task)
-        } catch (shoppingError) {
-          console.error('買い物タスク子タスク処理エラー:', shoppingError)
-          // 子タスク処理に失敗した場合でも、メインタスクの完了は続行
-          // ユーザーには警告メッセージを表示するべき
-        }
-      }
+      // 買い物タスクの未完了子タスク処理は日付変更時（TaskGeneratorService）に延期
+      // その日が終わるまでは、checkモレや買い忘れへの対応を可能にするため
 
       // 全てのタスクの完了履歴をdoneテーブルに記録
       await this.saveToDoneHistory(task, completedAt)
@@ -603,8 +595,8 @@ export class UnifiedTasksService {
     }
   }
 
-  // 買い物タスク完了時の子タスク処理
-  private static async handleShoppingTaskCompletion(task: UnifiedTask): Promise<void> {
+  // 買い物タスク完了時の子タスク処理（日付変更時に実行）
+  static async handleShoppingTaskCompletion(task: UnifiedTask): Promise<void> {
     try {
       // 未完了の子タスクを取得
       const incompleteSubTasks = await this.getSubtasks(task.id)
