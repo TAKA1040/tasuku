@@ -1176,6 +1176,133 @@ export default function TemplatesPage() {
         </div>
       )}
 
+      {/* 未関連付けタスク */}
+      {orphanTasks.length > 0 && (
+        <div style={{ marginTop: '30px' }}>
+          <h2>⚠️ 未関連付けタスク ({orphanTasks.length}件)</h2>
+          <p style={{
+            fontSize: '13px',
+            color: '#6b7280',
+            marginBottom: '15px',
+            padding: '10px',
+            backgroundColor: '#fef3c7',
+            borderLeft: '3px solid #f59e0b',
+            borderRadius: '4px'
+          }}>
+            これらは繰り返しタスクですが、テンプレートに関連付けられていません。<br />
+            テンプレートを作成すると、今後の管理が簡単になります。
+          </p>
+          <div style={{ marginBottom: '30px', overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '13px',
+              backgroundColor: 'white',
+              border: '1px solid #e5e7eb'
+            }}>
+              <thead>
+                <tr style={{ backgroundColor: '#fef3c7' }}>
+                  <th style={{
+                    padding: '8px',
+                    textAlign: 'left',
+                    borderBottom: '1px solid #e5e7eb',
+                    fontWeight: '600',
+                    color: '#374151'
+                  }}>タイトル</th>
+                  <th style={{
+                    padding: '8px',
+                    textAlign: 'left',
+                    borderBottom: '1px solid #e5e7eb',
+                    fontWeight: '600',
+                    color: '#374151'
+                  }}>パターン</th>
+                  <th style={{
+                    padding: '8px',
+                    textAlign: 'left',
+                    borderBottom: '1px solid #e5e7eb',
+                    fontWeight: '600',
+                    color: '#374151'
+                  }}>カテゴリ</th>
+                  <th style={{
+                    padding: '8px',
+                    textAlign: 'center',
+                    borderBottom: '1px solid #e5e7eb',
+                    fontWeight: '600',
+                    color: '#374151'
+                  }}>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orphanTasks.map(task => (
+                  <tr key={task.id} style={{
+                    backgroundColor: 'white',
+                    borderBottom: '1px solid #f3f4f6'
+                  }}>
+                    <td style={{ padding: '8px', fontWeight: '500' }}>
+                      {task.title}
+                      {task.memo && (
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+                          {task.memo}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '8px' }}>
+                      {task.recurring_pattern ? (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '500',
+                          backgroundColor: '#fee2e2',
+                          color: '#991b1b'
+                        }}>
+                          {task.recurring_pattern}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#9ca3af', fontSize: '11px' }}>不明</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '8px' }}>
+                      {task.category ? (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151'
+                        }}>
+                          📁 {task.category}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#9ca3af', fontSize: '11px' }}>なし</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '8px', textAlign: 'center' }}>
+                      <button
+                        onClick={() => createTemplateFromTask(task)}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        📝 テンプレート作成
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       <div style={{ marginTop: '30px' }}>
         <h3>ナビゲーション</h3>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
