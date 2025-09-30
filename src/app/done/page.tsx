@@ -52,10 +52,13 @@ export default function DonePage() {
   useEffect(() => {
     const loadCompletedTasks = async () => {
       try {
+        console.log('📥 Loading completed tasks...')
         const tasks = await getCompletedTasksWithHistory()
+        console.log('✅ Loaded completed tasks:', tasks.length)
+        console.log('📋 Tasks:', tasks)
         setCompletedTasks(tasks)
       } catch (error) {
-        console.error('Failed to load completed tasks:', error)
+        console.error('❌ Failed to load completed tasks:', error)
       }
     }
     loadCompletedTasks()
