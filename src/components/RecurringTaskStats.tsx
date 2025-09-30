@@ -47,6 +47,8 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
 
   // 繰り返しタスクの統計を計算
   const recurringStats = useMemo(() => {
+    console.log('⚡ useMemo is running! completedTasks.length:', completedTasks.length, 'period:', period)
+
     const startDate = getStartDate()
     const today = new Date().toISOString().split('T')[0]
 
