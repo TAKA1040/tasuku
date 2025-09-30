@@ -22,6 +22,14 @@ export function findIncompleTasks(
 
   // 1. 単発タスクの未完了チェック（今日より前の日付で未完了）
   singleTasks.forEach(task => {
+    // 買い物カテゴリは専用の完了処理があるため繰り越し対象から除外
+    if (task.category === '買い物') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('自動繰り越しをスキップ（買い物タスク）:', task.title)
+      }
+      return
+    }
+
     if (!task.completed && task.due_date && getDaysDifference(task.due_date, today) < 0) {
       // 最近更新されたタスク（1時間以内）は自動繰り越し対象から除外
       const now = new Date()
