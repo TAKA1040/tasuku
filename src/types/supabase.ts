@@ -87,33 +87,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ideas: {
-        Row: {
-          completed: boolean
-          created_at: string
-          id: string
-          text: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed?: boolean
-          created_at?: string
-          id?: string
-          text: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed?: boolean
-          created_at?: string
-          id?: string
-          text?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       recurring_templates: {
         Row: {
           active: boolean | null
@@ -386,63 +359,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_duplicates: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          count: number
-          duplicate_key: string
-          table_name: string
-        }[]
-      }
-      check_task_duplicates: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          count: number
-          duplicate_key: string
-        }[]
-      }
-      complete_migration_to_unified: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          recurring_errors: number
-          recurring_migrated: number
-          tasks_errors: number
-          tasks_migrated: number
-          total_migrated: number
-        }[]
-      }
       generate_display_number: {
         Args: { p_date?: string; p_task_type: string; p_user_id: string }
         Returns: string
-      }
-      get_cleanup_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          record_count: number
-          sample_titles: string[]
-          table_name: string
-        }[]
-      }
-      get_table_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          record_count: number
-          table_name: string
-        }[]
-      }
-      migrate_recurring_tasks_to_unified: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          error_count: number
-          migrated_count: number
-        }[]
-      }
-      migrate_tasks_to_unified: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          error_count: number
-          migrated_count: number
-        }[]
       }
     }
     Enums: {

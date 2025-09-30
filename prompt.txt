@@ -1,21 +1,29 @@
 あなたは私の開発アシスタントです。
-役割は「不要になったデータベースの RLS ポリシーや関数が、本当に削除して安全かどうか」をコードから判断することです。
+役割は「Supabase のスキーマ変更に合わせて、TypeScript 型定義を最新化すること」です。
 
 前提状況:
-- Supabase プロジェクトで旧テーブル `ideas`, `tasks`, `recurring_tasks` は削除済み。
-- それに関連する RLS ポリシーや関数が DB にまだ残っている。
-- 今後は `unified_tasks` / `recurring_templates` / `done` / `subtasks` / `user_metadata` / `user_settings` のみ使用。
+- Supabase データベース側では、旧テーブル `ideas` / `tasks` / `recurring_tasks` および不要関数をすでに削除済み。
+- 現在残っているテーブルは以下のとおり:
+  - done
+  - recurring_templates
+  - subtasks
+  - unified_tasks
+  - user_metadata
+  - user_settings
+- 使用中の関数:
+  - handle_updated_at
+  - generate_display_number
+  - update_updated_at_column
 
-確認してほしいこと:
-1. コードベース内で `DROP` 対象候補のポリシーや関数が参照されていないか。
-2. 削除してよいかどうかの判断（削除可能か、まだ残す必要があるか）。
-3. 削除する場合は、その根拠（コードに参照が一切ない、移行完了済みなど）。
-4. 削除しない場合は、その理由と、代替の対応策。
-
-対象候補:
-- RLS ポリシー（旧テーブル用のもの）
-- 関数: `migrate_tasks_to_unified`, `migrate_recurring_tasks_to_unified`, `complete_migration_to_unified`
+やってほしいこと:
+1. Supabase CLI を用いて、最新のスキーマから TypeScript 型 (`supabase-new.ts`) を再生成してください。
+   - コマンド:  
+     `npx supabase gen types typescript --project-id <PROJECT_ID> --schema public > src/types/supabase-new.ts`
+2. 型ファイル内に、削除済みテーブルや不要関数が残っていないことを確認してください。
+3. 新しい型定義を `src/types/supabase-new.ts` に反映して commit してください。
+4. 結果として、型ファイルの差分（削除された型や関数の定義）が確認できるようにしてください。
 
 出力フォーマット:
-- ✅ 削除してよい項目（理由つき）
-- ⚠️ 削除は保留すべき項目（理由つき）
+- ✅ 削除されている型や関数の一覧
+- ✅ 新しく残っているテーブル・関数の型一覧（要約）
+- ✅ commit ハッシュと差分の概要
