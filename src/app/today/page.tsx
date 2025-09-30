@@ -965,7 +965,7 @@ export default function TodayPage() {
         onUncomplete={(id: string) => unifiedTasks.uncompleteTask(id)}
         shoppingSubTasks={shoppingSubTasks}
         onAddShoppingItem={addShoppingSubTask}
-        onToggleShoppingItem={toggleShoppingSubTask}
+        onUpdateShoppingItem={(taskId, subTaskId, newTitle) => updateShoppingSubTask(taskId, subTaskId, { title: newTitle })}
         onDeleteShoppingItem={deleteShoppingSubTask}
       />
 

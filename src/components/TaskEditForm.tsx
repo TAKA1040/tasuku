@@ -15,11 +15,11 @@ interface TaskEditFormProps {
   isVisible: boolean
   shoppingSubTasks?: {[taskId: string]: SubTask[]}
   onAddShoppingItem?: (taskId: string, title: string) => Promise<void>
-  onToggleShoppingItem?: (taskId: string, subTaskId: string) => Promise<void>
+  onUpdateShoppingItem?: (taskId: string, subTaskId: string, newTitle: string) => Promise<void>
   onDeleteShoppingItem?: (taskId: string, subTaskId: string) => Promise<void>
 }
 
-export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible, shoppingSubTasks, onAddShoppingItem, onToggleShoppingItem, onDeleteShoppingItem }: TaskEditFormProps) {
+export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible, shoppingSubTasks, onAddShoppingItem, onUpdateShoppingItem, onDeleteShoppingItem }: TaskEditFormProps) {
   const [title, setTitle] = useState('')
   const [memo, setMemo] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -33,6 +33,8 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newShoppingItem, setNewShoppingItem] = useState('')
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [editingItemTitle, setEditingItemTitle] = useState('')
 
   // 買い物リストの編集は一覧画面で行います（subtasksテーブルを使用）
 
@@ -421,40 +423,125 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                       background: '#ffffff',
                       borderRadius: '2px',
                       fontSize: '13px',
-                      color: subTask.completed ? '#9ca3af' : '#374151',
-                      textDecoration: subTask.completed ? 'line-through' : 'none'
+                      gap: '8px'
                     }}>
-                      <button
-                        type="button"
-                        onClick={() => onToggleShoppingItem && onToggleShoppingItem(task.id, subTask.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          marginRight: '8px',
-                          fontSize: '16px',
-                          padding: '0',
-                          lineHeight: '1'
-                        }}
-                      >
-                        {subTask.completed ? '✓' : '○'}
-                      </button>
-                      <span style={{ flex: 1 }}>{subTask.title}</span>
-                      <button
-                        type="button"
-                        onClick={() => onDeleteShoppingItem && onDeleteShoppingItem(task.id, subTask.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#ef4444',
-                          fontSize: '16px',
-                          padding: '0 4px',
-                          lineHeight: '1'
-                        }}
-                      >
-                        ×
-                      </button>
+                      {editingItemId === subTask.id ? (
+                        <>
+                          <input
+                            type="text"
+                            value={editingItemTitle}
+                            onChange={(e) => setEditingItemTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && editingItemTitle.trim()) {
+                                onUpdateShoppingItem && onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                setEditingItemId(null)
+                                setEditingItemTitle('')
+                              } else if (e.key === 'Escape') {
+                                setEditingItemId(null)
+                                setEditingItemTitle('')
+                              }
+                            }}
+                            autoFocus
+                            style={{
+                              flex: 1,
+                              padding: '4px 8px',
+                              fontSize: '13px',
+                              border: '1px solid #3b82f6',
+                              borderRadius: '2px',
+                              outline: 'none'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (editingItemTitle.trim()) {
+                                onUpdateShoppingItem && onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                setEditingItemId(null)
+                                setEditingItemTitle('')
+                              }
+                            }}
+                            style={{
+                              background: '#3b82f6',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '2px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              padding: '4px 8px',
+                              fontWeight: '500'
+                            }}
+                          >
+                            保存
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingItemId(null)
+                              setEditingItemTitle('')
+                            }}
+                            style={{
+                              background: '#6b7280',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '2px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              padding: '4px 8px'
+                            }}
+                          >
+                            キャンセル
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span
+                            style={{
+                              flex: 1,
+                              cursor: 'pointer',
+                              color: '#374151'
+                            }}
+                            onClick={() => {
+                              setEditingItemId(subTask.id)
+                              setEditingItemTitle(subTask.title)
+                            }}
+                          >
+                            {subTask.title}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingItemId(subTask.id)
+                              setEditingItemTitle(subTask.title)
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: '#3b82f6',
+                              fontSize: '14px',
+                              padding: '0 4px',
+                              lineHeight: '1'
+                            }}
+                          >
+                            ✎
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onDeleteShoppingItem && onDeleteShoppingItem(task.id, subTask.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: '#ef4444',
+                              fontSize: '16px',
+                              padding: '0 4px',
+                              lineHeight: '1'
+                            }}
+                          >
+                            ×
+                          </button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
