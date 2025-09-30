@@ -566,25 +566,6 @@ export default function TodayPage() {
             >
               📖 ヘルプ
             </a>
-            <a
-              href="/statistics"
-              style={{
-                background: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '4px 8px',
-                fontSize: '12px',
-                fontWeight: '500',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              className="today-button"
-            >
-              📊 統計
-            </a>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-actions">
               <button
                 onClick={() => setShowCreateForm(true)}
