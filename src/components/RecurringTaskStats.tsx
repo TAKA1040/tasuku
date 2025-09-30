@@ -152,6 +152,17 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
     ? recurringStats.filter(stat => selectedTaskIds.includes(stat.taskId))
     : recurringStats
 
+  // デバッグ: レンダリング時の状態確認
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎨 RecurringTaskStats rendered with:', {
+      completedTasksCount: completedTasks.length,
+      statsCount: recurringStats.length,
+      displayStatsCount: displayStats.length,
+      selectedTaskIds: selectedTaskIds.length,
+      period
+    })
+  }
+
   return (
     <div style={{
       backgroundColor: 'white',
