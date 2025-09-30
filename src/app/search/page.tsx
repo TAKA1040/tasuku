@@ -267,37 +267,39 @@ export default function SearchPage() {
 
         {/* 絞り込み */}
         <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          border: '3px solid #5a67d8',
-          borderRadius: '16px',
+          background: 'var(--bg-secondary)',
+          border: '2px solid #d1d5db',
+          borderRadius: '12px',
           padding: '24px',
           marginBottom: '24px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)'
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
         }}>
           <h3 style={{
-            fontSize: '18px',
-            fontWeight: '700',
+            fontSize: '16px',
+            fontWeight: '600',
             margin: '0 0 20px 0',
-            color: 'white',
+            color: 'var(--text-primary)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            paddingBottom: '12px',
+            borderBottom: '2px solid #e5e7eb'
           }}>
             🔍 絞り込み
           </h3>
           {/* 検索ボックス */}
           <div style={{
             marginBottom: '16px',
-            background: 'white',
+            background: 'var(--bg-primary)',
             padding: '16px',
-            borderRadius: '12px',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb'
           }}>
             <label style={{
               display: 'block',
               fontSize: '13px',
               fontWeight: '600',
-              color: '#4a5568',
+              color: 'var(--text-secondary)',
               marginBottom: '8px'
             }}>
               キーワード検索
@@ -310,31 +312,27 @@ export default function SearchPage() {
               style={{
                 width: '100%',
                 padding: '12px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                background: '#f7fafc',
-                color: '#2d3748',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s'
+                border: '1px solid var(--border)',
+                borderRadius: '6px',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '16px'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#5a67d8'}
-              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
             />
           </div>
 
           {/* フィルター */}
           <div style={{
-            background: 'white',
+            background: 'var(--bg-primary)',
             padding: '16px',
-            borderRadius: '12px',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb'
           }}>
             <label style={{
               display: 'block',
               fontSize: '13px',
               fontWeight: '600',
-              color: '#4a5568',
+              color: 'var(--text-secondary)',
               marginBottom: '12px'
             }}>
               詳細フィルター
@@ -349,13 +347,12 @@ export default function SearchPage() {
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 style={{
-                  padding: '10px 12px',
-                  border: '2px solid #e2e8f0',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border)',
                   borderRadius: '6px',
-                  background: '#f7fafc',
-                  color: '#2d3748',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
-                  fontWeight: '500',
                   cursor: 'pointer'
                 }}
               >
@@ -370,13 +367,12 @@ export default function SearchPage() {
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 style={{
-                  padding: '10px 12px',
-                  border: '2px solid #e2e8f0',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border)',
                   borderRadius: '6px',
-                  background: '#f7fafc',
-                  color: '#2d3748',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
-                  fontWeight: '500',
                   cursor: 'pointer'
                 }}
               >
@@ -391,13 +387,12 @@ export default function SearchPage() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 style={{
-                  padding: '10px 12px',
-                  border: '2px solid #e2e8f0',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border)',
                   borderRadius: '6px',
-                  background: '#f7fafc',
-                  color: '#2d3748',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
-                  fontWeight: '500',
                   cursor: 'pointer'
                 }}
               >
@@ -411,13 +406,12 @@ export default function SearchPage() {
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
                 style={{
-                  padding: '10px 12px',
-                  border: '2px solid #e2e8f0',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border)',
                   borderRadius: '6px',
-                  background: '#f7fafc',
-                  color: '#2d3748',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
                   fontSize: '14px',
-                  fontWeight: '500',
                   cursor: 'pointer'
                 }}
               >
