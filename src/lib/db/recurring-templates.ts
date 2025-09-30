@@ -66,6 +66,17 @@ export class RecurringTemplatesService {
       throw error
     }
 
+    // デバッグ: 取得したテンプレートのURL情報をログ出力
+    if (data && data.length > 0) {
+      console.log('📋 テンプレート取得:', data.map(t => ({
+        id: t.id,
+        title: t.title,
+        hasUrls: !!t.urls,
+        urlsCount: Array.isArray(t.urls) ? t.urls.length : 0,
+        urls: t.urls
+      })))
+    }
+
     return data || []
   }
 

@@ -233,6 +233,19 @@ export class TaskGeneratorService {
     // 統一番号を生成
     const displayNumber = await this.generateDisplayNumber()
 
+    // デバッグ: テンプレートの情報をログ出力
+    console.log('📝 テンプレートからタスク生成:', {
+      templateId: template.id,
+      title: template.title,
+      dueDate: dueDate,
+      hasUrls: !!template.urls,
+      urlsCount: template.urls?.length || 0,
+      urls: template.urls,
+      hasStartTime: !!template.start_time,
+      hasEndTime: !!template.end_time,
+      hasAttachment: !!template.attachment_file_name
+    })
+
     // タスク作成（テンプレートのすべてのフィールドを引き継ぐ）
     const taskData: Record<string, unknown> = {
       title: template.title,
@@ -267,11 +280,16 @@ export class TaskGeneratorService {
       .single()
 
     if (error) {
-      console.error(`タスク作成エラー: ${template.title} (${dueDate})`, error)
+      console.error(`❌ タスク作成エラー: ${template.title} (${dueDate})`, error)
       throw error
     }
 
-    console.log(`✅ タスク作成: ${template.title} (${dueDate})`)
+    console.log(`✅ タスク作成成功: ${template.title} (${dueDate})`, {
+      newTaskId: newTask.id,
+      hasUrls: !!newTask.urls,
+      urlsCount: Array.isArray(newTask.urls) ? newTask.urls.length : 0,
+      urls: newTask.urls
+    })
 
     // 買い物リストがある場合、subtasksもコピー
     if (template.category === '買い物') {
