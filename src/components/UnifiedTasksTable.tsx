@@ -41,6 +41,35 @@ const getImportanceColor = (importance?: number | null): string => {
 
 // memo形式の買い物リストは廃止し、subtasksテーブルに統一
 
+// memoから買い物リスト部分を除去する関数
+const removeLegacyShoppingListFromMemo = (memoText?: string | null): string => {
+  if (!memoText) return ''
+
+  // 【買い物リスト】セクションを除去
+  const lines = memoText.split('\n')
+  const cleanLines: string[] = []
+  let inShoppingList = false
+
+  for (const line of lines) {
+    if (line.trim() === '【買い物リスト】') {
+      inShoppingList = true
+      continue
+    }
+    if (inShoppingList && line.trim().startsWith('•')) {
+      continue
+    }
+    if (inShoppingList && line.trim() === '') {
+      continue
+    }
+    if (inShoppingList) {
+      inShoppingList = false
+    }
+    cleanLines.push(line)
+  }
+
+  return cleanLines.join('\n').trim()
+}
+
 // 日付を日本語形式でフォーマットするヘルパー関数
 const formatDueDateForDisplay = (dateString?: string | null): string => {
   if (!dateString) return '-'
@@ -375,13 +404,13 @@ export function UnifiedTasksTable({
                                 🛒 リスト ({totalItems})
                               </button>
                             )}
-                            {item.memo && (
+                            {item.memo && removeLegacyShoppingListFromMemo(item.memo) && (
                               <span style={{
                                 fontSize: '12px',
                                 color: '#6b7280',
                                 fontStyle: 'italic'
                               }}>
-                                - {item.memo}
+                                - {removeLegacyShoppingListFromMemo(item.memo)}
                               </span>
                             )}
                           </div>
@@ -389,13 +418,13 @@ export function UnifiedTasksTable({
                       })()}
 
                       {/* 買い物カテゴリ以外のメモを右に表示 */}
-                      {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && (
+                      {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && removeLegacyShoppingListFromMemo(item.memo) && (
                         <span style={{
                           fontSize: '12px',
                           color: '#6b7280',
                           fontStyle: 'italic'
                         }}>
-                          - {item.memo}
+                          - {removeLegacyShoppingListFromMemo(item.memo)}
                         </span>
                       )}
                     </div>
