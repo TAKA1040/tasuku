@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useDatabase } from '@/hooks/useDatabase'
 import { ThemedContainer } from '@/components/ThemedContainer'
@@ -216,20 +217,23 @@ export default function SearchPage() {
           alignItems: 'center',
           marginBottom: '20px'
         }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 4px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <Link href="/today" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: '#3b82f6',
+              textDecoration: 'none',
+              fontSize: '14px',
+              padding: '8px 16px',
+              border: '1px solid #3b82f6',
+              borderRadius: '6px',
+              transition: 'all 0.2s'
+            }}>
+              ← ホームに戻る
+            </Link>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', margin: 0 }}>
               🔍 検索
             </h1>
-            <a
-              href="/today"
-              style={{
-                color: '#6b7280',
-                textDecoration: 'none',
-                fontSize: '14px'
-              }}
-            >
-              ← 今日に戻る
-            </a>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

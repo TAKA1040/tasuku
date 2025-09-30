@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useDatabase } from '@/hooks/useDatabase'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useStatistics } from '@/hooks/useStatistics'
@@ -106,56 +107,31 @@ export default function StatisticsPage() {
       boxSizing: 'border-box'
     }}>
       <header style={{ marginBottom: '12px' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '8px' 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <a
-                href="/today"
-                style={{
-                  background: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                ← 今日
-              </a>
-              <a
-                href="/search"
-                style={{
-                  background: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                🔍 検索
-              </a>
-            </div>
-            <h1 style={{ 
-              fontSize: '20px', 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <Link href="/today" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: '#3b82f6',
+              textDecoration: 'none',
+              fontSize: '14px',
+              padding: '8px 16px',
+              border: '1px solid #3b82f6',
+              borderRadius: '6px',
+              transition: 'all 0.2s'
+            }}>
+              ← ホームに戻る
+            </Link>
+            <h1 style={{
+              fontSize: '20px',
               fontWeight: '600',
               color: '#1f2937',
-              margin: '0'
+              margin: 0
             }}>
               📊 統計・分析
             </h1>

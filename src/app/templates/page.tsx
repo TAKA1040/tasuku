@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
 
 interface RecurringTemplate {
   id: string
@@ -389,7 +390,22 @@ export default function TemplatesPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <h1>繰り返しテンプレート管理</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
+        <Link href="/today" style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          color: '#3b82f6',
+          textDecoration: 'none',
+          fontSize: '14px',
+          padding: '8px 16px',
+          border: '1px solid #3b82f6',
+          borderRadius: '6px',
+          transition: 'all 0.2s'
+        }}>
+          ← ホームに戻る
+        </Link>
+        <h1 style={{ margin: 0 }}>繰り返しテンプレート管理</h1>
+      </div>
 
       {status && (
         <div style={{

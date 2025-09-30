@@ -27,10 +27,22 @@ export default function HelpPage() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px'
+          gap: '16px',
+          flexWrap: 'wrap'
         }}>
+          <Link href="/today" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: '#3b82f6',
+            textDecoration: 'none',
+            fontSize: '14px',
+            padding: '8px 16px',
+            border: '1px solid #3b82f6',
+            borderRadius: '6px',
+            transition: 'all 0.2s'
+          }}>
+            ← ホームに戻る
+          </Link>
           <h1 style={{
             fontSize: '28px',
             fontWeight: 'bold',
@@ -39,16 +51,6 @@ export default function HelpPage() {
           }}>
             📋 TASUKU 使い方ガイド
           </h1>
-          <Link href="/today" style={{
-            color: '#3b82f6',
-            textDecoration: 'none',
-            fontSize: '14px',
-            padding: '8px 16px',
-            border: '1px solid #3b82f6',
-            borderRadius: '6px'
-          }}>
-            ← 今日のタスクに戻る
-          </Link>
         </div>
       </header>
 
