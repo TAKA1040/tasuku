@@ -443,7 +443,7 @@ export default function DonePage() {
             '@media (max-width: 768px)': {
               display: 'none'
             }
-          } as any}>
+          } as React.CSSProperties}>
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
@@ -569,7 +569,7 @@ export default function DonePage() {
             '@media (max-width: 768px)': {
               display: 'block'
             }
-          } as any}>
+          } as React.CSSProperties}>
             {achievementData.map((taskData) => (
               <div
                 key={taskData.taskId}
