@@ -154,11 +154,14 @@ const renderUrlIcon = (urls?: string[] | null) => {
           if (process.env.NODE_ENV === 'development') {
             console.log('Opening URLs:', validUrls)
           }
+          // ブラウザのポップアップブロッカー対策：順次開く
           validUrls.forEach((url, index) => {
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`Opening URL ${index + 1}:`, url)
-            }
-            window.open(url, '_blank', 'noopener,noreferrer')
+            setTimeout(() => {
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`Opening URL ${index + 1}:`, url)
+              }
+              window.open(url, '_blank', 'noopener,noreferrer')
+            }, index * 100) // 100ms間隔で開く
           })
         }
       }}
