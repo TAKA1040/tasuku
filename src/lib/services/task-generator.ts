@@ -234,7 +234,7 @@ export class TaskGeneratorService {
     const displayNumber = await this.generateDisplayNumber()
 
     // タスク作成（テンプレートのすべてのフィールドを引き継ぐ）
-    const taskData: any = {
+    const taskData: Record<string, unknown> = {
       title: template.title,
       memo: template.memo,
       due_date: dueDate,

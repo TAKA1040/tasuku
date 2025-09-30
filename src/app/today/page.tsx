@@ -318,7 +318,7 @@ export default function TodayPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('ユーザー認証エラー')
 
-      const templateData: any = {
+      const templateData: Record<string, unknown> = {
         title: title.trim(),
         memo: memo.trim() || null,
         category: category || null,
