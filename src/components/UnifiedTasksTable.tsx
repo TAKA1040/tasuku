@@ -154,13 +154,31 @@ const renderUrlIcon = (urls?: string[] | null) => {
           if (process.env.NODE_ENV === 'development') {
             console.log('Opening URLs:', validUrls)
           }
+
+          let blockedCount = 0
+
           // ブラウザのポップアップブロッカー対策：順次開く
           validUrls.forEach((url, index) => {
             setTimeout(() => {
               if (process.env.NODE_ENV === 'development') {
                 console.log(`Opening URL ${index + 1}:`, url)
               }
-              window.open(url, '_blank', 'noopener,noreferrer')
+              const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+
+              // ポップアップブロック検知
+              if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                blockedCount++
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`URL ${index + 1} was blocked by popup blocker`)
+                }
+              }
+
+              // 最後のURLを開いた後、ブロックされたURLがあれば通知
+              if (index === validUrls.length - 1 && blockedCount > 0) {
+                setTimeout(() => {
+                  alert(`⚠️ ポップアップブロッカーにより ${blockedCount} 個のURLがブロックされました。\n\nブラウザのアドレスバー右側のアイコンをクリックして、このサイトのポップアップを「許可」してください。`)
+                }, 200)
+              }
             }, index * 100) // 100ms間隔で開く
           })
         }
