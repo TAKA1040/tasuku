@@ -1,6 +1,168 @@
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/done?select=original_task_id%2Ccompleted_at%2Cunified_tasks%21inner%28*%29&order=completed_at.desc:1  Failed to load resource: the server responded with a status of 400 ()
-214-d849b424656dd018.js:1 Failed to fetch done records: Object
-（匿名） @ 214-d849b424656dd018.js:1
-wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/done?select=original_task_id%2Ccompleted_at%2Cunified_tasks%21inner%28*%29&order=completed_at.desc:1  Failed to load resource: the server responded with a status of 400 ()
-214-d849b424656dd018.js:1 Failed to fetch done records: Object
-（匿名） @ 214-d849b424656dd018.js:1
+ Loading completed tasks...
+page-5026502183b5abab.js:1 ✅ Loaded completed tasks: 0
+page-5026502183b5abab.js:1 📋 Tasks: 
+Array(0)
+length
+: 
+0
+[[Prototype]]
+: 
+Array(0)
+page-5026502183b5abab.js:1 ✅ Loaded completed tasks: 16
+page-5026502183b5abab.js:1 📋 Tasks: 
+Array(16)
+0
+: 
+active
+: 
+true
+archived
+: 
+false
+attachment
+: 
+null
+category
+: 
+"仕事"
+completed
+: 
+true
+completed_at
+: 
+"2025-09-30"
+created_at
+: 
+"2025-09-29T15:00:39.606563+00:00"
+display_number
+: 
+"T017"
+due_date
+: 
+"2025-09-30"
+duration_min
+: 
+null
+end_date
+: 
+null
+end_time
+: 
+null
+frequency
+: 
+null
+id
+: 
+"ab8dd296-d900-4c0c-b391-7c34d5ee626e"
+importance
+: 
+3
+interval_n
+: 
+1
+last_completed_date
+: 
+null
+memo
+: 
+""
+month_day
+: 
+null
+recurring_day
+: 
+null
+recurring_month
+: 
+null
+recurring_pattern
+: 
+"DAILY"
+recurring_template_id
+: 
+"0dbaca9e-5240-4e00-8729-16e883e65da7"
+recurring_weekdays
+: 
+[]
+snoozed_until
+: 
+null
+start_date
+: 
+null
+start_time
+: 
+null
+task_type
+: 
+"RECURRING"
+title
+: 
+"𝕏ポスト"
+updated_at
+: 
+"2025-09-30T09:10:55.5451+00:00"
+urls
+: 
+(2) ['list:1769487534948794610 -filter:nativeretweets -filter:retweets -filter:quote -filter:replies', 'list:1778669827957358973 -filter:nativeretweets -filter:retweets -filter:quote -filter:replies']
+user_id
+: 
+"93d599a3-ebec-4eb7-995c-b9a36e8eda19"
+weekdays
+: 
+null
+[[Prototype]]
+: 
+Object
+1
+: 
+{id: '3bade526-00cc-40f6-b7c8-c8ef93e131a2', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T020', task_type: 'NORMAL', title: '生成AIパスポート', …}
+2
+: 
+{id: '919d9122-7998-4c37-bef3-78acd8e41a05', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T004', task_type: 'RECURRING', title: '𝕏ポスト', …}
+3
+: 
+{id: '0e84e587-285a-4693-b5ec-e92969fd71cc', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T005', task_type: 'RECURRING', title: '100回夜ジャンプ', …}
+4
+: 
+{id: 'f5fc3a35-59e6-47f4-926b-3abd4cf06a1c', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T009', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+5
+: 
+{id: 'f2c4527a-a4a4-4ee2-a5ea-fcf50600ff5b', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T010', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+6
+: 
+{id: '3905a1c9-1e57-405d-8a50-1bf968a453df', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T011', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+7
+: 
+{id: 'ffb3d283-b3fc-4b27-b3d1-a1d1ec896d3e', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T012', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+8
+: 
+{id: '3c97a9ab-4f45-4565-95b2-81d26a43b613', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T013', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+9
+: 
+{id: '158975b2-0813-445e-ad9c-c0910af39177', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T014', task_type: 'RECURRING', title: '𝕏ポスト', …}
+10
+: 
+{id: 'a8447738-3f18-4b8c-9c3d-8f5f0a6f33a4', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T015', task_type: 'RECURRING', title: '100回夜ジャンプ', …}
+11
+: 
+{id: '6b86061f-3ede-4dc8-81fd-a5de41f9b8a4', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T016', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+12
+: 
+{id: 'd359e26a-d88d-4620-b899-42fb75c284ca', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T007', task_type: 'NORMAL', title: '資金移動', …}
+13
+: 
+{id: 'a83a8c73-d82f-404d-a09b-92f945be331e', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T001', task_type: 'RECURRING', title: '100回朝ジャンプ', …}
+14
+: 
+{id: '09f4f0de-41cb-44e7-9fb9-34618e8c6892', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T002', task_type: 'RECURRING', title: '100回夜ジャンプ', …}
+15
+: 
+{id: '5cf8a270-5afa-4f0c-975c-00e5bbc1f6e9', user_id: '93d599a3-ebec-4eb7-995c-b9a36e8eda19', display_number: 'T003', task_type: 'RECURRING', title: '𝕏ポスト', …}
+length
+: 
+16
+[[Prototype]]
+: 
+Array(0)
