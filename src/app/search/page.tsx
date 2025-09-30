@@ -209,7 +209,13 @@ export default function SearchPage() {
 
   return (
     <ThemedContainer>
-      <div style={{ padding: '16px', minHeight: '100vh' }}>
+      <div style={{
+        padding: '16px',
+        minHeight: '100vh',
+        maxWidth: '1400px',
+        margin: '0 auto',
+        width: '70%'
+      }}>
         {/* ヘッダー */}
         <div style={{
           display: 'flex',
@@ -259,14 +265,22 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* 検索・フィルターセクション */}
+        {/* 絞り込み */}
         <div style={{
           background: 'var(--bg-secondary)',
-          border: '1px solid var(--border)',
+          border: '2px solid var(--border)',
           borderRadius: '12px',
           padding: '20px',
           marginBottom: '20px'
         }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            margin: '0 0 16px 0',
+            color: 'var(--text-primary)'
+          }}>
+            絞り込み
+          </h3>
           {/* 検索ボックス */}
           <div style={{ marginBottom: '16px' }}>
             <input
@@ -367,19 +381,24 @@ export default function SearchPage() {
         </div>
 
         {/* 検索結果 */}
-        <div>
+        <div style={{
+          background: 'var(--bg-secondary)',
+          border: '2px solid var(--border)',
+          borderRadius: '12px',
+          padding: '20px'
+        }}>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '12px',
+            marginBottom: '16px',
             flexWrap: 'wrap',
             gap: '8px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0' }}>
                 検索結果
-              </h2>
+              </h3>
               <span style={{
                 fontSize: '14px',
                 color: 'var(--text-secondary)',
@@ -450,7 +469,7 @@ export default function SearchPage() {
             </div>
           ) : (
             <div style={{
-              background: 'var(--bg-secondary)',
+              background: 'var(--bg-primary)',
               border: '1px solid var(--border)',
               borderRadius: '8px',
               overflow: 'hidden'
