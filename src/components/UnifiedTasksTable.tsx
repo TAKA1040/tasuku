@@ -520,17 +520,28 @@ export function UnifiedTasksTable({
                                   {subTask.completed ? '✓' : ''}
                                 </button>
                                 <span
-                                  onClick={() => setEditingSubTask({ taskId: item.id, subTaskId: subTask.id, title: subTask.title })}
                                   style={{
                                     flex: 1,
                                     textDecoration: subTask.completed ? 'line-through' : 'none',
-                                    color: subTask.completed ? '#9ca3af' : '#374151',
-                                    cursor: 'pointer'
+                                    color: subTask.completed ? '#9ca3af' : '#374151'
                                   }}
-                                  title="クリックして編集"
                                 >
                                   {subTask.title}
                                 </span>
+                                <button
+                                  onClick={() => setEditingSubTask({ taskId: item.id, subTaskId: subTask.id, title: subTask.title })}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#3b82f6',
+                                    cursor: 'pointer',
+                                    fontSize: '8px',
+                                    padding: '0 2px'
+                                  }}
+                                  title="編集"
+                                >
+                                  ✏️
+                                </button>
                                 <button
                                   onClick={() => {
                                     if (confirm(`「${subTask.title}」を削除しますか？`) && deleteShoppingSubTask) {

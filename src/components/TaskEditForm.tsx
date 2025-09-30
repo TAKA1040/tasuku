@@ -29,92 +29,12 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 買い物リスト管理
-  const [shoppingItems, setShoppingItems] = useState<string[]>([])
-  const [newShoppingItem, setNewShoppingItem] = useState('')
-
-  // 買い物リストをmemoから抽出する関数
-  const extractShoppingList = (memoText: string): { cleanMemo: string; shoppingItems: string[] } => {
-    if (!memoText) return { cleanMemo: '', shoppingItems: [] }
-
-    // 買い物リストのパターンを探す
-    const shoppingListRegex = /【買い物リスト】\n((?:• .+(?:\n|$))+)/
-    const match = memoText.match(shoppingListRegex)
-
-    if (!match) {
-      return { cleanMemo: memoText, shoppingItems: [] }
-    }
-
-    // 買い物アイテムを抽出
-    const shoppingSection = match[1]
-    const items = shoppingSection
-      .split('\n')
-      .map(line => line.replace(/^• /, '').trim())
-      .filter(item => item.length > 0)
-
-    // memoから買い物リスト部分を除去
-    const cleanMemo = memoText
-      .replace(/\n*【買い物リスト】\n(?:• .+(?:\n|$))+/, '')
-      .trim()
-
-    // デバッグログ
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🛒 extractShoppingList:', {
-        originalMemo: memoText,
-        match: match[0],
-        items,
-        cleanMemo
-      })
-    }
-
-    return { cleanMemo, shoppingItems: items }
-  }
-
-  // 買い物リスト操作
-  const addShoppingItem = () => {
-    if (newShoppingItem.trim()) {
-      setShoppingItems([...shoppingItems, newShoppingItem.trim()])
-      setNewShoppingItem('')
-    }
-  }
-
-  const removeShoppingItem = (index: number) => {
-    setShoppingItems(shoppingItems.filter((_, i) => i !== index))
-  }
-
-  const handleShoppingItemKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addShoppingItem()
-    }
-  }
+  // 買い物リストの編集は一覧画面で行います（subtasksテーブルを使用）
 
   useEffect(() => {
     if (task) {
-      // デバッグログ
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🛒 TaskEditForm useEffect:', {
-          taskId: task.id,
-          category: task.category,
-          memo: task.memo
-        })
-      }
-
       setTitle(task.title)
-
-      // memoから買い物リストを抽出
-      const { cleanMemo, shoppingItems: extractedItems } = extractShoppingList(task.memo || '')
-      setMemo(cleanMemo)
-      setShoppingItems(extractedItems)
-
-      // デバッグログ
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🛒 TaskEditForm 抽出結果:', {
-          cleanMemo,
-          extractedItems
-        })
-      }
-
+      setMemo(task.memo || '')
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
@@ -197,20 +117,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         }
       }
 
-      // 買い物カテゴリーで入力フィールドに文字がある場合、自動で追加
-      let finalShoppingItems = [...shoppingItems]
-      if (category === '買い物' && newShoppingItem.trim()) {
-        finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
-      }
-
-      // 買い物リストをmemoに統合
-      let finalMemo = memo
-      if (category === '買い物' && finalShoppingItems.length > 0) {
-        const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
-        finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
-      }
-
-      await onSubmit(task.id, title, finalMemo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
+      await onSubmit(task.id, title, memo, dueDate, category || undefined, importance as 1 | 2 | 3 | 4 | 5, urls.length > 0 ? urls : undefined, startTime || undefined, endTime || undefined, attachment)
 
       // onCancel() - today/page.tsxのhandleUpdateTaskで処理される
     } catch (error) {
@@ -400,92 +307,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             </select>
           </div>
 
-          {/* 買い物リスト（カテゴリが「買い物」の時のみ表示） */}
-          {category === '買い物' && (
-            <div key={`shopping-list-${category}`} style={{ marginBottom: '8px' }}>
-              {/* 買い物アイテム追加 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  minWidth: '60px'
-                }}>
-                  買い物リスト
-                </label>
-                <input
-                  type="text"
-                  value={newShoppingItem}
-                  onChange={(e) => setNewShoppingItem(e.target.value)}
-                  onKeyPress={handleShoppingItemKeyPress}
-                  placeholder="買い物アイテムを入力"
-                  style={{
-                    flex: 1,
-                    padding: '6px 8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '4px',
-                    fontSize: '13px'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={addShoppingItem}
-                  style={{
-                    padding: '4px 8px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '3px',
-                    fontSize: '12px',
-                    background: '#f3f4f6',
-                    cursor: 'pointer'
-                  }}
-                >
-                  追加
-                </button>
-              </div>
-
-              {/* 買い物リスト表示 */}
-              {shoppingItems.length > 0 && (
-                <div style={{
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
-                  padding: '6px',
-                  maxHeight: '120px',
-                  overflowY: 'auto',
-                  background: '#f9fafb'
-                }}>
-                  {shoppingItems.map((item, index) => (
-                    <div key={index} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '2px 4px',
-                      margin: '2px 0',
-                      background: '#ffffff',
-                      borderRadius: '2px',
-                      fontSize: '12px'
-                    }}>
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeShoppingItem(index)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#dc2626',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          padding: '0 4px'
-                        }}
-                        title="削除"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* 買い物リストの編集は一覧画面で行います（ここでは表示のみ） */}
 
           {/* 優先度 */}
           <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -922,8 +744,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                   cursor: title.trim() && !isSubmitting ? 'pointer' : 'not-allowed'
                 }}
               >
-                {isSubmitting ? '保存中...' :
-                 category === '買い物' && shoppingItems.length > 0 ? '買い物リスト付きで保存' : '保存'}
+                {isSubmitting ? '保存中...' : '保存'}
               </button>
             </div>
           </div>
