@@ -66,6 +66,13 @@ export default function TodayPage() {
     if (rawUnifiedData.length === 0) return []
 
     console.log('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
+    console.log('📊 詳細データ（最初の5件）:', rawUnifiedData.slice(0, 5).map(t => ({
+      番号: t.display_number,
+      タイトル: t.title,
+      重要度: t.importance,
+      開始時刻: t.start_time,
+      完了: t.completed
+    })))
 
     const sortedData = [...rawUnifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）

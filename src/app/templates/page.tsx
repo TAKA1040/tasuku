@@ -10,6 +10,8 @@ interface RecurringTemplate {
   category?: string
   importance?: number
   urls?: string[]
+  start_time?: string
+  end_time?: string
   pattern: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
   weekdays?: number[]
   day_of_month?: number
@@ -290,6 +292,8 @@ export default function TemplatesPage() {
           memo: template.memo,
           category: template.category,
           importance: template.importance,
+          start_time: template.start_time,
+          end_time: template.end_time,
           pattern: template.pattern,
           weekdays: template.weekdays,
           day_of_month: template.day_of_month,
@@ -323,7 +327,11 @@ export default function TemplatesPage() {
 
         const { error: updateTasksError } = await supabase
           .from('unified_tasks')
-          .update({ urls: normalizedUrls })
+          .update({
+            urls: normalizedUrls,
+            start_time: template.start_time,
+            end_time: template.end_time
+          })
           .eq('recurring_template_id', template.id)
           .eq('completed', false)
 
@@ -747,6 +755,48 @@ export default function TemplatesPage() {
                 <option value={4}>🟠 高</option>
                 <option value={5}>🔴 最高</option>
               </select>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                開始時刻
+              </label>
+              <input
+                type="time"
+                value={editingTemplate.start_time || ''}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  start_time: e.target.value || undefined
+                })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                終了時刻
+              </label>
+              <input
+                type="time"
+                value={editingTemplate.end_time || ''}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  end_time: e.target.value || undefined
+                })}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
             </div>
 
             <div style={{ marginBottom: '15px' }}>

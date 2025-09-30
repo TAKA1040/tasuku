@@ -1,18 +1,216 @@
-page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
-page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
-page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
-page-64b3377d7fd8583d.js:1 📥 Loading completed tasks...
-page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
-page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
-page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
-page-64b3377d7fd8583d.js:1 📥 Loading completed tasks...
-page-64b3377d7fd8583d.js:1 ✅ Loaded completed tasks: 0
-page-64b3377d7fd8583d.js:1 📋 Tasks: []
-page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
-page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
-page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
-page-64b3377d7fd8583d.js:1 ✅ Loaded completed tasks: 16
-page-64b3377d7fd8583d.js:1 📋 Tasks: (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
-page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 16, selectedTaskIdsLength: 0}
-page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 16 period: month
+## 🔍 テンプレート編集画面の欠落フィールド調査依頼
+
+### 問題の発見
+テンプレート編集画面（/templates ページ）で以下のフィールドが表示されていない：
+- 開始時刻 (start_time)
+- 終了時刻 (end_time)
+- その他の拡張フィールドの可能性
+
+### スクリーンショット確認
+ユーザー提供のスクリーンショットで確認された内容：
+- タイトル: ✅ 表示あり
+- メモ: ✅ 表示あり
+- カテゴリ: ✅ 表示あり（ドロップダウン: 健康）
+- 重要度: ✅ 表示あり（ドロップダウン: 普通）
+- 関連URL: ✅ 表示あり（入力欄 + 追加ボタン）
+- 繰り返しパターン: ✅ 表示あり（ドロップダウン: 毎日）
+- アクティブ: ✅ 表示あり（チェックボックス）
+- **開始時刻: ❌ 表示なし**
+- **終了時刻: ❌ 表示なし**
+
+### 調査済み事項
+
+#### 1. データベーススキーマ確認
+```javascript
+// check-template-schema.js, compare-schemas.js, check-recurring-tasks.js で調査
+```
+
+**結果:**
+- `unified_tasks` テーブル: `start_time`, `end_time` カラムが存在 ✅
+- `recurring_templates` テーブル: データが0件 ❌
+- 繰り返しタスクが10件以上存在するが、全て `start_time` が null
+- 参照されているテンプレートID（3件）が全て存在しない
+
+#### 2. マイグレーションファイル確認
+- `20250926000001_add_time_fields.sql`: unified_tasks に start_time/end_time 追加 ✅
+- `20250930000001_add_extended_fields_to_recurring_templates.sql`: recurring_templates に start_time/end_time (TEXT型) 追加 ✅
+
+#### 3. コンポーネント確認
+- `src/app/templates/page.tsx`: 編集フォームに時刻フィールドが**実装されていない** ❌
+- interface RecurringTemplate (6-22行目): start_time/end_time フィールドが**定義されていない** ❌
+- updateTemplate 関数 (270-348行目): start_time/end_time を**更新していない** ❌
+
+### 発見された問題
+
+**重大問題1: recurring_templates テーブルが空**
+```bash
+📊 recurring_templates 総件数: 0件
+```
+
+**重大問題2: テンプレート参照の不整合**
+```
+参照されているテンプレートID:
+❌ 42c8f9c9-5ae7-4b46-ad26-ed7c8a767dfc → テンプレートが存在しません！
+❌ 34dd0ec4-1e29-4c44-951e-b1c5d8c78daa → テンプレートが存在しません！
+❌ 0dbaca9e-5240-4e00-8729-16e883e65da7 → テンプレートが存在しません！
+```
+
+**重大問題3: UIに時刻フィールドが実装されていない**
+- テンプレート編集フォームに開始時刻・終了時刻の入力欄がない
+- TypeScript interface に定義がない
+- 保存処理に含まれていない
+
+### ユーザーからの重要な指摘
+> 「DBを調べた時はあったよ」
+
+→ **以前のセッションではrecurring_templatesにデータが存在していた可能性**
+→ RLSの問題、またはユーザーセッションの問題の可能性
+
+### 次のステップ（ターミナル版で実施）
+
+#### 優先度1: データの存在確認
+1. **Supabase管理画面で直接確認**
+   - https://supabase.com/dashboard/project/wgtrffjwdtytqgqybjwx/editor
+   - `recurring_templates` テーブルを開く
+   - フィルターなしで全行表示
+   - データが実際に存在するか、カラム構成を確認
+
+2. **サービスロールキーでの確認**
+   - RLSをバイパスして全データ取得
+   - ANON_KEYではなくSERVICE_ROLE_KEYで再確認
+
+3. **ブラウザコンソールでの確認**
+   ```javascript
+   // F12開発者ツール → Console
+   const { data } = await supabase.from('recurring_templates').select('*');
+   console.log('Templates:', data);
+   console.log('Columns:', data[0] ? Object.keys(data[0]) : 'No data');
+   ```
+
+#### 優先度2: UIの修正（データ確認後）
+
+**A) templates/page.tsx の修正**
+
+1. **interface に追加:**
+```typescript
+interface RecurringTemplate {
+  // 既存フィールド...
+  start_time?: string    // 追加
+  end_time?: string      // 追加
+}
+```
+
+2. **編集フォームに追加（行872付近）:**
+```typescript
+{/* 開始時刻 */}
+<div style={{ marginBottom: '15px' }}>
+  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+    開始時刻
+  </label>
+  <input
+    type="time"
+    value={editingTemplate.start_time || ''}
+    onChange={(e) => setEditingTemplate({
+      ...editingTemplate,
+      start_time: e.target.value || undefined
+    })}
+    style={{
+      width: '100%',
+      padding: '8px',
+      border: '1px solid #d1d5db',
+      borderRadius: '4px',
+      fontSize: '14px'
+    }}
+  />
+</div>
+
+{/* 終了時刻 */}
+<div style={{ marginBottom: '15px' }}>
+  <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+    終了時刻
+  </label>
+  <input
+    type="time"
+    value={editingTemplate.end_time || ''}
+    onChange={(e) => setEditingTemplate({
+      ...editingTemplate,
+      end_time: e.target.value || undefined
+    })}
+    style={{
+      width: '100%',
+      padding: '8px',
+      border: '1px solid #d1d5db',
+      borderRadius: '4px',
+      fontSize: '14px'
+    }}
+  />
+</div>
+```
+
+3. **updateTemplate 関数に追加（行286-301）:**
+```typescript
+const { error } = await supabase
+  .from('recurring_templates')
+  .update({
+    title: template.title,
+    memo: template.memo,
+    category: template.category,
+    importance: template.importance,
+    start_time: template.start_time,  // 追加
+    end_time: template.end_time,      // 追加
+    pattern: template.pattern,
+    weekdays: template.weekdays,
+    day_of_month: template.day_of_month,
+    month_of_year: template.month_of_year,
+    day_of_year: template.day_of_year,
+    active: template.active,
+    urls: normalizedUrls,
+    updated_at: new Date().toISOString()
+  })
+  .eq('id', template.id)
+```
+
+4. **関連タスクの時刻も更新（行324-328）:**
+```typescript
+const { error: updateTasksError } = await supabase
+  .from('unified_tasks')
+  .update({
+    urls: normalizedUrls,
+    start_time: template.start_time,  // 追加
+    end_time: template.end_time       // 追加
+  })
+  .eq('recurring_template_id', template.id)
+  .eq('completed', false)
+```
+
+**B) 新規タスク作成フォームも確認**
+- `src/components/TaskCreateForm2.tsx` に時刻フィールドがあるか確認
+- テンプレート作成時（today/page.tsx の handleCreateRecurring）に時刻を保存しているか確認
+
+#### 優先度3: データ整合性の修復
+
+もしrecurring_templatesが本当に空なら：
+1. unified_tasksの繰り返しタスクからテンプレートを逆生成
+2. start_timeなどの欠落データは手動設定を促す
+
+### 確認すべきポイント
+- [ ] Supabase管理画面でrecurring_templatesの実データを確認
+- [ ] カラム名が正確に `start_time` か確認（`startTime` 等のケースミスがないか）
+- [ ] RLSポリシーで現在のユーザーがデータを見れるか確認
+- [ ] データ型が TEXT か TIME か確認（マイグレーションファイルでは TEXT）
+- [ ] テンプレート作成処理（handleCreateRecurring）で時刻を保存しているか確認
+
+### 作成したスクリプト（参考用）
+- `check-template-schema.js`: テーブルスキーマ確認
+- `compare-schemas.js`: recurring_templates と unified_tasks の比較
+- `check-recurring-tasks.js`: 繰り返しタスクとテンプレート参照の確認
+- `check-current-user.js`: 現在のユーザーID確認（認証エラーで使用不可）
+
+### 関連ファイル
+- `src/app/templates/page.tsx` (1111行)
+- `src/app/today/page.tsx` (handleCreateRecurring: 305-382行)
+- `supabase/migrations/20250930000001_add_extended_fields_to_recurring_templates.sql`
+
+---
+
+**次のアクション: Supabase管理画面でrecurring_templatesの実データを確認してから作業を続行**
