@@ -1318,57 +1318,6 @@ export default function TemplatesPage() {
           </div>
         </div>
       )}
-
-      <div style={{ marginTop: '30px' }}>
-        <h3>ナビゲーション</h3>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <a
-            href="/today"
-            style={{
-              display: 'inline-block',
-              padding: '8px 16px',
-              background: '#2563eb',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            📅 今日のタスク
-          </a>
-          <a
-            href="/search"
-            style={{
-              display: 'inline-block',
-              padding: '8px 16px',
-              background: '#6b7280',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            🔍 検索
-          </a>
-          <a
-            href="/statistics"
-            style={{
-              display: 'inline-block',
-              padding: '8px 16px',
-              background: '#6b7280',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            📊 統計
-          </a>
-        </div>
-      </div>
     </div>
   )
 }
