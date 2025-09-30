@@ -267,22 +267,41 @@ export default function SearchPage() {
 
         {/* 絞り込み */}
         <div style={{
-          background: 'var(--bg-secondary)',
-          border: '2px solid var(--border)',
-          borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '20px'
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          border: '3px solid #5a67d8',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '24px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)'
         }}>
           <h3 style={{
-            fontSize: '16px',
-            fontWeight: '600',
-            margin: '0 0 16px 0',
-            color: 'var(--text-primary)'
+            fontSize: '18px',
+            fontWeight: '700',
+            margin: '0 0 20px 0',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            絞り込み
+            🔍 絞り込み
           </h3>
           {/* 検索ボックス */}
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{
+            marginBottom: '16px',
+            background: 'white',
+            padding: '16px',
+            borderRadius: '12px',
+            border: '2px solid rgba(255, 255, 255, 0.3)'
+          }}>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: '600',
+              color: '#4a5568',
+              marginBottom: '8px'
+            }}>
+              キーワード検索
+            </label>
             <input
               type="text"
               placeholder="タスク、メモ、カテゴリから検索..."
@@ -291,92 +310,124 @@ export default function SearchPage() {
               style={{
                 width: '100%',
                 padding: '12px',
-                border: '1px solid var(--border)',
+                border: '2px solid #e2e8f0',
                 borderRadius: '8px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)',
-                fontSize: '16px'
+                background: '#f7fafc',
+                color: '#2d3748',
+                fontSize: '16px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#5a67d8'}
+              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
             />
           </div>
 
           {/* フィルター */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '12px'
+            background: 'white',
+            padding: '16px',
+            borderRadius: '12px',
+            border: '2px solid rgba(255, 255, 255, 0.3)'
           }}>
-            {/* カテゴリフィルター */}
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
-              }}
-            >
-              <option value="all">すべてのカテゴリ</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: '600',
+              color: '#4a5568',
+              marginBottom: '12px'
+            }}>
+              詳細フィルター
+            </label>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '12px'
+            }}>
+              {/* カテゴリフィルター */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                style={{
+                  padding: '10px 12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '6px',
+                  background: '#f7fafc',
+                  color: '#2d3748',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">すべてのカテゴリ</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
 
-            {/* タイプフィルター */}
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
-              }}
-            >
-              <option value="all">すべてのタイプ</option>
-              <option value="task">タスク</option>
-              <option value="recurring">繰り返しタスク</option>
-              <option value="idea">アイデア</option>
-            </select>
+              {/* タイプフィルター */}
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                style={{
+                  padding: '10px 12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '6px',
+                  background: '#f7fafc',
+                  color: '#2d3748',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">すべてのタイプ</option>
+                <option value="task">タスク</option>
+                <option value="recurring">繰り返しタスク</option>
+                <option value="idea">アイデア</option>
+              </select>
 
-            {/* ステータスフィルター */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
-              }}
-            >
-              <option value="all">すべてのステータス</option>
-              <option value="completed">完了済み</option>
-              <option value="incomplete">未完了</option>
-            </select>
+              {/* ステータスフィルター */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  padding: '10px 12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '6px',
+                  background: '#f7fafc',
+                  color: '#2d3748',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">すべてのステータス</option>
+                <option value="completed">完了済み</option>
+                <option value="incomplete">未完了</option>
+              </select>
 
-            {/* ソート順フィルター */}
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: '6px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
-              }}
-            >
-              <option value="newest">📅 新しい順</option>
-              <option value="oldest">📅 古い順</option>
-              <option value="title">🔤 タイトル順</option>
-              <option value="due_date">⏰ 期限順</option>
-              <option value="type">📁 タイプ順</option>
-            </select>
+              {/* ソート順フィルター */}
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                style={{
+                  padding: '10px 12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '6px',
+                  background: '#f7fafc',
+                  color: '#2d3748',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="newest">📅 新しい順</option>
+                <option value="oldest">📅 古い順</option>
+                <option value="title">🔤 タイトル順</option>
+                <option value="due_date">⏰ 期限順</option>
+                <option value="type">📁 タイプ順</option>
+              </select>
+            </div>
           </div>
         </div>
 
