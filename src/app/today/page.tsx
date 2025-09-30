@@ -182,6 +182,15 @@ export default function TodayPage() {
     }
   }, [unifiedTasks, loadShoppingSubTasks])
 
+  const updateShoppingSubTask = useCallback(async (taskId: string, subTaskId: string, updates: { title?: string }) => {
+    try {
+      await unifiedTasks.updateSubtask(subTaskId, updates)
+      await loadShoppingSubTasks(taskId) // 再読み込み
+    } catch (error) {
+      console.error('サブタスク更新エラー:', error)
+    }
+  }, [unifiedTasks, loadShoppingSubTasks])
+
   // 展開時のみサブタスクを読み込み（ShoppingTasksSectionと同じシンプルな方式）
   const toggleShoppingList = async (taskId: string) => {
     const isCurrentlyExpanded = expandedShoppingLists[taskId]
@@ -696,6 +705,7 @@ export default function TodayPage() {
             addShoppingSubTask={addShoppingSubTask}
             toggleShoppingSubTask={toggleShoppingSubTask}
             deleteShoppingSubTask={deleteShoppingSubTask}
+            updateShoppingSubTask={updateShoppingSubTask}
             showTitle={false}
           />
         </div>
@@ -743,6 +753,7 @@ export default function TodayPage() {
               addShoppingSubTask={addShoppingSubTask}
               toggleShoppingSubTask={toggleShoppingSubTask}
               deleteShoppingSubTask={deleteShoppingSubTask}
+              updateShoppingSubTask={updateShoppingSubTask}
             />
           )}
         </div>
@@ -789,6 +800,7 @@ export default function TodayPage() {
               addShoppingSubTask={addShoppingSubTask}
               toggleShoppingSubTask={toggleShoppingSubTask}
               deleteShoppingSubTask={deleteShoppingSubTask}
+              updateShoppingSubTask={updateShoppingSubTask}
             />
           )}
         </div>
@@ -835,6 +847,7 @@ export default function TodayPage() {
               addShoppingSubTask={addShoppingSubTask}
               toggleShoppingSubTask={toggleShoppingSubTask}
               deleteShoppingSubTask={deleteShoppingSubTask}
+              updateShoppingSubTask={updateShoppingSubTask}
             />
           )}
         </div>
@@ -881,6 +894,7 @@ export default function TodayPage() {
               addShoppingSubTask={addShoppingSubTask}
               toggleShoppingSubTask={toggleShoppingSubTask}
               deleteShoppingSubTask={deleteShoppingSubTask}
+              updateShoppingSubTask={updateShoppingSubTask}
             />
           )}
         </div>

@@ -23,6 +23,7 @@ interface UnifiedTasksTableProps {
   addShoppingSubTask?: (taskId: string, itemName: string) => void
   toggleShoppingSubTask?: (taskId: string, subTaskId: string) => void
   deleteShoppingSubTask?: (taskId: string, subTaskId: string) => void
+  updateShoppingSubTask?: (taskId: string, subTaskId: string, updates: { title?: string }) => void
   showTitle?: boolean
 }
 
@@ -160,11 +161,15 @@ export function UnifiedTasksTable({
   addShoppingSubTask,
   toggleShoppingSubTask,
   deleteShoppingSubTask,
+  updateShoppingSubTask,
   showTitle = true
 }: UnifiedTasksTableProps) {
   // 画像表示機能
   const [showFilePopup, setShowFilePopup] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ file_name: string; file_type: string; file_data: string } | null>(null)
+
+  // サブタスク編集状態
+  const [editingSubTask, setEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
 
   const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
     setSelectedFile(attachment)
@@ -433,49 +438,119 @@ export function UnifiedTasksTable({
                             marginBottom: '4px',
                             fontSize: '11px'
                           }}>
-                            <button
-                              onClick={() => toggleShoppingSubTask && toggleShoppingSubTask(item.id, subTask.id)}
-                              style={{
-                                width: '14px',
-                                height: '14px',
-                                border: `1px solid ${subTask.completed ? '#10b981' : '#d1d5db'}`,
-                                borderRadius: '2px',
-                                backgroundColor: subTask.completed ? '#10b981' : 'transparent',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '8px',
-                                color: 'white'
-                              }}
-                            >
-                              {subTask.completed ? '✓' : ''}
-                            </button>
-                            <span style={{
-                              flex: 1,
-                              textDecoration: subTask.completed ? 'line-through' : 'none',
-                              color: subTask.completed ? '#9ca3af' : '#374151'
-                            }}>
-                              {subTask.title}
-                            </span>
-                            <button
-                              onClick={() => {
-                                if (confirm(`「${subTask.title}」を削除しますか？`) && deleteShoppingSubTask) {
-                                  deleteShoppingSubTask(item.id, subTask.id)
-                                }
-                              }}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#ef4444',
-                                cursor: 'pointer',
-                                fontSize: '8px',
-                                padding: '0'
-                              }}
-                              title="削除"
-                            >
-                              🗑️
-                            </button>
+                            {editingSubTask?.subTaskId === subTask.id ? (
+                              // 編集モード
+                              <>
+                                <input
+                                  type="text"
+                                  value={editingSubTask.title}
+                                  onChange={(e) => setEditingSubTask({ ...editingSubTask, title: e.target.value })}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && updateShoppingSubTask) {
+                                      updateShoppingSubTask(item.id, subTask.id, { title: editingSubTask.title })
+                                      setEditingSubTask(null)
+                                    } else if (e.key === 'Escape') {
+                                      setEditingSubTask(null)
+                                    }
+                                  }}
+                                  autoFocus
+                                  style={{
+                                    flex: 1,
+                                    padding: '2px 4px',
+                                    fontSize: '11px',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '2px'
+                                  }}
+                                />
+                                <button
+                                  onClick={() => {
+                                    if (updateShoppingSubTask) {
+                                      updateShoppingSubTask(item.id, subTask.id, { title: editingSubTask.title })
+                                      setEditingSubTask(null)
+                                    }
+                                  }}
+                                  style={{
+                                    padding: '2px 4px',
+                                    fontSize: '8px',
+                                    backgroundColor: '#10b981',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '2px',
+                                    cursor: 'pointer'
+                                  }}
+                                  title="保存"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={() => setEditingSubTask(null)}
+                                  style={{
+                                    padding: '2px 4px',
+                                    fontSize: '8px',
+                                    backgroundColor: '#6b7280',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '2px',
+                                    cursor: 'pointer'
+                                  }}
+                                  title="キャンセル"
+                                >
+                                  ✕
+                                </button>
+                              </>
+                            ) : (
+                              // 表示モード
+                              <>
+                                <button
+                                  onClick={() => toggleShoppingSubTask && toggleShoppingSubTask(item.id, subTask.id)}
+                                  style={{
+                                    width: '14px',
+                                    height: '14px',
+                                    border: `1px solid ${subTask.completed ? '#10b981' : '#d1d5db'}`,
+                                    borderRadius: '2px',
+                                    backgroundColor: subTask.completed ? '#10b981' : 'transparent',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '8px',
+                                    color: 'white'
+                                  }}
+                                >
+                                  {subTask.completed ? '✓' : ''}
+                                </button>
+                                <span
+                                  onClick={() => setEditingSubTask({ taskId: item.id, subTaskId: subTask.id, title: subTask.title })}
+                                  style={{
+                                    flex: 1,
+                                    textDecoration: subTask.completed ? 'line-through' : 'none',
+                                    color: subTask.completed ? '#9ca3af' : '#374151',
+                                    cursor: 'pointer'
+                                  }}
+                                  title="クリックして編集"
+                                >
+                                  {subTask.title}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`「${subTask.title}」を削除しますか？`) && deleteShoppingSubTask) {
+                                      deleteShoppingSubTask(item.id, subTask.id)
+                                    }
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#ef4444',
+                                    cursor: 'pointer',
+                                    fontSize: '8px',
+                                    padding: '0'
+                                  }}
+                                  title="削除"
+                                >
+                                  🗑️
+                                </button>
+                              </>
+                            )}
                           </div>
                         ))}
                         {(shoppingSubTasks[item.id] || []).length === 0 && (
