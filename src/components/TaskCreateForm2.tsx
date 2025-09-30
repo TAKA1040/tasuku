@@ -154,13 +154,6 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
         console.log('🛒 入力フィールドの内容を自動追加:', newShoppingItem.trim())
       }
 
-      // 買い物リストをmemoに統合
-      let finalMemo = memo
-      if (category === '買い物' && finalShoppingItems.length > 0) {
-        const shoppingListText = '【買い物リスト】\n' + finalShoppingItems.map(item => `• ${item}`).join('\n')
-        finalMemo = memo ? `${memo}\n\n${shoppingListText}` : shoppingListText
-      }
-
       if (taskType === 'once' || taskType === 'deadline') {
         console.log('🛒 TaskCreateForm2 - 買い物リスト送信:', {
           category,
@@ -169,10 +162,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           isShopping: category === '買い物',
           itemsToSend: category === '買い物' ? finalShoppingItems : undefined
         })
-        onSubmitRegular(title, finalMemo, dueDate, category, importance, urls.length > 0 ? urls : undefined, attachment, category === '買い物' ? finalShoppingItems : undefined, startTime || undefined, endTime || undefined)
+        onSubmitRegular(title, memo, dueDate, category, importance, urls.length > 0 ? urls : undefined, attachment, category === '買い物' ? finalShoppingItems : undefined, startTime || undefined, endTime || undefined)
         resetForm()
       } else {
-        onSubmitRecurring(title, finalMemo, {
+        onSubmitRecurring(title, memo, {
           pattern: recurringPattern,
           intervalDays,
           selectedWeekdays,
