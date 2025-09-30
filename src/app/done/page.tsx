@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { TaskTable } from '@/components/TaskTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
@@ -297,15 +298,30 @@ export default function DonePage() {
         flexWrap: 'wrap',
         gap: '15px'
       }}>
-        <h1 style={{
-          fontSize: 'clamp(24px, 4vw, 32px)',
-          fontWeight: '700',
-          margin: '0',
-          color: '#1f2937',
-          letterSpacing: '-0.025em'
-        }}>
-          📋 完了タスク
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <Link href="/today" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: '#3b82f6',
+            textDecoration: 'none',
+            fontSize: '14px',
+            padding: '8px 16px',
+            border: '1px solid #3b82f6',
+            borderRadius: '6px',
+            transition: 'all 0.2s'
+          }}>
+            ← ホームに戻る
+          </Link>
+          <h1 style={{
+            fontSize: 'clamp(24px, 4vw, 32px)',
+            fontWeight: '700',
+            margin: '0',
+            color: '#1f2937',
+            letterSpacing: '-0.025em'
+          }}>
+            📋 完了タスク
+          </h1>
+        </div>
 
         {/* 期間フィルター */}
         <div style={{
