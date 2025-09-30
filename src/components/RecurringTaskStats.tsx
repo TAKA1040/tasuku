@@ -52,25 +52,21 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
     const startDate = getStartDate()
     const today = new Date().toISOString().split('T')[0]
 
-    // デバッグ: 全タスクをログ出力
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 RecurringTaskStats - All completed tasks:', completedTasks.length)
-      console.log('🔍 Task types:', completedTasks.map(t => ({
-        title: t.title,
-        type: t.task_type,
-        templateId: t.recurring_template_id,
-        completedAt: t.completed_at
-      })))
-    }
+    // デバッグ: 全タスクをログ出力（本番でも表示）
+    console.log('🔍 All completed tasks:', completedTasks.length)
+    console.log('🔍 Task types:', completedTasks.map(t => ({
+      title: t.title,
+      type: t.task_type,
+      templateId: t.recurring_template_id
+    })))
 
     // 繰り返しタスクのみをフィルタ
     const recurringTasks = completedTasks.filter(
       task => task.task_type === 'RECURRING' && task.recurring_template_id
     )
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Filtered recurring tasks:', recurringTasks.length)
-    }
+    console.log('🔍 Filtered recurring tasks:', recurringTasks.length)
+    console.log('🔍 Recurring tasks:', recurringTasks.map(t => ({ title: t.title, templateId: t.recurring_template_id })))
 
     // テンプレートIDごとにグループ化
     const tasksByTemplate = new Map<string, UnifiedTask[]>()

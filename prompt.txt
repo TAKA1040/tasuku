@@ -1,53 +1,18 @@
-Props: 
-{completedTasksLength: 16, selectedTaskIdsLength: 0}
-completedTasksLength
-: 
-16
-selectedTaskIdsLength
-: 
-0
-[[Prototype]]
-: 
-Object
-constructor
-: 
-ƒ Object()
-hasOwnProperty
-: 
-ƒ hasOwnProperty()
-isPrototypeOf
-: 
-ƒ isPrototypeOf()
-propertyIsEnumerable
-: 
-ƒ propertyIsEnumerable()
-toLocaleString
-: 
-ƒ toLocaleString()
-toString
-: 
-ƒ toString()
-valueOf
-: 
-ƒ valueOf()
-__defineGetter__
-: 
-ƒ __defineGetter__()
-__defineSetter__
-: 
-ƒ __defineSetter__()
-__lookupGetter__
-: 
-ƒ __lookupGetter__()
-__lookupSetter__
-: 
-ƒ __lookupSetter__()
-__proto__
-: 
-(...)
-get __proto__
-: 
-ƒ __proto__()
-set __proto__
-: 
-ƒ __proto__()
+page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
+page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
+page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
+page-64b3377d7fd8583d.js:1 📥 Loading completed tasks...
+page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
+page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
+page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
+page-64b3377d7fd8583d.js:1 📥 Loading completed tasks...
+page-64b3377d7fd8583d.js:1 ✅ Loaded completed tasks: 0
+page-64b3377d7fd8583d.js:1 📋 Tasks: []
+page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
+page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 0, selectedTaskIdsLength: 0}
+page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 0 period: month
+page-64b3377d7fd8583d.js:1 ✅ Loaded completed tasks: 16
+page-64b3377d7fd8583d.js:1 📋 Tasks: (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+page-64b3377d7fd8583d.js:1 🚀 RecurringTaskStats component mounted/rendered
+page-64b3377d7fd8583d.js:1 Props: {completedTasksLength: 16, selectedTaskIdsLength: 0}
+page-64b3377d7fd8583d.js:1 ⚡ useMemo is running! completedTasks.length: 16 period: month
