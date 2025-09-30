@@ -1,28 +1,6 @@
-あなたは私の開発アシスタントです。
-役割は「データベースや型ファイルのクリーンアップ後に、コード全体が正しく動作するかを確認すること」です。
-
-前提状況:
-- Supabase データベースから旧テーブル (ideas, tasks, recurring_tasks) と不要関数を削除済み。
-- 型定義 (src/types/supabase.ts) も再生成され、不要な型は削除されている。
-- 残っているテーブルは:
-  - done
-  - recurring_templates
-  - subtasks
-  - unified_tasks
-  - user_metadata
-  - user_settings
-- 残っている関数は:
-  - handle_updated_at
-  - generate_display_number
-  - update_updated_at_column
-
-確認してほしいこと:
-1. コードベースに削除済みテーブルや削除済み関数の参照が残っていないか。
-2. `unified_tasks` / `recurring_templates` / `subtasks` / `done` に関連する処理が型エラーなしでコンパイルできるか。
-3. RLS ポリシーやトリガーに依存するコードで問題がないか。
-4. 最小限の動作確認 (テストや擬似的なE2E) を行い、エラーが出ないことを報告する。
-
-出力フォーマット:
-- ✅ 問題なしの確認結果
-- ⚠️ 残っている参照や型エラーがある場合は、そのファイル名・行番号・内容
-- 📝 必要に応じた修正提案
+wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/done?select=original_task_id%2Ccompleted_at%2Cunified_tasks%21inner%28*%29&order=completed_at.desc:1  Failed to load resource: the server responded with a status of 400 ()
+214-d849b424656dd018.js:1 Failed to fetch done records: Object
+（匿名） @ 214-d849b424656dd018.js:1
+wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/done?select=original_task_id%2Ccompleted_at%2Cunified_tasks%21inner%28*%29&order=completed_at.desc:1  Failed to load resource: the server responded with a status of 400 ()
+214-d849b424656dd018.js:1 Failed to fetch done records: Object
+（匿名） @ 214-d849b424656dd018.js:1

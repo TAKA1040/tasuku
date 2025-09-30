@@ -199,25 +199,52 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
         const completedTasks = tasks.filter(task => task.completed)
 
         // 2. doneテーブルから完了履歴を取得
-        const { data: doneRecords, error } = await supabase
+        const { data: doneRecords, error: doneError } = await supabase
           .from('done')
-          .select(`
-            original_task_id,
-            completed_at,
-            unified_tasks!inner(*)
-          `)
+          .select('*')
           .order('completed_at', { ascending: false })
 
-        if (error) {
-          console.error('Failed to fetch done records:', error)
+        if (doneError) {
+          console.error('Failed to fetch done records:', doneError)
           return completedTasks
         }
 
         // 3. doneレコードから仮想的な完了タスクを構築
         const historyTasks: UnifiedTask[] = doneRecords?.map(record => ({
-          ...record.unified_tasks,
+          id: record.original_task_id,
+          title: record.original_title || '(不明なタスク)',
+          memo: record.original_memo,
+          display_number: record.original_display_number || '',
+          task_type: 'NORMAL' as const,
+          category: record.original_category,
+          importance: record.original_importance ? parseInt(record.original_importance) : 3,
+          due_date: record.original_due_date,
+          urls: [],
           completed: true,
-          completed_at: record.completed_at
+          completed_at: record.completed_at,
+          created_at: record.created_at || new Date().toISOString(),
+          updated_at: record.updated_at || new Date().toISOString(),
+          user_id: record.user_id,
+          recurring_pattern: record.original_recurring_pattern,
+          recurring_template_id: null,
+          recurring_weekdays: null,
+          recurring_day: null,
+          recurring_month: null,
+          active: true,
+          archived: false,
+          snoozed_until: null,
+          duration_min: null,
+          frequency: null,
+          interval_n: null,
+          start_date: null,
+          end_date: null,
+          weekdays: null,
+          month_day: null,
+          start_time: null,
+          end_time: null,
+          attachment: null,
+          max_occurrences: null,
+          last_completed_date: null
         } as unknown as UnifiedTask)) || []
 
         // 4. 重複を除去（同一タスクの複数完了履歴は最新のみ保持）
