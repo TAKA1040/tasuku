@@ -31,10 +31,40 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
   // 買い物リストの編集は一覧画面で行います（subtasksテーブルを使用）
 
+  // memoから買い物リスト部分を除去する関数
+  const removeLegacyShoppingListFromMemo = (memoText: string): string => {
+    if (!memoText) return ''
+
+    // 【買い物リスト】セクションを除去
+    const lines = memoText.split('\n')
+    const cleanLines: string[] = []
+    let inShoppingList = false
+
+    for (const line of lines) {
+      if (line.trim() === '【買い物リスト】') {
+        inShoppingList = true
+        continue
+      }
+      if (inShoppingList && line.trim().startsWith('•')) {
+        continue
+      }
+      if (inShoppingList && line.trim() === '') {
+        continue
+      }
+      if (inShoppingList) {
+        inShoppingList = false
+      }
+      cleanLines.push(line)
+    }
+
+    return cleanLines.join('\n').trim()
+  }
+
   useEffect(() => {
     if (task) {
       setTitle(task.title)
-      setMemo(task.memo || '')
+      // memoから買い物リスト部分を除去
+      setMemo(removeLegacyShoppingListFromMemo(task.memo || ''))
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
