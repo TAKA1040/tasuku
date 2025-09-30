@@ -652,17 +652,31 @@ export default function TemplatesPage() {
         }}>
           <div style={{
             backgroundColor: 'white',
-            padding: '20px',
+            padding: '12px',
             borderRadius: '8px',
-            width: '90%',
-            maxWidth: '500px',
-            maxHeight: '80vh',
-            overflowY: 'auto'
+            width: '100%',
+            maxWidth: '480px',
+            maxHeight: '95vh',
+            overflow: 'auto'
           }}>
-            <h3>テンプレート編集</h3>
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '10px',
+              color: '#1f2937',
+              textAlign: 'center'
+            }}>
+              テンプレート編集
+            </h2>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* タイトル */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
                 タイトル
               </label>
               <input
@@ -673,17 +687,25 @@ export default function TemplatesPage() {
                   title: e.target.value
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  fontWeight: '500'
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* メモ */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px',
+                paddingTop: '6px'
+              }}>
                 メモ
               </label>
               <textarea
@@ -693,18 +715,25 @@ export default function TemplatesPage() {
                   memo: e.target.value
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
-                  fontSize: '14px',
-                  minHeight: '60px'
+                  fontSize: '13px',
+                  minHeight: '32px',
+                  resize: 'vertical'
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* カテゴリ */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
                 カテゴリ
               </label>
               <select
@@ -714,8 +743,8 @@ export default function TemplatesPage() {
                   category: e.target.value
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
                   fontSize: '14px'
@@ -731,8 +760,14 @@ export default function TemplatesPage() {
               </select>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* 重要度 */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
                 重要度
               </label>
               <select
@@ -742,8 +777,8 @@ export default function TemplatesPage() {
                   importance: parseInt(e.target.value)
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
                   fontSize: '14px'
@@ -757,8 +792,14 @@ export default function TemplatesPage() {
               </select>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* 開始時刻 */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
                 開始時刻
               </label>
               <input
@@ -769,8 +810,8 @@ export default function TemplatesPage() {
                   start_time: e.target.value || undefined
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
                   fontSize: '14px'
@@ -778,8 +819,14 @@ export default function TemplatesPage() {
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            {/* 終了時刻 */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
                 終了時刻
               </label>
               <input
@@ -790,8 +837,8 @@ export default function TemplatesPage() {
                   end_time: e.target.value || undefined
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
                   fontSize: '14px'
@@ -919,9 +966,15 @@ export default function TemplatesPage() {
               </div>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                繰り返しパターン
+            {/* 繰り返しパターン */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px'
+              }}>
+                繰り返し
               </label>
               <select
                 value={editingTemplate.pattern}
@@ -930,8 +983,8 @@ export default function TemplatesPage() {
                   pattern: e.target.value as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
                 })}
                 style={{
-                  width: '100%',
-                  padding: '8px',
+                  flex: 1,
+                  padding: '6px 8px',
                   border: '1px solid #d1d5db',
                   borderRadius: '4px',
                   fontSize: '14px'
@@ -1056,19 +1109,36 @@ export default function TemplatesPage() {
               </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', fontWeight: '500' }}>
-                <input
-                  type="checkbox"
-                  checked={editingTemplate.active}
-                  onChange={(e) => setEditingTemplate({
-                    ...editingTemplate,
-                    active: e.target.checked
-                  })}
-                  style={{ marginRight: '8px' }}
-                />
+            {/* アクティブ */}
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <label style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#374151',
+                minWidth: '70px',
+                paddingTop: '2px'
+              }}>
                 アクティブ
               </label>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={editingTemplate.active}
+                    onChange={(e) => setEditingTemplate({
+                      ...editingTemplate,
+                      active: e.target.checked
+                    })}
+                    style={{ marginRight: '6px' }}
+                  />
+                  <span style={{ fontSize: '13px', color: '#374151' }}>
+                    ONにすると毎日自動的にタスクが生成されます
+                  </span>
+                </label>
+                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px', marginLeft: '22px' }}>
+                  OFFの場合は新しいタスクが作成されません
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
