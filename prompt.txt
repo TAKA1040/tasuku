@@ -1,29 +1,28 @@
 あなたは私の開発アシスタントです。
-役割は「Supabase のスキーマ変更に合わせて、TypeScript 型定義を最新化すること」です。
+役割は「データベースや型ファイルのクリーンアップ後に、コード全体が正しく動作するかを確認すること」です。
 
 前提状況:
-- Supabase データベース側では、旧テーブル `ideas` / `tasks` / `recurring_tasks` および不要関数をすでに削除済み。
-- 現在残っているテーブルは以下のとおり:
+- Supabase データベースから旧テーブル (ideas, tasks, recurring_tasks) と不要関数を削除済み。
+- 型定義 (src/types/supabase.ts) も再生成され、不要な型は削除されている。
+- 残っているテーブルは:
   - done
   - recurring_templates
   - subtasks
   - unified_tasks
   - user_metadata
   - user_settings
-- 使用中の関数:
+- 残っている関数は:
   - handle_updated_at
   - generate_display_number
   - update_updated_at_column
 
-やってほしいこと:
-1. Supabase CLI を用いて、最新のスキーマから TypeScript 型 (`supabase-new.ts`) を再生成してください。
-   - コマンド:  
-     `npx supabase gen types typescript --project-id <PROJECT_ID> --schema public > src/types/supabase-new.ts`
-2. 型ファイル内に、削除済みテーブルや不要関数が残っていないことを確認してください。
-3. 新しい型定義を `src/types/supabase-new.ts` に反映して commit してください。
-4. 結果として、型ファイルの差分（削除された型や関数の定義）が確認できるようにしてください。
+確認してほしいこと:
+1. コードベースに削除済みテーブルや削除済み関数の参照が残っていないか。
+2. `unified_tasks` / `recurring_templates` / `subtasks` / `done` に関連する処理が型エラーなしでコンパイルできるか。
+3. RLS ポリシーやトリガーに依存するコードで問題がないか。
+4. 最小限の動作確認 (テストや擬似的なE2E) を行い、エラーが出ないことを報告する。
 
 出力フォーマット:
-- ✅ 削除されている型や関数の一覧
-- ✅ 新しく残っているテーブル・関数の型一覧（要約）
-- ✅ commit ハッシュと差分の概要
+- ✅ 問題なしの確認結果
+- ⚠️ 残っている参照や型エラーがある場合は、そのファイル名・行番号・内容
+- 📝 必要に応じた修正提案
