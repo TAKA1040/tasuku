@@ -8,35 +8,6 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 
-// memoから買い物リスト部分を除去する関数
-const removeLegacyShoppingListFromMemo = (memoText?: string | null): string => {
-  if (!memoText) return ''
-
-  // 【買い物リスト】セクションを除去
-  const lines = memoText.split('\n')
-  const cleanLines: string[] = []
-  let inShoppingList = false
-
-  for (const line of lines) {
-    if (line.trim() === '【買い物リスト】') {
-      inShoppingList = true
-      continue
-    }
-    if (inShoppingList && line.trim().startsWith('•')) {
-      continue
-    }
-    if (inShoppingList && line.trim() === '') {
-      continue
-    }
-    if (inShoppingList) {
-      inShoppingList = false
-    }
-    cleanLines.push(line)
-  }
-
-  return cleanLines.join('\n').trim()
-}
-
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -78,8 +49,7 @@ export default function SearchPage() {
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase()
         const titleMatch = task.title?.toLowerCase().includes(searchLower)
-        const cleanMemo = removeLegacyShoppingListFromMemo(task.memo)
-        const memoMatch = cleanMemo?.toLowerCase().includes(searchLower)
+        const memoMatch = task.memo?.toLowerCase().includes(searchLower)
         const categoryMatch = task.category?.toLowerCase().includes(searchLower)
 
         if (!titleMatch && !memoMatch && !categoryMatch) {
@@ -605,7 +575,7 @@ export default function SearchPage() {
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {removeLegacyShoppingListFromMemo(task.memo) || '-'}
+                      {task.memo || '-'}
                     </div>
 
                     {/* 期限 */}
