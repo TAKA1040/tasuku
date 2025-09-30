@@ -340,7 +340,11 @@ export default function TodayPage() {
     }
   }
 
-  const handleEditTask = (task: UnifiedTask) => {
+  const handleEditTask = async (task: UnifiedTask) => {
+    // 買い物カテゴリの場合は先にsubtasksを読み込む
+    if (task.category === '買い物') {
+      await loadShoppingSubTasks(task.id)
+    }
     setEditingTask(task)
     setShowEditForm(true)
   }
@@ -960,6 +964,9 @@ export default function TodayPage() {
         onCancel={handleCancelEdit}
         onUncomplete={(id: string) => unifiedTasks.uncompleteTask(id)}
         shoppingSubTasks={shoppingSubTasks}
+        onAddShoppingItem={addShoppingSubTask}
+        onToggleShoppingItem={toggleShoppingSubTask}
+        onDeleteShoppingItem={deleteShoppingSubTask}
       />
 
       </div>
