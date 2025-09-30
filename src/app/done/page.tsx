@@ -6,6 +6,7 @@ import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { TaskTable } from '@/components/TaskTable'
 import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
+import { RecurringTaskStats } from '@/components/RecurringTaskStats'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 
@@ -30,11 +31,22 @@ export default function DonePage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
 
-  // 選択した毎日のタスクを記憶するためのstate
+  // 選択した毎日のタスクを記憶するためのstate（テンプレートIDで管理）
   const [selectedDailyTasks, setSelectedDailyTasks] = useState<string[]>([])
 
   // 完了タスクの状態
   const [completedTasks, setCompletedTasks] = useState<UnifiedTask[]>([])
+
+  // タスク選択ハンドラー
+  const handleTaskSelect = (taskId: string) => {
+    setSelectedDailyTasks(prev => {
+      if (prev.includes(taskId)) {
+        return prev.filter(id => id !== taskId)
+      } else {
+        return [...prev, taskId]
+      }
+    })
+  }
 
   // 完了タスクを読み込み
   useEffect(() => {
@@ -354,6 +366,13 @@ export default function DonePage() {
       )}
 
       <main>
+        {/* 繰り返しタスク達成統計 */}
+        <RecurringTaskStats
+          completedTasks={completedTasks}
+          selectedTaskIds={selectedDailyTasks}
+          onTaskSelect={handleTaskSelect}
+        />
+
         {/* 完了済みタスク */}
         <div style={{
           backgroundColor: 'white',
