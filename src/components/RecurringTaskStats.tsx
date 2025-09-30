@@ -294,6 +294,174 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
                   transition: 'width 0.3s'
                 }} />
               </div>
+
+              {/* 30日カレンダー表示（選択時のみ） */}
+              {selectedTaskIds.includes(stat.taskId) && (() => {
+                // 過去30日の日付配列を生成
+                const dates: string[] = []
+                const dateLabels: number[] = []
+                for (let i = 29; i >= 0; i--) {
+                  const date = new Date()
+                  date.setDate(date.getDate() - i)
+                  const dateStr = date.toISOString().split('T')[0]
+                  dates.push(dateStr)
+                  dateLabels.push(date.getDate())
+                }
+
+                // 各日の完了状況を判定
+                const completions = dates.map(date =>
+                  stat.completionDates.includes(date)
+                )
+
+                return (
+                  <div style={{ marginTop: '16px' }}>
+                    {/* デスクトップ表示 */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(30, minmax(18px, 1fr))`,
+                      gap: '4px'
+                    }} className="desktop-calendar">
+                      {dates.map((date, index) => (
+                        <div
+                          key={date}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '2px'
+                          }}
+                        >
+                          <div style={{
+                            fontSize: '10px',
+                            color: '#9ca3af',
+                            fontWeight: '500'
+                          }}>
+                            {dateLabels[index]}
+                          </div>
+                          <div
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '3px',
+                              backgroundColor: completions[index] ? '#10b981' : '#e5e7eb',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '10px',
+                              color: 'white',
+                              fontWeight: 'bold'
+                            }}
+                            title={`${date}: ${completions[index] ? '完了' : '未完了'}`}
+                          >
+                            {completions[index] ? '✓' : ''}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* モバイル表示（2段） */}
+                    <div style={{ display: 'none' }} className="mobile-calendar">
+                      {/* 前半15日 */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(15, 1fr)',
+                        gap: '3px',
+                        marginBottom: '8px'
+                      }}>
+                        {dates.slice(0, 15).map((date, index) => (
+                          <div
+                            key={date}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '2px'
+                            }}
+                          >
+                            <div style={{
+                              fontSize: '9px',
+                              color: '#9ca3af',
+                              fontWeight: '500'
+                            }}>
+                              {dateLabels[index]}
+                            </div>
+                            <div
+                              style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '3px',
+                                backgroundColor: completions[index] ? '#10b981' : '#e5e7eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '9px',
+                                color: 'white',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {completions[index] ? '✓' : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* 後半15日 */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(15, 1fr)',
+                        gap: '3px'
+                      }}>
+                        {dates.slice(15, 30).map((date, index) => (
+                          <div
+                            key={date}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '2px'
+                            }}
+                          >
+                            <div style={{
+                              fontSize: '9px',
+                              color: '#9ca3af',
+                              fontWeight: '500'
+                            }}>
+                              {dateLabels[index + 15]}
+                            </div>
+                            <div
+                              style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '3px',
+                                backgroundColor: completions[index + 15] ? '#10b981' : '#e5e7eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '9px',
+                                color: 'white',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {completions[index + 15] ? '✓' : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* レスポンシブCSS */}
+                    <style jsx>{`
+                      @media (max-width: 768px) {
+                        .desktop-calendar {
+                          display: none !important;
+                        }
+                        .mobile-calendar {
+                          display: block !important;
+                        }
+                      }
+                    `}</style>
+                  </div>
+                )
+              })()}
             </div>
           ))}
         </div>
