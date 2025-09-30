@@ -74,24 +74,6 @@ export interface SubTask {
   created_at: string // ISO string (JST)
 }
 
-// 買い物リスト
-export interface ShoppingList {
-  id: string
-  store_name: string // 店舗名（セブンイレブン等）
-  created_at: string // ISO string (JST)
-  updated_at: string // ISO string (JST)
-}
-
-// 買い物アイテム
-export interface ShoppingItem {
-  id: string
-  shopping_list_id: string // 買い物リストのID
-  item_name: string // 商品名
-  completed: boolean // 購入済みかどうか
-  sort_order: number // 表示順序
-  created_at: string // ISO string (JST)
-}
-
 export interface RecurringLog {
   recurring_id: string
   date: string // YYYY-MM-DD format (JST)

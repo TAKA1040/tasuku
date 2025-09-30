@@ -233,9 +233,8 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
     if (!editingSubTask) return
 
     try {
-      // 統一システムではサブタスクの編集機能は未実装なので、削除して再作成
-      await unifiedTasks.deleteSubtask(editingSubTask.subTaskId)
-      await unifiedTasks.createSubtask(editingSubTask.taskId, editingSubTask.title)
+      // updateSubtaskで直接更新
+      await unifiedTasks.updateSubtask(editingSubTask.subTaskId, { title: editingSubTask.title })
       await loadSubTasks()
       setEditingSubTask(null)
 

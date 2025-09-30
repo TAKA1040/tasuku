@@ -54,6 +54,7 @@ interface UseUnifiedTasksResult {
   createSubtask: (parentTaskId: string, title: string) => Promise<void>
   toggleSubtask: (subtaskId: string) => Promise<void>
   deleteSubtask: (subtaskId: string) => Promise<void>
+  updateSubtask: (subtaskId: string, updates: { title?: string; completed?: boolean; sort_order?: number }) => Promise<void>
 }
 
 export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult {
@@ -363,6 +364,17 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     )
   }, [])
 
+  const updateSubtask = useCallback(async (subtaskId: string, updates: { title?: string; completed?: boolean; sort_order?: number }) => {
+    await withErrorHandling(
+      async () => {
+        await UnifiedTasksService.updateSubtask(subtaskId, updates)
+        // サブタスクの変更はタスクリストの再読み込みは不要
+      },
+      'useUnifiedTasks.updateSubtask',
+      setError
+    )
+  }, [])
+
   // 初期読み込み
   useEffect(() => {
     if (autoLoad) {
@@ -421,6 +433,7 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     getSubtasks,
     createSubtask,
     toggleSubtask,
-    deleteSubtask
+    deleteSubtask,
+    updateSubtask
   }
 }

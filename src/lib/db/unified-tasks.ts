@@ -903,6 +903,40 @@ export class UnifiedTasksService {
       throw error
     }
   }
+
+  // サブタスクを更新
+  static async updateSubtask(subtaskId: string, updates: { title?: string; completed?: boolean; sort_order?: number }): Promise<SubTask> {
+    try {
+      const supabase = createClient()
+
+      // ユーザー認証情報を取得
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.id) {
+        throw new Error('User not authenticated')
+      }
+
+      const { data, error } = await supabase
+        .from('subtasks')
+        .update(updates)
+        .eq('id', subtaskId)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        throw new Error(`Failed to update subtask: ${error.message}`)
+      }
+
+      if (!data) {
+        throw new Error('No data returned from update')
+      }
+
+      return data as SubTask
+    } catch (error) {
+      console.error('UnifiedTasksService.updateSubtask error:', error)
+      throw error
+    }
+  }
 }
 
 export default UnifiedTasksService
