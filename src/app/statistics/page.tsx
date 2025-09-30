@@ -7,11 +7,15 @@ import { useStatistics } from '@/hooks/useStatistics'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { StatisticsCards } from '@/components/StatisticsCards'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 
 export default function StatisticsPage() {
   const { isInitialized, error } = useDatabase()
   const unifiedTasks = useUnifiedTasks(isInitialized)
+  const [activeTab, setActiveTab] = useState<'stats' | 'calendar'>('stats')
+  const [selectedDailyTasks, setSelectedDailyTasks] = useState<string[]>([])
+  const [completedTasks, setCompletedTasks] = useState<UnifiedTask[]>([])
 
   // 統一タスクを古いTask形式に変換
   const allTasks = useMemo(() => {
@@ -57,6 +61,118 @@ export default function StatisticsPage() {
 
   const stats = useStatistics(allTasks as Task[], recurringTasksWithStatus as UnifiedRecurringTaskWithStatus[])
   const loading = unifiedTasks.loading
+
+  // 完了タスクを読み込み
+  useEffect(() => {
+    const loadCompletedTasks = async () => {
+      try {
+        const tasks = unifiedTasks.tasks.filter(task => task.completed)
+        setCompletedTasks(tasks)
+      } catch (error) {
+        console.error('Failed to load completed tasks:', error)
+      }
+    }
+    if (isInitialized) {
+      loadCompletedTasks()
+    }
+  }, [unifiedTasks.tasks, isInitialized])
+
+  // 選択タスクをローカルストレージから復元
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedDailyTasks')
+    if (saved) {
+      try {
+        setSelectedDailyTasks(JSON.parse(saved))
+      } catch (error) {
+        console.error('Failed to parse selected daily tasks:', error)
+      }
+    }
+  }, [])
+
+  // 選択タスクをローカルストレージに保存
+  useEffect(() => {
+    localStorage.setItem('selectedDailyTasks', JSON.stringify(selectedDailyTasks))
+  }, [selectedDailyTasks])
+
+  // 30日カレンダーデータ生成
+  const getDailyTasksAchievementData = () => {
+    const dates: string[] = []
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      dates.push(date.toISOString().split('T')[0])
+    }
+
+    return selectedDailyTasks.map(taskId => {
+      const taskCompletions = completedTasks.filter(task =>
+        task.recurring_template_id === taskId && task.completed
+      )
+
+      const firstTask = taskCompletions[0]
+      const taskTitle = firstTask?.title || '不明なタスク'
+      const taskStartDate = firstTask?.created_at?.split('T')[0] || dates[0]
+
+      const completions = dates.map(date => {
+        return taskCompletions.some(task => {
+          const completedDate = task.completed_at?.split('T')[0] || task.updated_at?.split('T')[0]
+          return completedDate === date
+        })
+      })
+
+      const totalCompletedDays = completions.filter(c => c).length
+      const totalDays = dates.length
+      const recentCompletions = completions.slice(-7)
+      const recentCompletedDays = recentCompletions.filter(c => c).length
+      const recentTotalDays = 7
+
+      let consecutiveDays = 0
+      for (let i = completions.length - 1; i >= 0; i--) {
+        if (completions[i]) {
+          consecutiveDays++
+        } else {
+          break
+        }
+      }
+
+      return {
+        taskId,
+        taskTitle,
+        taskStartDate,
+        dates,
+        completions,
+        consecutiveDays,
+        recentCompletedDays,
+        recentTotalDays,
+        recentAchievementRate: recentTotalDays > 0 ? (recentCompletedDays / recentTotalDays) * 100 : 0,
+        totalCompletedDays,
+        totalDays,
+        totalAchievementRate: totalDays > 0 ? (totalCompletedDays / totalDays) * 100 : 0
+      }
+    })
+  }
+
+  const achievementData = getDailyTasksAchievementData()
+
+  // 繰り返しタスクの一覧を取得
+  const recurringTasks = completedTasks.filter(task =>
+    task.recurring_template_id && task.completed
+  ).reduce((acc, task) => {
+    if (!acc.some(t => t.recurring_template_id === task.recurring_template_id)) {
+      acc.push(task)
+    }
+    return acc
+  }, [] as UnifiedTask[])
+
+  // タスク選択トグル
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedDailyTasks(prev => {
+      if (prev.includes(taskId)) {
+        return prev.filter(id => id !== taskId)
+      } else {
+        return [...prev, taskId]
+      }
+    })
+  }
 
   if (error) {
     return (
@@ -145,17 +261,55 @@ export default function StatisticsPage() {
             <div>データベース: {isInitialized ? '✅ 接続中' : '⚠️ 未接続'}</div>
           </div>
         </div>
-        <p style={{ 
-          color: '#6b7280',
-          fontSize: '12px',
-          margin: '0'
+
+        {/* タブ切り替え */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          marginTop: '16px',
+          borderBottom: '2px solid #e5e7eb'
         }}>
-          タスク管理の進捗状況と傾向
-        </p>
+          <button
+            onClick={() => setActiveTab('stats')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: activeTab === 'stats' ? '#3b82f6' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'stats' ? '2px solid #3b82f6' : '2px solid transparent',
+              cursor: 'pointer',
+              marginBottom: '-2px',
+              transition: 'all 0.2s'
+            }}
+          >
+            統計・分析
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: activeTab === 'calendar' ? '#3b82f6' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'calendar' ? '2px solid #3b82f6' : '2px solid transparent',
+              cursor: 'pointer',
+              marginBottom: '-2px',
+              transition: 'all 0.2s'
+            }}
+          >
+            達成記録（30日カレンダー）
+          </button>
+        </div>
       </header>
 
       <main>
-        <StatisticsCards stats={stats} />
+        {activeTab === 'stats' ? (
+          <>
+            <StatisticsCards stats={stats} />
         
         {/* データが少ない場合のメッセージ */}
         {stats.totalTasks === 0 && (
@@ -200,6 +354,203 @@ export default function StatisticsPage() {
             }}>
               💡 <strong>ヒント:</strong> より詳細な統計を得るために、もっとタスクを作成してカテゴリや重要度を設定してみましょう！
             </div>
+          </div>
+        )}
+          </>
+        ) : (
+          // 30日カレンダータブ
+          <div style={{ marginTop: '20px' }}>
+            {/* タスク選択 */}
+            {recurringTasks.length > 0 && (
+              <div style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ marginTop: '0', marginBottom: '15px', fontSize: '16px', fontWeight: '600' }}>
+                  📋 追跡するタスクを選択
+                </h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  {recurringTasks.map((task) => (
+                    <button
+                      key={task.recurring_template_id}
+                      onClick={() => toggleTaskSelection(task.recurring_template_id!)}
+                      style={{
+                        padding: '8px 16px',
+                        border: selectedDailyTasks.includes(task.recurring_template_id!)
+                          ? '2px solid #3b82f6'
+                          : '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        background: selectedDailyTasks.includes(task.recurring_template_id!)
+                          ? '#eff6ff'
+                          : 'white',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: selectedDailyTasks.includes(task.recurring_template_id!)
+                          ? '#1e40af'
+                          : '#374151',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {selectedDailyTasks.includes(task.recurring_template_id!) ? '✓ ' : ''}
+                      {task.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 30日カレンダー */}
+            {achievementData.length > 0 ? (
+              <div style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+                marginBottom: '30px'
+              }}>
+                <h3 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: '600' }}>
+                  📅 過去30日の達成状況
+                </h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '13px'
+                  }}>
+                    <thead>
+                      <tr>
+                        <th style={{
+                          padding: '8px',
+                          textAlign: 'left',
+                          borderBottom: '2px solid #e5e7eb',
+                          position: 'sticky',
+                          left: 0,
+                          backgroundColor: 'white',
+                          minWidth: '150px'
+                        }}>
+                          タスク
+                        </th>
+                        {achievementData[0]?.dates.map((date) => {
+                          const d = new Date(date)
+                          return (
+                            <th
+                              key={date}
+                              style={{
+                                padding: '4px 2px',
+                                textAlign: 'center',
+                                borderBottom: '2px solid #e5e7eb',
+                                fontSize: '11px',
+                                minWidth: '24px'
+                              }}
+                            >
+                              {d.getDate()}
+                            </th>
+                          )
+                        })}
+                        <th style={{
+                          padding: '8px',
+                          textAlign: 'center',
+                          borderBottom: '2px solid #e5e7eb',
+                          minWidth: '80px'
+                        }}>
+                          直近達成率
+                        </th>
+                        <th style={{
+                          padding: '8px',
+                          textAlign: 'center',
+                          borderBottom: '2px solid #e5e7eb',
+                          minWidth: '80px'
+                        }}>
+                          総達成率
+                        </th>
+                        <th style={{
+                          padding: '8px',
+                          textAlign: 'center',
+                          borderBottom: '2px solid #e5e7eb',
+                          minWidth: '60px'
+                        }}>
+                          連続記録
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {achievementData.map((taskData) => (
+                        <tr key={taskData.taskId}>
+                          <td style={{
+                            padding: '8px',
+                            borderBottom: '1px solid #f3f4f6',
+                            position: 'sticky',
+                            left: 0,
+                            backgroundColor: 'white',
+                            fontWeight: '500'
+                          }}>
+                            {taskData.taskTitle}
+                          </td>
+                          {taskData.completions.map((completed, idx) => (
+                            <td
+                              key={idx}
+                              style={{
+                                padding: '4px 2px',
+                                textAlign: 'center',
+                                borderBottom: '1px solid #f3f4f6'
+                              }}
+                            >
+                              {completed ? '✓' : ''}
+                            </td>
+                          ))}
+                          <td style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #f3f4f6',
+                            fontWeight: '600',
+                            color: taskData.recentAchievementRate >= 80 ? '#16a34a' : taskData.recentAchievementRate >= 50 ? '#f59e0b' : '#dc2626'
+                          }}>
+                            {taskData.recentAchievementRate.toFixed(0)}%
+                          </td>
+                          <td style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #f3f4f6',
+                            fontWeight: '600',
+                            color: taskData.totalAchievementRate >= 80 ? '#16a34a' : taskData.totalAchievementRate >= 50 ? '#f59e0b' : '#dc2626'
+                          }}>
+                            {taskData.totalAchievementRate.toFixed(0)}%
+                          </td>
+                          <td style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #f3f4f6',
+                            fontWeight: '600',
+                            color: '#3b82f6'
+                          }}>
+                            {taskData.consecutiveDays}日
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                padding: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '16px', fontWeight: '500', color: '#92400e', marginBottom: '8px' }}>
+                  追跡するタスクを選択してください
+                </div>
+                <div style={{ fontSize: '14px', color: '#92400e' }}>
+                  上記の「追跡するタスクを選択」から繰り返しタスクを選ぶと、30日間の達成状況が表示されます。
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

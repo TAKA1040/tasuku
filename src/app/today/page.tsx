@@ -567,7 +567,7 @@ export default function TodayPage() {
               📖 ヘルプ
             </a>
             <a
-              href="/done"
+              href="/statistics"
               style={{
                 background: '#10b981',
                 color: 'white',
@@ -583,7 +583,7 @@ export default function TodayPage() {
               }}
               className="today-button"
             >
-              🎉 Done
+              📊 統計
             </a>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-actions">
               <button
