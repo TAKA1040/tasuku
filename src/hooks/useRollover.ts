@@ -23,57 +23,6 @@ export function useRollover(
   } | null>(null)
   const [isRollingOver, setIsRollingOver] = useState(false)
 
-  // 未完了タスクの検出
-  useEffect(() => {
-    if (!isDbInitialized) {
-      return
-    }
-
-    // 簡易実装：データがない場合は空の結果を返す
-    if (singleTasks.length === 0 && recurringTasks.length === 0) {
-      setRolloverData({
-        incompleteSingle: [],
-        incompleteRecurring: []
-      })
-      return
-    }
-
-    const loadRolloverData = async () => {
-      try {
-        // RecurringLogデータを取得
-        const recurringLogs = await db.getAllRecurringLogs()
-        
-        const incomplete = findIncompleTasks(singleTasks, recurringTasks, recurringLogs)
-        setRolloverData(incomplete)
-        
-        // 自動繰り越し実行
-        if (autoRollover && incomplete.incompleteSingle.length > 0) {
-          setTimeout(() => {
-            executeAutoRollover(incomplete.incompleteSingle)
-          }, 1000) // 1秒後に自動実行
-        }
-      } catch (error) {
-        console.error('Rollover detection error:', error)
-        setRolloverData({
-          incompleteSingle: [],
-          incompleteRecurring: []
-        })
-      }
-    }
-
-    loadRolloverData()
-  }, [singleTasks, recurringTasks, isDbInitialized, autoRollover, executeAutoRollover])
-
-  // 繰り越し候補があるかチェック
-  const hasRolloverCandidates = rolloverData && (
-    rolloverData.incompleteSingle.length > 0 || 
-    rolloverData.incompleteRecurring.length > 0
-  )
-
-  // 繰り越し表示テキスト
-  const rolloverDisplayText = rolloverData ?
-    getRolloverDisplayText(rolloverData.incompleteSingle, rolloverData.incompleteRecurring) : ''
-
   // 自動繰り越し実行（単発タスクのみ）
   const executeAutoRollover = useCallback(async (incompleteTasks: Task[]) => {
     if (isRollingOver || incompleteTasks.length === 0) return
@@ -131,6 +80,57 @@ export function useRollover(
       setIsRollingOver(false)
     }
   }, [isRollingOver])
+
+  // 未完了タスクの検出
+  useEffect(() => {
+    if (!isDbInitialized) {
+      return
+    }
+
+    // 簡易実装：データがない場合は空の結果を返す
+    if (singleTasks.length === 0 && recurringTasks.length === 0) {
+      setRolloverData({
+        incompleteSingle: [],
+        incompleteRecurring: []
+      })
+      return
+    }
+
+    const loadRolloverData = async () => {
+      try {
+        // RecurringLogデータを取得
+        const recurringLogs = await db.getAllRecurringLogs()
+        
+        const incomplete = findIncompleTasks(singleTasks, recurringTasks, recurringLogs)
+        setRolloverData(incomplete)
+        
+        // 自動繰り越し実行
+        if (autoRollover && incomplete.incompleteSingle.length > 0) {
+          setTimeout(() => {
+            executeAutoRollover(incomplete.incompleteSingle)
+          }, 1000) // 1秒後に自動実行
+        }
+      } catch (error) {
+        console.error('Rollover detection error:', error)
+        setRolloverData({
+          incompleteSingle: [],
+          incompleteRecurring: []
+        })
+      }
+    }
+
+    loadRolloverData()
+  }, [singleTasks, recurringTasks, isDbInitialized, autoRollover, executeAutoRollover])
+
+  // 繰り越し候補があるかチェック
+  const hasRolloverCandidates = rolloverData && (
+    rolloverData.incompleteSingle.length > 0 || 
+    rolloverData.incompleteRecurring.length > 0
+  )
+
+  // 繰り越し表示テキスト
+  const rolloverDisplayText = rolloverData ?
+    getRolloverDisplayText(rolloverData.incompleteSingle, rolloverData.incompleteRecurring) : ''
 
   // 手動繰り越し実行
   const executeRollover = async (options: {
