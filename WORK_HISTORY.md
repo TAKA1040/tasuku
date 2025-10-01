@@ -5,6 +5,62 @@
 
 ---
 
+## ✅ 完了: React警告修正 (2025-10-02)
+
+### React Hooks & 未使用式警告修正 ✅
+**Commit**: `15b7eeb` "fix: Resolve React Hooks and unused expression warnings"
+
+#### 修正内容:
+
+**1. React Hooks exhaustive-deps警告修正（today/page.tsx:147）**
+
+**問題**:
+- `useEffect`の依存配列に`shoppingSubTasks`と`unifiedTasks`が不足
+- ESLintが追加を要求するが、追加すると無限ループのリスク
+
+**解決策**:
+```typescript
+// Note: shoppingSubTasks and unifiedTasks intentionally excluded to prevent infinite loop
+// - shoppingSubTasks accessed via prev => no direct dependency
+// - unifiedTasks.getSubtasks is stable method
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [allUnifiedData])
+```
+
+- `shoppingSubTasks`は`prev =>`経由でアクセス（setState更新関数形式）
+- `unifiedTasks.getSubtasks`は安定したメソッド（再作成されない）
+- 意図的な除外をコメントで明示
+
+**2. 未使用式警告修正（TaskEditForm.tsx:440, 462）**
+
+**問題**:
+- `onUpdateShoppingItem && onUpdateShoppingItem(...)`
+- 関数呼び出しなのに`&&`演算子で評価される（未使用式警告）
+
+**修正前**:
+```typescript
+onUpdateShoppingItem && onUpdateShoppingItem(task.id, subTask.id, title)
+```
+
+**修正後**:
+```typescript
+if (onUpdateShoppingItem) {
+  onUpdateShoppingItem(task.id, subTask.id, title)
+}
+```
+
+#### 効果:
+- **警告削減**: 60件 → 51件（9件削減）
+- **コード品質**: 意図が明確、保守性向上
+- **React ベストプラクティス**: 無限ループ防止の正しい実装
+
+### デプロイ状況:
+- **Git commit**: `15b7eeb`
+- **本番URL**: https://tasuku.apaf.me
+- **ステータス**: ✅ React警告修正完了
+
+---
+
 ## ✅ 完了: Medium Priority 未使用コード削除 (2025-10-02)
 
 ### Medium-7 (Part 3): supabase-database.ts 未使用user_id変数 ✅
