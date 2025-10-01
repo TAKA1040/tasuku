@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 
 interface RecurringTaskStatsProps {
   completedTasks: UnifiedTask[]
@@ -47,13 +48,12 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
 
   // 繰り返しタスクの統計を計算
   const recurringStats = useMemo(() => {
-    console.log('⚡ useMemo is running! completedTasks.length:', completedTasks.length, 'period:', period)
+    logger.debug('⚡ useMemo is running!', { completedTasksCount: completedTasks.length, period })
 
     const today = new Date().toISOString().split('T')[0]
 
-    // デバッグ: 全タスクをログ出力（本番でも表示）
-    console.log('🔍 All completed tasks:', completedTasks.length)
-    console.log('🔍 Task types:', completedTasks.map(t => ({
+    logger.debug('🔍 All completed tasks:', completedTasks.length)
+    logger.debug('🔍 Task types:', completedTasks.map(t => ({
       title: t.title,
       type: t.task_type,
       templateId: t.recurring_template_id
@@ -64,8 +64,8 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
       task => task.task_type === 'RECURRING' && task.recurring_template_id
     )
 
-    console.log('🔍 Filtered recurring tasks:', recurringTasks.length)
-    console.log('🔍 Recurring tasks:', recurringTasks.map(t => ({ title: t.title, templateId: t.recurring_template_id })))
+    logger.debug('🔍 Filtered recurring tasks:', { count: recurringTasks.length })
+    logger.debug('🔍 Recurring tasks:', recurringTasks.map(t => ({ title: t.title, templateId: t.recurring_template_id })))
 
     // テンプレートIDごとにグループ化
     const tasksByTemplate = new Map<string, UnifiedTask[]>()
@@ -153,15 +153,13 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
     : recurringStats
 
   // デバッグ: レンダリング時の状態確認
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🎨 RecurringTaskStats rendered with:', {
-      completedTasksCount: completedTasks.length,
-      statsCount: recurringStats.length,
-      displayStatsCount: displayStats.length,
-      selectedTaskIds: selectedTaskIds.length,
-      period
-    })
-  }
+  logger.debug('🎨 RecurringTaskStats rendered with:', {
+    completedTasksCount: completedTasks.length,
+    statsCount: recurringStats.length,
+    displayStatsCount: displayStats.length,
+    selectedTaskIds: selectedTaskIds.length,
+    period
+  })
 
   return (
     <div style={{

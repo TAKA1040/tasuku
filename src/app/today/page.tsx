@@ -122,26 +122,29 @@ export default function TodayPage() {
   useEffect(() => {
     const loadShoppingSubTasks = async () => {
       const shoppingTasks = allUnifiedData.filter(task => task.category === '買い物')
+      const updates: {[taskId: string]: SubTask[]} = {}
 
       for (const task of shoppingTasks) {
         if (!shoppingSubTasks[task.id]) {
           try {
             const subtasks = await unifiedTasks.getSubtasks(task.id)
-            setShoppingSubTasks(prev => ({
-              ...prev,
-              [task.id]: subtasks
-            }))
+            updates[task.id] = subtasks
           } catch (error) {
             console.error(`サブタスク読み込みエラー (${task.id}):`, error)
           }
         }
+      }
+
+      // 一度にまとめて更新（無限ループ防止）
+      if (Object.keys(updates).length > 0) {
+        setShoppingSubTasks(prev => ({ ...prev, ...updates }))
       }
     }
 
     if (allUnifiedData.length > 0) {
       loadShoppingSubTasks()
     }
-  }, [allUnifiedData, unifiedTasks, shoppingSubTasks])
+  }, [allUnifiedData])
 
   const loading = unifiedTasks.loading
 
