@@ -5,18 +5,6 @@ import type { UnifiedTask } from '@/lib/types/unified-task'
 import { DisplayNumberUtils } from '@/lib/types/unified-task'
 import { ImportanceDot } from '@/components/ImportanceDot'
 
-// 重要度に応じた色を返すヘルパー関数
-const getImportanceColor = (importance?: number | null): string => {
-  switch (importance) {
-    case 5: return '#dc2626' // 赤 - 最高重要度
-    case 4: return '#ea580c' // オレンジ - 高重要度
-    case 3: return '#ca8a04' // 黄 - 中重要度
-    case 2: return '#16a34a' // 緑 - 低重要度
-    case 1: return '#2563eb' // 青 - 最低重要度
-    default: return '#9ca3af' // グレー - 重要度なし
-  }
-}
-
 interface IdeaItem {
   id: string
   text: string

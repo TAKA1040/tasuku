@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import type { Task, RecurringTask } from '@/lib/db/schema'
 import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
-import { getTodayJST, getWeekStartJST, getMonthStartJST, getMonthEndJST, getUrgencyLevel } from '@/lib/utils/date-jst'
+import { getTodayJST, getWeekStartJST, getMonthStartJST, getMonthEndJST, getUrgencyLevel, subtractDays } from '@/lib/utils/date-jst'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
 import { UI_CONSTANTS } from '@/lib/constants'
 
@@ -167,7 +167,7 @@ export function useMVPStatistics(
       
       // 今日から遡って連続達成日数を計算
       for (let i = 0; i < 365; i++) { // 最大1年分チェック
-        const checkDate = getDateDaysAgo(today, i)
+        const checkDate = subtractDays(today, i)
         
         // TODO: 繰り返しスケジュールチェックを実装
         // 現在は簡易版
@@ -216,20 +216,6 @@ export function useMVPStatistics(
     }
   }, [tasks, recurringTasks, recurringLogs])
 }
-
-// ヘルパー関数
-function getNextDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  date.setDate(date.getDate() + 1)
-  return date.toISOString().split('T')[0]
-}
-
-function getDateDaysAgo(fromDate: string, daysAgo: number): string {
-  const date = new Date(fromDate)
-  date.setDate(date.getDate() - daysAgo)
-  return date.toISOString().split('T')[0]
-}
-
 
 // レガシー統計フック（既存コンポーネント用）
 export function useStatistics(

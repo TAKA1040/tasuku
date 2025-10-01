@@ -261,7 +261,7 @@ export default function DonePage() {
     setShowEditForm(true)
   }
 
-  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], _startTime?: string, _endTime?: string, _attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
+  const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[]) => {
     // ローディング状態開始
     setOperatingTaskIds(prev => new Set(prev).add(taskId))
 

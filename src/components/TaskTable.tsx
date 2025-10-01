@@ -74,23 +74,6 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     )
   }
 
-  const getUrgencyStyle = (urgency: string) => {
-    switch (urgency) {
-      case 'Overdue':
-        return { backgroundColor: '#fef2f2', color: '#dc2626', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      case 'Soon':
-        return { backgroundColor: '#fef3c7', color: '#d97706', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      case 'Next7':
-        return { backgroundColor: '#dbeafe', color: '#2563eb', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      case 'Next30':
-        return { backgroundColor: '#f0f9ff', color: '#0ea5e9', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-      default:
-        return { backgroundColor: '#f9fafb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }
-    }
-  }
-
-
-
   const formatDueDate = (dueDate?: string) => {
     if (!dueDate) return '-'
 
@@ -228,7 +211,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }))
   }
 
-  const handleToggleSubTask = async (subTaskId: string, taskId: string) => {
+  const handleToggleSubTask = async (subTaskId: string) => {
     try {
       await subTaskService.toggleSubTaskCompletion(subTaskId)
       await loadSubTasks()
@@ -237,7 +220,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
     }
   }
 
-  const handleDeleteSubTask = async (subTaskId: string, taskId: string) => {
+  const handleDeleteSubTask = async (subTaskId: string) => {
     try {
       await subTaskService.deleteSubTask(subTaskId)
       await loadSubTasks()
@@ -788,7 +771,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                             <input
                               type="checkbox"
                               checked={subTask.completed}
-                              onChange={() => handleToggleSubTask(subTask.id, item.id)}
+                              onChange={() => handleToggleSubTask(subTask.id)}
                               style={{ cursor: 'pointer' }}
                             />
 
@@ -859,7 +842,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                                   {subTask.title}
                                 </span>
                                 <button
-                                  onClick={() => handleDeleteSubTask(subTask.id, item.id)}
+                                  onClick={() => handleDeleteSubTask(subTask.id)}
                                   style={{
                                     padding: '2px 4px',
                                     fontSize: '10px',
