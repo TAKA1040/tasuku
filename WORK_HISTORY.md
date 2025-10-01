@@ -5,6 +5,68 @@
 
 ---
 
+## ✅ 完了: High Priority問題修正 (2025-10-01 続き)
+
+### High-8: 非同期操作のローディング状態追加 ✅
+**Commit**: `ca29eac` "feat: Add loading states to async operations in done page"
+
+#### 修正内容:
+1. **`src/app/done/page.tsx`**
+   - `operatingTaskIds` state (Set<string>) を追加
+   - `handleUncomplete`, `handleDelete`, `handleUpdateTask` にローディング管理を実装
+   - try-catch-finally パターンでエラーハンドリング
+
+2. **`src/components/TaskTable.tsx`**
+   - `operatingTaskIds` prop を追加
+   - チェックボックスボタンに以下を実装:
+     - disabled 状態、カーソル wait、透明度 50%
+     - ⏳ アイコン表示
+   - 削除ボタン（2箇所）に同様のローディング状態実装
+
+#### UX改善効果:
+- 視覚的フィードバック: 操作中は ⏳ アイコン表示
+- 多重クリック防止: disabled で複数リクエスト防止
+- エラーハンドリング: 失敗時にアラート表示
+- 状態管理の信頼性: finally で確実にローディング解除
+
+---
+
+### High-2: ディスプレイ番号生成ロジック統一 ✅
+**Commit**: `bfd0c61` "refactor: Unify display number generation logic"
+
+#### 問題:
+2つの異なるディスプレイ番号生成実装が存在:
+1. `UnifiedTasksService.generateDisplayNumber()` - T001形式（実際に使用）
+2. `DisplayNumberUtils.generateDisplayNumber()` - YYYYMMDDTTCCC形式（未使用）
+3. `TaskGeneratorService` の private メソッド - T001形式の簡易版
+
+#### 修正内容:
+1. **`src/lib/types/unified-task.ts`**
+   - `DisplayNumberUtils` に明確なドキュメントを追加
+   - 番号**生成**は `UnifiedTasksService.generateDisplayNumber()` を使用
+   - このクラスは番号の**表示**（formatCompact）に使用
+   - `generateDisplayNumber()` に @deprecated タグ追加
+
+2. **`src/lib/db/unified-tasks.ts`**
+   - JSDoc で ✅ 公式メソッドであることを明示
+   - T001形式の説明を追加
+
+3. **`src/lib/services/task-generator.ts`**
+   - private `generateDisplayNumber()` メソッドを削除（19行）
+   - `UnifiedTasksService.generateDisplayNumber()` を直接呼び出し
+
+#### 効果:
+- データ整合性: 単一の信頼できる実装に統一
+- 保守性向上: 重複コード削除（19行）
+- 明確な責務分離: 生成 → UnifiedTasksService、表示 → DisplayNumberUtils.formatCompact()
+- 開発者体験: 明確なドキュメントで迷わない
+
+### デプロイ状況:
+- **本番URL**: https://tasuku.apaf.me
+- **ステータス**: ✅ 2つのHigh Priority問題修正完了
+
+---
+
 ## ✅ 完了: コード品質改善 (2025-10-01)
 
 ### 修正済みファイル:
