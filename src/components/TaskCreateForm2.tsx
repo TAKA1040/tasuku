@@ -279,10 +279,14 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
         backgroundColor: 'white',
         borderRadius: '8px',
         padding: '12px',
-        width: '100%',
+        width: 'calc(100% - 16px)',
         maxWidth: '480px',
         maxHeight: '95vh',
-        overflow: 'auto'
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        margin: '0 auto',
+        boxSizing: 'border-box'
       }}>
         <h2 style={{
           fontSize: '16px',

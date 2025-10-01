@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { DisplayNumberUtils, SubTask } from '@/lib/types/unified-task'
+import { getTodayJST } from '@/lib/utils/date-jst'
 
 interface UnifiedTasksTableProps {
   title: string
@@ -256,13 +257,25 @@ export function UnifiedTasksTable({
           {emptyMessage}
         </div>
       ) : (
+        <>
+        <style>{`
+          @media (max-width: 640px) {
+            .desktop-table { display: none; }
+            .mobile-cards { display: block; }
+          }
+          @media (min-width: 641px) {
+            .desktop-table { display: table; }
+            .mobile-cards { display: none; }
+          }
+        `}</style>
+
         <div style={{
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           backgroundColor: '#ffffff',
           overflow: 'hidden'
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="desktop-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#f9fafb' }}>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
@@ -702,7 +715,206 @@ export function UnifiedTasksTable({
               )})}
             </tbody>
           </table>
+
+          {/* モバイル用カード表示 */}
+          <div className="mobile-cards">
+            {tasks.map((item, index) => {
+              const dataType = getTaskDataType(item)
+              const subTasks = shoppingSubTasks?.[item.id] || []
+              const hasSubTasks = subTasks.length > 0
+              const isExpanded = expandedShoppingLists?.has(item.id)
+
+              return (
+                <div key={`mobile-${dataType}-${item.id}`} style={{
+                  padding: '12px',
+                  borderBottom: index < tasks.length - 1 ? '1px solid #f3f4f6' : 'none',
+                  backgroundColor: item.completed ? '#f8f9fa' : 'white',
+                  opacity: item.completed ? 0.6 : 1
+                }}>
+                  {/* 上段：完了・タイトル・操作 */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                    {/* 完了チェック */}
+                    <button
+                      onClick={() => {
+                        if (item.completed) {
+                          unifiedTasks.uncompleteTask(item.id)
+                        } else {
+                          unifiedTasks.completeTask(item.id)
+                        }
+                      }}
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        border: `2px solid ${item.completed ? '#10b981' : '#d1d5db'}`,
+                        borderRadius: '4px',
+                        backgroundColor: item.completed ? '#10b981' : 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        color: 'white',
+                        flexShrink: 0
+                      }}
+                    >
+                      {item.completed ? '✓' : ''}
+                    </button>
+
+                    {/* タイトル */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        textDecoration: item.completed ? 'line-through' : 'none',
+                        wordBreak: 'break-word',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        flexWrap: 'wrap'
+                      }}>
+                        {item.title || '無題'}
+                        {hasSubTasks && (
+                          <span style={{
+                            fontSize: '11px',
+                            color: '#6b7280',
+                            backgroundColor: '#f3f4f6',
+                            padding: '2px 6px',
+                            borderRadius: '10px'
+                          }}>
+                            🛒 {subTasks.filter(st => st.completed).length}/{subTasks.length}
+                          </span>
+                        )}
+                      </div>
+                      {item.memo && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#6b7280',
+                          marginTop: '4px'
+                        }}>
+                          {item.memo}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 操作ボタン */}
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                      <button
+                        onClick={() => handleEditTask(item)}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => unifiedTasks.deleteTask(item.id)}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 下段：カテゴリ・期限・URL */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#6b7280' }}>
+                    {item.category && (
+                      <span style={{
+                        backgroundColor: '#f3f4f6',
+                        padding: '2px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        📁 {item.category}
+                      </span>
+                    )}
+                    {item.due_date && item.due_date !== '2999-12-31' && (
+                      <span style={{
+                        backgroundColor: item.due_date < getTodayJST() ? '#fee2e2' : '#f3f4f6',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        color: item.due_date < getTodayJST() ? '#dc2626' : '#6b7280'
+                      }}>
+                        📅 {item.due_date}
+                      </span>
+                    )}
+                    {item.urls && item.urls.length > 0 && (
+                      <span style={{
+                        backgroundColor: '#dbeafe',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        color: '#1e40af'
+                      }}>
+                        🌍 {item.urls.length}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 買い物リスト */}
+                  {hasSubTasks && (
+                    <div style={{ marginTop: '8px' }}>
+                      <button
+                        onClick={() => toggleShoppingList && toggleShoppingList(item.id)}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          textAlign: 'left'
+                        }}
+                      >
+                        {isExpanded ? '▼' : '▶'} 買い物リスト ({subTasks.filter(st => st.completed).length}/{subTasks.length})
+                      </button>
+                      {isExpanded && (
+                        <div style={{ marginTop: '8px', paddingLeft: '8px' }}>
+                          {subTasks.map(subTask => (
+                            <div key={subTask.id} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '4px 0',
+                              fontSize: '13px'
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={subTask.completed}
+                                onChange={() => toggleShoppingSubTask && toggleShoppingSubTask(item.id, subTask.id)}
+                                style={{ width: '16px', height: '16px' }}
+                              />
+                              <span style={{
+                                textDecoration: subTask.completed ? 'line-through' : 'none',
+                                color: subTask.completed ? '#6b7280' : 'inherit',
+                                flex: 1
+                              }}>
+                                {subTask.title}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
+        </>
       )}
 
       {/* ファイル表示ポップアップ */}

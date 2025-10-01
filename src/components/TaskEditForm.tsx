@@ -241,10 +241,14 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         backgroundColor: 'white',
         borderRadius: '8px',
         padding: '24px',
-        width: '100%',
+        width: 'calc(100% - 40px)',
         maxWidth: '500px',
         maxHeight: '80vh',
-        overflow: 'auto'
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        margin: '0 auto',
+        boxSizing: 'border-box'
       }}>
         <form onSubmit={handleSubmit}>
           <h2 style={{
