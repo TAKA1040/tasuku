@@ -10,7 +10,14 @@ import { logger } from '@/lib/utils/logger'
 const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
 export class UnifiedTasksService {
-  // 統一番号を生成
+  /**
+   * ✅ 公式のディスプレイ番号生成メソッド - T001形式
+   *
+   * タスク作成時は必ずこのメソッドを使用してください。
+   * T001, T002, T003... の形式で番号を生成します。
+   *
+   * ⚠️ 注意: DisplayNumberUtils.generateDisplayNumber() は非推奨です。
+   */
   static async generateDisplayNumber(): Promise<string> {
     try {
       const supabase = createClient()

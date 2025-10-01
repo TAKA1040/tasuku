@@ -274,8 +274,8 @@ export class TaskGeneratorService {
       return
     }
 
-    // 統一番号を生成
-    const displayNumber = await this.generateDisplayNumber()
+    // 統一番号を生成（UnifiedTasksServiceの公式メソッドを使用）
+    const displayNumber = await UnifiedTasksService.generateDisplayNumber()
 
     // デバッグ: テンプレートの情報をログ出力
     console.log('📝 テンプレートからタスク生成:', {
@@ -363,26 +363,6 @@ export class TaskGeneratorService {
         }
       }
     }
-  }
-
-  // 統一番号生成
-  private async generateDisplayNumber(): Promise<string> {
-    const userId = await this.getCurrentUserId()
-
-    const { data, error } = await this.supabase
-      .from('unified_tasks')
-      .select('display_number')
-      .eq('user_id', userId)
-      .order('display_number', { ascending: false })
-      .limit(1)
-
-    if (error || !data || data.length === 0) {
-      return 'T001'
-    }
-
-    const lastNumber = data[0].display_number
-    const number = parseInt(lastNumber.substring(1)) + 1
-    return `T${number.toString().padStart(3, '0')}`
   }
 
   // 週が変わったかチェック

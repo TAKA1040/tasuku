@@ -77,6 +77,14 @@ export interface TaskSorters {
 }
 
 // 番号生成・解析ユーティリティクラス
+/**
+ * DisplayNumberUtils - ディスプレイ番号の表示フォーマット用ユーティリティ
+ *
+ * ⚠️ 重要な注意事項:
+ * - 番号の**生成**には UnifiedTasksService.generateDisplayNumber() を使用してください
+ * - このクラスは主に番号の**表示**（formatCompact）に使用します
+ * - generateDisplayNumber() メソッドは非推奨です（互換性のため残されています）
+ */
 export class DisplayNumberUtils {
   private static readonly TYPE_CODES = {
     NORMAL: '10',
@@ -85,7 +93,14 @@ export class DisplayNumberUtils {
     IDEA: '13'
   } as const
 
-  // YYYYMMDDTTCCC形式の番号を生成
+  /**
+   * ⚠️ 非推奨: このメソッドは使用しないでください
+   *
+   * 代わりに UnifiedTasksService.generateDisplayNumber() を使用してください。
+   * 現在のシステムは T001 形式の番号を使用しています。
+   *
+   * @deprecated Use UnifiedTasksService.generateDisplayNumber() instead
+   */
   static generateDisplayNumber(taskType: TaskType, date: Date = new Date()): string {
     const year = date.getFullYear().toString()
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
