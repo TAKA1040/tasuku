@@ -4,9 +4,7 @@ import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { DisplayNumberUtils } from '@/lib/types/unified-task'
-import { getTodayJST, getTomorrowJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import { ImportanceDot } from '@/components/ImportanceDot'
-import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 
 interface ShoppingTasksSectionProps {
   onEdit?: (task: UnifiedTask) => void

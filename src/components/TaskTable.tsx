@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useEffect, useCallback, memo } from 'react'
-import type { TaskWithUrgency, Task, RecurringTask, SubTask } from '@/lib/db/schema'
+import type { TaskWithUrgency, Task, SubTask } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { PRIORITY_SCORES } from '@/lib/constants'

@@ -1,8 +1,7 @@
 // ダミーデータ生成（開発・テスト用）
 // PHASE 0 合格条件：ダミーデータ読込可
 
-import { getTodayJST, addDays, getWeekStartJST } from '../utils/date-jst'
-import type { UnifiedTask } from '@/lib/types/unified-task'
+import { getTodayJST, addDays } from '../utils/date-jst'
 
 /**
  * ダミーデータを生成してDBに投入（新統一システム対応）

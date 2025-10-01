@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
-import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
+import { TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 import { QuickMoves } from '@/lib/utils/date-jst'
 import { TimeInput } from '@/components/TimeInput'
 

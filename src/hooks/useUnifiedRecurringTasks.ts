@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useCompletionTracker } from '@/hooks/useCompletionTracker'
-import { getTodayJST } from '@/lib/utils/date-jst'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 
 export interface UnifiedRecurringTaskWithStatus {

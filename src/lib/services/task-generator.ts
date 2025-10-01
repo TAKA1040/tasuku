@@ -6,7 +6,7 @@ import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import { getTodayJST, addDays, subtractDays, isMonday, getStartOfWeek, getStartOfMonth } from '@/lib/utils/date-jst'
+import { getTodayJST, addDays, subtractDays, getStartOfWeek, getStartOfMonth } from '@/lib/utils/date-jst'
 
 export class TaskGeneratorService {
   private supabase = createClient()

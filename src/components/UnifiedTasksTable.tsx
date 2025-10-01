@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import { DisplayNumberUtils, SubTask } from '@/lib/types/unified-task'
+import { SubTask } from '@/lib/types/unified-task'
 import { getTodayJST } from '@/lib/utils/date-jst'
 
 interface UnifiedTasksTableProps {

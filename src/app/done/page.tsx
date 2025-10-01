@@ -8,7 +8,7 @@ import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import { unifiedTaskToTask, taskToUnifiedTask } from '@/lib/utils/type-converters'
+import { unifiedTaskToTask } from '@/lib/utils/type-converters'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
