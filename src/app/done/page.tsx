@@ -8,6 +8,7 @@ import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { unifiedTaskToTask } from '@/lib/utils/type-converters'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
@@ -247,7 +248,9 @@ export default function DonePage() {
 
   // 編集ハンドラー
   const handleEditTask = (task: Task | UnifiedTask) => {
-    setEditingTask(task as Task)
+    // UnifiedTaskの場合は変換、Taskの場合はそのまま使用
+    const legacyTask: Task = 'task_type' in task ? unifiedTaskToTask(task) : task
+    setEditingTask(legacyTask)
     setShowEditForm(true)
   }
 
@@ -713,12 +716,7 @@ export default function DonePage() {
             tasks={[]}
             recurringTasks={[]}
             completedTasks={filteredCompletedTasks.map(task => ({
-              task: {
-                ...task,
-                memo: task.memo || undefined,
-                urls: task.urls || undefined,
-                attachment: task.attachment || undefined
-              } as Task, // UnifiedTaskからTaskへの型変換
+              task: unifiedTaskToTask(task), // 型安全な変換
               urgency: 'Normal' as const,
               days_from_today: 0
             }))}
