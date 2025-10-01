@@ -1299,6 +1299,17 @@ export default function TemplatesPage() {
                 更新
               </button>
             </div>
+
+            {/* スマホ用の余白 */}
+            <div style={{ display: 'none' }} className="mobile-bottom-spacer" />
+            <style>{`
+              @media (max-width: 640px) {
+                .mobile-bottom-spacer {
+                  display: block !important;
+                  height: 80px;
+                }
+              }
+            `}</style>
           </div>
         </div>
       )}
