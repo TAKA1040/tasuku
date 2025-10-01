@@ -108,9 +108,13 @@ export default function StatisticsPage() {
         task.recurring_template_id === taskId && task.completed
       )
 
+      // タスクのタイトルを取得（完了済みまたは未完了の繰り返しタスクから）
       const firstTask = taskCompletions[0]
-      const taskTitle = firstTask?.title || '不明なタスク'
-      const taskStartDate = firstTask?.created_at?.split('T')[0] || dates[0]
+      const allTasksWithThisTemplate = unifiedTasks.tasks.filter(task =>
+        task.recurring_template_id === taskId
+      )
+      const taskTitle = firstTask?.title || allTasksWithThisTemplate[0]?.title || '不明なタスク'
+      const taskStartDate = firstTask?.created_at?.split('T')[0] || allTasksWithThisTemplate[0]?.created_at?.split('T')[0] || dates[0]
 
       const completions = dates.map(date => {
         return taskCompletions.some(task => {
