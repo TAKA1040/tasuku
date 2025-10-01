@@ -5,6 +5,85 @@
 
 ---
 
+## ✅ 完了: Medium Priority問題修正 (2025-10-01 午後)
+
+### Medium-1: 未使用imports削除 ✅
+**Commit**: `d24902e` "refactor: Remove unused imports to reduce bundle size"
+
+#### 修正内容（9ファイル）:
+1. **done/page.tsx** - taskToUnifiedTask削除
+2. **TaskEditForm.tsx** - TASK_CATEGORIES削除
+3. **TaskTable.tsx** - RecurringTask型削除
+4. **ShoppingTasksSection.tsx** - 5つの未使用import削除
+5. **UnifiedTasksTable.tsx** - DisplayNumberUtils削除
+6. **useUnifiedRecurringTasks.ts** - getTodayJST削除
+7. **migrate-to-unified.ts** - 2つのlegacy import削除
+8. **seed.ts** - 2つの未使用import削除
+9. **task-generator.ts** - isMonday削除
+
+#### 効果:
+- バンドルサイズ削減
+- ビルド警告7件削減
+- コード可読性向上
+
+---
+
+### Medium-3: Magic Numbers定数化 ✅
+**Commit**: `db96539` "refactor: Replace magic numbers with named constants"
+
+#### 置き換えた箇所（5ファイル、13箇所）:
+
+**時間計算（TIME_CONSTANTS.MILLISECONDS_PER_DAY）:**
+1. useRecurringTasks.ts - `24 * 60 * 60 * 1000`
+2-3. RecurringTaskStats.tsx - `1000 * 60 * 60 * 24` (2箇所)
+
+**UI/タイミング定数:**
+4. useDatabase.ts - `100` → `UI_CONSTANTS.DATABASE_INIT_RETRY_DELAY`
+5. useRollover.ts - `1000` → `UI_CONSTANTS.AUTO_ROLLOVER_DELAY`
+
+**パーセンテージ計算（UI_CONSTANTS.PERCENTAGE_MULTIPLIER）:**
+6. RecurringTaskStats.tsx - `* 100`
+7-11. useStatistics.ts - `* 100` (5箇所)
+
+#### 効果:
+- 保守性向上: 定数の意味が明確、変更が容易
+- 一貫性: 同じ値の整合性確保
+- バグ予防: タイプミス防止
+
+---
+
+### Medium-4: 日付パースバリデーション ✅
+**Commit**: `37ae378` "feat: Add comprehensive date parsing validation"
+
+#### 追加機能（date-jst.ts）:
+
+**1. parseDateJST 関数の強化:**
+- 入力タイプチェック
+- フォーマットチェック（正規表現: /^\d{4}-\d{2}-\d{2}$/）
+- 数値バリデーション（isNaN）
+- 範囲チェック（月: 1-12, 日: 1-31）
+- 日付妥当性チェック（2月30日など検出）
+
+**2. safeParseDateJST 関数追加:**
+- エラーの代わりにnullを返す
+- UI入力バリデーションに最適
+
+**3. ヘルパー関数追加:**
+- isValidDateString(dateString) - 単一検証
+- validateDateStrings(dateStrings[]) - 一括検証
+
+#### 効果:
+- 安定性向上: NaN/Invalid Dateバグ防止
+- デバッグ改善: 明確なエラーメッセージ
+- データ品質: 不正な日付の早期検出
+
+### デプロイ状況:
+- **Git commits**: `d24902e`, `db96539`, `37ae378`
+- **本番URL**: https://tasuku.apaf.me
+- **ステータス**: ✅ Medium Priority 3件完了
+
+---
+
 ## ✅ 完了: High Priority問題修正 (2025-10-01 続き)
 
 ### High-8: 非同期操作のローディング状態追加 ✅
