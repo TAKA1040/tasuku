@@ -57,11 +57,61 @@ export function formatDateJST(date: Date): string {
 
 /**
  * YYYY-MM-DD 文字列を Date オブジェクトに変換（JST基準）
+ *
+ * @throws {Error} 不正な日付文字列の場合
  */
 export function parseDateJST(dateString: string): Date {
+  // 入力バリデーション
+  if (!dateString || typeof dateString !== 'string') {
+    throw new Error(`Invalid date string: expected string, got ${typeof dateString}`)
+  }
+
+  // YYYY-MM-DD フォーマットチェック
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!dateRegex.test(dateString)) {
+    throw new Error(`Invalid date format: expected YYYY-MM-DD, got "${dateString}"`)
+  }
+
   // YYYY-MM-DD を JST の日付として解釈
   const [year, month, day] = dateString.split('-').map(Number)
-  return new Date(year, month - 1, day) // month は 0-based
+
+  // 数値バリデーション
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    throw new Error(`Invalid date components: year=${year}, month=${month}, day=${day}`)
+  }
+
+  // 範囲チェック
+  if (month < 1 || month > 12) {
+    throw new Error(`Invalid month: ${month} (must be 1-12)`)
+  }
+  if (day < 1 || day > 31) {
+    throw new Error(`Invalid day: ${day} (must be 1-31)`)
+  }
+
+  const date = new Date(year, month - 1, day) // month は 0-based
+
+  // 日付の妥当性チェック（例: 2月30日など）
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    throw new Error(`Invalid date: ${dateString} does not represent a valid calendar date`)
+  }
+
+  return date
+}
+
+/**
+ * YYYY-MM-DD 文字列を Date オブジェクトに安全に変換（JST基準）
+ *
+ * エラーの代わりにnullを返すバージョン。
+ * UI入力などエラーハンドリングが不要な場合に使用。
+ *
+ * @returns Date object or null if invalid
+ */
+export function safeParseDateJST(dateString: string): Date | null {
+  try {
+    return parseDateJST(dateString)
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -224,3 +274,35 @@ export const QuickMoves = {
   plus3Days: () => addDays(getTodayJST(), 3),
   endOfMonth: () => getMonthEndJST()
 } as const
+
+/**
+ * 日付文字列が有効なYYYY-MM-DD形式かチェック
+ *
+ * @returns true if valid, false otherwise
+ */
+export function isValidDateString(dateString: string): boolean {
+  return safeParseDateJST(dateString) !== null
+}
+
+/**
+ * 日付文字列の配列をバリデーション
+ *
+ * @returns { valid: string[], invalid: string[] }
+ */
+export function validateDateStrings(dateStrings: string[]): {
+  valid: string[]
+  invalid: string[]
+} {
+  const valid: string[] = []
+  const invalid: string[] = []
+
+  dateStrings.forEach(dateString => {
+    if (isValidDateString(dateString)) {
+      valid.push(dateString)
+    } else {
+      invalid.push(dateString)
+    }
+  })
+
+  return { valid, invalid }
+}
