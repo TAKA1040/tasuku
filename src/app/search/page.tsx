@@ -214,7 +214,8 @@ export default function SearchPage() {
           .search-container { width: 100% !important; padding: 8px !important; }
           .search-header { flex-direction: column; gap: 12px; align-items: flex-start !important; }
           .search-header-left { width: 100%; }
-          .search-header-right { width: 100%; justify-content: flex-end; }
+          .search-header-right { width: 100%; justify-content: space-between; }
+          .search-header-right > * { flex-shrink: 0; }
         }
       `}</style>
       <div className="search-container" style={{
