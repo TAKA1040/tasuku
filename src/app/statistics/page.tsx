@@ -365,7 +365,20 @@ export default function StatisticsPage() {
                 <h3 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: '600' }}>
                   📅 過去30日の達成状況
                 </h3>
-                <div style={{ overflowX: 'auto' }}>
+
+                <style>{`
+                  @media (max-width: 640px) {
+                    .desktop-calendar { display: none; }
+                    .mobile-calendar { display: block; }
+                  }
+                  @media (min-width: 641px) {
+                    .desktop-calendar { display: block; }
+                    .mobile-calendar { display: none; }
+                  }
+                `}</style>
+
+                {/* デスクトップ版カレンダー */}
+                <div className="desktop-calendar" style={{ overflowX: 'auto' }}>
                   <table style={{
                     width: '100%',
                     borderCollapse: 'collapse',
@@ -483,6 +496,176 @@ export default function StatisticsPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* モバイル版カレンダー */}
+                <div className="mobile-calendar">
+                  {achievementData.map((taskData) => (
+                    <div key={taskData.taskId} style={{
+                      marginBottom: '20px',
+                      padding: '16px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px'
+                    }}>
+                      {/* タスク名と統計（上段） */}
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          marginBottom: '8px',
+                          color: '#1f2937'
+                        }}>
+                          {taskData.taskTitle}
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          gap: '12px',
+                          fontSize: '13px',
+                          flexWrap: 'wrap'
+                        }}>
+                          <div style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f3f4f6'
+                          }}>
+                            <span style={{ color: '#6b7280' }}>直近: </span>
+                            <span style={{
+                              fontWeight: '600',
+                              color: taskData.recentAchievementRate >= 80 ? '#16a34a' : taskData.recentAchievementRate >= 50 ? '#f59e0b' : '#dc2626'
+                            }}>
+                              {taskData.recentAchievementRate.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f3f4f6'
+                          }}>
+                            <span style={{ color: '#6b7280' }}>総合: </span>
+                            <span style={{
+                              fontWeight: '600',
+                              color: taskData.totalAchievementRate >= 80 ? '#16a34a' : taskData.totalAchievementRate >= 50 ? '#f59e0b' : '#dc2626'
+                            }}>
+                              {taskData.totalAchievementRate.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            backgroundColor: '#f3f4f6'
+                          }}>
+                            <span style={{ color: '#6b7280' }}>連続: </span>
+                            <span style={{ fontWeight: '600', color: '#3b82f6' }}>
+                              {taskData.consecutiveDays}日
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* カレンダー表示（下段） */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(10, 1fr)',
+                        gap: '4px',
+                        marginBottom: '8px'
+                      }}>
+                        {taskData.dates.slice(0, 10).map((date, idx) => {
+                          const d = new Date(date)
+                          const completed = taskData.completions[idx]
+                          return (
+                            <div key={date} style={{
+                              textAlign: 'center',
+                              fontSize: '10px'
+                            }}>
+                              <div style={{ color: '#9ca3af', marginBottom: '2px' }}>
+                                {d.getDate()}
+                              </div>
+                              <div style={{
+                                width: '100%',
+                                aspectRatio: '1',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: completed ? '#dcfce7' : '#f3f4f6',
+                                border: completed ? '1px solid #86efac' : '1px solid #e5e7eb',
+                                borderRadius: '4px',
+                                fontSize: '12px'
+                              }}>
+                                {completed ? '✓' : ''}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(10, 1fr)',
+                        gap: '4px',
+                        marginBottom: '8px'
+                      }}>
+                        {taskData.dates.slice(10, 20).map((date, idx) => {
+                          const d = new Date(date)
+                          const completed = taskData.completions[idx + 10]
+                          return (
+                            <div key={date} style={{
+                              textAlign: 'center',
+                              fontSize: '10px'
+                            }}>
+                              <div style={{ color: '#9ca3af', marginBottom: '2px' }}>
+                                {d.getDate()}
+                              </div>
+                              <div style={{
+                                width: '100%',
+                                aspectRatio: '1',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: completed ? '#dcfce7' : '#f3f4f6',
+                                border: completed ? '1px solid #86efac' : '1px solid #e5e7eb',
+                                borderRadius: '4px',
+                                fontSize: '12px'
+                              }}>
+                                {completed ? '✓' : ''}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(10, 1fr)',
+                        gap: '4px'
+                      }}>
+                        {taskData.dates.slice(20, 30).map((date, idx) => {
+                          const d = new Date(date)
+                          const completed = taskData.completions[idx + 20]
+                          return (
+                            <div key={date} style={{
+                              textAlign: 'center',
+                              fontSize: '10px'
+                            }}>
+                              <div style={{ color: '#9ca3af', marginBottom: '2px' }}>
+                                {d.getDate()}
+                              </div>
+                              <div style={{
+                                width: '100%',
+                                aspectRatio: '1',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: completed ? '#dcfce7' : '#f3f4f6',
+                                border: completed ? '1px solid #86efac' : '1px solid #e5e7eb',
+                                borderRadius: '4px',
+                                fontSize: '12px'
+                              }}>
+                                {completed ? '✓' : ''}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : (
