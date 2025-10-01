@@ -4,15 +4,14 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-// import { useRouter } from 'next/navigation'  // Unused import
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
-// import type { TaskFilters, SPECIAL_DATES } from '@/lib/types/unified-task'  // Unused imports
 import { withErrorHandling } from '@/lib/utils/error-handler'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
+import { SPECIAL_DATES } from '@/lib/constants'
 
-const NO_DUE_DATE = '2999-12-31'
+const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
 // キャッシュ管理
 let taskCache: { data: UnifiedTask[]; timestamp: number } | null = null

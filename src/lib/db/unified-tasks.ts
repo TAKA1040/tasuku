@@ -2,10 +2,11 @@
 // unified_tasksテーブルの操作を行う
 
 import { createClient } from '@/lib/supabase/client'
-import type { UnifiedTask, TaskFilters, SPECIAL_DATES, SubTask } from '@/lib/types/unified-task'
+import type { UnifiedTask, TaskFilters, SubTask } from '@/lib/types/unified-task'
 import { getTodayJST, getNowJST, addDays, parseDateJST, formatDateJST } from '@/lib/utils/date-jst'
+import { SPECIAL_DATES } from '@/lib/constants'
 
-const NO_DUE_DATE = '2999-12-31'
+const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
 export class UnifiedTasksService {
   // 統一番号を生成
@@ -281,7 +282,6 @@ export class UnifiedTasksService {
           console.error('  Error:', JSON.stringify(error, null, 2))
           console.error('  Template ID:', task.recurring_template_id)
           console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
-          console.error('  Supabase URL:', 'wgtrffjwdtytqgqybjwx.supabase.co')
           console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
         } else {
           console.log('✅ Template synced successfully')

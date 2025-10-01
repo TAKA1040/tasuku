@@ -52,7 +52,8 @@ export interface UnifiedTask {
   _isHistory?: boolean
 }
 
-// 統一ルールの定数
+// 統一ルールの定数（deprecated: use @/lib/constants instead）
+// This is kept for backward compatibility but should not be used in new code
 export const SPECIAL_DATES = {
   NO_DUE_DATE: '2999-12-31', // 期限なし（アイデア、買い物リストなど）
 } as const

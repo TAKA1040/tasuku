@@ -69,3 +69,9 @@ export const FORM_LIMITS = {
   MIN_IMPORTANCE: 1,
   MAX_IMPORTANCE: 5,
 } as const
+
+// Special date constants
+export const SPECIAL_DATES = {
+  NO_DUE_DATE: '2999-12-31', // Used for tasks without due date (idea box)
+  FAR_FUTURE_DATE: '9999-12-31', // Used for archived/special tasks
+} as const
