@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { TimeInput } from '@/components/TimeInput'
 
 interface RecurringTemplate {
   id: string
@@ -759,27 +760,44 @@ export default function TemplatesPage() {
 
       {/* 編集モーダル */}
       {editingTemplate && (
-        <div style={{
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '12px',
-            borderRadius: '8px',
-            width: '100%',
-            maxWidth: '480px',
-            maxHeight: '95vh',
-            overflow: 'auto'
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            padding: '0'
+          }}
+          onTouchMove={(e) => {
+            // モーダル背景でのスワイプを防止
+            e.preventDefault()
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '12px',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: '480px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
+              margin: '0 10px',
+              boxSizing: 'border-box'
+            }}
+            onTouchMove={(e) => {
+              // モーダル内のスクロールは許可
+              e.stopPropagation()
+            }}
+          >
             <h2 style={{
               fontSize: '16px',
               fontWeight: '600',
@@ -923,20 +941,14 @@ export default function TemplatesPage() {
               }}>
                 開始時刻
               </label>
-              <input
-                type="time"
+              <TimeInput
                 value={editingTemplate.start_time || ''}
-                onChange={(e) => setEditingTemplate({
+                onChange={(value) => setEditingTemplate({
                   ...editingTemplate,
-                  start_time: e.target.value || undefined
+                  start_time: value || undefined
                 })}
-                style={{
-                  flex: 1,
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
+                placeholder="開始時刻"
+                style={{ flex: 1 }}
               />
             </div>
 
@@ -950,20 +962,14 @@ export default function TemplatesPage() {
               }}>
                 終了時刻
               </label>
-              <input
-                type="time"
+              <TimeInput
                 value={editingTemplate.end_time || ''}
-                onChange={(e) => setEditingTemplate({
+                onChange={(value) => setEditingTemplate({
                   ...editingTemplate,
-                  end_time: e.target.value || undefined
+                  end_time: value || undefined
                 })}
-                style={{
-                  flex: 1,
-                  padding: '6px 8px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
+                placeholder="終了時刻"
+                style={{ flex: 1 }}
               />
             </div>
 
