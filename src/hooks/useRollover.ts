@@ -2,14 +2,15 @@
 // PHASE 1.2 実装
 
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  findIncompleTasks, 
-  rolloverSingleTask, 
+import {
+  findIncompleTasks,
+  rolloverSingleTask,
   rolloverRecurringTask,
   getRolloverDisplayText
 } from '@/lib/utils/rollover'
 import type { Task, RecurringTask, RecurringLog } from '@/lib/db/schema'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
+import { UI_CONSTANTS } from '@/lib/constants'
 
 export function useRollover(
   singleTasks: Task[],
@@ -108,7 +109,7 @@ export function useRollover(
         if (autoRollover && incomplete.incompleteSingle.length > 0) {
           setTimeout(() => {
             executeAutoRollover(incomplete.incompleteSingle)
-          }, 1000) // 1秒後に自動実行
+          }, UI_CONSTANTS.AUTO_ROLLOVER_DELAY) // 1秒後に自動実行
         }
       } catch (error) {
         console.error('Rollover detection error:', error)

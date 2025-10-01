@@ -5,6 +5,7 @@ import type { Task, RecurringTask } from '@/lib/db/schema'
 import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurringTasks'
 import { getTodayJST, getWeekStartJST, getMonthStartJST, getMonthEndJST, getUrgencyLevel } from '@/lib/utils/date-jst'
 import { TASK_CATEGORIES, TASK_IMPORTANCE_LABELS } from '@/lib/db/schema'
+import { UI_CONSTANTS } from '@/lib/constants'
 
 // 設計書準拠の統計データ
 export interface MVPStatistics {
@@ -199,17 +200,17 @@ export function useMVPStatistics(
       today: {
         completed: todayCompleted,
         total: todayTotal,
-        rate: todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0
+        rate: todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER) : 0
       },
       thisWeek: {
         completed: thisWeekCompleted,
         total: thisWeekTotal,
-        rate: thisWeekTotal > 0 ? Math.round((thisWeekCompleted / thisWeekTotal) * 100) : 0
+        rate: thisWeekTotal > 0 ? Math.round((thisWeekCompleted / thisWeekTotal) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER) : 0
       },
       thisMonth: {
         completed: thisMonthCompleted,
         total: thisMonthTotal,
-        rate: thisMonthTotal > 0 ? Math.round((thisMonthCompleted / thisMonthTotal) * 100) : 0
+        rate: thisMonthTotal > 0 ? Math.round((thisMonthCompleted / thisMonthTotal) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER) : 0
       },
       streaks
     }
@@ -242,18 +243,18 @@ export function useStatistics(
     const totalTasks = tasks.length
     const completedTasks = tasks.filter(task => task.completed).length
     const pendingTasks = totalTasks - completedTasks
-    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-    
+    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER) : 0
+
     // 今日のタスク統計
-    const todayTasks = tasks.filter(task => 
-      !task.archived && 
+    const todayTasks = tasks.filter(task =>
+      !task.archived &&
       (!task.snoozed_until || task.snoozed_until <= today) &&
       task.due_date === today
     )
     const todayTotal = todayTasks.length
     const todayCompleted = todayTasks.filter(task => task.completed).length
     const todayPending = todayTotal - todayCompleted
-    const todayCompletionRate = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0
+    const todayCompletionRate = todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER) : 0
     
     // 緊急度別統計
     const urgencyStats: StatisticsData['urgencyStats'] = {}

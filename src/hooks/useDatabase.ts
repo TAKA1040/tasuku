@@ -6,6 +6,7 @@ import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { initializeDevFeatures } from '@/lib/features'
 import { setupDevTools } from '@/lib/db/reset'
 import { setupRecurringDevTools } from '@/lib/utils/recurring-test'
+import { UI_CONSTANTS } from '@/lib/constants'
 
 export function useDatabase() {
   const [isInitialized, setIsInitialized] = useState(false)
@@ -104,7 +105,7 @@ export function useDatabase() {
     }
     
     // Add a small delay to ensure the DOM is fully loaded
-    const timeoutId = setTimeout(init, 100)
+    const timeoutId = setTimeout(init, UI_CONSTANTS.DATABASE_INIT_RETRY_DELAY)
     
     return () => {
       mounted = false

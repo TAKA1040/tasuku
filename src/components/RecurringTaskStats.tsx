@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { logger } from '@/lib/utils/logger'
+import { TIME_CONSTANTS, UI_CONSTANTS } from '@/lib/constants'
 
 interface RecurringTaskStatsProps {
   completedTasks: UnifiedTask[]
@@ -91,7 +92,7 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
       // 期間内の総日数を計算
       const start = new Date(startDate)
       const end = new Date(today)
-      const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      const totalDays = Math.ceil((end.getTime() - start.getTime()) / TIME_CONSTANTS.MILLISECONDS_PER_DAY) + 1
 
       // 連続達成日数を計算
       const calculateStreaks = (dates: string[]) => {
@@ -108,7 +109,7 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
           const date = sortedDates[i]
           const expectedDate = i === sortedDates.length - 1
             ? today
-            : new Date(new Date(sortedDates[i + 1]).getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            : new Date(new Date(sortedDates[i + 1]).getTime() - TIME_CONSTANTS.MILLISECONDS_PER_DAY).toISOString().split('T')[0]
 
           if (date === expectedDate || i === sortedDates.length - 1) {
             tempStreak++
@@ -136,7 +137,7 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
         templateId: templateId,
         totalDays,
         completedDays: uniqueDates.length,
-        completionRate: (uniqueDates.length / totalDays) * 100,
+        completionRate: (uniqueDates.length / totalDays) * UI_CONSTANTS.PERCENTAGE_MULTIPLIER,
         currentStreak,
         longestStreak,
         lastCompletedDate: completionDates[completionDates.length - 1] || null,

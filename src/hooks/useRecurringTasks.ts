@@ -6,6 +6,7 @@ import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { occursOn, getRecurringDisplayName } from '@/lib/utils/recurring'
 import type { RecurringTask, RecurringLog } from '@/lib/db/schema'
+import { TIME_CONSTANTS } from '@/lib/constants'
 
 export interface RecurringTaskWithStatus {
   task: RecurringTask
@@ -52,7 +53,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   // Get today's recurring tasks with completion status (including yesterday for daily tasks)
   const getTodayRecurringTasks = (): RecurringTaskWithStatus[] => {
     const today = getTodayJST()
-    const yesterday = new Date(new Date(today + 'T00:00:00').getTime() - 24 * 60 * 60 * 1000)
+    const yesterday = new Date(new Date(today + 'T00:00:00').getTime() - TIME_CONSTANTS.MILLISECONDS_PER_DAY)
       .toISOString().split('T')[0]
 
     const allItems: RecurringTaskWithStatus[] = []
