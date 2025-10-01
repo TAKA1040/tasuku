@@ -82,12 +82,21 @@ export default function StatisticsPage() {
     const saved = localStorage.getItem('selectedDailyTasks')
     if (saved) {
       try {
-        setSelectedDailyTasks(JSON.parse(saved))
+        const parsedTasks = JSON.parse(saved)
+        // 存在するタスクIDのみを保持
+        const validTasks = parsedTasks.filter((taskId: string) =>
+          unifiedTasks.tasks.some(task => task.recurring_template_id === taskId)
+        )
+        setSelectedDailyTasks(validTasks)
+        // クリーンアップした結果を保存
+        if (validTasks.length !== parsedTasks.length) {
+          localStorage.setItem('selectedDailyTasks', JSON.stringify(validTasks))
+        }
       } catch (error) {
         console.error('Failed to parse selected daily tasks:', error)
       }
     }
-  }, [])
+  }, [unifiedTasks.tasks])
 
   // 選択タスクをローカルストレージに保存
   useEffect(() => {
@@ -103,7 +112,12 @@ export default function StatisticsPage() {
       dates.push(date.toISOString().split('T')[0])
     }
 
-    return selectedDailyTasks.map(taskId => {
+    // 存在するタスクIDのみを対象にする
+    const validTaskIds = selectedDailyTasks.filter(taskId => {
+      return unifiedTasks.tasks.some(task => task.recurring_template_id === taskId)
+    })
+
+    return validTaskIds.map(taskId => {
       const taskCompletions = completedTasks.filter(task =>
         task.recurring_template_id === taskId && task.completed
       )
