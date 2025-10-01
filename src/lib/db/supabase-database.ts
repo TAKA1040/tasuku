@@ -14,18 +14,11 @@ import {
   type Idea,
   type SubTask,
   type LocationTag,
-  type UnifiedItem,
-  type TaskWithUrgency,
-  type UrgencyLevel
+  type UnifiedItem
 } from './schema'
 
+// Note: TaskInsert, RecurringTaskInsert, IdeaInsert are unused (using Omit inline instead)
 // 挿入専用の薄い型定義（display_numberを省略可）
-type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'display_number'> & {
-  display_number?: string | null
-}
-type RecurringTaskInsert = Omit<RecurringTask, 'id' | 'created_at' | 'updated_at' | 'display_number'> & {
-  display_number?: string | null
-}
 type IdeaInsert = Omit<Idea, 'id' | 'created_at' | 'updated_at' | 'display_number' | 'text'> & {
   display_number?: string | null
   title: string // textの代わりにtitleを使用
@@ -130,7 +123,8 @@ class SupabaseTasukuDatabase {
   // ===================================
   
   async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task> {
-    const userId = await this.getCurrentUserId()
+    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
     // 開発環境でのみデバッグログを出力
     if (process.env.NODE_ENV === 'development') {
@@ -159,7 +153,7 @@ class SupabaseTasukuDatabase {
     }
 
     // user_idを除いてTaskを返す、attachmentをデシリアライズ
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: deserializeAttachment(taskData.attachment)
@@ -179,7 +173,7 @@ class SupabaseTasukuDatabase {
       throw error
     }
 
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: deserializeAttachment(taskData.attachment)
@@ -195,7 +189,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...task }) => ({
+    return data.map(({ user_id: _user_id, ...task }) => ({
       ...task,
       attachment: deserializeAttachment(task.attachment)
     } as Task))
@@ -211,7 +205,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...task }) => ({
+    return data.map(({ user_id: _user_id, ...task }) => ({
       ...task,
       attachment: deserializeAttachment(task.attachment)
     } as Task))
@@ -231,7 +225,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: taskData.attachment as Task['attachment']
@@ -263,7 +257,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
 
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: deserializeAttachment(taskData.attachment)
@@ -283,7 +277,7 @@ class SupabaseTasukuDatabase {
       throw error
     }
 
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: deserializeAttachment(taskData.attachment)
@@ -299,7 +293,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...task }) => ({
+    return data.map(({ user_id: _user_id, ...task }) => ({
       ...task,
       attachment: deserializeAttachment(task.attachment)
     } as RecurringTask))
@@ -315,7 +309,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...task }) => ({
+    return data.map(({ user_id: _user_id, ...task }) => ({
       ...task,
       attachment: deserializeAttachment(task.attachment)
     } as RecurringTask))
@@ -351,7 +345,7 @@ class SupabaseTasukuDatabase {
     if (process.env.NODE_ENV === 'development') {
       console.log('updateRecurringTask: Successfully updated task')
     }
-    const { user_id, ...taskData } = data
+    const { user_id: _user_id, ...taskData } = data
     return {
       ...taskData,
       attachment: deserializeAttachment(taskData.attachment)
@@ -373,7 +367,8 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async logRecurringTask(recurringId: string, date: string): Promise<void> {
-    const userId = await this.getCurrentUserId()
+    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
     const { error } = await this.supabase
       .from('done')
       .insert({
@@ -397,7 +392,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => ({
+    return data.map(({ user_id: _user_id, ...log }) => ({
       recurring_id: log.original_task_id,
       date: log.completed_at?.substring(0, 10) || '',
       logged_at: log.completed_at || ''
@@ -413,7 +408,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => ({
+    return data.map(({ user_id: _user_id, ...log }) => ({
       recurring_id: log.original_task_id,
       date: log.completed_at?.substring(0, 10) || '',
       logged_at: log.completed_at || ''
@@ -429,7 +424,7 @@ class SupabaseTasukuDatabase {
       
     if (error) throw error
     
-    return data.map(({ user_id, ...log }) => ({
+    return data.map(({ user_id: _user_id, ...log }) => ({
       recurring_id: log.original_task_id,
       date: log.completed_at?.substring(0, 10) || '',
       logged_at: log.completed_at || ''
@@ -477,7 +472,7 @@ class SupabaseTasukuDatabase {
       console.log('createIdea: Successfully created idea:', idea.text)
     }
 
-    const { user_id, ...ideaData } = data
+    const { user_id: _user_id, ...ideaData } = data
     return {
       ...ideaData,
       text: ideaData.title, // title を text に正規化
@@ -498,7 +493,7 @@ class SupabaseTasukuDatabase {
       throw error
     }
 
-    const { user_id, ...ideaData } = data
+    const { user_id: _user_id, ...ideaData } = data
     return {
       ...ideaData,
       text: ideaData.title, // title を text に正規化
@@ -515,7 +510,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...idea }) => ({
+    return data.map(({ user_id: _user_id, ...idea }) => ({
       ...idea,
       text: idea.title, // title を text に正規化
       attachment: deserializeAttachment(idea.attachment)
@@ -537,7 +532,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    const { user_id, ...ideaData } = data
+    const { user_id: _user_id, ...ideaData } = data
     return {
       ...ideaData,
       text: ideaData.title, // title を text に正規化
@@ -560,7 +555,8 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createSubTask(subTask: Omit<SubTask, 'id' | 'created_at'>): Promise<SubTask> {
-    const userId = await this.getCurrentUserId()
+    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
     if (process.env.NODE_ENV === 'development') {
       console.log('createSubTask: Creating subtask:', subTask.title)
@@ -585,7 +581,7 @@ class SupabaseTasukuDatabase {
       console.log('createSubTask: Successfully created subtask:', subTask.title)
     }
 
-    const { user_id, ...subTaskData } = data
+    const { user_id: _user_id, ...subTaskData } = data
     return subTaskData as SubTask
   }
 
@@ -601,7 +597,7 @@ class SupabaseTasukuDatabase {
       throw error
     }
 
-    const { user_id, ...subTaskData } = data
+    const { user_id: _user_id, ...subTaskData } = data
     return subTaskData as SubTask
   }
 
@@ -614,7 +610,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...subTask }) => subTask as SubTask)
+    return data.map(({ user_id: _user_id, ...subTask }) => subTask as SubTask)
   }
 
   async getAllSubTasks(): Promise<SubTask[]> {
@@ -625,7 +621,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    return data.map(({ user_id, ...subTask }) => subTask as SubTask)
+    return data.map(({ user_id: _user_id, ...subTask }) => subTask as SubTask)
   }
 
   async updateSubTask(id: string, updates: Partial<Omit<SubTask, 'id' | 'created_at'>>): Promise<SubTask> {
@@ -638,7 +634,7 @@ class SupabaseTasukuDatabase {
 
     if (error) throw error
 
-    const { user_id, ...subTaskData } = data
+    const { user_id: _user_id, ...subTaskData } = data
     return subTaskData as SubTask
   }
 
@@ -666,7 +662,8 @@ class SupabaseTasukuDatabase {
 
   async getSettings(): Promise<Settings> {
     try {
-      const userId = await this.getCurrentUserId()
+      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
       const { data, error } = await this.supabase
         .from('user_settings')
@@ -698,7 +695,8 @@ class SupabaseTasukuDatabase {
 
   private async createDefaultSettings(): Promise<Settings> {
     try {
-      const userId = await this.getCurrentUserId()
+      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
       const defaultSettings = {
         timezone: 'Asia/Tokyo' as const,
@@ -770,7 +768,8 @@ class SupabaseTasukuDatabase {
 
   async updateSettings(updates: Partial<Omit<Settings, 'id' | 'updated_at'>>): Promise<Settings> {
     try {
-      const userId = await this.getCurrentUserId()
+      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
       const { data, error } = await this.supabase
         .from('user_settings')
@@ -884,7 +883,8 @@ class SupabaseTasukuDatabase {
   }
 
   async clearAllData(): Promise<void> {
-    const userId = await this.getCurrentUserId()
+    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
+    const _userId = await this.getCurrentUserId()
 
     // Only clear tables that exist
     const tables = ['subtasks', 'unified_tasks', 'done', 'user_settings'] as const
