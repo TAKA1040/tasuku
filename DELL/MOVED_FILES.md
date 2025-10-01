@@ -7,9 +7,52 @@
 
 ## 📋 移動履歴
 
-### 移動未実施
+### [2025-10-01] Phase 1: 未使用コンポーネント + 古いドキュメント
 
-このファイルは、不要ファイルをDELLフォルダへ移動した際に、その記録を残すために使用します。
+#### 移動ファイル（未使用コンポーネント）:
+1. **TaskCreateForm.tsx**
+   - 元: `src/components/TaskCreateForm.tsx`
+   - 先: `DELL/components/TaskCreateForm.tsx`
+   - サイズ: 15KB
+   - 理由: TaskCreateForm2.tsxに置き換え済み、使用されていない
+   - 削除リスク: 低
+
+2. **RecurringTaskForm.tsx**
+   - 元: `src/components/RecurringTaskForm.tsx`
+   - 先: `DELL/components/RecurringTaskForm.tsx`
+   - サイズ: 21KB
+   - 理由: パラメータ不整合、使用されていない
+   - 削除リスク: 低
+
+3. **UnifiedTaskForm.tsx**
+   - 元: `src/components/UnifiedTaskForm.tsx`
+   - 先: `DELL/components/UnifiedTaskForm.tsx`
+   - サイズ: 14KB
+   - 理由: パラメータ不整合、使用されていない
+   - 削除リスク: 低
+
+#### 移動ファイル（古いドキュメント）:
+4-15. **古いドキュメント12ファイル** (67KB)
+   - AFTER_RESET_TODO.md - リセット後作業記録
+   - CRITICAL_ISSUES.md - 修正済み課題リスト
+   - DATABASE_FIXES.md - DB修正記録
+   - DEPLOYMENT_STATUS.md - 古いデプロイ情報
+   - GOOGLE_LOGIN_MANUAL.md - 設定完了済み
+   - MIGRATION_TO_UNIFIED_SYSTEM.md - 移行完了済み
+   - MANUAL_MIGRATION_GUIDE.md - 移行ガイド
+   - NEXT_SESSION_INSTRUCTIONS.md - WORK_HISTORYに統合済み
+   - RECURRING_REDESIGN_LOG.md - 再設計ログ
+   - SEARCH_ENHANCEMENT_LOG.md - 実装完了済み
+   - REMAINING_TASKS.md - PROJECT_STATUSと重複
+   - TASUKU_CODE_AUDIT_REPORT.md - 監査完了済み
+   - 移動先: `DELL/docs/`
+   - 削除リスク: 低
+
+#### 実施結果:
+- **ビルド**: ✅ 成功
+- **テスト**: ✅ 警告のみ（既存の警告と同じ）
+- **削減サイズ**: 117KB（15ファイル）
+- **備考**: 削除による影響なし、プロジェクトは正常に動作
 
 ---
 
