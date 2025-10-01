@@ -15,7 +15,7 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
     subtitle?: string
     color?: string
   }) => (
-    <div style={{
+    <div className="stat-card" style={{
       backgroundColor: '#f8fafc',
       padding: '8px 12px',
       display: 'flex',
@@ -23,8 +23,8 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
       gap: '12px',
       minWidth: '140px'
     }}>
-      <div style={{ 
-        fontSize: '20px', 
+      <div className="stat-card-value" style={{
+        fontSize: '20px',
         fontWeight: '600',
         color: color,
         minWidth: '40px'
@@ -32,8 +32,8 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
         {value}
       </div>
       <div>
-        <div style={{ 
-          fontSize: '13px', 
+        <div className="stat-card-title" style={{
+          fontSize: '13px',
           color: '#374151',
           fontWeight: '500',
           lineHeight: '1.2'
@@ -41,8 +41,8 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
           {title}
         </div>
         {subtitle && (
-          <div style={{ 
-            fontSize: '11px', 
+          <div className="stat-card-subtitle" style={{
+            fontSize: '11px',
             color: '#6b7280',
             lineHeight: '1.2'
           }}>
@@ -101,6 +101,15 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
 
   return (
     <div>
+      <style>{`
+        @media (max-width: 640px) {
+          .stat-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .stat-card { min-width: unset !important; padding: 6px 10px !important; }
+          .stat-card-value { font-size: 16px !important; min-width: 32px !important; }
+          .stat-card-title { font-size: 11px !important; }
+          .stat-card-subtitle { font-size: 10px !important; }
+        }
+      `}</style>
       {/* 基本統計カード */}
       <section style={{ marginBottom: '16px' }}>
         <h2 style={{
@@ -119,7 +128,7 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
         }}>
           全体的なタスク管理の状況を確認できます。完了率が高いほど効率的にタスクを進められています。
         </p>
-        <div style={{
+        <div className="stat-card-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '8px'
@@ -290,7 +299,7 @@ function StatisticsCards({ stats }: StatisticsCardsProps) {
           }}>
             習慣化したいタスクの実行状況です。毎日や毎週のルーティンタスクの継続率を確認できます。
           </p>
-          <div style={{
+          <div className="stat-card-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: '8px'

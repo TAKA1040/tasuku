@@ -215,98 +215,113 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div style={{
-      padding: '8px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      width: '100%',
-      boxSizing: 'border-box'
-    }}>
-      <header style={{ marginBottom: '12px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <Link href="/today" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              color: '#3b82f6',
-              textDecoration: 'none',
-              fontSize: '14px',
-              padding: '8px 16px',
-              border: '1px solid #3b82f6',
-              borderRadius: '6px',
-              transition: 'all 0.2s'
-            }}>
-              ← ホームに戻る
-            </Link>
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              📊 統計・分析
-            </h1>
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: '#6b7280',
-            textAlign: 'right'
+    <>
+      <style>{`
+        @media (max-width: 640px) {
+          .stats-header { flex-direction: column; align-items: flex-start !important; }
+          .stats-header-right {
+            font-size: 11px !important;
+            width: 100%;
+            text-align: left !important;
+          }
+          .stats-tabs button {
+            padding: 10px 12px !important;
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
+      <div style={{
+        padding: '8px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
+        <header style={{ marginBottom: '12px' }}>
+          <div className="stats-header" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '8px'
           }}>
-            <div>最終更新: {new Date().toLocaleString('ja-JP')}</div>
-            <div>データベース: {isInitialized ? '✅ 接続中' : '⚠️ 未接続'}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <Link href="/today" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                color: '#3b82f6',
+                textDecoration: 'none',
+                fontSize: '14px',
+                padding: '8px 16px',
+                border: '1px solid #3b82f6',
+                borderRadius: '6px',
+                transition: 'all 0.2s'
+              }}>
+                ← ホームに戻る
+              </Link>
+              <h1 style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                color: '#1f2937',
+                margin: 0
+              }}>
+                📊 統計・分析
+              </h1>
+            </div>
+            <div className="stats-header-right" style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              textAlign: 'right'
+            }}>
+              <div>最終更新: {new Date().toLocaleString('ja-JP')}</div>
+              <div>データベース: {isInitialized ? '✅ 接続中' : '⚠️ 未接続'}</div>
+            </div>
           </div>
-        </div>
 
-        {/* タブ切り替え */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginTop: '16px',
-          borderBottom: '2px solid #e5e7eb'
-        }}>
-          <button
-            onClick={() => setActiveTab('calendar')}
-            style={{
-              padding: '12px 24px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: activeTab === 'calendar' ? '#3b82f6' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'calendar' ? '2px solid #3b82f6' : '2px solid transparent',
-              cursor: 'pointer',
-              marginBottom: '-2px',
-              transition: 'all 0.2s'
-            }}
-          >
-            達成記録（30日カレンダー）
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            style={{
-              padding: '12px 24px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: activeTab === 'stats' ? '#3b82f6' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'stats' ? '2px solid #3b82f6' : '2px solid transparent',
-              cursor: 'pointer',
-              marginBottom: '-2px',
-              transition: 'all 0.2s'
-            }}
-          >
-            統計・分析
-          </button>
-        </div>
-      </header>
+          {/* タブ切り替え */}
+          <div className="stats-tabs" style={{
+            display: 'flex',
+            gap: '8px',
+            marginTop: '16px',
+            borderBottom: '2px solid #e5e7eb'
+          }}>
+            <button
+              onClick={() => setActiveTab('calendar')}
+              style={{
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: activeTab === 'calendar' ? '#3b82f6' : '#6b7280',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'calendar' ? '2px solid #3b82f6' : '2px solid transparent',
+                cursor: 'pointer',
+                marginBottom: '-2px',
+                transition: 'all 0.2s'
+              }}
+            >
+              達成記録（30日カレンダー）
+            </button>
+            <button
+              onClick={() => setActiveTab('stats')}
+              style={{
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: activeTab === 'stats' ? '#3b82f6' : '#6b7280',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'stats' ? '2px solid #3b82f6' : '2px solid transparent',
+                cursor: 'pointer',
+                marginBottom: '-2px',
+                transition: 'all 0.2s'
+              }}
+            >
+              統計・分析
+            </button>
+          </div>
+        </header>
 
-      <main>
+        <main>
         {activeTab === 'calendar' ? (
           // 30日カレンダータブ
           <div style={{ marginTop: '20px' }}>
@@ -737,7 +752,8 @@ export default function StatisticsPage() {
             )}
           </>
         )}
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   )
 }
