@@ -5,6 +5,44 @@
 
 ---
 
+## ✅ 完了: 画像最適化警告抑制 (2025-10-02)
+
+### Next.js画像警告のESLint抑制 ✅
+**対応内容**: 動的Base64画像のESLint警告を適切に抑制
+
+#### 修正箇所（5ファイル、5箇所）:
+
+**対象ファイル**:
+1. `src/components/ShoppingTasksSection.tsx:694`
+2. `src/components/TaskCreateForm2.tsx:762`
+3. `src/components/TaskEditForm.tsx:697`
+4. `src/components/TaskTable.tsx:997`
+5. `src/components/UnifiedTasksTable.tsx:971`
+
+**問題**:
+- ESLint警告: `@next/next/no-img-element`
+- 「next/imageを使用すべき」という警告
+- しかし全てが動的Base64データまたはファイルアップロードプレビュー
+- next/imageは静的画像に最適化されており、動的データには不適切
+
+**解決策**:
+```tsx
+// Base64データ画像の場合
+// eslint-disable-next-line @next/next/no-img-element
+<img src={`data:${fileType};base64,${base64Data}`} alt="..." />
+
+// ファイルアップロードプレビューの場合
+{/* eslint-disable-next-line @next/next/no-img-element */}
+<img src={attachedFileUrl} alt="プレビュー" />
+```
+
+#### 効果:
+- **警告削減**: 51件 → 46件（5件削減）
+- **適切な警告抑制**: next/imageが不適切なケースを明示
+- **パフォーマンス**: 動的画像には`<img>`が適切（next/imageは不要なオーバーヘッド）
+
+---
+
 ## ✅ 完了: React警告修正 (2025-10-02)
 
 ### React Hooks & 未使用式警告修正 ✅

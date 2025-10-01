@@ -994,6 +994,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                 maxHeight: 'calc(95vh - 80px)',
                 overflow: 'hidden'
               }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`data:${selectedFile.file_type};base64,${selectedFile.file_data}`}
                   alt={selectedFile.file_name}

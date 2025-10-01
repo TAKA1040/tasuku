@@ -759,6 +759,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               {/* 画像プレビュー */}
               {attachedFileUrl && (
                 <div style={{ marginTop: '8px', textAlign: 'center' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={attachedFileUrl}
                     alt="プレビュー"

@@ -968,6 +968,7 @@ export function UnifiedTasksTable({
             </div>
 
             {selectedFile.file_type.startsWith('image/') ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={`data:${selectedFile.file_type};base64,${selectedFile.file_data}`}
                 alt={selectedFile.file_name}
