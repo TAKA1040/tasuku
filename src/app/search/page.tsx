@@ -209,7 +209,15 @@ export default function SearchPage() {
 
   return (
     <ThemedContainer>
-      <div style={{
+      <style>{`
+        @media (max-width: 640px) {
+          .search-container { width: 100% !important; padding: 8px !important; }
+          .search-header { flex-direction: column; gap: 12px; align-items: flex-start !important; }
+          .search-header-left { width: 100%; }
+          .search-header-right { width: 100%; justify-content: flex-end; }
+        }
+      `}</style>
+      <div className="search-container" style={{
         padding: '16px',
         minHeight: '100vh',
         maxWidth: '1400px',
@@ -217,13 +225,13 @@ export default function SearchPage() {
         width: '70%'
       }}>
         {/* ヘッダー */}
-        <div style={{
+        <div className="search-header" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '20px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div className="search-header-left" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <Link href="/today" style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -242,7 +250,7 @@ export default function SearchPage() {
             </h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="search-header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               onClick={() => loadTasks(true)}
               disabled={isLoading}
@@ -748,7 +756,7 @@ export default function SearchPage() {
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => toggleItemSelection(itemId)}
+                          onChange={() => toggleSelectItem(task)}
                           style={{
                             width: '18px',
                             height: '18px',
