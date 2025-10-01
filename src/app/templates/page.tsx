@@ -389,25 +389,39 @@ export default function TemplatesPage() {
   if (loading) return <div>読み込み中...</div>
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
-        <Link href="/today" style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          color: '#3b82f6',
-          textDecoration: 'none',
-          fontSize: '14px',
-          padding: '8px 16px',
-          border: '1px solid #3b82f6',
-          borderRadius: '6px',
-          transition: 'all 0.2s'
-        }}>
-          ← ホームに戻る
-        </Link>
-        <h1 style={{ margin: 0 }}>繰り返しテンプレート管理</h1>
-      </div>
+    <>
+      <style>{`
+        @media (max-width: 640px) {
+          .templates-container { padding: 8px !important; box-sizing: border-box; }
+          .templates-header { flex-direction: column; align-items: flex-start !important; }
+          .templates-header h1 { font-size: 18px !important; }
+          .desktop-table { display: none; }
+          .mobile-cards { display: block; }
+        }
+        @media (min-width: 641px) {
+          .desktop-table { display: block; }
+          .mobile-cards { display: none; }
+        }
+      `}</style>
+      <div className="templates-container" style={{ padding: '20px', fontFamily: 'monospace' }}>
+        <div className="templates-header" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <Link href="/today" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: '#3b82f6',
+            textDecoration: 'none',
+            fontSize: '14px',
+            padding: '8px 16px',
+            border: '1px solid #3b82f6',
+            borderRadius: '6px',
+            transition: 'all 0.2s'
+          }}>
+            ← ホームに戻る
+          </Link>
+          <h1 style={{ margin: 0 }}>繰り返しテンプレート管理</h1>
+        </div>
 
-      {status && (
+        {status && (
         <div style={{
           padding: '10px',
           backgroundColor: '#f8f9fa',
@@ -419,12 +433,14 @@ export default function TemplatesPage() {
         </div>
       )}
 
-      <h2>登録済みテンプレート ({templates.length}件)</h2>
-      {templates.length === 0 ? (
-        <p>テンプレートが登録されていません</p>
-      ) : (
-        <div style={{ marginBottom: '30px', overflowX: 'auto' }}>
-          <table style={{
+        <h2>登録済みテンプレート ({templates.length}件)</h2>
+        {templates.length === 0 ? (
+          <p>テンプレートが登録されていません</p>
+        ) : (
+          <>
+            {/* デスクトップ版テーブル */}
+            <div className="desktop-table" style={{ marginBottom: '30px', overflowX: 'auto' }}>
+              <table style={{
             width: '100%',
             borderCollapse: 'collapse',
             fontSize: '13px',
@@ -634,8 +650,112 @@ export default function TemplatesPage() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+            </div>
+
+            {/* モバイル版カード表示 */}
+            <div className="mobile-cards">
+              {templates.map(template => (
+                <div key={template.id} style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '12px'
+                }}>
+                  {/* 上段: タイトルと編集ボタン */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                        {template.title}
+                      </div>
+                      {template.memo && (
+                        <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+                          {template.memo}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setEditingTemplate(template)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        flexShrink: 0,
+                        marginLeft: '8px'
+                      }}
+                    >
+                      編集
+                    </button>
+                  </div>
+
+                  {/* 下段: 状態・パターン・カテゴリ・重要度・URL */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px' }}>
+                    {/* 状態 */}
+                    <span style={{
+                      padding: '3px 8px',
+                      borderRadius: '12px',
+                      fontWeight: '500',
+                      backgroundColor: template.active ? '#dcfce7' : '#fee2e2',
+                      color: template.active ? '#166534' : '#991b1b'
+                    }}>
+                      {template.active ? 'アクティブ' : '停止中'}
+                    </span>
+
+                    {/* パターン */}
+                    <span style={{
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontWeight: '500',
+                      backgroundColor: '#eff6ff',
+                      color: '#1e40af'
+                    }}>
+                      {formatPatternDetails(template)}
+                    </span>
+
+                    {/* カテゴリ */}
+                    {template.category && (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: '#fef3c7',
+                        color: '#92400e'
+                      }}>
+                        {template.category}
+                      </span>
+                    )}
+
+                    {/* 重要度 */}
+                    <span style={{
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      backgroundColor: getImportanceColor(template.importance) + '20',
+                      color: getImportanceColor(template.importance),
+                      fontWeight: '600'
+                    }}>
+                      ★{template.importance || '-'}
+                    </span>
+
+                    {/* URL数 */}
+                    {template.urls && template.urls.length > 0 && (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: '#f3f4f6',
+                        color: '#374151'
+                      }}>
+                        🌍 {template.urls.length}個
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
       {/* 編集モーダル */}
       {editingTemplate && (
@@ -1303,6 +1423,7 @@ export default function TemplatesPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
