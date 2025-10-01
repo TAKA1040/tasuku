@@ -28,8 +28,8 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
 
   const [period, setPeriod] = useState<'week' | 'month' | 'all'>('month')
 
-  // 期間の開始日を計算
-  const getStartDate = () => {
+  // 期間の開始日を計算（useMemoで依存関係を明確化）
+  const startDate = useMemo(() => {
     const today = new Date()
     switch (period) {
       case 'week':
@@ -43,13 +43,12 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
       case 'all':
         return '1970-01-01'
     }
-  }
+  }, [period])
 
   // 繰り返しタスクの統計を計算
   const recurringStats = useMemo(() => {
     console.log('⚡ useMemo is running! completedTasks.length:', completedTasks.length, 'period:', period)
 
-    const startDate = getStartDate()
     const today = new Date().toISOString().split('T')[0]
 
     // デバッグ: 全タスクをログ出力（本番でも表示）
@@ -146,7 +145,7 @@ export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSele
     })
 
     return stats.sort((a, b) => b.completionRate - a.completionRate)
-  }, [completedTasks, period])
+  }, [completedTasks, period, startDate])
 
   // 選択されたタスクのみ表示
   const displayStats = selectedTaskIds.length > 0
