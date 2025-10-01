@@ -235,19 +235,19 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '0'
     }}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '8px',
-        padding: '24px',
-        width: 'calc(100% - 40px)',
+        padding: '16px',
+        width: '100%',
         maxWidth: '500px',
-        maxHeight: '80vh',
+        maxHeight: '90vh',
         overflowY: 'auto',
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
-        margin: '0 auto',
+        margin: '0 10px',
         boxSizing: 'border-box'
       }}>
         <form onSubmit={handleSubmit}>

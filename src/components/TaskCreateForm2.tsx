@@ -273,19 +273,19 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '8px'
+      padding: '0'
     }}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '8px',
         padding: '12px',
-        width: 'calc(100% - 16px)',
+        width: '100%',
         maxWidth: '480px',
         maxHeight: '95vh',
         overflowY: 'auto',
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
-        margin: '0 auto',
+        margin: '0 10px',
         boxSizing: 'border-box'
       }}>
         <h2 style={{
