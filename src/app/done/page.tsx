@@ -33,6 +33,9 @@ export default function DonePage() {
   // 選択した毎日のタスクを記憶するためのstate（テンプレートIDで管理）
   const [selectedDailyTasks, setSelectedDailyTasks] = useState<string[]>([])
 
+  // 操作中のタスクを追跡（ローディング状態管理）
+  const [operatingTaskIds, setOperatingTaskIds] = useState<Set<string>>(new Set())
+
   // 完了タスクの状態
   const [completedTasks, setCompletedTasks] = useState<UnifiedTask[]>([])
 
@@ -259,12 +262,27 @@ export default function DonePage() {
   }
 
   const handleUpdateTask = async (taskId: string, title: string, memo: string, dueDate: string, category?: string, importance?: 1 | 2 | 3 | 4 | 5, urls?: string[], _startTime?: string, _endTime?: string, _attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
-    await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
-    setEditingTask(null)
-    setShowEditForm(false)
-    // 完了タスクを再読み込み
-    const tasks = await getCompletedTasksWithHistory()
-    setCompletedTasks(tasks)
+    // ローディング状態開始
+    setOperatingTaskIds(prev => new Set(prev).add(taskId))
+
+    try {
+      await updateTask(taskId, { title, memo, due_date: dueDate, category, importance, urls })
+      setEditingTask(null)
+      setShowEditForm(false)
+      // 完了タスクを再読み込み
+      const tasks = await getCompletedTasksWithHistory()
+      setCompletedTasks(tasks)
+    } catch (error) {
+      console.error('更新エラー:', error)
+      alert('タスクの更新に失敗しました')
+    } finally {
+      // ローディング状態終了
+      setOperatingTaskIds(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(taskId)
+        return newSet
+      })
+    }
   }
 
   const handleCancelEdit = () => {
@@ -273,17 +291,47 @@ export default function DonePage() {
   }
 
   const handleUncomplete = async (taskId: string) => {
-    await uncompleteTask(taskId)
-    // 完了タスクを再読み込み
-    const tasks = await getCompletedTasksWithHistory()
-    setCompletedTasks(tasks)
+    // ローディング状態開始
+    setOperatingTaskIds(prev => new Set(prev).add(taskId))
+
+    try {
+      await uncompleteTask(taskId)
+      // 完了タスクを再読み込み
+      const tasks = await getCompletedTasksWithHistory()
+      setCompletedTasks(tasks)
+    } catch (error) {
+      console.error('未完了化エラー:', error)
+      alert('タスクの未完了化に失敗しました')
+    } finally {
+      // ローディング状態終了
+      setOperatingTaskIds(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(taskId)
+        return newSet
+      })
+    }
   }
 
   const handleDelete = async (taskId: string) => {
-    await deleteTask(taskId)
-    // 完了タスクを再読み込み
-    const tasks = await getCompletedTasksWithHistory()
-    setCompletedTasks(tasks)
+    // ローディング状態開始
+    setOperatingTaskIds(prev => new Set(prev).add(taskId))
+
+    try {
+      await deleteTask(taskId)
+      // 完了タスクを再読み込み
+      const tasks = await getCompletedTasksWithHistory()
+      setCompletedTasks(tasks)
+    } catch (error) {
+      console.error('削除エラー:', error)
+      alert('タスクの削除に失敗しました')
+    } finally {
+      // ローディング状態終了
+      setOperatingTaskIds(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(taskId)
+        return newSet
+      })
+    }
   }
 
   return (
@@ -730,6 +778,7 @@ export default function DonePage() {
             onEdit={handleEditTask}
             onUncomplete={handleUncomplete}
             onDelete={handleDelete}
+            operatingTaskIds={operatingTaskIds}
           />
         </div>
 

@@ -22,9 +22,10 @@ interface TaskTableProps {
   onRecurringUncomplete?: (taskId: string) => void
   onDelete?: (taskId: string) => void
   onDeleteRecurring?: (taskId: string) => void
+  operatingTaskIds?: Set<string> // ローディング状態管理
 }
 
-export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring }: TaskTableProps) {
+export function TaskTable({ tasks, recurringTasks, completedTasks = [], completedRecurringTasks = [], onComplete, onRecurringComplete, onEdit, onEditRecurring, onUncomplete, onRecurringUncomplete, onDelete, onDeleteRecurring, operatingTaskIds = new Set() }: TaskTableProps) {
   const [showFilePopup, setShowFilePopup] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ file_name: string; file_type: string; file_data: string } | null>(null)
 
@@ -512,20 +513,23 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                       }
                     }
                   }}
+                  disabled={operatingTaskIds.has(item.id)}
                   style={{
                     width: '18px',
                     height: '18px',
                     border: item.isCompleted ? '2px solid #10b981' : '2px solid #d1d5db',
                     borderRadius: '4px',
                     backgroundColor: item.isCompleted ? '#10b981' : 'transparent',
-                    cursor: 'pointer',
+                    cursor: operatingTaskIds.has(item.id) ? 'wait' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    opacity: operatingTaskIds.has(item.id) ? 0.5 : 1
                   }}
                   onMouseEnter={(e) => {
+                    if (operatingTaskIds.has(item.id)) return
                     if (item.isCompleted) {
                       e.currentTarget.style.borderColor = '#ef4444'
                       e.currentTarget.style.backgroundColor = '#fef2f2'
@@ -536,6 +540,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     }
                   }}
                   onMouseLeave={(e) => {
+                    if (operatingTaskIds.has(item.id)) return
                     if (item.isCompleted) {
                       e.currentTarget.style.borderColor = '#10b981'
                       e.currentTarget.style.backgroundColor = '#10b981'
@@ -546,7 +551,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                     }
                   }}
                 >
-                  {item.isCompleted && '✓'}
+                  {operatingTaskIds.has(item.id) ? '⏳' : item.isCompleted ? '✓' : ''}
                 </button>
               </td>
               <td style={{ padding: '2px 4px' }}>
@@ -680,6 +685,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                           onDeleteRecurring(item.id)
                         }
                       }}
+                      disabled={operatingTaskIds.has(item.id)}
                       style={{
                         padding: '4px',
                         fontSize: '14px',
@@ -687,25 +693,28 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                         borderRadius: '3px',
                         backgroundColor: 'transparent',
                         color: '#6b7280',
-                        cursor: 'pointer',
+                        cursor: operatingTaskIds.has(item.id) ? 'wait' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: '24px',
                         height: '24px',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        opacity: operatingTaskIds.has(item.id) ? 0.5 : 1
                       }}
                       onMouseEnter={(e) => {
+                        if (operatingTaskIds.has(item.id)) return
                         e.currentTarget.style.backgroundColor = '#fef2f2'
                         e.currentTarget.style.color = '#ef4444'
                       }}
                       onMouseLeave={(e) => {
+                        if (operatingTaskIds.has(item.id)) return
                         e.currentTarget.style.backgroundColor = 'transparent'
                         e.currentTarget.style.color = '#6b7280'
                       }}
                       title="繰り返しタスクを削除"
                     >
-                      🗑️
+                      {operatingTaskIds.has(item.id) ? '⏳' : '🗑️'}
                     </button>
                   ) : item.task && onDelete && (
                     <button
@@ -714,6 +723,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                           onDelete(item.id)
                         }
                       }}
+                      disabled={operatingTaskIds.has(item.id)}
                       style={{
                         padding: '4px',
                         fontSize: '14px',
@@ -721,25 +731,28 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                         borderRadius: '3px',
                         backgroundColor: 'transparent',
                         color: '#6b7280',
-                        cursor: 'pointer',
+                        cursor: operatingTaskIds.has(item.id) ? 'wait' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: '24px',
                         height: '24px',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        opacity: operatingTaskIds.has(item.id) ? 0.5 : 1
                       }}
                       onMouseEnter={(e) => {
+                        if (operatingTaskIds.has(item.id)) return
                         e.currentTarget.style.backgroundColor = '#fef2f2'
                         e.currentTarget.style.color = '#ef4444'
                       }}
                       onMouseLeave={(e) => {
+                        if (operatingTaskIds.has(item.id)) return
                         e.currentTarget.style.backgroundColor = 'transparent'
                         e.currentTarget.style.color = '#6b7280'
                       }}
                       title="タスクを削除"
                     >
-                      🗑️
+                      {operatingTaskIds.has(item.id) ? '⏳' : '🗑️'}
                     </button>
                   )}
 
