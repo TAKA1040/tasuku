@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 
-export default function DebugPage() {
+function DebugContent() {
   const [data, setData] = useState<UnifiedTask[]>([])
   const [completedData, setCompletedData] = useState<UnifiedTask[]>([])
   const [doneData, setDoneData] = useState<Record<string, unknown>[]>([])
@@ -112,4 +112,18 @@ export default function DebugPage() {
       </div>
     </div>
   )
+}
+
+export default function DebugPage() {
+  // Disable debug page in production
+  if (process.env.NODE_ENV !== 'development') {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Page Not Available</h1>
+        <p>This debug page is only available in development mode.</p>
+      </div>
+    )
+  }
+
+  return <DebugContent />
 }

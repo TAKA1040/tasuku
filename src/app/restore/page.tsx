@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST, formatDateJST } from '@/lib/utils/date-jst'
 
-export default function RestorePage() {
+function RestoreContent() {
   const [status, setStatus] = useState('')
   const [isRestoring, setIsRestoring] = useState(false)
 
@@ -150,4 +150,18 @@ export default function RestorePage() {
       </div>
     </div>
   )
+}
+
+export default function RestorePage() {
+  // Disable restore page in production
+  if (process.env.NODE_ENV !== 'development') {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Page Not Available</h1>
+        <p>This restore page is only available in development mode.</p>
+      </div>
+    )
+  }
+
+  return <RestoreContent />
 }
