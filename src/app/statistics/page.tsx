@@ -157,9 +157,9 @@ export default function StatisticsPage() {
 
   const achievementData = getDailyTasksAchievementData()
 
-  // 繰り返しタスクの一覧を取得
-  const recurringTasks = completedTasks.filter(task =>
-    task.recurring_template_id && task.completed
+  // 繰り返しタスクの一覧を取得（完了・未完了問わず全ての繰り返しタスク）
+  const recurringTasks = unifiedTasks.tasks.filter(task =>
+    task.recurring_template_id
   ).reduce((acc, task) => {
     if (!acc.some(t => t.recurring_template_id === task.recurring_template_id)) {
       acc.push(task)
