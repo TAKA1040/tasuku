@@ -5,6 +5,47 @@
 
 ---
 
+## ✅ 完了: Medium-7 未使用コード削除 (2025-10-02)
+
+### Medium-7: 未使用関数・パラメータの削除 ✅
+**Commit**: `f479bd2` "refactor: Remove unused functions and parameters"
+
+#### 削除した未使用コード:
+
+**1. 未使用関数（4ファイル、約85行）:**
+- **IdeaBox.tsx** - `getImportanceColor` 関数削除（ImportanceDotコンポーネントを使用）
+- **ShoppingTasksSection.tsx** - 3つの未使用関数削除（71行）
+  - `renderFileIcon` (27行) - ファイル添付機能で未使用
+  - `renderUrlIcon` (39行) - URL一括開き機能で未使用
+  - `formatDueDate` (5行) - 日付フォーマット機能で未使用
+- **TaskTable.tsx** - `getUrgencyStyle` 関数削除（14行）
+- **useStatistics.ts** - `getNextDate` 関数削除、`getDateDaysAgo` → `subtractDays` に置換
+
+**2. 未使用パラメータ（2ファイル）:**
+- **done/page.tsx** - `handleUpdateTask` の未使用パラメータ削除
+  - `_startTime`, `_endTime`, `_attachment` を削除（将来の機能用に残されていたが未実装）
+- **TaskTable.tsx** - サブタスク関数の未使用 `taskId` パラメータ削除
+  - `handleToggleSubTask(subTaskId, taskId)` → `handleToggleSubTask(subTaskId)`
+  - `handleDeleteSubTask(subTaskId, taskId)` → `handleDeleteSubTask(subTaskId)`
+  - 呼び出し元2箇所も修正
+
+#### 効果:
+- **コード削減**: 約133行（差分: +7, -133）
+- **コード品質**: ESLint警告が減少
+- **保守性向上**: コードの意図が明確に
+- **一貫性**: date-jst.tsの標準関数（`subtractDays`）を使用
+
+#### ビルド結果:
+- ✅ Production build成功
+- ⚠️ ESLint警告: 69件（主にuser_id関連とimage最適化）
+
+### デプロイ状況:
+- **Git commit**: `f479bd2`
+- **本番URL**: https://tasuku.apaf.me
+- **ステータス**: ✅ Medium-7完了
+
+---
+
 ## ✅ 完了: Medium Priority問題修正 (2025-10-01 午後)
 
 ### Medium-1: 未使用imports削除 ✅
