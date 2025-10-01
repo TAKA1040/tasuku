@@ -722,7 +722,7 @@ export function UnifiedTasksTable({
               const dataType = getTaskDataType(item)
               const subTasks = shoppingSubTasks?.[item.id] || []
               const hasSubTasks = subTasks.length > 0
-              const isExpanded = expandedShoppingLists ? expandedShoppingLists.has(item.id) : false
+              const isExpanded = expandedShoppingLists ? expandedShoppingLists[item.id] === true : false
 
               return (
                 <div key={`mobile-${dataType}-${item.id}`} style={{
