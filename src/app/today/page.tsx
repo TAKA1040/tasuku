@@ -458,9 +458,24 @@ export default function TodayPage() {
               fontWeight: '700',
               margin: '0',
               color: '#1f2937',
-              letterSpacing: '0.1em'
+              letterSpacing: '0.1em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
             }}>
               TASUKU
+              <span style={{
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#6b7280',
+                backgroundColor: '#f3f4f6',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                letterSpacing: 'normal'
+              }}>
+                β版
+              </span>
             </h1>
           </div>
 
