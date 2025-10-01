@@ -13,9 +13,13 @@ import { SPECIAL_DATES } from '@/lib/constants'
 
 const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
-// キャッシュ管理
-let taskCache: { data: UnifiedTask[]; timestamp: number } | null = null
-const CACHE_DURATION = 2000 // 2秒間キャッシュ（さらに短縮）
+// キャッシュ管理（バージョン追跡付き）
+let taskCache: {
+  data: UnifiedTask[]
+  timestamp: number
+  version: string  // ユーザーIDまたはセッションIDでバージョン管理
+} | null = null
+const CACHE_DURATION = 30000 // 30秒間キャッシュ（2秒から延長してパフォーマンス向上）
 
 // グローバルキャッシュ無効化関数
 const invalidateGlobalCache = () => {
@@ -63,10 +67,21 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
 
   // 全タスクを読み込み
   const loadTasks = useCallback(async (forceRefresh = false) => {
-    // キャッシュチェック（強制更新でない場合）
-    if (!forceRefresh && taskCache && Date.now() - taskCache.timestamp < CACHE_DURATION) {
+    // ユーザーIDを取得してキャッシュバージョンとして使用
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const currentVersion = user?.id || 'anonymous'
+
+    // キャッシュチェック（強制更新でない場合 & バージョン一致）
+    if (
+      !forceRefresh &&
+      taskCache &&
+      taskCache.version === currentVersion &&
+      Date.now() - taskCache.timestamp < CACHE_DURATION
+    ) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Using cached unified tasks data')
+        console.log('✅ Using cached unified tasks data (valid for',
+          Math.round((CACHE_DURATION - (Date.now() - taskCache.timestamp)) / 1000), 'more seconds)')
       }
       setTasks(taskCache.data)
       setError(null)
@@ -79,17 +94,18 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
         setLoading(true)
         const allTasks = await UnifiedTasksService.getAllUnifiedTasks()
 
-        // キャッシュを更新
+        // キャッシュを更新（バージョン情報付き）
         taskCache = {
           data: allTasks,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          version: currentVersion
         }
 
         setTasks(allTasks)
         setError(null)
 
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🔄 Unified tasks loaded: ${allTasks.length} items`)
+          console.log(`🔄 Unified tasks loaded: ${allTasks.length} items (cache duration: ${CACHE_DURATION / 1000}s)`)
         }
       },
       'useUnifiedTasks.loadTasks',

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { UnifiedTask, TaskFilters, SubTask } from '@/lib/types/unified-task'
 import { getTodayJST, getNowJST, addDays, parseDateJST, formatDateJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
+import { logger } from '@/lib/utils/logger'
 
 const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
@@ -297,7 +298,7 @@ export class UnifiedTasksService {
   // 繰り返しタスクから自動的にテンプレートを作成
   private static async createTemplateFromTask(task: UnifiedTask): Promise<void> {
     try {
-      console.log('🔄 createTemplateFromTask called with:', {
+      logger.debug('🔄 createTemplateFromTask called', {
         id: task.id,
         title: task.title,
         category: task.category,
@@ -309,7 +310,7 @@ export class UnifiedTasksService {
       const supabase = createClient()
 
       // 既に同じテンプレートが存在するかチェック
-      const { data: existingTemplate } = await supabase
+      const { data: existingTemplate, error: checkError } = await supabase
         .from('recurring_templates')
         .select('id')
         .eq('user_id', task.user_id)
@@ -318,15 +319,23 @@ export class UnifiedTasksService {
         .eq('category', task.category || '')
         .limit(1)
 
-      console.log('🔍 Existing template check:', existingTemplate)
+      if (checkError) {
+        throw new Error(`テンプレート確認エラー: ${checkError.message}`)
+      }
+
+      logger.debug('🔍 Existing template check:', existingTemplate)
 
       if (existingTemplate && existingTemplate.length > 0) {
         // 既存テンプレートのIDを設定
-        console.log('📎 Linking to existing template:', existingTemplate[0].id)
-        await supabase
+        logger.debug('📎 Linking to existing template:', existingTemplate[0].id)
+        const { error: linkError } = await supabase
           .from('unified_tasks')
           .update({ recurring_template_id: existingTemplate[0].id })
           .eq('id', task.id)
+
+        if (linkError) {
+          throw new Error(`既存テンプレートへのリンクエラー: ${linkError.message}`)
+        }
         return
       }
 
@@ -353,11 +362,14 @@ export class UnifiedTasksService {
         .single()
 
       if (templateError) {
-        console.error('❌ Template creation error:', templateError)
-        return
+        throw new Error(`テンプレート作成エラー: ${templateError.message}`)
       }
 
-      console.log('✅ Template created successfully:', templateData)
+      if (!templateData) {
+        throw new Error('テンプレート作成に失敗しました（データが返されませんでした）')
+      }
+
+      logger.debug('✅ Template created successfully:', templateData)
 
       // タスクにテンプレートIDを設定
       const { error: linkError } = await supabase
@@ -366,15 +378,16 @@ export class UnifiedTasksService {
         .eq('id', task.id)
 
       if (linkError) {
-        console.error('❌ Template linking error:', linkError)
-      } else {
-        console.log('🔗 Task linked to template successfully')
+        throw new Error(`テンプレートリンクエラー: ${linkError.message}`)
       }
 
-      console.log(`✅ 自動テンプレート作成完了: ${task.title} (${task.recurring_pattern})`)
+      logger.info(`✅ 自動テンプレート作成完了: ${task.title} (${task.recurring_pattern})`)
 
     } catch (error) {
-      console.error('❌ createTemplateFromTask error:', error)
+      const errorMessage = error instanceof Error ? error.message : '不明なエラー'
+      logger.error(`❌ createTemplateFromTask error for task "${task.title}":`, errorMessage)
+      // エラーを上位に伝播させる（Silent failureを防ぐ）
+      throw new Error(`タスク "${task.title}" のテンプレート作成に失敗しました: ${errorMessage}`)
     }
   }
 

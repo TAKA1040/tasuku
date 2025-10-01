@@ -477,11 +477,11 @@ export default function DonePage() {
                   }}>
                     タスク
                   </th>
-                  {achievementData[0]?.dates.map((date) => {
+                  {achievementData[0]?.dates.map((date, index) => {
                     const d = new Date(date)
                     return (
                       <th
-                        key={date}
+                        key={`date-${index}-${date}`}
                         style={{
                           padding: '4px 2px',
                           textAlign: 'center',
