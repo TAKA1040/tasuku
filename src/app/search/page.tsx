@@ -211,11 +211,36 @@ export default function SearchPage() {
     <ThemedContainer>
       <style>{`
         @media (max-width: 640px) {
-          .search-container { width: 100% !important; padding: 8px !important; }
-          .search-header { flex-direction: column; gap: 12px; align-items: flex-start !important; }
-          .search-header-left { width: 100%; }
-          .search-header-right { width: 100%; justify-content: space-between; }
-          .search-header-right > * { flex-shrink: 0; }
+          .search-container {
+            width: 100% !important;
+            padding: 8px !important;
+            box-sizing: border-box;
+          }
+          .search-container > * {
+            box-sizing: border-box;
+            max-width: 100%;
+          }
+          .search-header {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start !important;
+          }
+          .search-header-left {
+            width: 100%;
+          }
+          .search-header-left h1 {
+            font-size: 20px !important;
+          }
+          .search-header-right {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 8px !important;
+            flex-wrap: wrap;
+          }
+          .search-header-right button {
+            padding: 6px 8px !important;
+            font-size: 12px !important;
+          }
         }
       `}</style>
       <div className="search-container" style={{
