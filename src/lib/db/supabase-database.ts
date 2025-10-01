@@ -367,8 +367,7 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async logRecurringTask(recurringId: string, date: string): Promise<void> {
-    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+    const userId = await this.getCurrentUserId()
     const { error } = await this.supabase
       .from('done')
       .insert({
@@ -555,8 +554,7 @@ class SupabaseTasukuDatabase {
   // ===================================
 
   async createSubTask(subTask: Omit<SubTask, 'id' | 'created_at'>): Promise<SubTask> {
-    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+    const userId = await this.getCurrentUserId()
 
     if (process.env.NODE_ENV === 'development') {
       console.log('createSubTask: Creating subtask:', subTask.title)
@@ -662,8 +660,7 @@ class SupabaseTasukuDatabase {
 
   async getSettings(): Promise<Settings> {
     try {
-      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+      const userId = await this.getCurrentUserId()
 
       const { data, error } = await this.supabase
         .from('user_settings')
@@ -695,8 +692,7 @@ class SupabaseTasukuDatabase {
 
   private async createDefaultSettings(): Promise<Settings> {
     try {
-      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+      const userId = await this.getCurrentUserId()
 
       const defaultSettings = {
         timezone: 'Asia/Tokyo' as const,
@@ -768,8 +764,7 @@ class SupabaseTasukuDatabase {
 
   async updateSettings(updates: Partial<Omit<Settings, 'id' | 'updated_at'>>): Promise<Settings> {
     try {
-      // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+      const userId = await this.getCurrentUserId()
 
       const { data, error } = await this.supabase
         .from('user_settings')
@@ -883,8 +878,7 @@ class SupabaseTasukuDatabase {
   }
 
   async clearAllData(): Promise<void> {
-    // Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）
-    const _userId = await this.getCurrentUserId()
+    const userId = await this.getCurrentUserId()
 
     // Only clear tables that exist
     const tables = ['subtasks', 'unified_tasks', 'done', 'user_settings'] as const
