@@ -31,6 +31,7 @@ export interface Task {
   attachment?: {
     file_name: string
     file_type: string
+    file_size: number
     file_data: string
   }
   location_tag_id?: string
@@ -46,24 +47,24 @@ export function unifiedTaskToTask(unifiedTask: UnifiedTask): Task {
   return {
     id: unifiedTask.id,
     title: unifiedTask.title,
-    memo: unifiedTask.memo || undefined,
+    memo: unifiedTask.memo ?? undefined,
     // 特別な日付値（NO_DUE_DATE）はundefinedに変換
     due_date: unifiedTask.due_date === SPECIAL_DATES.NO_DUE_DATE
       ? undefined
       : unifiedTask.due_date,
-    completed: unifiedTask.completed || false,
-    created_at: unifiedTask.created_at || new Date().toISOString(),
-    updated_at: unifiedTask.updated_at || new Date().toISOString(),
-    completed_at: unifiedTask.completed_at,
+    completed: unifiedTask.completed ?? false,
+    created_at: unifiedTask.created_at ?? new Date().toISOString(),
+    updated_at: unifiedTask.updated_at ?? new Date().toISOString(),
+    completed_at: unifiedTask.completed_at ?? undefined,
     display_number: unifiedTask.display_number,
     rollover_count: 0, // UnifiedTaskにはrollover_countがないため0固定
-    archived: unifiedTask.archived || false,
-    snoozed_until: unifiedTask.snoozed_until,
-    duration_min: unifiedTask.duration_min,
+    archived: unifiedTask.archived ?? false,
+    snoozed_until: unifiedTask.snoozed_until ?? undefined,
+    duration_min: unifiedTask.duration_min ?? undefined,
     importance: unifiedTask.importance as 1 | 2 | 3 | 4 | 5 | undefined,
-    category: unifiedTask.category,
-    urls: unifiedTask.urls,
-    attachment: unifiedTask.attachment,
+    category: unifiedTask.category ?? undefined,
+    urls: unifiedTask.urls ?? undefined,
+    attachment: unifiedTask.attachment ?? undefined,
     location_tag_id: undefined // UnifiedTaskにはlocation_tag_idがない
   }
 }
@@ -104,8 +105,7 @@ export function taskToUnifiedTask(
     attachment: task.attachment || null,
     recurring_pattern: null,
     recurring_weekdays: null,
-    recurring_template_id: null,
-    shopping_memo: null
+    recurring_template_id: null
   }
 }
 

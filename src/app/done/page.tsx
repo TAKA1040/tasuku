@@ -8,7 +8,7 @@ import { TaskEditForm } from '@/components/TaskEditForm'
 import { ThemedContainer } from '@/components/ThemedContainer'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import { unifiedTaskToTask } from '@/lib/utils/type-converters'
+import { unifiedTaskToTask, taskToUnifiedTask } from '@/lib/utils/type-converters'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
@@ -248,9 +248,13 @@ export default function DonePage() {
 
   // 編集ハンドラー
   const handleEditTask = (task: Task | UnifiedTask) => {
-    // UnifiedTaskの場合は変換、Taskの場合はそのまま使用
-    const legacyTask: Task = 'task_type' in task ? unifiedTaskToTask(task) : task
-    setEditingTask(legacyTask)
+    // 型安全な変換: UnifiedTaskの場合のみ変換
+    if ('task_type' in task) {
+      setEditingTask(unifiedTaskToTask(task))
+    } else {
+      // Taskの場合はそのまま（型は既に互換性あり）
+      setEditingTask(task as Task)
+    }
     setShowEditForm(true)
   }
 
