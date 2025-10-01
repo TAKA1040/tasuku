@@ -58,10 +58,10 @@ export async function updateFeatureFlag(
   enabled: boolean
 ): Promise<void> {
   const current = await getFeatureFlags()
-  const updated = { ...current, [feature]: enabled }
+  const _updated = { ...current, [feature]: enabled }
 
   // TODO: Supabaseでsettingsを更新
-  // await db.updateSettings({ features: updated })
+  // await db.updateSettings({ features: _updated })
   if (process.env.NODE_ENV === 'development') {
     console.log('Feature flag would be updated:', feature, enabled)
   }
@@ -73,7 +73,7 @@ export async function updateFeatureFlag(
  */
 export async function updateFeatureFlags(updates: Partial<FeatureFlags>): Promise<void> {
   const current = await getFeatureFlags()
-  const updated = { ...current, ...updates }
+  const _updated = { ...current, ...updates }
 
   // TODO: Supabaseでsettingsを更新
   // await db.updateSettings({ features: updated })

@@ -10,7 +10,7 @@
  * logger.error('Error message', error)     // Always shown
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+type _LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 class Logger {
   private isDevelopment = process.env.NODE_ENV === 'development'

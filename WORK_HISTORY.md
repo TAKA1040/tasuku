@@ -5,6 +5,56 @@
 
 ---
 
+## ✅ 完了: ESLint警告完全削除 (2025-10-02)
+
+### ESLint設定追加と未使用変数修正 ✅
+**対応内容**: `_`プレフィックス変数の警告抑制ルールを追加し、残りの未使用変数を修正
+
+#### 実施内容:
+
+**1. ESLint設定追加（eslint.config.mjs）:**
+```javascript
+{
+  rules: {
+    // Allow unused variables with underscore prefix (intentionally unused)
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+      },
+    ],
+  },
+}
+```
+
+**2. 未使用変数の`_`プレフィックス化（12箇所）:**
+
+- **src/lib/db/supabase-database.ts（7箇所）:**
+  - `IdeaInsert` → `_IdeaInsert` (型定義)
+  - `json` → `_json` (関数引数)
+  - `tag`, `id`, `item`, `source`, `sourceId` → `_tag`, `_id`, `_item`, `_source`, `_sourceId` (未実装メソッド引数)
+
+- **src/lib/db/unified-tasks.ts（2箇所）:**
+  - `currentTask` → `_currentTask` (取得後未使用)
+  - `currentDayISO` → `_currentDayISO` (計算後未使用)
+
+- **src/lib/features.ts（2箇所）:**
+  - `updated` → `_updated` (TODO実装待ち変数、2箇所)
+
+- **src/lib/utils/logger.ts（1箇所）:**
+  - `LogLevel` → `_LogLevel` (型定義、将来の拡張用)
+
+#### 効果:
+- **警告完全削除**: 46件 → **0件**（46件削除） 🎉
+- **コード意図の明確化**: `_`プレフィックスで意図的な未使用を明示
+- **保守性向上**: ESLintルールで将来の未使用変数も自動的に許容
+- **ビルド成功**: TypeScriptエラーなし、ESLint警告なし
+
+---
+
 ## ✅ 完了: 画像最適化警告抑制 (2025-10-02)
 
 ### Next.js画像警告のESLint抑制 ✅

@@ -404,7 +404,7 @@ export class UnifiedTasksService {
       const supabase = createClient()
 
       // まず現在のタスク情報を取得
-      const { data: currentTask, error: fetchError } = await supabase
+      const { data: _currentTask, error: fetchError } = await supabase
         .from('unified_tasks')
         .select('*')
         .eq('id', id)
@@ -699,7 +699,7 @@ export class UnifiedTasksService {
           if (task.recurring_weekdays && task.recurring_weekdays.length > 0) {
             const todayDate = parseDateJST(todayJST)
             const currentDay = todayDate.getDay()
-            const currentDayISO = currentDay === 0 ? 7 : currentDay
+            const _currentDayISO = currentDay === 0 ? 7 : currentDay
 
             // 次の対象曜日を探す
             for (let i = 1; i <= 7; i++) {

@@ -17,9 +17,9 @@ import {
   type UnifiedItem
 } from './schema'
 
-// Note: TaskInsert, RecurringTaskInsert, IdeaInsert are unused (using Omit inline instead)
+// Note: TaskInsert, RecurringTaskInsert, _IdeaInsert are unused (using Omit inline instead)
 // 挿入専用の薄い型定義（display_numberを省略可）
-type IdeaInsert = Omit<Idea, 'id' | 'created_at' | 'updated_at' | 'display_number' | 'text'> & {
+type _IdeaInsert = Omit<Idea, 'id' | 'created_at' | 'updated_at' | 'display_number' | 'text'> & {
   display_number?: string | null
   title: string // textの代わりにtitleを使用
 }
@@ -48,7 +48,7 @@ const serializeAttachment = (attachment: FileAttachment | undefined): Json | nul
   }
 }
 
-const deserializeAttachment = (json: Json | null): FileAttachment | undefined => {
+const deserializeAttachment = (_json: Json | null): FileAttachment | undefined => {
   // 一時的に無効化してテスト
   return undefined
 }
@@ -839,7 +839,7 @@ class SupabaseTasukuDatabase {
   // LOCATION TAGS Operations (Not implemented - tables don't exist)
   // ===================================
 
-  async createLocationTag(tag: Omit<LocationTag, 'id' | 'created_at'>): Promise<LocationTag> {
+  async createLocationTag(_tag: Omit<LocationTag, 'id' | 'created_at'>): Promise<LocationTag> {
     throw new Error(ERROR_MESSAGES.LOCATION_TAGS_NOT_IMPLEMENTED)
   }
 
@@ -847,7 +847,7 @@ class SupabaseTasukuDatabase {
     return [] // Return empty array for now
   }
 
-  async deleteLocationTag(id: string): Promise<void> {
+  async deleteLocationTag(_id: string): Promise<void> {
     throw new Error(ERROR_MESSAGES.LOCATION_TAGS_NOT_IMPLEMENTED)
   }
 
@@ -855,7 +855,7 @@ class SupabaseTasukuDatabase {
   // UNIFIED ITEMS Operations (Not implemented - tables don't exist)
   // ===================================
 
-  async createUnifiedItem(item: Omit<UnifiedItem, 'read_only'> & { id?: never; created_at?: never }): Promise<UnifiedItem> {
+  async createUnifiedItem(_item: Omit<UnifiedItem, 'read_only'> & { id?: never; created_at?: never }): Promise<UnifiedItem> {
     throw new Error(ERROR_MESSAGES.UNIFIED_ITEMS_NOT_IMPLEMENTED)
   }
 
@@ -863,7 +863,7 @@ class SupabaseTasukuDatabase {
     return [] // Return empty array for now
   }
 
-  async deleteUnifiedItem(source: string, sourceId: string): Promise<void> {
+  async deleteUnifiedItem(_source: string, _sourceId: string): Promise<void> {
     throw new Error(ERROR_MESSAGES.UNIFIED_ITEMS_NOT_IMPLEMENTED)
   }
 
