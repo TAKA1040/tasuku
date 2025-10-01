@@ -7,6 +7,45 @@
 
 ## ✅ 完了: Medium Priority 未使用コード削除 (2025-10-02)
 
+### Medium-7 (Part 3): supabase-database.ts 未使用user_id変数 ✅
+**Commit**: `f969de9` "refactor: Add underscore prefix to unused user_id variables"
+
+#### 修正内容（大規模変更）:
+
+**1. userId変数（7箇所）:**
+- `const userId` → `const _userId`
+- `getCurrentUserId()`で認証確認のために取得
+- RLS（Row Level Security）が自動的にuser_idを設定するため未使用
+- コメント追加: "Note: userId取得は認証確認のため（RLSが自動的にuser_idを設定）"
+
+**2. 分割代入のuser_id（30箇所以上）:**
+- `const { user_id, ...data }` → `const { user_id: _user_id, ...data }`
+- `map(({ user_id, ...item })` → `map(({ user_id: _user_id, ...item })`
+- Supabaseクエリ結果から取得するが、アプリケーションでは使用しない
+
+**3. 未使用型定義の整理:**
+- `TaskWithUrgency`, `UrgencyLevel` import削除
+- `TaskInsert`, `RecurringTaskInsert` 型定義削除（インラインでOmit使用）
+- `IdeaInsert`のみ保持（実際に使用中）
+
+#### 効果:
+- **コード意図の明確化**: `_`プレフィックスで未使用を明示
+- **パターン統一**: RLS使用時のベストプラクティスに準拠
+- **型定義整理**: 実際に使用する型のみ保持
+- **大規模クリーンアップ**: 37箇所以上の未使用変数を整理
+
+#### 注意事項:
+- ESLint警告は残る（約60件）
+- `_`プレフィックス変数の警告を抑制する設定が必要
+- 次のタスクで.eslintrc.json設定を推奨
+
+### デプロイ状況:
+- **Git commit**: `f969de9`
+- **本番URL**: https://tasuku.apaf.me
+- **ステータス**: ✅ Medium-7 Part 3完了
+
+---
+
 ### Medium-7 (Part 2): 未使用変数削除 ✅
 **Commit**: `8ba97f9` "refactor: Remove unused variables in components and hooks"
 
