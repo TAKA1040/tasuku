@@ -6,7 +6,7 @@ import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
 import { TIME_CONSTANTS } from '@/lib/constants'
-import { handleError, withErrorHandling, ERROR_MESSAGES as ERROR_MSG } from '@/lib/utils/error-handler'
+import { withErrorHandling } from '@/lib/utils/error-handler'
 
 // 簡易メモリキャッシュ
 let taskCache: { data: Task[]; timestamp: number } | null = null
@@ -37,7 +37,7 @@ export function useTasks(isDbInitialized: boolean = false) {
       return
     }
 
-    const result = await withErrorHandling(
+    await withErrorHandling(
       async () => {
         setLoading(true)
         const allTasks = await db.getAllTasks()

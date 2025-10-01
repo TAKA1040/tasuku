@@ -28,7 +28,7 @@ function TestContent() {
         }
 
         // データベース接続テスト
-        const { data, error: dbError } = await supabase
+        const { error: dbError } = await supabase
           .from('unified_tasks')
           .select('count')
           .limit(1)

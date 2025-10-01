@@ -149,12 +149,6 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         return
       }
 
-      const newLog: RecurringLog = {
-        recurring_id: taskId,
-        date: today,
-        logged_at: new Date().toISOString()
-      }
-
       await db.logRecurringTask(taskId, today)
       await loadRecurringData() // Reload data
     } catch (err) {

@@ -96,6 +96,8 @@ export function SwipeableTaskRow({
     setIsDragging(true)
   }
 
+  // Note: handleMouseMove is defined but not used (未実装のマウスドラッグ機能)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || disabled) return
 

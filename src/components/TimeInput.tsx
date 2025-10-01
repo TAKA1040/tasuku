@@ -9,7 +9,7 @@ interface TimeInputProps {
   style?: React.CSSProperties
 }
 
-export function TimeInput({ value, onChange, placeholder = "HH:MM", style }: TimeInputProps) {
+export function TimeInput({ value, onChange, style }: TimeInputProps) {
   const [hours, setHours] = useState<string>('')
   const [minutes, setMinutes] = useState<string>('')
 

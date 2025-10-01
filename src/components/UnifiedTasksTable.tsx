@@ -207,9 +207,7 @@ export function UnifiedTasksTable({
   const renderFileIcon = (attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }) => {
     if (!attachment) return null
 
-    const isImage = attachment.file_type.startsWith('image/')
-    const isPDF = attachment.file_type === 'application/pdf'
-
+    // Note: isImage, isPDF variables removed (not used - icon selection simplified)
     return (
       <button
         onClick={() => handleFileClick(attachment)}

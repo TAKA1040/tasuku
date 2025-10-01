@@ -20,7 +20,8 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
   const [showFilePopup, setShowFilePopup] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ file_name: string; file_type: string; file_data: string } | null>(null)
 
-  // ファイル表示機能
+  // Note: handleFileClick is defined but not used (未実装のファイル添付機能)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
     setSelectedFile(attachment)
     setShowFilePopup(true)

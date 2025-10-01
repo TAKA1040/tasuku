@@ -8,7 +8,7 @@ import {
   rolloverRecurringTask,
   getRolloverDisplayText
 } from '@/lib/utils/rollover'
-import type { Task, RecurringTask, RecurringLog } from '@/lib/db/schema'
+import type { Task, RecurringTask } from '@/lib/db/schema'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { UI_CONSTANTS } from '@/lib/constants'
 
@@ -41,7 +41,7 @@ export function useRollover(
         const rolledOverTask = rolloverSingleTask(task)
 
         // createTask用にid, created_at, updated_atを除く
-        const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+        const { id: _id, created_at: _created_at, updated_at: _updated_at, ...taskForCreate } = rolledOverTask
 
         try {
           await db.createTask(taskForCreate)
@@ -162,7 +162,7 @@ export function useRollover(
           const rolledOverTask = rolloverSingleTask(task)
 
           // createTask用にid, created_at, updated_atを除く
-          const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+          const { id: _id2, created_at: _created_at2, updated_at: _updated_at2, ...taskForCreate } = rolledOverTask
           await db.createTask(taskForCreate)
 
           // 元のタスクを完了済みにマーク
@@ -184,7 +184,7 @@ export function useRollover(
 
           for (const rolledOverTask of rolledOverTasks) {
             // createTask用にid, created_at, updated_atを除く
-            const { id, created_at, updated_at, ...taskForCreate } = rolledOverTask
+            const { id: _id3, created_at: _created_at3, updated_at: _updated_at3, ...taskForCreate } = rolledOverTask
             await db.createTask(taskForCreate)
           }
         }
