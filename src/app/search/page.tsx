@@ -513,56 +513,69 @@ export default function SearchPage() {
               }
             </div>
           ) : (
-            <div style={{
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              overflow: 'hidden'
-            }}>
-              {/* テーブルヘッダー */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
-                gap: '8px',
-                padding: '12px',
+            <>
+              <style>{`
+                @media (max-width: 640px) {
+                  .desktop-search-table { display: none; }
+                  .mobile-search-cards { display: block; }
+                }
+                @media (min-width: 641px) {
+                  .desktop-search-table { display: block; }
+                  .mobile-search-cards { display: none; }
+                }
+              `}</style>
+
+              {/* デスクトップ版テーブル */}
+              <div className="desktop-search-table" style={{
                 background: 'var(--bg-primary)',
-                borderBottom: '1px solid var(--border)',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: 'var(--text-secondary)'
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                overflow: 'hidden'
               }}>
-                <div>選択</div>
-                <div>状態</div>
-                <div>タイプ</div>
-                <div>タイトル</div>
-                <div>メモ</div>
-                <div>期限</div>
-                <div>作成日時</div>
-                <div>操作</div>
-              </div>
+                {/* テーブルヘッダー */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
+                  gap: '8px',
+                  padding: '12px',
+                  background: 'var(--bg-primary)',
+                  borderBottom: '1px solid var(--border)',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: 'var(--text-secondary)'
+                }}>
+                  <div>選択</div>
+                  <div>状態</div>
+                  <div>タイプ</div>
+                  <div>タイトル</div>
+                  <div>メモ</div>
+                  <div>期限</div>
+                  <div>作成日時</div>
+                  <div>操作</div>
+                </div>
 
-              {/* テーブルボディ */}
-              {filteredTasks.map((task, index) => {
-                const taskType = task.task_type === 'IDEA' ? 'idea' :
-                                task.task_type === 'RECURRING' ? 'recurring' : 'task'
-                const itemId = `${taskType}-${task.id}`
-                const isSelected = selectedItems.has(itemId)
+                {/* テーブルボディ */}
+                {filteredTasks.map((task, index) => {
+                  const taskType = task.task_type === 'IDEA' ? 'idea' :
+                                  task.task_type === 'RECURRING' ? 'recurring' : 'task'
+                  const itemId = `${taskType}-${task.id}`
+                  const isSelected = selectedItems.has(itemId)
 
-                return (
-                  <div
-                    key={itemId}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
-                      gap: '8px',
-                      padding: '12px',
-                      borderBottom: index < filteredTasks.length - 1 ? '1px solid var(--border)' : 'none',
-                      background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                      opacity: task.completed ? 0.7 : 1,
-                      alignItems: 'center',
-                      fontSize: '13px'
-                    }}
-                  >
+                  return (
+                    <div
+                      key={itemId}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '40px 60px 80px 1fr 120px 80px 90px 80px',
+                        gap: '8px',
+                        padding: '12px',
+                        borderBottom: index < filteredTasks.length - 1 ? '1px solid var(--border)' : 'none',
+                        background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                        opacity: task.completed ? 0.7 : 1,
+                        alignItems: 'center',
+                        fontSize: '13px'
+                      }}
+                    >
                     {/* 選択チェックボックス */}
                     <div>
                       <input
@@ -704,7 +717,173 @@ export default function SearchPage() {
                   </div>
                 )
               })}
-            </div>
+              </div>
+
+              {/* モバイル版カード表示 */}
+              <div className="mobile-search-cards">
+                {filteredTasks.map((task, index) => {
+                  const taskType = task.task_type === 'IDEA' ? 'idea' :
+                                  task.task_type === 'RECURRING' ? 'recurring' : 'task'
+                  const itemId = `${taskType}-${task.id}`
+                  const isSelected = selectedItems.has(itemId)
+
+                  return (
+                    <div
+                      key={itemId}
+                      style={{
+                        padding: '12px',
+                        borderBottom: index < filteredTasks.length - 1 ? '1px solid var(--border)' : 'none',
+                        background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-primary)',
+                        opacity: task.completed ? 0.7 : 1
+                      }}
+                    >
+                      {/* 上段: チェックボックス・タイトル・操作ボタン */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}>
+                        {/* チェックボックス */}
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleItemSelection(itemId)}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            cursor: 'pointer',
+                            marginTop: '2px'
+                          }}
+                        />
+
+                        {/* タイトル */}
+                        <div style={{
+                          flex: 1,
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          color: 'var(--text-primary)',
+                          wordBreak: 'break-word'
+                        }}>
+                          {task.title}
+                        </div>
+
+                        {/* 操作ボタン */}
+                        <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                          <button
+                            onClick={() => toggleTaskCompletion(task)}
+                            style={{
+                              padding: '6px 10px',
+                              fontSize: '14px',
+                              border: '1px solid var(--border)',
+                              borderRadius: '4px',
+                              background: task.completed ? '#10b981' : 'var(--bg-primary)',
+                              color: task.completed ? 'white' : 'var(--text-primary)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {task.completed ? '↩️' : '✓'}
+                          </button>
+                          <button
+                            onClick={() => deleteTaskItem(task)}
+                            style={{
+                              padding: '6px 10px',
+                              fontSize: '14px',
+                              border: 'none',
+                              borderRadius: '4px',
+                              background: '#ef4444',
+                              color: 'white',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 下段: タイプ・メモ・期限・日時バッジ */}
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '6px',
+                        fontSize: '11px',
+                        paddingLeft: '26px'
+                      }}>
+                        {/* タイプ */}
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          background: task.task_type === 'IDEA' ? '#fef3c7' :
+                                    task.task_type === 'RECURRING' ? '#dbeafe' : '#e0e7ff',
+                          color: task.task_type === 'IDEA' ? '#92400e' :
+                                task.task_type === 'RECURRING' ? '#1e40af' : '#3730a3',
+                          fontWeight: '500'
+                        }}>
+                          {task.task_type === 'IDEA' ? 'アイデア' :
+                           task.task_type === 'RECURRING' ? '繰り返し' : 'タスク'}
+                        </span>
+
+                        {/* 状態 */}
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          background: task.completed ? '#d1fae5' : '#fee2e2',
+                          color: task.completed ? '#065f46' : '#991b1b',
+                          fontWeight: '500'
+                        }}>
+                          {task.completed ? '完了' : '未完了'}
+                        </span>
+
+                        {/* メモ */}
+                        {task.memo && (
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            background: '#f3f4f6',
+                            color: '#6b7280',
+                            maxWidth: '150px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            📝 {task.memo}
+                          </span>
+                        )}
+
+                        {/* 期限 */}
+                        {task.due_date && task.due_date !== '2999-12-31' && (
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            background: '#fef3c7',
+                            color: '#92400e'
+                          }}>
+                            ⏰ {task.due_date}
+                          </span>
+                        )}
+
+                        {/* 作成日時 */}
+                        {task.created_at && (
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            background: '#f3f4f6',
+                            color: '#6b7280'
+                          }}>
+                            📅 {new Date(task.created_at).toLocaleDateString('ja-JP', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -1,5 +1,6 @@
 export const metadata = {
   title: 'TASUKU - 予定管理ツール',
+  description: 'シンプルな日次タスク管理',
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -13,7 +14,6 @@ export const metadata = {
     shortcut: '/favicon.ico'
   }
 }
-
 export const viewport = 'width=device-width, initial-scale=1'
 
 // Disable static optimization for all pages to prevent Supabase client issues during build
