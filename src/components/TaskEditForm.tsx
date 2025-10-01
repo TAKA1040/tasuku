@@ -578,7 +578,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           </div>
 
           {/* 開始時間 */}
-          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
               fontSize: '14px',
               fontWeight: '500',
@@ -596,7 +596,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           </div>
 
           {/* 終了時間 */}
-          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <label style={{
               fontSize: '14px',
               fontWeight: '500',
