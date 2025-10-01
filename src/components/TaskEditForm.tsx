@@ -437,7 +437,9 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                             onChange={(e) => setEditingItemTitle(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' && editingItemTitle.trim()) {
-                                onUpdateShoppingItem && onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                if (onUpdateShoppingItem) {
+                                  onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                }
                                 setEditingItemId(null)
                                 setEditingItemTitle('')
                               } else if (e.key === 'Escape') {
@@ -459,7 +461,9 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                             type="button"
                             onClick={() => {
                               if (editingItemTitle.trim()) {
-                                onUpdateShoppingItem && onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                if (onUpdateShoppingItem) {
+                                  onUpdateShoppingItem(task.id, subTask.id, editingItemTitle.trim())
+                                }
                                 setEditingItemId(null)
                                 setEditingItemTitle('')
                               }

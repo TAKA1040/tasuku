@@ -144,6 +144,10 @@ export default function TodayPage() {
     if (allUnifiedData.length > 0) {
       loadShoppingSubTasks()
     }
+    // Note: shoppingSubTasks and unifiedTasks intentionally excluded to prevent infinite loop
+    // - shoppingSubTasks accessed via prev => no direct dependency
+    // - unifiedTasks.getSubtasks is stable method
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allUnifiedData])
 
   const loading = unifiedTasks.loading
