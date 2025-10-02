@@ -43,19 +43,29 @@ export class TaskGeneratorService {
       console.log('🎯 タスク生成を実行します (forceToday:', forceToday, ')')
 
       if (forceToday) {
-        // 手動生成: 今日のタスクを強制生成
-        console.log('🎯 手動生成: 今日のタスクを強制生成')
+        // 手動生成: 自動生成と同じセキュリティルール適用
+        console.log('🎯 手動生成: セキュリティルール適用')
 
-        // 日次: 今日のみ生成
-        await this.generateDailyTasks(today, today)
+        // 日次: 3日制限適用
+        const startDate = Math.max(
+          this.parseDate(addDays(lastProcessed, 1)),
+          this.parseDate(subtractDays(today, 3))
+        )
+        await this.generateDailyTasks(this.formatDate(startDate), today)
 
-        // 週次: 今日のみ生成
-        await this.generateWeeklyTasks(today, today)
-        console.log('🎯 手動週次生成: 今日分生成')
+        // 週次: 週が変わった場合のみ今週分
+        if (this.isNewWeek(lastProcessed, today)) {
+          const thisMonday = getStartOfWeek(today)
+          await this.generateWeeklyTasks(thisMonday, today)
+          console.log('🎯 手動週次生成: 今週分生成')
+        }
 
-        // 月次: 今日のみ生成
-        await this.generateMonthlyTasks(today, today)
-        console.log('🎯 手動月次生成: 今日分生成')
+        // 月次: 月が変わった場合のみ今月分
+        if (this.isNewMonth(lastProcessed, today)) {
+          const thisFirstDay = getStartOfMonth(today)
+          await this.generateMonthlyTasks(thisFirstDay, today)
+          console.log('🎯 手動月次生成: 今月分生成')
+        }
       } else {
         // 自動生成: 制限付き復旧
         const startDate = Math.max(
