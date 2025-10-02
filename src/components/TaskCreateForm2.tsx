@@ -43,11 +43,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [saveAsIdea, setSaveAsIdea] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
-  const [isTyping, setIsTyping] = useState(false) // 入力中状態を管理
+  const [isTyping, setIsTyping] = useState(false) // 入力中状態を管理（URL用）
 
   // 買い物リスト管理
   const [shoppingItems, setShoppingItems] = useState<string[]>([])
   const [newShoppingItem, setNewShoppingItem] = useState('')
+  const [isTypingShopping, setIsTypingShopping] = useState(false) // 入力中状態を管理（買い物リスト用）
 
   // ファイル添付処理
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -447,7 +448,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                 <input
                   type="text"
                   value={newShoppingItem}
-                  onChange={(e) => setNewShoppingItem(e.target.value)}
+                  onChange={(e) => {
+                    setNewShoppingItem(e.target.value)
+                    setIsTypingShopping(e.target.value.trim().length > 0)
+                  }}
+                  onFocus={() => setIsTypingShopping(newShoppingItem.trim().length > 0)}
+                  onBlur={() => setIsTypingShopping(false)}
                   onKeyPress={handleShoppingItemKeyPress}
                   placeholder="買い物アイテムを入力"
                   style={{
@@ -463,11 +469,15 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                   onClick={addShoppingItem}
                   style={{
                     padding: '4px 8px',
-                    border: '1px solid #d1d5db',
+                    border: isTypingShopping && newShoppingItem.trim() ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '3px',
                     fontSize: '12px',
-                    background: '#f3f4f6',
-                    cursor: 'pointer'
+                    fontWeight: isTypingShopping && newShoppingItem.trim() ? '600' : '400',
+                    background: isTypingShopping && newShoppingItem.trim() ? '#ef4444' : '#f3f4f6',
+                    color: isTypingShopping && newShoppingItem.trim() ? 'white' : '#374151',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isTypingShopping && newShoppingItem.trim() ? '0 0 8px rgba(239, 68, 68, 0.4)' : 'none'
                   }}
                 >
                   追加
