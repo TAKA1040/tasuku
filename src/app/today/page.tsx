@@ -507,7 +507,8 @@ export default function TodayPage() {
                   border: 'none',
                   borderRadius: '4px',
                   cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  opacity: isGenerating ? 0.5 : 1
+                  opacity: isGenerating ? 0.5 : 1,
+                  minWidth: '100px'
                 }}
               >
                 {isGenerating ? '生成中...' : '🔄 タスク生成'}
@@ -595,49 +596,58 @@ export default function TodayPage() {
         </div>
 
         {/* Show database status if not fully initialized */}
-        {!isInitialized && (
-          <div style={{
-            background: '#fef3c7',
-            border: '1px solid #f59e0b',
-            borderRadius: '6px',
-            padding: '12px',
-            marginBottom: '12px',
-            fontSize: '14px',
-            color: '#92400e'
-          }}>
-            ⚠️ データベースが初期化中です。一部機能が制限される場合があります。
-          </div>
-        )}
+        <div style={{
+          background: '#fef3c7',
+          border: '1px solid #f59e0b',
+          borderRadius: '6px',
+          padding: '12px',
+          marginBottom: '12px',
+          fontSize: '14px',
+          color: '#92400e',
+          visibility: !isInitialized ? 'visible' : 'hidden',
+          height: !isInitialized ? 'auto' : '0',
+          minHeight: !isInitialized ? '48px' : '0',
+          overflow: 'hidden',
+          transition: 'none'
+        }}>
+          ⚠️ データベースが初期化中です。一部機能が制限される場合があります。
+        </div>
 
         {/* Show task generation status */}
-        {isGenerating && (
-          <div style={{
-            background: '#e0f2fe',
-            border: '1px solid #0ea5e9',
-            borderRadius: '6px',
-            padding: '12px',
-            marginBottom: '12px',
-            fontSize: '14px',
-            color: '#0369a1'
-          }}>
-            🔄 繰り返しタスクを生成中...
-          </div>
-        )}
+        <div style={{
+          background: '#e0f2fe',
+          border: '1px solid #0ea5e9',
+          borderRadius: '6px',
+          padding: '12px',
+          marginBottom: '12px',
+          fontSize: '14px',
+          color: '#0369a1',
+          visibility: isGenerating ? 'visible' : 'hidden',
+          height: isGenerating ? 'auto' : '0',
+          minHeight: isGenerating ? '48px' : '0',
+          overflow: 'hidden',
+          transition: 'none'
+        }}>
+          🔄 繰り返しタスクを生成中...
+        </div>
 
         {/* Show generation error if any */}
-        {generationError && (
-          <div style={{
-            background: '#fef2f2',
-            border: '1px solid #ef4444',
-            borderRadius: '6px',
-            padding: '12px',
-            marginBottom: '12px',
-            fontSize: '14px',
-            color: '#dc2626'
-          }}>
-            ❌ タスク生成エラー: {generationError}
-          </div>
-        )}
+        <div style={{
+          background: '#fef2f2',
+          border: '1px solid #ef4444',
+          borderRadius: '6px',
+          padding: '12px',
+          marginBottom: '12px',
+          fontSize: '14px',
+          color: '#dc2626',
+          visibility: generationError ? 'visible' : 'hidden',
+          height: generationError ? 'auto' : '0',
+          minHeight: generationError ? '48px' : '0',
+          overflow: 'hidden',
+          transition: 'none'
+        }}>
+          ❌ タスク生成エラー: {generationError}
+        </div>
 
 
         {/* 認証状態表示 */}

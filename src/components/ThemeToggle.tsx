@@ -45,7 +45,8 @@ export function ThemeToggle() {
         display: 'flex',
         alignItems: 'center',
         gap: '4px',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease',
+        minWidth: '90px'
       }}
       title={`現在: ${getThemeLabel()}モード (クリックで切り替え)`}
     >

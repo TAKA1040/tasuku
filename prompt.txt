@@ -1,12 +1,39 @@
-## アイコン／PWA確認メモ
-- favicon.ico が 64px 単一サイズで生成されているため、16/32/48px を含めたマルチサイズ ICO を出力できるか要確認。
-- metadata.icons.icon では 192px と 512px の PNG のみを登録しているので、32px・64px などデスクトップブラウザ用サイズが必要か設計者とすり合わせる。
-- manifest.json の background_color / theme_color を #FCE5E5 にしたが、実際のライトテーマ配色と一致するか画面で確認する。
-## Lintチェック結果
-- DELL/scripts 配下のチェック系 JS ファイルで CommonJS の `require()` を使っているため eslint(@typescript-eslint/no-require-imports) エラーが発生。ESM 化するか lint 対象から除外するか判断が必要。
-- check-tasks.js:10 の `allError` が未使用で警告。 `_allError` にリネームするか、利用漏れを確認する。
-## その他確認事項
-- src/app/icon.png (512x512) が 180KB 以上あるため、最適化して 200KB 未満に収められるかを検討。ブラウザ読み込み時の負担が大きい。
-- manifest.json の icons に maskable 用 `purpose: "any maskable"` が無いため、Android で丸くトリミングされる恐れ。必要であれば maskable 版を追加。
-- manifest.json に `id` フィールドが無く、最新 Chrome の PWA 要件 (start_url と一致させる) を満たせているか確認。
-- src/app/search/page.tsx では useUnifiedTasks(true) により DB 初期化前でも Supabase 呼び出しが走る可能性あり。isInitialized を渡して再取得タイミングを制御できるか要検討。
+操作
+レイアウト シフト
+
+Layout shift score: 0.0000
+Layout shift score: 0.0055
+div
+div
+div
+div
+div
+Layout shift score: 0.0115
+div.today-buttons
+div
+main
+div
+
+
+page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
+page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
+page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 0
+page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
+page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
+page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 0
+page-6cbcf9f6952f3ea8.js:1 🔄 タスク生成を開始...
+page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
+page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
+page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 41
+page-6cbcf9f6952f3ea8.js:1 🔄 ソート前の順番: Array(41)
+page-6cbcf9f6952f3ea8.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6cbcf9f6952f3ea8.js:1 🔄 ソート後の順番: Array(41)
+page-6cbcf9f6952f3ea8.js:1 user_metadataから取得: last_task_generation = 2025-10-03
+page-6cbcf9f6952f3ea8.js:1 🚀 タスク生成開始: 今日=2025-10-03, 前回=2025-10-03
+page-6cbcf9f6952f3ea8.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+page-6cbcf9f6952f3ea8.js:1 🔍 生成判定: lastProcessed (2025-10-03) < today (2025-10-03) = false
+page-6cbcf9f6952f3ea8.js:1 タスク生成完了
+page-6cbcf9f6952f3ea8.js:1 ✅ タスク生成完了
