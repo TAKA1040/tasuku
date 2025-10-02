@@ -87,6 +87,7 @@ export default function HelpPage() {
           <li style={{ marginBottom: '8px' }}><a href="#done" style={{ color: '#3b82f6', textDecoration: 'none' }}>完了タスクの確認</a></li>
           <li style={{ marginBottom: '8px' }}><a href="#template" style={{ color: '#3b82f6', textDecoration: 'none' }}>テンプレート管理</a></li>
           <li style={{ marginBottom: '8px' }}><a href="#features" style={{ color: '#3b82f6', textDecoration: 'none' }}>便利な機能</a></li>
+          <li style={{ marginBottom: '8px' }}><a href="#security" style={{ color: '#3b82f6', textDecoration: 'none' }}>セキュリティについて</a></li>
           <li><a href="#faq" style={{ color: '#3b82f6', textDecoration: 'none' }}>よくある質問</a></li>
         </ol>
       </nav>
@@ -449,10 +450,93 @@ export default function HelpPage() {
         </ul>
       </section>
 
-      {/* 10. よくある質問 */}
+      {/* 10. セキュリティについて */}
+      <section id="security" style={{ marginBottom: '48px' }}>
+        <h2 style={{ fontSize: '24px', color: '#1f2937', marginBottom: '16px', borderBottom: '2px solid #3b82f6', paddingBottom: '8px' }}>
+          10. セキュリティについて
+        </h2>
+
+        <div style={{ backgroundColor: '#fef2f2', padding: '20px', borderRadius: '8px', border: '2px solid #fecaca', marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '18px', color: '#dc2626', marginTop: 0, marginBottom: '12px' }}>⚠️ 重要なお知らせ</h3>
+          <p style={{ color: '#374151', margin: '0 0 12px 0', fontWeight: 'bold' }}>
+            本アプリケーションは現在β版テスト運用中です。
+          </p>
+          <p style={{ color: '#374151', margin: 0 }}>
+            正式版リリースに向けて、実際の利用環境での動作確認を行っている段階となります。
+          </p>
+        </div>
+
+        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>10-1. データの暗号化について</h3>
+
+        <h4 style={{ fontSize: '16px', color: '#4b5563', marginTop: '16px', marginBottom: '8px' }}>β版（現在）</h4>
+        <p style={{ color: '#6b7280', marginBottom: '12px' }}>
+          現在テスト運用中のため、タスクデータの暗号化処理は実装されていません。これは運用テストを円滑に進めるための意図的な措置です。暗号化してしまうと、テスト段階での問題発見や改善が困難になるため、この判断を行っています。
+        </p>
+        <p style={{ color: '#6b7280', marginBottom: '12px' }}>
+          そのため、現在の状態ではデータベース管理者がタスクの内容を技術的に確認できる状態となっています。ただし、関係者が直接タスク内容を見ることはありません。また、ユーザー同士のデータについては、Row Level Security（RLS）という仕組みにより完全に分離されており、他のユーザーがあなたのタスクを見ることは一切できません。
+        </p>
+
+        <div style={{ backgroundColor: '#fef2f2', padding: '16px', borderRadius: '8px', border: '1px solid #fecaca', marginBottom: '16px' }}>
+          <p style={{ margin: 0, color: '#374151', fontWeight: 'bold' }}>
+            このような理由から、β版では個人情報に関わるような内容をタスクに記載しないようお願いいたします。
+          </p>
+        </div>
+
+        <h4 style={{ fontSize: '16px', color: '#4b5563', marginTop: '16px', marginBottom: '8px' }}>正式版（今後の予定）</h4>
+        <p style={{ color: '#6b7280', marginBottom: '12px' }}>
+          正式版に移行した際には、すべてのタスクデータが暗号化されます。暗号化が実装されると、管理者を含めて誰もタスクの内容を確認することができなくなり、セキュリティ面が大幅に向上します。
+        </p>
+        <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+          ただし、暗号化によりセキュリティが向上する一方で、ログイン情報を紛失した場合のデータ復旧ができなくなります。具体的には、ログインしたアカウントがわからなくなってしまった場合、そのアカウントで作成したタスクを見ることができなくなってしまいます。このような場合、データの復旧はできませんので、Googleアカウントの管理には十分ご注意ください。
+        </p>
+
+        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>10-2. β版利用時の注意事項</h3>
+
+        <h4 style={{ fontSize: '16px', color: '#4b5563', marginTop: '16px', marginBottom: '8px' }}>記載を避けるべき情報</h4>
+        <p style={{ color: '#6b7280', marginBottom: '8px' }}>
+          現在は暗号化が実装されていないため、個人を特定できるような情報や機密性の高い情報は記載しないようお願いします。
+        </p>
+        <ul style={{ color: '#6b7280', marginBottom: '16px' }}>
+          <li>氏名・住所・電話番号などの個人情報</li>
+          <li>クレジットカード番号や銀行口座情報</li>
+          <li>パスワードやアクセストークン</li>
+          <li>社外秘情報などの機密情報</li>
+          <li>プライバシーに関わる詳細な内容</li>
+        </ul>
+
+        <h4 style={{ fontSize: '16px', color: '#4b5563', marginTop: '16px', marginBottom: '8px' }}>推奨される使い方</h4>
+        <div style={{ backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #bbf7d0', marginBottom: '16px' }}>
+          <p style={{ margin: '0 0 8px 0', color: '#374151' }}>β版では、以下のような一般的な内容のみを記載してください：</p>
+          <ul style={{ margin: 0, paddingLeft: '20px', color: '#374151' }}>
+            <li>「買い物に行く」「掃除をする」といった日常的なタスク</li>
+            <li>「資料作成」「会議準備」などの概要的な業務タスク</li>
+            <li>「運動する」「本を読む」といった習慣タスク</li>
+            <li>個人を特定できない一般的なメモ</li>
+          </ul>
+        </div>
+
+        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>10-3. 正式版移行時の注意点</h3>
+        <p style={{ color: '#6b7280', marginBottom: '12px' }}>
+          正式版への移行時には、いくつかの重要な変更が行われます。
+        </p>
+        <ul style={{ color: '#6b7280', marginBottom: '16px' }}>
+          <li>β版で作成したタスクも含め、すべてのデータが暗号化されます</li>
+          <li>正式版への移行前に、個人情報を含むタスクを作成してしまっている場合は、事前に削除することをお勧めします</li>
+          <li>ログインしたGoogleアカウントがわからなくなると、タスクを見ることができなくなり、データの復旧もできません</li>
+          <li>Googleアカウントの管理を厳重に行っていただくとともに、アカウントの2段階認証を有効にしておくことを強く推奨します</li>
+        </ul>
+
+        <div style={{ backgroundColor: '#eff6ff', padding: '16px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+          <p style={{ margin: 0, color: '#374151' }}>
+            暗号化の実装により、管理者であってもタスク内容を確認できなくなるため、より安心して個人的な情報を記載できるようになります。
+          </p>
+        </div>
+      </section>
+
+      {/* 11. よくある質問 */}
       <section id="faq" style={{ marginBottom: '48px' }}>
         <h2 style={{ fontSize: '24px', color: '#1f2937', marginBottom: '16px', borderBottom: '2px solid #3b82f6', paddingBottom: '8px' }}>
-          10. よくある質問
+          11. よくある質問
         </h2>
 
         <div style={{ marginBottom: '24px' }}>
