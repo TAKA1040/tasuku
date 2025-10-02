@@ -95,9 +95,17 @@ export class UnifiedTasksService {
   static async getAllUnifiedTasks(filters?: TaskFilters): Promise<UnifiedTask[]> {
     try {
       const supabase = createClient()
+
+      // ユーザー認証チェック
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.id) {
+        throw new Error('User not authenticated')
+      }
+
       let query = supabase
         .from('unified_tasks')
         .select('*')
+        .eq('user_id', user.id)  // ⚠️ 重要: ユーザーIDでフィルター
         .order('display_number', { ascending: true })
 
       // フィルターを適用（統一ルール）
