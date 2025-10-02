@@ -35,6 +35,8 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const [newShoppingItem, setNewShoppingItem] = useState('')
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editingItemTitle, setEditingItemTitle] = useState('')
+  const [isTyping, setIsTyping] = useState(false) // URL入力中フラグ
+  const [isTypingShopping, setIsTypingShopping] = useState(false) // 買い物リスト入力中フラグ
 
   // 買い物リストの編集は一覧画面で行います（subtasksテーブルを使用）
 
@@ -124,6 +126,22 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     e.preventDefault()
     if (!title.trim() || !task) return
 
+    // 未確定の入力があるかチェック
+    const hasUnconfirmedUrl = newUrl.trim().length > 0
+    const hasUnconfirmedShopping = category === '買い物' && newShoppingItem.trim().length > 0
+
+    if (hasUnconfirmedUrl || hasUnconfirmedShopping) {
+      const warnings = []
+      if (hasUnconfirmedUrl) warnings.push('URL')
+      if (hasUnconfirmedShopping) warnings.push('買い物リスト')
+
+      const message = `${warnings.join('と')}に未追加の入力があります。\nこのまま保存しますか？\n\n※未追加の内容は破棄されます`
+
+      if (!window.confirm(message)) {
+        return // キャンセルされた場合は処理を中断
+      }
+    }
+
     setIsSubmitting(true)
     try {
       // ファイル添付がある場合はBase64に変換
@@ -187,6 +205,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         new URL(newUrl.trim())
         setUrls([...urls, newUrl.trim()])
         setNewUrl('')
+        setIsTyping(false) // 追加時にフラグをクリア
       } catch {
         alert('有効なURLを入力してください')
       }
@@ -366,12 +385,16 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 <input
                   type="text"
                   value={newShoppingItem}
-                  onChange={(e) => setNewShoppingItem(e.target.value)}
+                  onChange={(e) => {
+                    setNewShoppingItem(e.target.value)
+                    setIsTypingShopping(e.target.value.trim().length > 0)
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && newShoppingItem.trim() && onAddShoppingItem) {
                       e.preventDefault()
                       onAddShoppingItem(task.id, newShoppingItem.trim())
                       setNewShoppingItem('')
+                      setIsTypingShopping(false)
                     }
                   }}
                   placeholder="アイテムを追加..."
@@ -390,18 +413,21 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                     if (newShoppingItem.trim() && onAddShoppingItem) {
                       onAddShoppingItem(task.id, newShoppingItem.trim())
                       setNewShoppingItem('')
+                      setIsTypingShopping(false)
                     }
                   }}
                   disabled={!newShoppingItem.trim()}
                   style={{
                     padding: '8px 16px',
                     fontSize: '14px',
-                    backgroundColor: newShoppingItem.trim() ? '#3b82f6' : '#d1d5db',
+                    backgroundColor: isTypingShopping && newShoppingItem.trim() ? '#ef4444' : (newShoppingItem.trim() ? '#3b82f6' : '#d1d5db'),
                     color: '#ffffff',
-                    border: 'none',
+                    border: isTypingShopping && newShoppingItem.trim() ? '2px solid #ef4444' : 'none',
                     borderRadius: '4px',
                     cursor: newShoppingItem.trim() ? 'pointer' : 'not-allowed',
-                    fontWeight: '500'
+                    fontWeight: isTypingShopping && newShoppingItem.trim() ? '600' : '500',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isTypingShopping && newShoppingItem.trim() ? '0 0 8px rgba(239, 68, 68, 0.4)' : 'none'
                   }}
                 >
                   追加
@@ -813,7 +839,10 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
               <input
                 type="url"
                 value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
+                onChange={(e) => {
+                  setNewUrl(e.target.value)
+                  setIsTyping(e.target.value.trim().length > 0)
+                }}
                 placeholder="https://example.com"
                 style={{
                   flex: 1,
@@ -831,13 +860,16 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
                 disabled={!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED}
                 style={{
                   padding: '8px 16px',
-                  border: '1px solid #d1d5db',
+                  border: isTyping && newUrl.trim() ? '2px solid #ef4444' : '1px solid #d1d5db',
                   borderRadius: '6px',
-                  backgroundColor: 'white',
-                  color: '#374151',
+                  backgroundColor: isTyping && newUrl.trim() ? '#ef4444' : 'white',
+                  color: isTyping && newUrl.trim() ? 'white' : '#374151',
                   fontSize: '14px',
+                  fontWeight: isTyping && newUrl.trim() ? '600' : '400',
                   cursor: 'pointer',
-                  opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1
+                  opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isTyping && newUrl.trim() ? '0 0 8px rgba(239, 68, 68, 0.4)' : 'none'
                 }}
               >
                 追加
