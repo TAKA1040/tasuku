@@ -96,6 +96,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
       setShoppingItems(newItems)
       console.log('🛒 買い物リスト追加後:', { newItems })
       setNewShoppingItem('')
+      setIsTypingShopping(false) // 追加時にフラグをクリア
     } else {
       console.log('🛒 買い物リスト追加: 空の入力のためスキップ')
     }
@@ -115,6 +116,22 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const handleSubmit = async () => {
     if (!title.trim()) {
       return
+    }
+
+    // 未確定の入力があるかチェック
+    const hasUnconfirmedUrl = newUrl.trim().length > 0
+    const hasUnconfirmedShopping = category === '買い物' && newShoppingItem.trim().length > 0
+
+    if (hasUnconfirmedUrl || hasUnconfirmedShopping) {
+      const warnings = []
+      if (hasUnconfirmedUrl) warnings.push('URL')
+      if (hasUnconfirmedShopping) warnings.push('買い物リスト')
+
+      const message = `${warnings.join('と')}に未追加の入力があります。\nこのままタスクを作成しますか？\n\n※未追加の内容は破棄されます`
+
+      if (!window.confirm(message)) {
+        return // キャンセルされた場合は処理を中断
+      }
     }
 
     // ファイル添付がある場合はBase64に変換
@@ -238,6 +255,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
         new URL(newUrl.trim())
         setUrls([...urls, newUrl.trim()])
         setNewUrl('')
+        setIsTyping(false) // 追加時にフラグをクリア
       } catch {
         alert('有効なURLを入力してください')
       }
@@ -410,10 +428,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               value={category}
               onChange={(e) => {
                 setCategory(e.target.value)
-                setIsTyping(e.target.value !== '' || newUrl.trim().length > 0)
               }}
-              onFocus={() => setIsTyping(category !== '' || newUrl.trim().length > 0)}
-              onBlur={() => setIsTyping(false)}
               style={{
                 flex: 1,
                 padding: '6px 8px',
@@ -452,8 +467,6 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
                     setNewShoppingItem(e.target.value)
                     setIsTypingShopping(e.target.value.trim().length > 0)
                   }}
-                  onFocus={() => setIsTypingShopping(newShoppingItem.trim().length > 0)}
-                  onBlur={() => setIsTypingShopping(false)}
                   onKeyPress={handleShoppingItemKeyPress}
                   placeholder="買い物アイテムを入力"
                   style={{
@@ -589,10 +602,8 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               value={newUrl}
               onChange={(e) => {
                 setNewUrl(e.target.value)
-                setIsTyping(e.target.value.trim().length > 0 || category !== '')
+                setIsTyping(e.target.value.trim().length > 0)
               }}
-              onFocus={() => setIsTyping(newUrl.trim().length > 0 || category !== '')}
-              onBlur={() => setIsTyping(false)}
               placeholder="https://example.com"
               style={{
                 flex: 1,
