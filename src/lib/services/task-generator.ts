@@ -67,26 +67,29 @@ export class TaskGeneratorService {
           console.log('🎯 手動月次生成: 今月分生成')
         }
       } else {
-        // 自動生成: 制限付き復旧
-        const startDate = Math.max(
-          this.parseDate(addDays(lastProcessed, 1)),
-          this.parseDate(subtractDays(today, 3))
-        )
-        await this.generateDailyTasks(this.formatDate(startDate), today)
+        // 自動生成: パターン別の復旧期間
+        const nextDay = addDays(lastProcessed, 1)
 
-        // 週次: lastProcessed翌日から今日まで
-        const weekStartDate = Math.max(
-          this.parseDate(addDays(lastProcessed, 1)),
+        // 日次: 最大3日前まで復旧
+        const dailyStartDate = Math.max(
+          this.parseDate(nextDay),
           this.parseDate(subtractDays(today, 3))
         )
-        await this.generateWeeklyTasks(this.formatDate(weekStartDate), today)
+        await this.generateDailyTasks(this.formatDate(dailyStartDate), today)
 
-        // 月次: lastProcessed翌日から今日まで
-        const monthStartDate = Math.max(
-          this.parseDate(addDays(lastProcessed, 1)),
-          this.parseDate(subtractDays(today, 3))
+        // 週次: 最大2週間前まで復旧
+        const weeklyStartDate = Math.max(
+          this.parseDate(nextDay),
+          this.parseDate(subtractDays(today, 14))
         )
-        await this.generateMonthlyTasks(this.formatDate(monthStartDate), today)
+        await this.generateWeeklyTasks(this.formatDate(weeklyStartDate), today)
+
+        // 月次: 最大3ヶ月前まで復旧
+        const monthlyStartDate = Math.max(
+          this.parseDate(nextDay),
+          this.parseDate(subtractDays(today, 90))
+        )
+        await this.generateMonthlyTasks(this.formatDate(monthlyStartDate), today)
       }
 
       // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
