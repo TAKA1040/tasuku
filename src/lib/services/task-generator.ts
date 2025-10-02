@@ -112,13 +112,14 @@ export class TaskGeneratorService {
       console.log(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック`)
 
       // lastProcessed翌日から今日までに完了した買い物タスクを取得
+      // completed_atは日付のみ or 日時の可能性があるため、両方に対応
       const { data: completedShoppingTasks, error } = await this.supabase
         .from('unified_tasks')
         .select('*')
         .eq('category', '買い物')
         .eq('completed', true)
-        .gte('completed_at', `${startDate}T00:00:00`)
-        .lt('completed_at', `${addDays(today, 1)}T00:00:00`)
+        .gte('completed_at', startDate)
+        .lte('completed_at', today)
 
       if (error) {
         console.error('❌ 完了買い物タスク取得エラー:', error)
@@ -134,27 +135,48 @@ export class TaskGeneratorService {
 
       // 各タスクの未完了子タスクを処理
       for (const task of completedShoppingTasks) {
-        // 重複チェック: このタスクから既に繰り越しタスクを作成済みかチェック
-        const { data: existingRollover, error: checkError } = await this.supabase
-          .from('unified_tasks')
-          .select('id')
-          .eq('title', task.title)
-          .eq('category', '買い物')
-          .eq('due_date', '2999-12-31')
-          .eq('completed', false)
-          .limit(1)
+        console.log(`\n📝 処理中: "${task.title}" (ID: ${task.id})`)
 
-        if (checkError) {
-          console.error('❌ 繰り越しタスク存在チェックエラー:', checkError)
+        // 処理済みチェック: memoに処理済みマーカーがあるかチェック
+        if (task.memo && task.memo.includes('[繰り越し処理済み]')) {
+          console.log(`⏭️  スキップ: 既に処理済み`)
           continue
         }
 
-        if (existingRollover && existingRollover.length > 0) {
-          console.log(`⏭️  スキップ: 「${task.title}」は既に繰り越し済み (ID: ${existingRollover[0].id})`)
+        // 未完了サブタスクの存在チェック
+        const { data: subtasks } = await this.supabase
+          .from('subtasks')
+          .select('*')
+          .eq('parent_task_id', task.id)
+
+        const uncompletedSubtasks = subtasks?.filter(st => !st.completed) || []
+
+        if (uncompletedSubtasks.length === 0) {
+          console.log(`⏭️  スキップ: 未完了サブタスクなし`)
+          // 処理済みマーカーを追加（空処理でも記録）
+          await this.supabase
+            .from('unified_tasks')
+            .update({
+              memo: (task.memo || '') + '\n[繰り越し処理済み]'
+            })
+            .eq('id', task.id)
           continue
         }
 
+        console.log(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
+
+        // 繰り越し処理実行
         await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
+
+        // 処理済みマーカーを追加
+        await this.supabase
+          .from('unified_tasks')
+          .update({
+            memo: (task.memo || '') + '\n[繰り越し処理済み]'
+          })
+          .eq('id', task.id)
+
+        console.log(`✅ 繰り越し完了`)
       }
 
       console.log('✅ 買い物タスク処理完了')
