@@ -74,17 +74,19 @@ export class TaskGeneratorService {
         )
         await this.generateDailyTasks(this.formatDate(startDate), today)
 
-        // 週次: 週が変わった場合のみ
-        if (this.isNewWeek(lastProcessed, today)) {
-          const thisMonday = getStartOfWeek(today)
-          await this.generateWeeklyTasks(thisMonday, today)
-        }
+        // 週次: lastProcessed翌日から今日まで
+        const weekStartDate = Math.max(
+          this.parseDate(addDays(lastProcessed, 1)),
+          this.parseDate(subtractDays(today, 3))
+        )
+        await this.generateWeeklyTasks(this.formatDate(weekStartDate), today)
 
-        // 月次: 月が変わった場合のみ
-        if (this.isNewMonth(lastProcessed, today)) {
-          const thisFirstDay = getStartOfMonth(today)
-          await this.generateMonthlyTasks(thisFirstDay, today)
-        }
+        // 月次: lastProcessed翌日から今日まで
+        const monthStartDate = Math.max(
+          this.parseDate(addDays(lastProcessed, 1)),
+          this.parseDate(subtractDays(today, 3))
+        )
+        await this.generateMonthlyTasks(this.formatDate(monthStartDate), today)
       }
 
       // 前日完了した買い物タスクの未完了子タスクを処理
