@@ -130,6 +130,26 @@ export class TaskGeneratorService {
 
       // 各タスクの未完了子タスクを処理
       for (const task of completedShoppingTasks) {
+        // 重複チェック: このタスクから既に繰り越しタスクを作成済みかチェック
+        const { data: existingRollover, error: checkError } = await this.supabase
+          .from('unified_tasks')
+          .select('id')
+          .eq('title', task.title)
+          .eq('category', '買い物')
+          .eq('due_date', '2999-12-31')
+          .eq('completed', false)
+          .limit(1)
+
+        if (checkError) {
+          console.error('❌ 繰り越しタスク存在チェックエラー:', checkError)
+          continue
+        }
+
+        if (existingRollover && existingRollover.length > 0) {
+          console.log(`⏭️  スキップ: 「${task.title}」は既に繰り越し済み (ID: ${existingRollover[0].id})`)
+          continue
+        }
+
         await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
       }
 
