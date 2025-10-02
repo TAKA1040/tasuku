@@ -1,5 +1,11 @@
 // Task Generation Service - Phase 3: Background Generation System
 // Based on RECURRING_REDESIGN_LOG.md specification
+//
+// 【重要】生成期間ルール（絶対に変更しないこと）:
+// - 日次: 今日を含めた3日間（今日、昨日、一昨日）
+// - 週次: 先週の月曜日〜翌週の日曜日まで（14日分）
+// - 月次: 1年前から1年後の前日まで（約730日分）
+// - 重複防止: createTaskFromTemplate内で実装済み（template_id + due_dateで判定）
 
 import { createClient } from '@/lib/supabase/client'
 import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
