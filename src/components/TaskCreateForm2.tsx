@@ -233,6 +233,10 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
     // 買い物リストのリセット
     setShoppingItems([])
     setNewShoppingItem('')
+
+    // 入力中フラグのリセット
+    setIsTyping(false)
+    setIsTypingShopping(false)
   }
 
   const toggleWeekday = (day: number) => {

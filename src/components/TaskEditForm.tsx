@@ -192,15 +192,21 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
   const handleCancel = () => {
     if (task) {
       setTitle(task.title)
-      setMemo(task.memo || '')
+      setMemo(removeLegacyShoppingListFromMemo(task.memo || ''))
       setDueDate(task.due_date || '')
       setCategory(task.category || '')
       setImportance(task.importance || TASK_IMPORTANCE.MEDIUM)
       setStartTime((task as UnifiedTask).start_time || '')
+      setEndTime((task as UnifiedTask).end_time || '')
       setUrls(task.urls || [])
       // 既存の添付ファイルはクリア
       setAttachedFile(null)
       setAttachedFileUrl('')
+      // 未確定入力をクリア
+      setNewUrl('')
+      setNewShoppingItem('')
+      setIsTyping(false)
+      setIsTypingShopping(false)
     }
     onCancel()
   }
