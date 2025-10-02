@@ -250,15 +250,9 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
 
   const handleAddUrl = () => {
     if (newUrl.trim() && urls.length < URL_LIMITS.MAX_ALLOWED) {
-      // 簡易URL検証
-      try {
-        new URL(newUrl.trim())
-        setUrls([...urls, newUrl.trim()])
-        setNewUrl('')
-        setIsTyping(false) // 追加時にフラグをクリア
-      } catch {
-        alert('有効なURLを入力してください')
-      }
+      setUrls([...urls, newUrl.trim()])
+      setNewUrl('')
+      setIsTyping(false) // 追加時にフラグをクリア
     }
   }
 
