@@ -592,7 +592,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           {/* URL入力エリア */}
           <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
             <input
-              type="url"
+              type="text"
               value={newUrl}
               onChange={(e) => {
                 setNewUrl(e.target.value)

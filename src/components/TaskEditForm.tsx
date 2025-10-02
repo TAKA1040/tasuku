@@ -838,7 +838,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             {/* URL入力エリア */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
               <input
-                type="url"
+                type="text"
                 value={newUrl}
                 onChange={(e) => {
                   setNewUrl(e.target.value)
