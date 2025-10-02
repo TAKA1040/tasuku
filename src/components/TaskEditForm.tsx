@@ -92,7 +92,14 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
     if (file) {
       // ファイルサイズチェック（10MB制限）
       if (file.size > 10 * 1024 * 1024) {
-        alert('ファイルサイズは10MB以下にしてください。')
+        alert('ファイルサイズは10MB以下にしてください')
+        return
+      }
+
+      // 画像ファイルかPDFのみ許可
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+      if (!allowedTypes.includes(file.type)) {
+        alert('対応しているファイル形式: JPG, PNG, GIF, WebP, PDF')
         return
       }
 
