@@ -127,7 +127,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
       if (hasUnconfirmedUrl) warnings.push('URL')
       if (hasUnconfirmedShopping) warnings.push('買い物リスト')
 
-      const message = `${warnings.join('と')}に未追加の入力があります。\nこのままタスクを作成しますか？\n\n※未追加の内容は破棄されます`
+      const message = `${warnings.join('と')}に未追加の入力があります。\n\n※未追加の内容は破棄されます\n\nOK: タスクを作成\nキャンセル: 入力に戻る`
 
       if (!window.confirm(message)) {
         return // キャンセルされた場合は処理を中断
