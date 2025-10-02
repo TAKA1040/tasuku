@@ -89,8 +89,8 @@ export class TaskGeneratorService {
         await this.generateMonthlyTasks(this.formatDate(monthStartDate), today)
       }
 
-      // 前日完了した買い物タスクの未完了子タスクを処理
-      await this.processCompletedShoppingTasks()
+      // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
+      await this.processCompletedShoppingTasks(lastProcessed, today)
 
       // 最終更新日を更新
       await this.updateLastGenerationDate(today)
@@ -99,22 +99,21 @@ export class TaskGeneratorService {
     console.log('タスク生成完了')
   }
 
-  // 前日完了した買い物タスクの未完了子タスク処理
-  private async processCompletedShoppingTasks(): Promise<void> {
+  // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスク処理
+  private async processCompletedShoppingTasks(lastProcessed: string, today: string): Promise<void> {
     try {
-      const today = getTodayJST()
-      const yesterday = subtractDays(today, 1)
+      const startDate = addDays(lastProcessed, 1)
 
-      console.log(`🛒 買い物タスク処理: ${yesterday}に完了したタスクをチェック`)
+      console.log(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック`)
 
-      // 前日に完了した買い物タスクを取得
+      // lastProcessed翌日から今日までに完了した買い物タスクを取得
       const { data: completedShoppingTasks, error } = await this.supabase
         .from('unified_tasks')
         .select('*')
         .eq('category', '買い物')
         .eq('completed', true)
-        .gte('completed_at', `${yesterday}T00:00:00`)
-        .lt('completed_at', `${today}T00:00:00`)
+        .gte('completed_at', `${startDate}T00:00:00`)
+        .lt('completed_at', `${addDays(today, 1)}T00:00:00`)
 
       if (error) {
         console.error('❌ 完了買い物タスク取得エラー:', error)
@@ -122,7 +121,7 @@ export class TaskGeneratorService {
       }
 
       if (!completedShoppingTasks || completedShoppingTasks.length === 0) {
-        console.log('✅ 前日完了の買い物タスクなし')
+        console.log('✅ 期間内に完了した買い物タスクなし')
         return
       }
 
