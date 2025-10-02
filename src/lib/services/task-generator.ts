@@ -94,6 +94,9 @@ export class TaskGeneratorService {
       // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
       await this.processCompletedShoppingTasks(lastProcessed, today)
 
+      // 期限切れ繰り返しタスクの自動削除
+      await this.deleteExpiredRecurringTasks(today)
+
       // 最終更新日を更新
       await this.updateLastGenerationDate(today)
     }
@@ -405,6 +408,77 @@ export class TaskGeneratorService {
     const lastMonth = getStartOfMonth(lastDate)
     const currentMonth = getStartOfMonth(currentDate)
     return lastMonth !== currentMonth
+  }
+
+  // 期限切れ繰り返しタスクの自動削除
+  // 日次: 期限から3日経過、週次: 7日経過、月次: 365日経過で削除
+  private async deleteExpiredRecurringTasks(today: string): Promise<void> {
+    try {
+      const userId = await this.getCurrentUserId()
+
+      // 日次タスク: 期限から3日経過
+      const dailyThreshold = subtractDays(today, 3)
+      const { data: dailyDeleted, error: dailyError } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'DAILY')
+        .not('recurring_template_id', 'is', null)
+        .lt('due_date', dailyThreshold)
+        .select('id')
+
+      if (dailyError) {
+        console.error('❌ 日次タスク削除エラー:', dailyError)
+      } else if (dailyDeleted && dailyDeleted.length > 0) {
+        console.log(`🗑️  期限切れ日次タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}以前)`)
+      }
+
+      // 週次タスク: 期限から7日経過
+      const weeklyThreshold = subtractDays(today, 7)
+      const { data: weeklyDeleted, error: weeklyError } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'WEEKLY')
+        .not('recurring_template_id', 'is', null)
+        .lt('due_date', weeklyThreshold)
+        .select('id')
+
+      if (weeklyError) {
+        console.error('❌ 週次タスク削除エラー:', weeklyError)
+      } else if (weeklyDeleted && weeklyDeleted.length > 0) {
+        console.log(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}以前)`)
+      }
+
+      // 月次タスク: 期限から365日経過
+      const monthlyThreshold = subtractDays(today, 365)
+      const { data: monthlyDeleted, error: monthlyError } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'MONTHLY')
+        .not('recurring_template_id', 'is', null)
+        .lt('due_date', monthlyThreshold)
+        .select('id')
+
+      if (monthlyError) {
+        console.error('❌ 月次タスク削除エラー:', monthlyError)
+      } else if (monthlyDeleted && monthlyDeleted.length > 0) {
+        console.log(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}以前)`)
+      }
+
+      const totalDeleted = (dailyDeleted?.length || 0) + (weeklyDeleted?.length || 0) + (monthlyDeleted?.length || 0)
+      if (totalDeleted > 0) {
+        console.log(`✅ 期限切れ繰り返しタスク削除完了: 合計${totalDeleted}件`)
+      } else {
+        console.log('✅ 削除対象の期限切れ繰り返しタスクなし')
+      }
+    } catch (error) {
+      console.error('❌ 期限切れタスク削除処理エラー:', error)
+    }
   }
 
   // 日付ユーティリティ

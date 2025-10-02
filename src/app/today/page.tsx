@@ -232,6 +232,7 @@ export default function TodayPage() {
 
   // セクション表示切り替え状態
   const [showOverdueTasks, setShowOverdueTasks] = useState(false)
+  const [showOverdueRecurringTasks, setShowOverdueRecurringTasks] = useState(false)
   const [showFutureTasks, setShowFutureTasks] = useState(false)
   const [showShoppingTasks, setShowShoppingTasks] = useState(false)
   const [showTodoList, setShowTodoList] = useState(false)
@@ -773,24 +774,96 @@ export default function TodayPage() {
             </label>
           </div>
           {showOverdueTasks && (
-            <UnifiedTasksTable
-              title="🚨 期限切れタスク"
-              tasks={allUnifiedData.filter(task =>
-                !task.completed && task.due_date && task.due_date < getTodayJST()
+            <>
+              {/* 通常の期限切れタスク（繰り返しタスク以外） */}
+              <UnifiedTasksTable
+                title="🚨 期限切れタスク"
+                tasks={allUnifiedData.filter(task =>
+                  !task.completed &&
+                  task.due_date &&
+                  task.due_date < getTodayJST() &&
+                  !task.recurring_template_id
+                )}
+                emptyMessage=""
+                urgent={true}
+                showTitle={false}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
+
+              {/* 期限切れ繰り返しタスク（二重折りたたみ） */}
+              {allUnifiedData.filter(task =>
+                !task.completed &&
+                task.due_date &&
+                task.due_date < getTodayJST() &&
+                task.recurring_template_id
+              ).length > 0 && (
+                <div style={{ marginTop: '12px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '8px',
+                    gap: '8px',
+                    marginLeft: '16px'
+                  }}>
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: '#6b7280',
+                      cursor: 'pointer'
+                    }}>
+                      ⚠️ 期限切れ繰り返しタスク ({allUnifiedData.filter(task =>
+                        !task.completed &&
+                        task.due_date &&
+                        task.due_date < getTodayJST() &&
+                        task.recurring_template_id
+                      ).length}件) {showOverdueRecurringTasks ? '▼' : '▶'} 表示する
+                      <input
+                        type="checkbox"
+                        checked={showOverdueRecurringTasks}
+                        onChange={(e) => setShowOverdueRecurringTasks(e.target.checked)}
+                        style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+                      />
+                    </label>
+                  </div>
+                  {showOverdueRecurringTasks && (
+                    <div style={{ marginLeft: '16px' }}>
+                      <UnifiedTasksTable
+                        title=""
+                        tasks={allUnifiedData.filter(task =>
+                          !task.completed &&
+                          task.due_date &&
+                          task.due_date < getTodayJST() &&
+                          task.recurring_template_id
+                        )}
+                        emptyMessage=""
+                        urgent={true}
+                        showTitle={false}
+                        unifiedTasks={unifiedTasks}
+                        handleEditTask={handleEditTask}
+                        shoppingSubTasks={shoppingSubTasks}
+                        expandedShoppingLists={expandedShoppingLists}
+                        toggleShoppingList={toggleShoppingList}
+                        addShoppingSubTask={addShoppingSubTask}
+                        toggleShoppingSubTask={toggleShoppingSubTask}
+                        deleteShoppingSubTask={deleteShoppingSubTask}
+                        updateShoppingSubTask={updateShoppingSubTask}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
-              emptyMessage=""
-              urgent={true}
-              showTitle={false}
-              unifiedTasks={unifiedTasks}
-              handleEditTask={handleEditTask}
-              shoppingSubTasks={shoppingSubTasks}
-              expandedShoppingLists={expandedShoppingLists}
-              toggleShoppingList={toggleShoppingList}
-              addShoppingSubTask={addShoppingSubTask}
-              toggleShoppingSubTask={toggleShoppingSubTask}
-              deleteShoppingSubTask={deleteShoppingSubTask}
-              updateShoppingSubTask={updateShoppingSubTask}
-            />
+            </>
           )}
         </div>
 
@@ -876,15 +949,8 @@ export default function TodayPage() {
             <UnifiedTasksTable
               title="🛒 買い物タスク"
               tasks={allUnifiedData.filter(task => {
-                // 買い物カテゴリのタスクのみ
-                if (task.category !== '買い物') return false
-
-                // 親タスクが未完了なら表示
-                if (!task.completed) return true
-
-                // 親タスクが完了でも、未完了の子タスクがあれば表示
-                const subtasks = shoppingSubTasks[task.id] || []
-                return subtasks.some(sub => !sub.completed)
+                // 買い物カテゴリで未完了のタスクのみ
+                return task.category === '買い物' && !task.completed
               })}
               emptyMessage=""
               showTitle={false}
