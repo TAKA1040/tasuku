@@ -858,7 +858,12 @@ export default function TodayPage() {
               color: '#1f2937',
               cursor: 'pointer'
             }}>
-              🛒 買い物タスク ({allUnifiedData.filter(task => !task.completed && task.category === '買い物').length}件) {showShoppingTasks ? '☑️' : '☐'} 表示する
+              🛒 買い物タスク ({allUnifiedData.filter(task => {
+                if (task.category !== '買い物') return false
+                if (!task.completed) return true
+                const subtasks = shoppingSubTasks[task.id] || []
+                return subtasks.some(sub => !sub.completed)
+              }).length}件) {showShoppingTasks ? '☑️' : '☐'} 表示する
               <input
                 type="checkbox"
                 checked={showShoppingTasks}
@@ -870,9 +875,17 @@ export default function TodayPage() {
           {showShoppingTasks && (
             <UnifiedTasksTable
               title="🛒 買い物タスク"
-              tasks={allUnifiedData.filter(task =>
-                !task.completed && task.category === '買い物'
-              )}
+              tasks={allUnifiedData.filter(task => {
+                // 買い物カテゴリのタスクのみ
+                if (task.category !== '買い物') return false
+
+                // 親タスクが未完了なら表示
+                if (!task.completed) return true
+
+                // 親タスクが完了でも、未完了の子タスクがあれば表示
+                const subtasks = shoppingSubTasks[task.id] || []
+                return subtasks.some(sub => !sub.completed)
+              })}
               emptyMessage=""
               showTitle={false}
               unifiedTasks={unifiedTasks}
