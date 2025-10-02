@@ -1,6 +1,12 @@
-つぎはきげんぎれタスクのひょうじについて、ここでのルールをきめていきたいと思います。
-まず、相談なので作業には入らないでください。
-いまのルールのままだと、きげんぎれとなったタスクはここにはてしなくたまっていくことになります。
-もちろん、期限切れになったタスクについては、いつかはそのタスクを行わないといけないので、新たに期限を編集して再設定するなどのユーザーの操作は必要になってくる。これは間違いない。
-しかし、毎日のタスクなどについて、習慣化できずに期限切れのタスクとしてたまっていった場合、これは何か対策をしておかなければ、リストとしてとても見づらいものになってしまう。
-何か対策を打つとして、いい改善案があったら教えてください。
+## アイコン／PWA確認メモ
+- favicon.ico が 64px 単一サイズで生成されているため、16/32/48px を含めたマルチサイズ ICO を出力できるか要確認。
+- metadata.icons.icon では 192px と 512px の PNG のみを登録しているので、32px・64px などデスクトップブラウザ用サイズが必要か設計者とすり合わせる。
+- manifest.json の background_color / theme_color を #FCE5E5 にしたが、実際のライトテーマ配色と一致するか画面で確認する。
+## Lintチェック結果
+- DELL/scripts 配下のチェック系 JS ファイルで CommonJS の `require()` を使っているため eslint(@typescript-eslint/no-require-imports) エラーが発生。ESM 化するか lint 対象から除外するか判断が必要。
+- check-tasks.js:10 の `allError` が未使用で警告。 `_allError` にリネームするか、利用漏れを確認する。
+## その他確認事項
+- src/app/icon.png (512x512) が 180KB 以上あるため、最適化して 200KB 未満に収められるかを検討。ブラウザ読み込み時の負担が大きい。
+- manifest.json の icons に maskable 用 `purpose: "any maskable"` が無いため、Android で丸くトリミングされる恐れ。必要であれば maskable 版を追加。
+- manifest.json に `id` フィールドが無く、最新 Chrome の PWA 要件 (start_url と一致させる) を満たせているか確認。
+- src/app/search/page.tsx では useUnifiedTasks(true) により DB 初期化前でも Supabase 呼び出しが走る可能性あり。isInitialized を渡して再取得タイミングを制御できるか要検討。

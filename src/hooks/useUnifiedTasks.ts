@@ -60,7 +60,7 @@ interface UseUnifiedTasksResult {
   updateSubtask: (subtaskId: string, updates: { title?: string; completed?: boolean; sort_order?: number }) => Promise<void>
 }
 
-export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult {
+export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolean): UseUnifiedTasksResult {
   const [tasks, setTasks] = useState<UnifiedTask[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -417,12 +417,13 @@ export function useUnifiedTasks(autoLoad: boolean = true): UseUnifiedTasksResult
     )
   }, [])
 
-  // 初期読み込み
+  // 初期読み込み（DB初期化完了を待つ）
   useEffect(() => {
-    if (autoLoad) {
+    // isInitializedが指定されている場合は、それがtrueになるまで待つ
+    if (autoLoad && (isInitialized === undefined || isInitialized === true)) {
       loadTasks()
     }
-  }, [autoLoad, loadTasks])
+  }, [autoLoad, isInitialized, loadTasks])
 
   // ページフォーカス時の自動リロード
   useEffect(() => {

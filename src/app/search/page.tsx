@@ -28,17 +28,7 @@ export default function SearchPage() {
     uncompleteTask,
     updateTask: _updateUnifiedTask,
     deleteTask: deleteUnifiedTask
-  } = useUnifiedTasks(true) // autoLoadを明示的に有効化
-
-  // データベース初期化後にタスクを明示的にリロード
-  useEffect(() => {
-    if (isInitialized) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Database initialized, reloading tasks for search page')
-      }
-      loadTasks(true) // 強制リロード
-    }
-  }, [isInitialized, loadTasks])
+  } = useUnifiedTasks(true, isInitialized) // DB初期化状態を渡して安全に自動ロード
 
   // フィルタリング＆ソートされたタスクを計算
   const filteredTasks = useMemo(() => {

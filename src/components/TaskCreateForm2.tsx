@@ -43,6 +43,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [saveAsIdea, setSaveAsIdea] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [attachedFileUrl, setAttachedFileUrl] = useState<string>('')
+  const [isTyping, setIsTyping] = useState(false) // 入力中状態を管理
 
   // 買い物リスト管理
   const [shoppingItems, setShoppingItems] = useState<string[]>([])
@@ -406,7 +407,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             </label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value)
+                setIsTyping(e.target.value !== '' || newUrl.trim().length > 0)
+              }}
+              onFocus={() => setIsTyping(category !== '' || newUrl.trim().length > 0)}
+              onBlur={() => setIsTyping(false)}
               style={{
                 flex: 1,
                 padding: '6px 8px',
@@ -571,7 +577,12 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
             <input
               type="url"
               value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
+              onChange={(e) => {
+                setNewUrl(e.target.value)
+                setIsTyping(e.target.value.trim().length > 0 || category !== '')
+              }}
+              onFocus={() => setIsTyping(newUrl.trim().length > 0 || category !== '')}
+              onBlur={() => setIsTyping(false)}
               placeholder="https://example.com"
               style={{
                 flex: 1,
@@ -589,13 +600,16 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
               disabled={!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED}
               style={{
                 padding: '4px 8px',
-                border: '1px solid #d1d5db',
+                border: isTyping && newUrl.trim() ? '2px solid #ef4444' : '1px solid #d1d5db',
                 borderRadius: '3px',
-                backgroundColor: 'white',
-                color: '#374151',
+                backgroundColor: isTyping && newUrl.trim() ? '#ef4444' : 'white',
+                color: isTyping && newUrl.trim() ? 'white' : '#374151',
                 fontSize: '12px',
+                fontWeight: isTyping && newUrl.trim() ? '600' : '400',
                 cursor: 'pointer',
-                opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1
+                opacity: (!newUrl.trim() || urls.length >= URL_LIMITS.MAX_ALLOWED) ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+                boxShadow: isTyping && newUrl.trim() ? '0 0 8px rgba(239, 68, 68, 0.4)' : 'none'
               }}
             >
               追加
