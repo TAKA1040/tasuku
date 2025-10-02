@@ -137,30 +137,35 @@ export class TaskGeneratorService {
     }
   }
 
-  // 最終処理日取得（既存のタスクから推定）
+  // 最終処理日取得（user_metadataから取得）
   private async getLastGenerationDate(): Promise<string> {
     try {
       const userId = await this.getCurrentUserId()
 
       const { data, error } = await this.supabase
-        .from('unified_tasks')
-        .select('due_date')
+        .from('user_metadata')
+        .select('value')
         .eq('user_id', userId)
-        .eq('task_type', 'RECURRING') // recurring_patternの代わりにtask_typeを使用
-        .not('due_date', 'is', null) // due_dateがnullでないものだけ
-        .order('due_date', { ascending: false })
-        .limit(1)
+        .eq('key', 'last_task_generation')
+        .single()
 
       if (error) {
+        // レコードが存在しない場合は初回実行
+        if (error.code === 'PGRST116') {
+          console.log('初回タスク生成（user_metadataにレコードなし）')
+          return '1970-01-01'
+        }
         console.warn('最終処理日取得エラー:', error)
         return '1970-01-01'
       }
 
-      if (!data || data.length === 0) {
+      if (!data || !data.value) {
+        console.log('user_metadataに値なし、初期値を返す')
         return '1970-01-01'
       }
 
-      return data[0].due_date || '1970-01-01'
+      console.log(`user_metadataから取得: last_task_generation = ${data.value}`)
+      return data.value
     } catch (error) {
       console.error('最終処理日取得エラー:', error)
       return '1970-01-01'
