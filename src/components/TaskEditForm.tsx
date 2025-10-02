@@ -142,7 +142,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
       if (hasUnconfirmedUrl) warnings.push('URL')
       if (hasUnconfirmedShopping) warnings.push('買い物リスト')
 
-      const message = `${warnings.join('と')}に未追加の入力があります。\n\n※未追加の内容は破棄されます\n\nOK: 保存する\nキャンセル: 入力に戻る`
+      const message = `${warnings.join('と')}に未追加の入力があります。\n\n※未追加の内容は破棄されます\n\nOK: タスクを保存\nキャンセル: 入力に戻る`
 
       if (!window.confirm(message)) {
         return // キャンセルされた場合は処理を中断
