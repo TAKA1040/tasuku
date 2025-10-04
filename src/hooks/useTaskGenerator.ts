@@ -37,6 +37,10 @@ export function useTaskGenerator(autoGenerate: boolean = true): UseTaskGenerator
         console.log('🔄 タスク生成を開始...')
         await generatorService.generateMissingTasks(forceToday)
         console.log('✅ タスク生成完了')
+
+        // タスク一覧を自動リロードするためのイベントを発火
+        console.log('📢 Dispatching tasksUpdated event...')
+        window.dispatchEvent(new CustomEvent('tasksUpdated'))
       },
       'useTaskGenerator.generateMissingTasks',
       setLastError

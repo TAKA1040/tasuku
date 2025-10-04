@@ -425,7 +425,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
     }
   }, [autoLoad, isInitialized, loadTasks])
 
-  // ページフォーカス時の自動リロード
+  // ページフォーカス時の自動リロード & タスク生成完了時のリロード
   useEffect(() => {
     if (!autoLoad) return
 
@@ -447,13 +447,23 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
       }
     }
 
-    // フォーカス時とページが表示状態になった時にリロード
+    const handleTasksUpdated = () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Tasks updated event received, invalidating cache and reloading tasks...')
+      }
+      invalidateGlobalCache() // キャッシュを無効化
+      loadTasks(true) // 強制リロード
+    }
+
+    // フォーカス時、ページが表示状態になった時、タスク生成完了時にリロード
     window.addEventListener('focus', handleFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('tasksUpdated', handleTasksUpdated)
 
     return () => {
       window.removeEventListener('focus', handleFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('tasksUpdated', handleTasksUpdated)
     }
   }, [autoLoad, loadTasks])
 
