@@ -92,6 +92,16 @@ export default function InboxPage() {
     }
   }, [unifiedTasks])
 
+  // Inbox編集
+  const editItem = useCallback(async (id: string, title: string, memo: string, urls: string[]) => {
+    try {
+      await unifiedTasks.updateTask(id, { title, memo, urls })
+      console.log('✅ Inboxアイテムを更新しました')
+    } catch (error) {
+      console.error('❌ 更新エラー:', error)
+    }
+  }, [unifiedTasks])
+
   // タスク作成（Inbox → 通常タスク）
   const handleCreateTask = useCallback(async (
     title: string,
@@ -374,6 +384,7 @@ export default function InboxPage() {
                     onConvertToTask={convertToTask}
                     onDelete={deleteItem}
                     onToggleComplete={toggleComplete}
+                    onEdit={editItem}
                   />
                 ))
               )}
@@ -411,6 +422,7 @@ export default function InboxPage() {
                     onConvertToTask={convertToTask}
                     onDelete={deleteItem}
                     onToggleComplete={toggleComplete}
+                    onEdit={editItem}
                   />
                 ))}
               </div>

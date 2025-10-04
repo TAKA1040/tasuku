@@ -10,10 +10,15 @@ interface InboxCardProps {
   onConvertToTask: (item: UnifiedTask) => void
   onDelete: (id: string) => void
   onToggleComplete: (id: string, completed: boolean) => void
+  onEdit: (id: string, title: string, memo: string, urls: string[]) => void
 }
 
-export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }: InboxCardProps) {
+export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete, onEdit }: InboxCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(item.title)
+  const [editMemo, setEditMemo] = useState(item.memo || '')
+  const [editUrls, setEditUrls] = useState<string[]>(item.urls || [])
 
   const hasUrls = item.urls && item.urls.length > 0
   const youtubeUrl = hasUrls && item.urls && isYouTubeUrl(item.urls[0]) ? item.urls[0] : null
@@ -32,46 +37,86 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }:
     className="inbox-card"
     >
       {/* タイトル with チェックボックス */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: hasUrls || item.memo ? '12px' : '8px'
-      }}>
-        <input
-          type="checkbox"
-          checked={item.completed || false}
-          onChange={(e) => onToggleComplete(item.id, e.target.checked)}
-          style={{
-            width: '18px',
-            height: '18px',
-            cursor: 'pointer',
-            flexShrink: 0
-          }}
-        />
-        <div style={{
-          fontSize: '15px',
-          fontWeight: '500',
-          color: 'var(--text-primary)',
-          lineHeight: '1.5',
-          textDecoration: item.completed ? 'line-through' : 'none',
-          opacity: item.completed ? 0.6 : 1
-        }}>
-          {item.title}
+      {isEditing ? (
+        <div style={{ marginBottom: '12px' }}>
+          <input
+            type="text"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="タイトル"
+            style={{
+              width: '100%',
+              padding: '8px',
+              fontSize: '15px',
+              fontWeight: '500',
+              border: '2px solid #3b82f6',
+              borderRadius: '6px',
+              boxSizing: 'border-box'
+            }}
+          />
         </div>
-      </div>
+      ) : (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: hasUrls || item.memo ? '12px' : '8px'
+        }}>
+          <input
+            type="checkbox"
+            checked={item.completed || false}
+            onChange={(e) => onToggleComplete(item.id, e.target.checked)}
+            style={{
+              width: '18px',
+              height: '18px',
+              cursor: 'pointer',
+              flexShrink: 0
+            }}
+          />
+          <div style={{
+            fontSize: '15px',
+            fontWeight: '500',
+            color: 'var(--text-primary)',
+            lineHeight: '1.5',
+            textDecoration: item.completed ? 'line-through' : 'none',
+            opacity: item.completed ? 0.6 : 1
+          }}>
+            {item.title}
+          </div>
+        </div>
+      )}
 
       {/* メモ */}
-      {item.memo && (
-        <div style={{
-          fontSize: '13px',
-          color: 'var(--text-secondary)',
-          marginBottom: hasUrls ? '12px' : '8px',
-          lineHeight: '1.5',
-          whiteSpace: 'pre-wrap'
-        }}>
-          {item.memo}
+      {isEditing ? (
+        <div style={{ marginBottom: '12px' }}>
+          <textarea
+            value={editMemo}
+            onChange={(e) => setEditMemo(e.target.value)}
+            placeholder="メモ（任意）"
+            style={{
+              width: '100%',
+              minHeight: '60px',
+              padding: '8px',
+              fontSize: '13px',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              boxSizing: 'border-box',
+              resize: 'vertical'
+            }}
+          />
         </div>
+      ) : (
+        item.memo && (
+          <div style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            marginBottom: hasUrls ? '12px' : '8px',
+            lineHeight: '1.5',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {item.memo}
+          </div>
+        )
       )}
 
       {/* YouTube サムネイル */}
@@ -93,47 +138,71 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }:
       )}
 
       {/* URLs */}
-      {hasUrls && item.urls && (
+      {isEditing ? (
         <div style={{ marginBottom: '12px' }}>
-          {item.urls.map((url, index) => (
-            <a
-              key={index}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 8px',
-                marginBottom: '4px',
-                background: 'var(--bg-secondary)',
-                borderRadius: '4px',
-                fontSize: '12px',
-                color: '#3b82f6',
-                textDecoration: 'none',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#e0e7ff'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
-            >
-              <img
-                src={getFaviconUrl(url)}
-                alt=""
-                width={16}
-                height={16}
-                style={{ flexShrink: 0 }}
-              />
-              <span style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>
-                {extractDomain(url)}
-              </span>
-            </a>
-          ))}
+          <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px', display: 'block' }}>
+            URL（1行に1つ）
+          </label>
+          <textarea
+            value={editUrls.join('\n')}
+            onChange={(e) => setEditUrls(e.target.value.split('\n').filter(u => u.trim()))}
+            placeholder="https://example.com"
+            style={{
+              width: '100%',
+              minHeight: '60px',
+              padding: '8px',
+              fontSize: '12px',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              boxSizing: 'border-box',
+              resize: 'vertical',
+              fontFamily: 'monospace'
+            }}
+          />
         </div>
+      ) : (
+        hasUrls && item.urls && (
+          <div style={{ marginBottom: '12px' }}>
+            {item.urls.map((url, index) => (
+              <a
+                key={index}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '6px 8px',
+                  marginBottom: '4px',
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  color: '#3b82f6',
+                  textDecoration: 'none',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#e0e7ff'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
+              >
+                <img
+                  src={getFaviconUrl(url)}
+                  alt=""
+                  width={16}
+                  height={16}
+                  style={{ flexShrink: 0 }}
+                />
+                <span style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {extractDomain(url)}
+                </span>
+              </a>
+            ))}
+          </div>
+        )
       )}
 
       {/* 作成日時 */}
@@ -156,7 +225,67 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }:
         gap: '8px',
         justifyContent: 'flex-end'
       }}>
-        {showDeleteConfirm ? (
+        {isEditing ? (
+          <>
+            <button
+              onClick={() => {
+                onEdit(item.id, editTitle, editMemo, editUrls)
+                setIsEditing(false)
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              💾 保存
+            </button>
+            <button
+              onClick={() => {
+                onEdit(item.id, editTitle, editMemo, editUrls)
+                onConvertToTask({ ...item, title: editTitle, memo: editMemo, urls: editUrls })
+                setIsEditing(false)
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              📝 タスク化
+            </button>
+            <button
+              onClick={() => {
+                setIsEditing(false)
+                setEditTitle(item.title)
+                setEditMemo(item.memo || '')
+                setEditUrls(item.urls || [])
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              キャンセル
+            </button>
+          </>
+        ) : showDeleteConfirm ? (
           <>
             <button
               onClick={() => {
@@ -194,6 +323,21 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }:
           </>
         ) : (
           <>
+            <button
+              onClick={() => setIsEditing(true)}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                background: 'transparent',
+                color: '#3b82f6',
+                border: '1px solid #3b82f6',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              ✏️ 編集
+            </button>
             <button
               onClick={() => onConvertToTask(item)}
               style={{
