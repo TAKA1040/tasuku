@@ -39,9 +39,12 @@ export function parseInboxContent(content: string): ParsedInboxContent {
   const title = lines[0] || (urls.length > 0 ? urls[0] : '') || ''
   const memo = lines.slice(1).join('\n')
 
+  // 重複削除（Array.from使用）
+  const uniqueUrls = Array.from(new Set(urls))
+
   return {
     title: title,
-    urls: [...new Set(urls)], // 重複削除
+    urls: uniqueUrls,
     memo: memo
   }
 }
