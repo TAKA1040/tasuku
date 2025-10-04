@@ -21,7 +21,7 @@ export default function InboxPage() {
   const [isAdding, setIsAdding] = useState(false)
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [editingInbox, setEditingInbox] = useState<UnifiedTask | null>(null)
-  const [showProcessed, setShowProcessed] = useState(false)
+  const [activeTab, setActiveTab] = useState<'input' | 'manage'>('input') // タブ管理
 
   // ページタイトル
   useEffect(() => {
@@ -56,6 +56,9 @@ export default function InboxPage() {
 
       setNewContent('')
       console.log('✅ Inboxに追加しました:', parsed.title)
+
+      // 追加後、管理タブに自動切り替え
+      setActiveTab('manage')
     } catch (error) {
       console.error('❌ Inbox追加エラー:', error)
     } finally {
@@ -175,141 +178,230 @@ export default function InboxPage() {
           </p>
         </header>
 
-        {/* クイック入力フォーム */}
+        {/* タブ切り替え */}
         <div style={{
-          background: 'var(--bg-primary)',
-          border: '2px solid #3b82f6',
-          borderRadius: '12px',
-          padding: '16px',
-          marginBottom: '24px'
+          display: 'flex',
+          gap: '8px',
+          marginBottom: '24px',
+          borderBottom: '2px solid var(--border)'
         }}>
-          <textarea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                addToInbox()
-              }
-            }}
-            placeholder="思いついたことをメモ...&#10;&#10;例:&#10;・YouTube動画を見る https://youtube.com/watch?v=...&#10;・記事を読む https://example.com/article&#10;・買い物リスト確認"
+          <button
+            onClick={() => setActiveTab('input')}
             style={{
-              width: '100%',
-              minHeight: '120px',
-              padding: '12px',
-              fontSize: '14px',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              background: 'var(--bg-secondary)',
-              color: 'var(--text-primary)',
-              resize: 'vertical',
-              fontFamily: 'inherit',
-              lineHeight: '1.5'
+              padding: '12px 24px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: 'transparent',
+              color: activeTab === 'input' ? '#3b82f6' : 'var(--text-secondary)',
+              border: 'none',
+              borderBottom: activeTab === 'input' ? '3px solid #3b82f6' : '3px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              marginBottom: '-2px'
             }}
-          />
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '12px'
-          }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              Ctrl+Enter で追加
-            </div>
-            <button
-              onClick={addToInbox}
-              disabled={!newContent.trim() || isAdding}
-              style={{
-                padding: '8px 16px',
-                fontSize: '14px',
-                fontWeight: '500',
-                background: newContent.trim() ? '#3b82f6' : '#d1d5db',
+          >
+            📝 クイック入力
+          </button>
+          <button
+            onClick={() => setActiveTab('manage')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: 'transparent',
+              color: activeTab === 'manage' ? '#3b82f6' : 'var(--text-secondary)',
+              border: 'none',
+              borderBottom: activeTab === 'manage' ? '3px solid #3b82f6' : '3px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              marginBottom: '-2px',
+              position: 'relative'
+            }}
+          >
+            📋 管理
+            {unprocessedItems.length > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: '#ef4444',
                 color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: newContent.trim() ? 'pointer' : 'not-allowed',
-                transition: 'all 0.2s'
-              }}
-            >
-              {isAdding ? '追加中...' : '📥 Inboxに追加'}
-            </button>
-          </div>
+                fontSize: '11px',
+                fontWeight: '700',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                minWidth: '18px',
+                textAlign: 'center'
+              }}>
+                {unprocessedItems.length}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* 未処理アイテム */}
-        <div style={{ marginBottom: '24px' }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            margin: '0 0 16px 0',
-            color: 'var(--text-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
+        {/* タブコンテンツ: クイック入力 */}
+        {activeTab === 'input' && (
+          <div style={{
+            background: 'var(--bg-primary)',
+            border: '2px solid #3b82f6',
+            borderRadius: '12px',
+            padding: '16px'
           }}>
-            📬 未処理
-            <span style={{
-              fontSize: '14px',
-              fontWeight: '500',
-              background: '#3b82f6',
-              color: 'white',
-              padding: '2px 8px',
-              borderRadius: '12px'
-            }}>
-              {unprocessedItems.length}
-            </span>
-          </h2>
-
-          {unprocessedItems.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '40px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '8px',
-              color: 'var(--text-secondary)',
-              fontSize: '14px'
-            }}>
-              Inboxは空です。思いついたことを追加してみましょう！
-            </div>
-          ) : (
-            unprocessedItems.map(item => (
-              <InboxCard
-                key={item.id}
-                item={item}
-                onConvertToTask={convertToTask}
-                onDelete={deleteItem}
-              />
-            ))
-          )}
-        </div>
-
-        {/* 処理済みアイテム（折りたたみ） */}
-        {processedItems.length > 0 && (
-          <div>
-            <div
-              onClick={() => setShowProcessed(!showProcessed)}
+            <textarea
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                  addToInbox()
+                }
+              }}
+              placeholder="思いついたことをメモ...&#10;&#10;例:&#10;・YouTube動画を見る https://youtube.com/watch?v=...&#10;・記事を読む https://example.com/article&#10;・買い物リスト確認"
               style={{
-                fontSize: '16px',
+                width: '100%',
+                minHeight: '200px',
+                padding: '12px',
+                fontSize: '14px',
+                border: '1px solid var(--border)',
+                borderRadius: '6px',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                resize: 'vertical',
+                fontFamily: 'inherit',
+                lineHeight: '1.5'
+              }}
+            />
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '12px'
+            }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Ctrl+Enter で追加 | Chrome拡張でさらに便利に
+              </div>
+              <button
+                onClick={addToInbox}
+                disabled={!newContent.trim() || isAdding}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  background: newContent.trim() ? '#3b82f6' : '#d1d5db',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: newContent.trim() ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {isAdding ? '追加中...' : '📥 Inboxに追加'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* タブコンテンツ: 管理 */}
+        {activeTab === 'manage' && (
+          <div>
+            {/* 未処理アイテム */}
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{
+                fontSize: '18px',
                 fontWeight: '600',
                 margin: '0 0 16px 0',
-                color: 'var(--text-secondary)',
+                color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                userSelect: 'none'
-              }}
-            >
-              {showProcessed ? '▼' : '▶'} 処理済み ({processedItems.length})
+                gap: '8px'
+              }}>
+                📬 未処理
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  background: '#3b82f6',
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '12px'
+                }}>
+                  {unprocessedItems.length}
+                </span>
+              </h2>
+
+              {unprocessedItems.length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px',
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '8px',
+                  color: 'var(--text-secondary)',
+                  fontSize: '14px'
+                }}>
+                  Inboxは空です。思いついたことを追加してみましょう！
+                  <div style={{ marginTop: '16px' }}>
+                    <button
+                      onClick={() => setActiveTab('input')}
+                      style={{
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      📝 クイック入力へ
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                unprocessedItems.map(item => (
+                  <InboxCard
+                    key={item.id}
+                    item={item}
+                    onConvertToTask={convertToTask}
+                    onDelete={deleteItem}
+                  />
+                ))
+              )}
             </div>
 
-            {showProcessed && processedItems.map(item => (
-              <InboxCard
-                key={item.id}
-                item={item}
-                onConvertToTask={convertToTask}
-                onDelete={deleteItem}
-              />
-            ))}
+            {/* 処理済みアイテム */}
+            {processedItems.length > 0 && (
+              <div>
+                <h2 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  margin: '0 0 16px 0',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  ✅ 処理済み
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    background: '#6b7280',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '12px'
+                  }}>
+                    {processedItems.length}
+                  </span>
+                </h2>
+
+                {processedItems.map(item => (
+                  <InboxCard
+                    key={item.id}
+                    item={item}
+                    onConvertToTask={convertToTask}
+                    onDelete={deleteItem}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
