@@ -39,19 +39,27 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete, o
       {/* タイトル with チェックボックス */}
       {isEditing ? (
         <div style={{ marginBottom: '12px' }}>
-          <input
-            type="text"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            placeholder="タイトル"
+          <label style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px', display: 'block' }}>
+            内容（1行目がタイトル、2行目以降がメモ）
+          </label>
+          <textarea
+            value={editTitle + (editMemo ? '\n' + editMemo : '')}
+            onChange={(e) => {
+              const lines = e.target.value.split('\n')
+              setEditTitle(lines[0] || '')
+              setEditMemo(lines.slice(1).join('\n'))
+            }}
+            placeholder="1行目: タイトル&#10;2行目以降: メモ（任意）"
             style={{
               width: '100%',
+              minHeight: '100px',
               padding: '8px',
-              fontSize: '15px',
-              fontWeight: '500',
+              fontSize: '14px',
               border: '2px solid #3b82f6',
               borderRadius: '6px',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              resize: 'vertical',
+              lineHeight: '1.5'
             }}
           />
         </div>
@@ -87,36 +95,16 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete, o
       )}
 
       {/* メモ */}
-      {isEditing ? (
-        <div style={{ marginBottom: '12px' }}>
-          <textarea
-            value={editMemo}
-            onChange={(e) => setEditMemo(e.target.value)}
-            placeholder="メモ（任意）"
-            style={{
-              width: '100%',
-              minHeight: '60px',
-              padding: '8px',
-              fontSize: '13px',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              boxSizing: 'border-box',
-              resize: 'vertical'
-            }}
-          />
+      {!isEditing && item.memo && (
+        <div style={{
+          fontSize: '13px',
+          color: 'var(--text-secondary)',
+          marginBottom: hasUrls ? '12px' : '8px',
+          lineHeight: '1.5',
+          whiteSpace: 'pre-wrap'
+        }}>
+          {item.memo}
         </div>
-      ) : (
-        item.memo && (
-          <div style={{
-            fontSize: '13px',
-            color: 'var(--text-secondary)',
-            marginBottom: hasUrls ? '12px' : '8px',
-            lineHeight: '1.5',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {item.memo}
-          </div>
-        )
       )}
 
       {/* YouTube サムネイル */}
