@@ -267,7 +267,8 @@ export default function InboxPage() {
                 color: 'var(--text-primary)',
                 resize: 'vertical',
                 fontFamily: 'inherit',
-                lineHeight: '1.5'
+                lineHeight: '1.5',
+                boxSizing: 'border-box'
               }}
             />
             <div style={{
