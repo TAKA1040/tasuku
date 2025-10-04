@@ -9,9 +9,10 @@ interface InboxCardProps {
   item: UnifiedTask
   onConvertToTask: (item: UnifiedTask) => void
   onDelete: (id: string) => void
+  onToggleComplete: (id: string, completed: boolean) => void
 }
 
-export function InboxCard({ item, onConvertToTask, onDelete }: InboxCardProps) {
+export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete }: InboxCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const hasUrls = item.urls && item.urls.length > 0
@@ -30,15 +31,34 @@ export function InboxCard({ item, onConvertToTask, onDelete }: InboxCardProps) {
     }}
     className="inbox-card"
     >
-      {/* タイトル */}
+      {/* タイトル with チェックボックス */}
       <div style={{
-        fontSize: '15px',
-        fontWeight: '500',
-        color: 'var(--text-primary)',
-        marginBottom: hasUrls || item.memo ? '12px' : '8px',
-        lineHeight: '1.5'
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: hasUrls || item.memo ? '12px' : '8px'
       }}>
-        {item.title}
+        <input
+          type="checkbox"
+          checked={item.completed || false}
+          onChange={(e) => onToggleComplete(item.id, e.target.checked)}
+          style={{
+            width: '18px',
+            height: '18px',
+            cursor: 'pointer',
+            flexShrink: 0
+          }}
+        />
+        <div style={{
+          fontSize: '15px',
+          fontWeight: '500',
+          color: 'var(--text-primary)',
+          lineHeight: '1.5',
+          textDecoration: item.completed ? 'line-through' : 'none',
+          opacity: item.completed ? 0.6 : 1
+        }}>
+          {item.title}
+        </div>
       </div>
 
       {/* メモ */}

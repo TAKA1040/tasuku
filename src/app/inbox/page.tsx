@@ -82,6 +82,16 @@ export default function InboxPage() {
     }
   }, [unifiedTasks])
 
+  // 処理済みトグル
+  const toggleComplete = useCallback(async (id: string, completed: boolean) => {
+    try {
+      await unifiedTasks.updateTask(id, { completed })
+      console.log(`✅ Inbox処理済み状態を更新: ${completed ? '処理済み' : '未処理'}`)
+    } catch (error) {
+      console.error('❌ 処理済み更新エラー:', error)
+    }
+  }, [unifiedTasks])
+
   // タスク作成（Inbox → 通常タスク）
   const handleCreateTask = useCallback(async (
     title: string,
@@ -363,6 +373,7 @@ export default function InboxPage() {
                     item={item}
                     onConvertToTask={convertToTask}
                     onDelete={deleteItem}
+                    onToggleComplete={toggleComplete}
                   />
                 ))
               )}
@@ -399,6 +410,7 @@ export default function InboxPage() {
                     item={item}
                     onConvertToTask={convertToTask}
                     onDelete={deleteItem}
+                    onToggleComplete={toggleComplete}
                   />
                 ))}
               </div>
