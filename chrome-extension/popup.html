@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASUKU Inbox</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      min-height: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .current-page {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .page-url {
+      font-size: 11px;
+      color: #6b7280;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .quick-save {
+      width: 100%;
+      padding: 10px 16px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .quick-save:hover {
+      background: #059669;
+    }
+
+    .quick-save:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .divider {
+      border-top: 1px solid #e5e7eb;
+      margin: 16px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: 'または';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f9fafb;
+      padding: 0 8px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .custom-input {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #2563eb;
+    }
+
+    .submit-btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .open-inbox {
+      display: block;
+      width: 100%;
+      padding: 8px 16px;
+      background: transparent;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 12px;
+    }
+
+    .open-inbox:hover {
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span style="font-size: 24px;">📥</span>
+    <h1>TASUKU Inbox</h1>
+  </div>
+
+  <!-- 現在のページ情報 -->
+  <div class="current-page" id="currentPageInfo">
+    <div class="page-title" id="pageTitle">ページ情報を読み込み中...</div>
+    <div class="page-url" id="pageUrl"></div>
+  </div>
+
+  <!-- ワンクリック保存 -->
+  <button class="quick-save" id="saveCurrentBtn">
+    📌 このページを保存
+  </button>
+
+  <div class="divider"></div>
+
+  <!-- カスタム入力 -->
+  <div class="custom-input">
+    <textarea
+      id="customContent"
+      placeholder="メモ、URL、タイトル+URL...&#10;&#10;Ctrl+Enter で保存"
+    ></textarea>
+    <button class="submit-btn" id="saveCustomBtn">
+      💾 カスタム保存
+    </button>
+  </div>
+
+  <!-- ステータスメッセージ -->
+  <div id="status" style="display: none;"></div>
+
+  <!-- Inboxページを開く -->
+  <a href="#" class="open-inbox" id="openInboxBtn">
+    📥 Inboxページを開く
+  </a>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -515,6 +515,25 @@ export default function TodayPage() {
               </button>
               <ThemeToggle />
             <a
+              href="/inbox"
+              style={{
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              📥 Inbox
+            </a>
+            <a
               href="/search"
               style={{
                 background: '#6b7280',

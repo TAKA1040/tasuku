@@ -37,7 +37,7 @@ export interface UnifiedTask {
   archived?: boolean | null
   snoozed_until?: string | null
   duration_min?: number | null
-  task_type?: string | null // 'NORMAL' | 'RECURRING' | 'IDEA' | null
+  task_type?: string | null // 'NORMAL' | 'RECURRING' | 'IDEA' | 'INBOX' | null
   start_time?: string | null // HH:MM format (e.g., "09:00", "14:30")
   end_time?: string | null // HH:MM format (future use)
 
@@ -58,7 +58,7 @@ export const SPECIAL_DATES = {
   NO_DUE_DATE: '2999-12-31', // 期限なし（アイデア、買い物リストなど）
 } as const
 
-export type TaskType = 'NORMAL' | 'RECURRING' | 'IDEA'
+export type TaskType = 'NORMAL' | 'RECURRING' | 'IDEA' | 'INBOX'
 
 export interface TaskFilters {
   completed?: boolean
@@ -90,7 +90,8 @@ export class DisplayNumberUtils {
     NORMAL: '10',
     OVERDUE: '11',
     RECURRING: '12',
-    IDEA: '13'
+    IDEA: '13',
+    INBOX: '14'
   } as const
 
   /**
@@ -116,6 +117,9 @@ export class DisplayNumberUtils {
         break
       case 'IDEA':
         typeCode = this.TYPE_CODES.IDEA
+        break
+      case 'INBOX':
+        typeCode = this.TYPE_CODES.INBOX
         break
       default:
         typeCode = this.TYPE_CODES.NORMAL
@@ -156,6 +160,9 @@ export class DisplayNumberUtils {
         break
       case this.TYPE_CODES.IDEA:
         taskType = 'IDEA'
+        break
+      case this.TYPE_CODES.INBOX:
+        taskType = 'INBOX'
         break
     }
 
@@ -202,7 +209,8 @@ export class DisplayNumberUtils {
     const typeLabel = {
       'NORMAL': '通常',
       'RECURRING': '繰返',
-      'IDEA': 'アイデア'
+      'IDEA': 'アイデア',
+      'INBOX': 'Inbox'
     }[parsed.taskType] || '通常'
 
     return `${parsed.year}/${parsed.month}/${parsed.day}-${typeLabel}-${parsed.sequence.toString().padStart(3, '0')}`
