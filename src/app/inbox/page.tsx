@@ -445,15 +445,17 @@ export default function InboxPage() {
             </div>
             <TaskCreateForm2
               isVisible={true}
+              initialTitle={editingInbox.title}
+              initialMemo={editingInbox.memo || ''}
+              initialUrls={editingInbox.urls || []}
               onSubmitRegular={(title, memo, dueDate, category, importance, urls, attachment, shoppingItems, startTime, endTime) => {
-                // Inboxのデータをマージ
                 handleCreateTask(
-                  title || editingInbox.title,
-                  memo || editingInbox.memo || '',
+                  title,
+                  memo,
                   dueDate,
                   category,
                   importance,
-                  urls && urls.length > 0 ? urls : (editingInbox.urls || undefined),
+                  urls,
                   attachment,
                   shoppingItems,
                   startTime,

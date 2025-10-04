@@ -21,11 +21,14 @@ interface TaskCreateForm2Props {
   onSubmitRecurring: (title: string, memo: string, settings: RecurringSettings, importance?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => void
   onAddToIdeas: (text: string) => void
   onCancel: () => void
+  initialUrls?: string[]
+  initialTitle?: string
+  initialMemo?: string
 }
 
-function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddToIdeas, onCancel }: TaskCreateForm2Props) {
-  const [title, setTitle] = useState('')
-  const [memo, setMemo] = useState('')
+function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddToIdeas, onCancel, initialUrls, initialTitle, initialMemo }: TaskCreateForm2Props) {
+  const [title, setTitle] = useState(initialTitle || '')
+  const [memo, setMemo] = useState(initialMemo || '')
   const [dueDate, setDueDate] = useState(getTodayJST())
   const [category, setCategory] = useState('')
   const [importance, setImportance] = useState<number>(3)
@@ -38,7 +41,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   const [dayOfMonth, setDayOfMonth] = useState<number>(1)
   const [monthOfYear, setMonthOfYear] = useState<number>(1)
   const [dayOfYear, setDayOfYear] = useState<number>(1)
-  const [urls, setUrls] = useState<string[]>([])
+  const [urls, setUrls] = useState<string[]>(initialUrls || [])
   const [newUrl, setNewUrl] = useState('')
   const [saveAsIdea, setSaveAsIdea] = useState(false)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
