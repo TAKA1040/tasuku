@@ -1013,7 +1013,7 @@ export default function TodayPage() {
               color: '#1f2937',
               cursor: 'pointer'
             }}>
-              💡 やることリスト ({allUnifiedData.filter(task => task.due_date === '2999-12-31').length}件) {showTodoList ? '☑️' : '☐'} 表示する
+              💡 やることリスト ({allUnifiedData.filter(task => task.due_date === '2999-12-31' && task.task_type !== 'INBOX').length}件) {showTodoList ? '☑️' : '☐'} 表示する
               <input
                 type="checkbox"
                 checked={showTodoList}
@@ -1026,7 +1026,7 @@ export default function TodayPage() {
             <UnifiedTasksTable
               title="💡 やることリスト"
               tasks={allUnifiedData.filter(task =>
-                task.due_date === '2999-12-31' // 期限のないタスク
+                task.due_date === '2999-12-31' && task.task_type !== 'INBOX' // 期限のないタスク（Inbox除外）
               )}
               emptyMessage=""
               showTitle={false}
