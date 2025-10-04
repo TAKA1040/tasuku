@@ -1,39 +1,159 @@
-操作
-レイアウト シフト
+日次処理で一つのタスクしか処理がされなかった
 
-Layout shift score: 0.0000
-Layout shift score: 0.0055
-div
-div
-div
-div
-div
-Layout shift score: 0.0115
-div.today-buttons
-div
-main
-div
-
-
-page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
-page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
-page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
-page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 0
-page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
-page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
-page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
-page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 0
-page-6cbcf9f6952f3ea8.js:1 🔄 タスク生成を開始...
-page-6cbcf9f6952f3ea8.js:1 🔧 rawUnifiedData useMemo 実行
-page-6cbcf9f6952f3ea8.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
-page-6cbcf9f6952f3ea8.js:1 🚀 sortMode: priority
-page-6cbcf9f6952f3ea8.js:1 🚀 rawUnifiedData.length: 41
-page-6cbcf9f6952f3ea8.js:1 🔄 ソート前の順番: Array(41)
-page-6cbcf9f6952f3ea8.js:1 📊 詳細データ（最初の5件）: Array(5)
-page-6cbcf9f6952f3ea8.js:1 🔄 ソート後の順番: Array(41)
-page-6cbcf9f6952f3ea8.js:1 user_metadataから取得: last_task_generation = 2025-10-03
-page-6cbcf9f6952f3ea8.js:1 🚀 タスク生成開始: 今日=2025-10-03, 前回=2025-10-03
-page-6cbcf9f6952f3ea8.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
-page-6cbcf9f6952f3ea8.js:1 🔍 生成判定: lastProcessed (2025-10-03) < today (2025-10-03) = false
-page-6cbcf9f6952f3ea8.js:1 タスク生成完了
-page-6cbcf9f6952f3ea8.js:1 ✅ タスク生成完了
+ 📋 テンプレート読み込み結果: Array(3)
+ 📋 生データ全体: Array(3)
+ 📋 正規化後: Array(3)
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 0
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 0
+ 🔄 タスク生成を開始...
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 0
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 43
+ 🔄 ソート前の順番: Array(43)
+ 📊 詳細データ（最初の5件）: Array(5)
+ 🔄 ソート後の順番: Array(43)
+ user_metadataから取得: last_task_generation = 2025-10-04
+ 🚀 タスク生成開始: 今日=2025-10-04, 前回=2025-10-04
+ 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+ 🔍 生成判定: lastProcessed (2025-10-04) < today (2025-10-04) = false
+ タスク生成完了
+ ✅ タスク生成完了
+ 🔍 DEBUG: Updated task info: Object
+ 🔄 RECURRING task detected, attempting template sync...
+ 🔗 recurring_template_id found, syncing template...
+ 🔄 syncTemplateFromTask called with: Object
+ 🔍 Checking if template exists: 0dbaca9e-5240-4e00-8729-16e883e65da7
+ ✅ Template exists: Object
+ 🆕 Syncing template with payload: {
+  "title": "𝕏ポスト",
+  "memo": "",
+  "category": "仕事",
+  "importance": 4,
+  "weekdays": [],
+  "updated_at": "2025-10-04T14:32:28.114Z"
+}
+ ✅ Template synced successfully
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 0
+ 🔧 rawUnifiedData useMemo 実行
+ 🚀🚀🚀 allUnifiedData ソート処理実行！
+ 🚀 sortMode: priority
+ 🚀 rawUnifiedData.length: 43
+ 🔄 ソート前の順番: Array(43)
+ 📊 詳細データ（最初の5件）: Array(5)
+ 🔄 ソート後の順番: Array(43)
+ 🔍 DEBUG: Updated task info: Object
+ 🔍 DEBUG: Task is not RECURRING type: NORMAL
+ 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔥 手動でタスク生成を実行...
+page-6b275324c4680683.js:1 🔄 タスク生成を開始...
+page-6b275324c4680683.js:1 user_metadataから取得: last_task_generation = 2025-10-04
+page-6b275324c4680683.js:1 🚀 タスク生成開始: 今日=2025-10-04, 前回=2025-10-04
+page-6b275324c4680683.js:1 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+page-6b275324c4680683.js:1 🔍 生成判定: lastProcessed (2025-10-04) < today (2025-10-04) = false
+page-6b275324c4680683.js:1 🎯 タスク生成を実行します (forceToday: true )
+page-6b275324c4680683.js:1 🎯 手動生成: セキュリティルール適用
+page-6b275324c4680683.js:1 📋 テンプレート取得: Array(2)
+page-6b275324c4680683.js:1 🔄 日次タスク生成: 2025-10-05 - 2025-10-04, テンプレート数: 2
+page-6b275324c4680683.js:1 🔄 日次テンプレート一覧: Array(2)
+page-6b275324c4680683.js:1 🛒 買い物タスク処理: 2025-10-05〜2025-10-04に完了したタスクをチェック
+page-6b275324c4680683.js:1 ✅ 期間内に完了した買い物タスクなし
+page-6b275324c4680683.js:1 ✅ 削除対象の期限切れ繰り返しタスクなし
+page-6b275324c4680683.js:1 タスク生成完了
+page-6b275324c4680683.js:1 ✅ タスク生成完了
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 0
+page-6b275324c4680683.js:1 🔧 rawUnifiedData useMemo 実行
+page-6b275324c4680683.js:1 🚀🚀🚀 allUnifiedData ソート処理実行！
+page-6b275324c4680683.js:1 🚀 sortMode: priority
+page-6b275324c4680683.js:1 🚀 rawUnifiedData.length: 43
+page-6b275324c4680683.js:1 🔄 ソート前の順番: Array(43)
+page-6b275324c4680683.js:1 📊 詳細データ（最初の5件）: Array(5)
+page-6b275324c4680683.js:1 🔄 ソート後の順番: Array(43)

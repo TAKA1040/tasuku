@@ -52,12 +52,9 @@ export class TaskGeneratorService {
         // 手動生成: 自動生成と同じセキュリティルール適用
         console.log('🎯 手動生成: セキュリティルール適用')
 
-        // 日次: 3日制限適用
-        const startDate = Math.max(
-          this.parseDate(addDays(lastProcessed, 1)),
-          this.parseDate(subtractDays(today, 3))
-        )
-        await this.generateDailyTasks(this.formatDate(startDate), today)
+        // 日次: 今日を含めた3日分を生成（過去2日 + 今日）
+        const startDate = subtractDays(today, 2)
+        await this.generateDailyTasks(startDate, today)
 
         // 週次: 週が変わった場合のみ今週分
         if (this.isNewWeek(lastProcessed, today)) {
