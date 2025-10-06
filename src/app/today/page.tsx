@@ -615,23 +615,7 @@ export default function TodayPage() {
           </div>
         </div>
 
-        {/* Show database status if not fully initialized */}
-        <div style={{
-          background: '#fef3c7',
-          border: '1px solid #f59e0b',
-          borderRadius: '6px',
-          padding: '12px',
-          marginBottom: '12px',
-          fontSize: '14px',
-          color: '#92400e',
-          visibility: !isInitialized ? 'visible' : 'hidden',
-          height: !isInitialized ? 'auto' : '0',
-          minHeight: !isInitialized ? '48px' : '0',
-          overflow: 'hidden',
-          transition: 'none'
-        }}>
-          ⚠️ データベースが初期化中です。一部機能が制限される場合があります。
-        </div>
+        {/* データベース初期化メッセージは削除（通常は一瞬で完了するためチラつきの原因） */}
 
         {/* Show task generation status */}
         <div style={{
