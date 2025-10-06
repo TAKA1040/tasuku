@@ -206,6 +206,82 @@ export default function InboxPage() {
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-buttons">
               <ThemeToggle />
+              <a
+                href="/today"
+                style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                className="inbox-button"
+              >
+                📅 今日
+              </a>
+              <a
+                href="/search"
+                style={{
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                className="inbox-button"
+              >
+                🔍 検索
+              </a>
+              <a
+                href="/statistics"
+                style={{
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                className="inbox-button"
+              >
+                📊 統計
+              </a>
+              <a
+                href="/templates"
+                style={{
+                  background: '#8b5cf6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                className="inbox-button"
+              >
+                ⚙️ テンプレート
+              </a>
             </div>
           </div>
 
