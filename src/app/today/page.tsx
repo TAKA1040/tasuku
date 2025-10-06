@@ -913,7 +913,7 @@ export default function TodayPage() {
               color: '#1f2937',
               cursor: 'pointer'
             }}>
-              📆 明日以降のタスク ({allUnifiedData.filter(task => !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31').length}件) {showFutureTasks ? '☑️' : '☐'} 表示する
+              📆 明日以降のタスク ({allUnifiedData.filter(task => !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31' && task.task_type !== 'RECURRING').length}件) {showFutureTasks ? '☑️' : '☐'} 表示する
               <input
                 type="checkbox"
                 checked={showFutureTasks}
@@ -926,7 +926,7 @@ export default function TodayPage() {
             <UnifiedTasksTable
               title="📆 明日以降のタスク"
               tasks={allUnifiedData.filter(task =>
-                !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31'
+                !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31' && task.task_type !== 'RECURRING'
               )}
               emptyMessage=""
               showTitle={false}
