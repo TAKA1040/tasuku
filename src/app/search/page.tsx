@@ -8,6 +8,7 @@ import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { getTodayJST } from '@/lib/utils/date-jst'
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -34,8 +35,15 @@ export default function SearchPage() {
   const filteredTasks = useMemo(() => {
     if (!tasks?.length) return []
 
+    const today = getTodayJST()
+
     // フィルタリング処理
     const filtered = tasks.filter(task => {
+      // 🔥 明日以降の繰り返しタスクを除外（自動生成された未来のタスクは検索結果に表示しない）
+      if (task.task_type === 'RECURRING' && task.due_date && task.due_date > today) {
+        return false
+      }
+
       // 検索語によるフィルタリング
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase()
