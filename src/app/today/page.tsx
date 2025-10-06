@@ -925,7 +925,7 @@ export default function TodayPage() {
         </div>
 
         {/* 買い物タスクセクション */}
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ marginBottom: '12px', marginTop: '20px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
