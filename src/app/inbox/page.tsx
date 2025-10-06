@@ -200,24 +200,23 @@ export default function InboxPage() {
             </h1>
           </div>
 
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '16px'
-          }}>
-            <div>
-              <p style={{
-                fontSize: '14px',
-                color: 'var(--text-secondary)',
-                margin: '0'
-              }}>
-                思いついたこと、URL、メモなど何でも放り込んでください。後でタスクに整理できます。
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }} className="inbox-header">
+            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0' }} className="inbox-title">
+              📥 Inbox
+            </h2>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-buttons">
               <ThemeToggle />
             </div>
+          </div>
+
+          <div style={{ marginBottom: '12px' }}>
+            <p style={{
+              fontSize: '13px',
+              color: 'var(--text-secondary)',
+              margin: '0'
+            }}>
+              思いついたこと、URL、メモなど何でも放り込んでください。後でタスクに整理できます。
+            </p>
           </div>
 
           {/* タブナビゲーション */}

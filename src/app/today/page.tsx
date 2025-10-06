@@ -490,7 +490,7 @@ export default function TodayPage() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }} className="today-header">
             <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0' }} className="today-title">
-              今日 - {formatDateForDisplay(getTodayJST())}
+              📅 今日 - {formatDateForDisplay(getTodayJST())}
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-buttons">
               {/* タスク更新ボタン */}
@@ -652,6 +652,16 @@ export default function TodayPage() {
         </div>
 
         {/* Show generation error if any */}
+        <div style={{ marginBottom: '12px' }}>
+          <p style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            margin: '0'
+          }}>
+            今日やるべきタスクを管理します。重要度や時刻で並び替えできます。
+          </p>
+        </div>
+
         <div style={{
           background: '#fef2f2',
           border: '1px solid #ef4444',
@@ -668,7 +678,6 @@ export default function TodayPage() {
         }}>
           ❌ タスク生成エラー: {generationError}
         </div>
-
 
         {/* タブナビゲーション */}
         <TaskTabNavigation />
