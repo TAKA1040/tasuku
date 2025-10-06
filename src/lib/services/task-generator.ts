@@ -1,10 +1,10 @@
 // Task Generation Service - Phase 3: Background Generation System
 // Based on RECURRING_REDESIGN_LOG.md specification
 //
-// 【重要】生成期間ルール（絶対に変更しないこと）:
-// - 日次: 今日を含めた3日間（今日、昨日、一昨日）
-// - 週次: 先週の月曜日〜翌週の日曜日まで（14日分）
-// - 月次: 1年前から1年後の前日まで（約730日分）
+// 【重要】生成期間ルール:
+// - 全パターン共通: 今日を含めた3日間（今日、昨日、一昨日）のみ生成
+// - 理由: 未来のタスクを事前生成すると、データベースに大量蓄積される
+// - アクセス時に必要な分だけ生成する方式
 // - 重複防止: createTaskFromTemplate内で実装済み（template_id + due_dateで判定）
 
 import { createClient } from '@/lib/supabase/client'
@@ -70,22 +70,18 @@ export class TaskGeneratorService {
           console.log('🎯 手動月次生成: 今月分生成')
         }
       } else {
-        // 自動生成: パターン別の生成期間
+        // 自動生成: 全パターン共通で今日を含めた3日間のみ生成
+        const startDate = subtractDays(today, 2) // 一昨日
+        const endDate = today // 今日
 
-        // 日次: 今日を含めた3日間（今日、昨日、一昨日）
-        const dailyStart = subtractDays(today, 2)
-        await this.generateDailyTasks(dailyStart, today)
+        // 日次タスク生成
+        await this.generateDailyTasks(startDate, endDate)
 
-        // 週次: 先週の月曜日〜翌週の日曜日まで（14日分）
-        const thisMonday = getStartOfWeek(today)
-        const lastMonday = subtractDays(thisMonday, 7)
-        const nextSunday = addDays(thisMonday, 13) // 月曜+13日=翌週日曜
-        await this.generateWeeklyTasks(lastMonday, nextSunday)
+        // 週次タスク生成（今日を含めた3日間のみ）
+        await this.generateWeeklyTasks(startDate, endDate)
 
-        // 月次: 1年前から1年後の前日まで（約730日分）
-        const yearAgo = subtractDays(today, 365)
-        const yearLater = addDays(today, 364) // 今日+364日=1年後の前日
-        await this.generateMonthlyTasks(yearAgo, yearLater)
+        // 月次タスク生成（今日を含めた3日間のみ）
+        await this.generateMonthlyTasks(startDate, endDate)
       }
 
       // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
@@ -93,6 +89,9 @@ export class TaskGeneratorService {
 
       // 期限切れ繰り返しタスクの自動削除
       await this.deleteExpiredRecurringTasks(today)
+
+      // 未来の繰り返しタスクの削除（明日以降のタスクを削除）
+      await this.deleteFutureRecurringTasks(today)
 
       // 最終更新日を更新
       await this.updateLastGenerationDate(today)
@@ -427,6 +426,40 @@ export class TaskGeneratorService {
     const lastMonth = getStartOfMonth(lastDate)
     const currentMonth = getStartOfMonth(currentDate)
     return lastMonth !== currentMonth
+  }
+
+  // 未来の繰り返しタスクの削除（明日以降のタスクを全て削除）
+  private async deleteFutureRecurringTasks(today: string): Promise<void> {
+    try {
+      const userId = await this.getCurrentUserId()
+
+      const { data: deleted, error } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .not('recurring_template_id', 'is', null)
+        .gt('due_date', today) // 明日以降
+        .select('id, title, due_date')
+
+      if (error) {
+        console.error('❌ 未来タスク削除エラー:', error)
+      } else if (deleted && deleted.length > 0) {
+        console.log(`🗑️  未来の繰り返しタスク削除: ${deleted.length}件 (${today}より後)`)
+        // デバッグ用：削除されたタスクの内訳
+        const grouped: Record<string, number> = {}
+        deleted.forEach(task => {
+          grouped[task.title] = (grouped[task.title] || 0) + 1
+        })
+        Object.entries(grouped).forEach(([title, count]) => {
+          console.log(`   - ${title}: ${count}件`)
+        })
+      } else {
+        console.log('✅ 削除対象の未来タスクなし')
+      }
+    } catch (error) {
+      console.error('❌ 未来タスク削除処理エラー:', error)
+    }
   }
 
   // 期限切れ繰り返しタスクの自動削除
