@@ -493,10 +493,10 @@ export default function TodayPage() {
               今日 - {formatDateForDisplay(getTodayJST())}
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-buttons">
-              {/* デバッグ: 繰り返しタスク生成ボタン */}
+              {/* タスク更新ボタン */}
               <button
                 onClick={() => {
-                  console.log('🔥 手動でタスク生成を実行...')
+                  console.log('🔄 手動でタスク更新を実行...')
                   generateMissingTasks(true) // 手動フラグをtrueに
                 }}
                 disabled={isGenerating}
@@ -512,7 +512,7 @@ export default function TodayPage() {
                   minWidth: '100px'
                 }}
               >
-                {isGenerating ? '生成中...' : '🔄 タスク生成'}
+                {isGenerating ? '更新中...' : '🔄 タスク更新'}
               </button>
               <ThemeToggle />
             <a
