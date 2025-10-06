@@ -457,32 +457,82 @@ export class TaskGeneratorService {
     return lastMonth !== currentMonth
   }
 
-  // 未来の繰り返しタスクの削除（明日以降のタスクを全て削除）
+  // 未来の繰り返しタスクの削除（パターン別の適切な期間を超えたタスクのみ削除）
   private async deleteFutureRecurringTasks(today: string): Promise<void> {
     try {
       const userId = await this.getCurrentUserId()
+      let totalDeleted = 0
 
-      const { data: deleted, error } = await this.supabase
+      // DAILY: 明日以降を削除（生成範囲: 過去3日〜今日）
+      const dailyThreshold = today
+      const { data: dailyDeleted } = await this.supabase
         .from('unified_tasks')
         .delete()
         .eq('user_id', userId)
         .eq('completed', false)
+        .eq('recurring_pattern', 'DAILY')
         .not('recurring_template_id', 'is', null)
-        .gt('due_date', today) // 明日以降
-        .select('id, title, due_date')
+        .gt('due_date', dailyThreshold)
+        .select('id, title')
 
-      if (error) {
-        console.error('❌ 未来タスク削除エラー:', error)
-      } else if (deleted && deleted.length > 0) {
-        console.log(`🗑️  未来の繰り返しタスク削除: ${deleted.length}件 (${today}より後)`)
-        // デバッグ用：削除されたタスクの内訳
-        const grouped: Record<string, number> = {}
-        deleted.forEach(task => {
-          grouped[task.title] = (grouped[task.title] || 0) + 1
-        })
-        Object.entries(grouped).forEach(([title, count]) => {
-          console.log(`   - ${title}: ${count}件`)
-        })
+      if (dailyDeleted && dailyDeleted.length > 0) {
+        console.log(`🗑️  DAILY 未来タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}より後)`)
+        totalDeleted += dailyDeleted.length
+      }
+
+      // WEEKLY: 15日以降を削除（生成範囲: 過去14日〜今日）
+      const weeklyThreshold = addDays(today, 14)
+      const { data: weeklyDeleted } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'WEEKLY')
+        .not('recurring_template_id', 'is', null)
+        .gt('due_date', weeklyThreshold)
+        .select('id, title')
+
+      if (weeklyDeleted && weeklyDeleted.length > 0) {
+        console.log(`🗑️  WEEKLY 未来タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}より後)`)
+        totalDeleted += weeklyDeleted.length
+      }
+
+      // MONTHLY: 61日以降を削除（生成範囲: 過去60日〜今日）
+      const monthlyThreshold = addDays(today, 60)
+      const { data: monthlyDeleted } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'MONTHLY')
+        .not('recurring_template_id', 'is', null)
+        .gt('due_date', monthlyThreshold)
+        .select('id, title')
+
+      if (monthlyDeleted && monthlyDeleted.length > 0) {
+        console.log(`🗑️  MONTHLY 未来タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}より後)`)
+        totalDeleted += monthlyDeleted.length
+      }
+
+      // YEARLY: 731日以降を削除（生成範囲: 過去730日〜今日）
+      const yearlyThreshold = addDays(today, 730)
+      const { data: yearlyDeleted } = await this.supabase
+        .from('unified_tasks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .eq('recurring_pattern', 'YEARLY')
+        .not('recurring_template_id', 'is', null)
+        .gt('due_date', yearlyThreshold)
+        .select('id, title')
+
+      if (yearlyDeleted && yearlyDeleted.length > 0) {
+        console.log(`🗑️  YEARLY 未来タスク削除: ${yearlyDeleted.length}件 (${yearlyThreshold}より後)`)
+        totalDeleted += yearlyDeleted.length
+      }
+
+      if (totalDeleted > 0) {
+        console.log(`✅ 未来タスク削除完了: 合計${totalDeleted}件`)
       } else {
         console.log('✅ 削除対象の未来タスクなし')
       }
