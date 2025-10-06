@@ -29,22 +29,31 @@ export function TaskTabNavigation({ onBeforeNavigate }: TaskTabNavigationProps =
   return (
     <div style={{
       display: 'flex',
-      gap: '0',
-      borderBottom: '2px solid var(--border-color)',
-      marginBottom: '16px'
+      gap: '4px',
+      marginBottom: '16px',
+      borderBottom: '1px solid #e5e7eb',
+      paddingBottom: '0'
     }}>
       <Link
         href="/today"
         onClick={(e) => handleClick(e, '/today')}
         style={{
-          padding: '12px 24px',
+          padding: '10px 20px',
           textDecoration: 'none',
-          color: pathname === '/today' ? 'var(--text-color)' : 'var(--text-secondary)',
-          fontWeight: pathname === '/today' ? 'bold' : 'normal',
-          borderBottom: pathname === '/today' ? '3px solid var(--primary-color)' : '3px solid transparent',
-          marginBottom: '-2px',
+          color: pathname === '/today' ? '#3b82f6' : '#6b7280',
+          fontWeight: pathname === '/today' ? '600' : '500',
+          fontSize: '15px',
+          background: pathname === '/today' ? '#eff6ff' : 'transparent',
+          border: pathname === '/today' ? '1px solid #3b82f6' : '1px solid transparent',
+          borderBottom: pathname === '/today' ? '1px solid #eff6ff' : '1px solid transparent',
+          borderRadius: '8px 8px 0 0',
+          marginBottom: '-1px',
           transition: 'all 0.2s ease',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          position: 'relative' as const,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px'
         }}
       >
         📅 今日のタスク
@@ -53,14 +62,22 @@ export function TaskTabNavigation({ onBeforeNavigate }: TaskTabNavigationProps =
         href="/inbox"
         onClick={(e) => handleClick(e, '/inbox')}
         style={{
-          padding: '12px 24px',
+          padding: '10px 20px',
           textDecoration: 'none',
-          color: pathname === '/inbox' ? 'var(--text-color)' : 'var(--text-secondary)',
-          fontWeight: pathname === '/inbox' ? 'bold' : 'normal',
-          borderBottom: pathname === '/inbox' ? '3px solid var(--primary-color)' : '3px solid transparent',
-          marginBottom: '-2px',
+          color: pathname === '/inbox' ? '#3b82f6' : '#6b7280',
+          fontWeight: pathname === '/inbox' ? '600' : '500',
+          fontSize: '15px',
+          background: pathname === '/inbox' ? '#eff6ff' : 'transparent',
+          border: pathname === '/inbox' ? '1px solid #3b82f6' : '1px solid transparent',
+          borderBottom: pathname === '/inbox' ? '1px solid #eff6ff' : '1px solid transparent',
+          borderRadius: '8px 8px 0 0',
+          marginBottom: '-1px',
           transition: 'all 0.2s ease',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          position: 'relative' as const,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px'
         }}
       >
         📥 Inbox

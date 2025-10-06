@@ -488,9 +488,6 @@ export default function TodayPage() {
             </h1>
           </div>
 
-          {/* タブナビゲーション */}
-          <TaskTabNavigation />
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }} className="today-header">
             <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0' }} className="today-title">
               今日 - {formatDateForDisplay(getTodayJST())}
@@ -672,6 +669,9 @@ export default function TodayPage() {
           ❌ タスク生成エラー: {generationError}
         </div>
 
+
+        {/* タブナビゲーション */}
+        <TaskTabNavigation />
 
         {/* 認証状態表示 */}
         <div style={{ marginBottom: '12px' }}>

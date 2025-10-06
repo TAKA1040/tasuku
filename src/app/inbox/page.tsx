@@ -200,9 +200,6 @@ export default function InboxPage() {
             </h1>
           </div>
 
-          {/* タブナビゲーション */}
-          <TaskTabNavigation onBeforeNavigate={handleBeforeNavigate} />
-
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -220,8 +217,15 @@ export default function InboxPage() {
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <ThemeToggle />
-              <AuthStatus />
             </div>
+          </div>
+
+          {/* タブナビゲーション */}
+          <TaskTabNavigation onBeforeNavigate={handleBeforeNavigate} />
+
+          {/* 認証状態表示 */}
+          <div style={{ marginBottom: '12px' }}>
+            <AuthStatus />
           </div>
         </header>
 
