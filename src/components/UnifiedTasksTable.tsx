@@ -193,6 +193,66 @@ export function UnifiedTasksTable({
   // サブタスク編集状態
   const [editingSubTask, setEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
 
+  // メモ展開状態（タスクIDをキーとする）
+  const [expandedMemos, setExpandedMemos] = useState<{[taskId: string]: boolean}>({})
+
+  // メモの展開/折りたたみトグル
+  const toggleMemo = (taskId: string) => {
+    setExpandedMemos(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }))
+  }
+
+  // メモ表示コンポーネント（2行制限付き）
+  const MemoDisplay = ({ memo, taskId }: { memo: string; taskId: string }) => {
+    const isExpanded = expandedMemos[taskId] || false
+
+    return (
+      <div style={{
+        fontSize: '12px',
+        color: '#6b7280',
+        fontStyle: 'italic',
+        position: 'relative'
+      }}>
+        <span style={{ marginRight: '4px' }}>-</span>
+        <span style={{
+          display: 'inline',
+          overflow: isExpanded ? 'visible' : 'hidden',
+          textOverflow: isExpanded ? 'clip' : 'ellipsis',
+          WebkitLineClamp: isExpanded ? 'unset' : 2,
+          WebkitBoxOrient: 'vertical',
+          ...(isExpanded ? {} : { display: '-webkit-box' })
+        }}>
+          {memo}
+        </span>
+        {memo.length > 50 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleMemo(taskId)
+            }}
+            style={{
+              position: 'absolute',
+              right: '0',
+              bottom: '0',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              color: '#3b82f6',
+              cursor: 'pointer',
+              fontSize: '11px',
+              textDecoration: 'underline',
+              padding: '0 2px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {isExpanded ? '閉じる' : '続きを表示'}
+          </button>
+        )}
+      </div>
+    )
+  }
+
   const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
     setSelectedFile(attachment)
     setShowFilePopup(true)
@@ -373,28 +433,14 @@ export function UnifiedTasksTable({
                                 🛒 リスト ({totalItems})
                               </button>
                             )}
-                            {item.memo && (
-                              <span style={{
-                                fontSize: '12px',
-                                color: '#6b7280',
-                                fontStyle: 'italic'
-                              }}>
-                                - {item.memo}
-                              </span>
-                            )}
+                            {item.memo && <MemoDisplay memo={item.memo} taskId={item.id} />}
                           </div>
                         )
                       })()}
 
                       {/* 買い物カテゴリ以外のメモを右に表示 */}
                       {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && (
-                        <span style={{
-                          fontSize: '12px',
-                          color: '#6b7280',
-                          fontStyle: 'italic'
-                        }}>
-                          - {item.memo}
-                        </span>
+                        <MemoDisplay memo={item.memo} taskId={item.id} />
                       )}
                     </div>
 
@@ -789,7 +835,7 @@ export function UnifiedTasksTable({
                           color: '#6b7280',
                           marginTop: '4px'
                         }}>
-                          {item.memo}
+                          <MemoDisplay memo={item.memo} taskId={item.id} />
                         </div>
                       )}
                     </div>
