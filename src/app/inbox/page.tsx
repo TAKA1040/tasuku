@@ -295,6 +295,23 @@ export default function InboxPage() {
             </p>
           </div>
 
+          {/* エラーメッセージ表示領域（今日のタスクページとレイアウトを揃えるため） */}
+          <div style={{
+            background: '#fef2f2',
+            border: '1px solid #ef4444',
+            borderRadius: '6px',
+            padding: '12px',
+            marginBottom: '12px',
+            fontSize: '14px',
+            color: '#dc2626',
+            visibility: 'hidden',
+            height: '0',
+            minHeight: '0',
+            overflow: 'hidden',
+            transition: 'none'
+          }}>
+          </div>
+
           {/* タブナビゲーション */}
           <TaskTabNavigation onBeforeNavigate={handleBeforeNavigate} />
 
