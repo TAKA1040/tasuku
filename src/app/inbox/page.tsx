@@ -282,6 +282,9 @@ export default function InboxPage() {
               >
                 ⚙️ テンプレート
               </a>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-actions">
+                {/* 今日のタスクページとレイアウトを揃えるための空div */}
+              </div>
             </div>
           </div>
 
