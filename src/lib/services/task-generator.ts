@@ -2,9 +2,11 @@
 // Based on RECURRING_REDESIGN_LOG.md specification
 //
 // 【重要】生成期間ルール:
-// - 全パターン共通: 今日を含めた3日間（今日、昨日、一昨日）のみ生成
-// - 理由: 未来のタスクを事前生成すると、データベースに大量蓄積される
-// - アクセス時に必要な分だけ生成する方式
+// - DAILY: 過去3日〜今日（アクセス頻度: 毎日想定）
+// - WEEKLY: 過去14日〜今日（アクセス頻度: 週1回想定、2週間分をカバー）
+// - MONTHLY: 過去60日〜今日（アクセス頻度: 月1回想定、2ヶ月分をカバー）
+// - YEARLY: 過去730日〜今日（アクセス頻度: 年1回想定、2年分をカバー）
+// - 未来タスク: 明日以降のタスクは毎回削除（事前生成しない）
 // - 重複防止: createTaskFromTemplate内で実装済み（template_id + due_dateで判定）
 
 import { createClient } from '@/lib/supabase/client'
@@ -70,18 +72,23 @@ export class TaskGeneratorService {
           console.log('🎯 手動月次生成: 今月分生成')
         }
       } else {
-        // 自動生成: 全パターン共通で今日を含めた3日間のみ生成
-        const startDate = subtractDays(today, 2) // 一昨日
-        const endDate = today // 今日
+        // 自動生成: パターン別の適切な生成期間
 
-        // 日次タスク生成
-        await this.generateDailyTasks(startDate, endDate)
+        // 日次: 過去3日〜今日（毎日アクセス想定）
+        const dailyStart = subtractDays(today, 2)
+        await this.generateDailyTasks(dailyStart, today)
 
-        // 週次タスク生成（今日を含めた3日間のみ）
-        await this.generateWeeklyTasks(startDate, endDate)
+        // 週次: 過去14日〜今日（週1回アクセス想定、2週間分カバー）
+        const weeklyStart = subtractDays(today, 14)
+        await this.generateWeeklyTasks(weeklyStart, today)
 
-        // 月次タスク生成（今日を含めた3日間のみ）
-        await this.generateMonthlyTasks(startDate, endDate)
+        // 月次: 過去60日〜今日（月1回アクセス想定、2ヶ月分カバー）
+        const monthlyStart = subtractDays(today, 60)
+        await this.generateMonthlyTasks(monthlyStart, today)
+
+        // 年次: 過去730日〜今日（年1回アクセス想定、2年分カバー）
+        const yearlyStart = subtractDays(today, 730)
+        await this.generateYearlyTasks(yearlyStart, today)
       }
 
       // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
@@ -297,6 +304,28 @@ export class TaskGeneratorService {
         const day = new Date(currentDate).getDate()
 
         if (template.day_of_month === day) {
+          await this.createTaskFromTemplate(template, currentDate)
+        }
+
+        currentDate = addDays(currentDate, 1)
+      }
+    }
+  }
+
+  // 年次タスク生成
+  async generateYearlyTasks(startDate: string, endDate: string): Promise<void> {
+    const templates = await this.templatesService.getTemplatesByPattern('YEARLY')
+    console.log(`年次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+
+    for (const template of templates) {
+      let currentDate = startDate
+      while (currentDate <= endDate) {
+        const date = new Date(currentDate)
+        const month = date.getMonth() + 1 // 0-11 → 1-12
+        const day = date.getDate()
+
+        // 指定された月日かチェック
+        if (template.month_of_year === month && template.day_of_year === day) {
           await this.createTaskFromTemplate(template, currentDate)
         }
 
