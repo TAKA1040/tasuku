@@ -617,23 +617,7 @@ export default function TodayPage() {
 
         {/* データベース初期化メッセージは削除（通常は一瞬で完了するためチラつきの原因） */}
 
-        {/* Show task generation status */}
-        <div style={{
-          background: '#e0f2fe',
-          border: '1px solid #0ea5e9',
-          borderRadius: '6px',
-          padding: '12px',
-          marginBottom: '12px',
-          fontSize: '14px',
-          color: '#0369a1',
-          visibility: isGenerating ? 'visible' : 'hidden',
-          height: isGenerating ? 'auto' : '0',
-          minHeight: isGenerating ? '48px' : '0',
-          overflow: 'hidden',
-          transition: 'none'
-        }}>
-          🔄 繰り返しタスクを生成中...
-        </div>
+        {/* 繰り返しタスク生成メッセージは削除（通常は一瞬で完了するためチラつきの原因） */}
 
         {/* Show generation error if any */}
         <div style={{ marginBottom: '12px' }}>
