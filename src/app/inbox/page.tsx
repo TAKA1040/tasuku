@@ -12,10 +12,13 @@ import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { parseInboxContent } from '@/lib/utils/parse-inbox-content'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { TaskTabNavigation } from '@/components/TaskTabNavigation'
 
 export default function InboxPage() {
   const { isInitialized } = useDatabase()
   const unifiedTasks = useUnifiedTasks(isInitialized)
+  const router = useRouter()
 
   const [newContent, setNewContent] = useState('')
   const [isAdding, setIsAdding] = useState(false)
@@ -150,52 +153,76 @@ export default function InboxPage() {
     }
   }, [editingInbox, unifiedTasks])
 
+  // タブ切り替え時にクイック入力内容を自動保存
+  const handleBeforeNavigate = useCallback(async () => {
+    if (newContent.trim()) {
+      console.log('📥 タブ切り替え前にクイック入力を自動保存します...')
+      await addToInbox()
+    }
+  }, [newContent, addToInbox])
+
   return (
     <ThemedContainer>
       <div style={{
-        padding: '16px',
-        maxWidth: '800px',
-        margin: '0 auto'
+        padding: '8px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         {/* ヘッダー */}
-        <header style={{ marginBottom: '24px' }}>
+        <header style={{ marginBottom: '8px' }}>
+          {/* ツールタイトル */}
+          <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              margin: '0',
+              color: '#1f2937',
+              letterSpacing: '0.1em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              TASUKU
+              <span style={{
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#6b7280',
+                backgroundColor: '#f3f4f6',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                letterSpacing: 'normal'
+              }}>
+                β版
+              </span>
+            </h1>
+          </div>
+
+          {/* タブナビゲーション */}
+          <TaskTabNavigation onBeforeNavigate={handleBeforeNavigate} />
+
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: '16px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Link href="/today" style={{
-                color: '#3b82f6',
-                textDecoration: 'none',
+            <div>
+              <p style={{
                 fontSize: '14px',
-                fontWeight: '500'
+                color: 'var(--text-secondary)',
+                margin: '0'
               }}>
-                ← 今日のタスク
-              </Link>
-              <h1 style={{
-                fontSize: '24px',
-                fontWeight: '700',
-                margin: '0',
-                color: 'var(--text-primary)'
-              }}>
-                📥 Inbox
-              </h1>
+                思いついたこと、URL、メモなど何でも放り込んでください。後でタスクに整理できます。
+              </p>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <ThemeToggle />
               <AuthStatus />
             </div>
           </div>
-
-          <p style={{
-            fontSize: '14px',
-            color: 'var(--text-secondary)',
-            margin: '0'
-          }}>
-            思いついたこと、URL、メモなど何でも放り込んでください。後でタスクに整理できます。
-          </p>
         </header>
 
         {/* タブ切り替え */}

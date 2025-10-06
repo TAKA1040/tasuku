@@ -16,6 +16,7 @@ import { UnifiedTasksTable } from '@/components/UnifiedTasksTable'
 import { SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { createClient } from '@/lib/supabase/client'
+import { TaskTabNavigation } from '@/components/TaskTabNavigation'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -486,6 +487,9 @@ export default function TodayPage() {
               </span>
             </h1>
           </div>
+
+          {/* タブナビゲーション */}
+          <TaskTabNavigation />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }} className="today-header">
             <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0' }} className="today-title">
