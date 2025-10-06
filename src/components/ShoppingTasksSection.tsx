@@ -366,25 +366,25 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
                     }}>
                       {item.title}
                     </span>
-                    <span
-                      onClick={() => toggleShoppingList(item.id)}
-                      style={{
-                        fontSize: '11px',
-                        color: '#6b7280',
-                        cursor: 'pointer',
-                        backgroundColor: '#f0f9ff',
-                        padding: '1px 4px',
-                        borderRadius: '3px'
-                      }}
-                    >
-                      リスト({subTasks[item.id]?.length || 0})
-                    </span>
                   </div>
                 </td>
 
-                {/* カテゴリ */}
+                {/* カテゴリ（PC）/ 買い物リストボタン（スマホ） */}
                 <td style={{ padding: '8px', fontSize: '12px', color: '#6b7280' }}>
-                  買い物
+                  <span
+                    onClick={() => toggleShoppingList(item.id)}
+                    style={{
+                      fontSize: '11px',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                      backgroundColor: '#f0f9ff',
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                      display: 'inline-block'
+                    }}
+                  >
+                    リスト({subTasks[item.id]?.length || 0})
+                  </span>
                 </td>
 
                 {/* 期限 */}
