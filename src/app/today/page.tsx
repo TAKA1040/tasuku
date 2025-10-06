@@ -493,27 +493,6 @@ export default function TodayPage() {
               📅 今日 - {formatDateForDisplay(getTodayJST())}
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-buttons">
-              {/* タスク更新ボタン */}
-              <button
-                onClick={() => {
-                  console.log('🔄 手動でタスク更新を実行...')
-                  generateMissingTasks(true) // 手動フラグをtrueに
-                }}
-                disabled={isGenerating}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  opacity: isGenerating ? 0.5 : 1,
-                  minWidth: '100px'
-                }}
-              >
-                {isGenerating ? '更新中...' : '🔄 タスク更新'}
-              </button>
               <ThemeToggle />
             </div>
           </div>

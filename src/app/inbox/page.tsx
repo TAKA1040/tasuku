@@ -205,25 +205,6 @@ export default function InboxPage() {
               📥 Inbox
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-buttons">
-              <button
-                onClick={() => {
-                  // 手動更新機能は今日のタスクページ専用なので、ここではページ遷移のみ
-                }}
-                disabled={true}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  backgroundColor: '#9ca3af',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'not-allowed',
-                  opacity: 0.5,
-                  minWidth: '100px'
-                }}
-              >
-                🔄 タスク更新
-              </button>
               <ThemeToggle />
             </div>
           </div>
