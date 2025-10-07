@@ -126,11 +126,13 @@ export class TaskGeneratorService {
   // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスク処理
   private async processCompletedShoppingTasks(lastProcessed: string, today: string): Promise<void> {
     try {
-      const startDate = addDays(lastProcessed, 1)
+      // 買い物処理専用のlast_processedを取得（繰り返しタスク生成とは独立管理）
+      const lastShoppingProcessed = await this.getLastShoppingProcessedDate()
+      const startDate = addDays(lastShoppingProcessed, 1)
 
-      console.log(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック`)
+      console.log(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック (last_shopping: ${lastShoppingProcessed})`)
 
-      // lastProcessed翌日から今日までに完了した買い物タスクを取得
+      // startDate翌日から今日までに完了した買い物タスクを取得
       // completed_atは日付のみ or 日時の可能性があるため、両方に対応
       const { data: completedShoppingTasks, error } = await this.supabase
         .from('unified_tasks')
@@ -230,9 +232,65 @@ export class TaskGeneratorService {
 
       console.log(`\n📊 買い物タスク処理結果: 処理=${processedCount}件, スキップ=${skippedCount}件, エラー=${errorCount}件`)
 
-      console.log('✅ 買い物タスク処理完了')
+      // 買い物処理の最終処理日を更新
+      await this.updateLastShoppingProcessedDate(today)
+      console.log(`✅ 買い物タスク処理完了 (last_shopping_processed: ${today})`)
     } catch (error) {
       console.error('❌ 買い物タスク処理エラー:', error)
+      // エラーでも throw しない（他の処理を継続）
+    }
+  }
+
+  // 買い物処理の最終処理日取得
+  private async getLastShoppingProcessedDate(): Promise<string> {
+    try {
+      const userId = await this.getCurrentUserId()
+
+      const { data, error } = await this.supabase
+        .from('user_metadata')
+        .select('value')
+        .eq('user_id', userId)
+        .eq('key', 'last_shopping_processed')
+        .single()
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('初回買い物処理（user_metadataにレコードなし）')
+          return '1970-01-01'
+        }
+        console.warn('買い物処理日取得エラー:', error)
+        return '1970-01-01'
+      }
+
+      if (!data || !data.value) {
+        return '1970-01-01'
+      }
+
+      console.log(`📅 last_shopping_processed: ${data.value}`)
+      return data.value
+    } catch (error) {
+      console.error('買い物処理日取得エラー:', error)
+      return '1970-01-01'
+    }
+  }
+
+  // 買い物処理の最終処理日を更新
+  private async updateLastShoppingProcessedDate(date: string): Promise<void> {
+    const userId = await this.getCurrentUserId()
+
+    const { error } = await this.supabase
+      .from('user_metadata')
+      .upsert({
+        user_id: userId,
+        key: 'last_shopping_processed',
+        value: date
+      }, {
+        onConflict: 'user_id,key'
+      })
+
+    if (error) {
+      console.error('❌ last_shopping_processed更新エラー:', error)
+      throw error
     }
   }
 
