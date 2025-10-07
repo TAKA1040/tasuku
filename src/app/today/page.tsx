@@ -493,7 +493,124 @@ export default function TodayPage() {
               📅 今日 - {formatDateForDisplay(getTodayJST())}
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-buttons">
+              {/* タスク更新ボタン */}
+              <button
+                onClick={() => {
+                  console.log('🔄 手動でタスク更新を実行...')
+                  generateMissingTasks(true) // 手動フラグをtrueに
+                }}
+                disabled={isGenerating}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isGenerating ? 'not-allowed' : 'pointer',
+                  opacity: isGenerating ? 0.5 : 1,
+                  minWidth: '100px'
+                }}
+              >
+                {isGenerating ? '更新中...' : '🔄 タスク更新'}
+              </button>
               <ThemeToggle />
+            <a
+              href="/inbox"
+              style={{
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              📥 Inbox
+            </a>
+            <a
+              href="/search"
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              🔍 検索
+            </a>
+            <a
+              href="/statistics"
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              📊 統計
+            </a>
+            <a
+              href="/templates"
+              style={{
+                background: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="today-button"
+            >
+              ⚙️ テンプレート
+            </a>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="today-actions">
+              <button
+                onClick={() => setShowCreateForm(true)}
+                style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 12px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                className="task-add-button"
+              >
+                + タスク追加
+              </button>
             </div>
           </div>
 
