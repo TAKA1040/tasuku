@@ -341,13 +341,39 @@ export class TaskGeneratorService {
     // 既に同じテンプレート&日付のタスクが存在するかチェック
     const { data: existing } = await this.supabase
       .from('unified_tasks')
-      .select('id')
+      .select('id, urls, start_time, end_time')
       .eq('user_id', userId)
       .eq('recurring_template_id', template.id)
       .eq('due_date', dueDate)
+      .eq('completed', false)
       .limit(1)
 
     if (existing && existing.length > 0) {
+      // 既存タスクが存在する場合、テンプレートから最新のURLsと時刻を同期
+      const existingTask = existing[0]
+      const needsUpdate =
+        JSON.stringify(existingTask.urls) !== JSON.stringify(template.urls) ||
+        existingTask.start_time !== template.start_time ||
+        existingTask.end_time !== template.end_time
+
+      if (needsUpdate) {
+        console.log(`🔄 既存タスクを同期更新: ${template.title} (${dueDate})`)
+        const { error: updateError } = await this.supabase
+          .from('unified_tasks')
+          .update({
+            urls: template.urls,
+            start_time: template.start_time,
+            end_time: template.end_time,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingTask.id)
+
+        if (updateError) {
+          console.error(`❌ タスク同期エラー: ${template.title}`, updateError)
+        } else {
+          console.log(`✅ タスク同期完了: ${template.title} (${dueDate})`)
+        }
+      }
       // 重複生成防止
       return
     }
