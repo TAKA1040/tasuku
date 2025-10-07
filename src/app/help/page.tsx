@@ -301,14 +301,16 @@ export default function HelpPage() {
           <li>🗑️で削除</li>
         </ul>
 
-        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>5-3. 自動繰り越し</h3>
+        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>5-3. 自動繰り越し（日次処理）</h3>
         <div style={{ backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-          <p style={{ margin: '0 0 12px 0', color: '#374151' }}>タスク完了時：</p>
+          <p style={{ margin: '0 0 12px 0', color: '#374151' }}>買い物タスクを完了した翌日：</p>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#374151' }}>
-            <li>全商品チェック済み → 完了</li>
-            <li>未チェック商品あり → 期日なしタスクとして再作成</li>
+            <li>全商品チェック済み → そのまま完了</li>
+            <li>未チェック商品あり → 期日なしタスク（やることリスト）として自動繰り越し</li>
           </ul>
-          <p style={{ margin: '12px 0 0 0', color: '#374151' }}>チェック済み商品は完了タスクに残ります</p>
+          <p style={{ margin: '12px 0 0 0', color: '#374151' }}>
+            ※ 繰り越しは日次処理（翌日の最初のアクセス時）で自動的に行われます。タスク完了直後ではありませんのでご注意ください。
+          </p>
         </div>
       </section>
 
