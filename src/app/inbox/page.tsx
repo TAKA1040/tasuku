@@ -205,7 +205,103 @@ export default function InboxPage() {
               📥 Inbox
             </h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-buttons">
+              {/* タスク更新ボタン（Inboxでは機能なし） */}
+              <button
+                disabled={true}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  backgroundColor: '#9ca3af',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'not-allowed',
+                  opacity: 0.5,
+                  minWidth: '100px'
+                }}
+              >
+                🔄 タスク更新
+              </button>
               <ThemeToggle />
+            <a
+              href="/today"
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="inbox-button"
+            >
+              📅 今日
+            </a>
+            <a
+              href="/search"
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="inbox-button"
+            >
+              🔍 検索
+            </a>
+            <a
+              href="/statistics"
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="inbox-button"
+            >
+              📊 統計
+            </a>
+            <a
+              href="/templates"
+              style={{
+                background: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="inbox-button"
+            >
+              ⚙️ テンプレート
+            </a>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="inbox-actions">
+              {/* タスク追加ボタンは今日のタスク専用なので空div */}
+            </div>
             </div>
           </div>
 
