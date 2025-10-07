@@ -55,9 +55,9 @@ export class TaskGeneratorService {
     try {
       console.log('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
 
-      // 生成判定: 手動の場合は強制実行、自動の場合は日付チェック
+      // 繰り返しタスク生成: 手動の場合は強制実行、自動の場合は日付チェック
       if (lastProcessed < today || forceToday) {
-        console.log('🎯 タスク生成を実行します (forceToday:', forceToday, ')')
+        console.log('🎯 繰り返しタスク生成を実行します (forceToday:', forceToday, ')')
 
         if (forceToday) {
           // 手動生成: 自動生成と同じセキュリティルール適用
@@ -100,9 +100,6 @@ export class TaskGeneratorService {
           await this.generateYearlyTasks(yearlyStart, today)
         }
 
-        // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
-        await this.processCompletedShoppingTasks(lastProcessed, today)
-
         // 期限切れ繰り返しタスクの自動削除
         await this.deleteExpiredRecurringTasks(today)
 
@@ -112,6 +109,9 @@ export class TaskGeneratorService {
         // 最終更新日を更新
         await this.updateLastGenerationDate(today)
       }
+
+      // 買い物タスク処理: 日付に関わらず毎回実行（同日の2回目アクセスでも処理）
+      await this.processCompletedShoppingTasks(lastProcessed, today)
 
       console.log('✅ タスク生成完了')
     } catch (error) {
