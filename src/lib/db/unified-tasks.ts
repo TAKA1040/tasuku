@@ -283,6 +283,9 @@ export class UnifiedTasksService {
           category: task.category,
           importance: task.importance,
           weekdays: task.recurring_weekdays,
+          urls: task.urls || [],  // URLsを同期
+          start_time: task.start_time,  // 開始時刻を同期
+          end_time: task.end_time,  // 終了時刻を同期
           updated_at: new Date().toISOString()
         }
 

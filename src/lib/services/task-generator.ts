@@ -351,6 +351,16 @@ export class TaskGeneratorService {
     if (existing && existing.length > 0) {
       // 既存タスクが存在する場合、テンプレートから最新のURLsと時刻を同期
       const existingTask = existing[0]
+
+      // デバッグ: 比較前の状態をログ出力
+      console.log(`🔍 既存タスクチェック: ${template.title} (${dueDate})`)
+      console.log(`   既存タスクID: ${existingTask.id}`)
+      console.log(`   既存タスク urls:`, existingTask.urls, `(${typeof existingTask.urls})`)
+      console.log(`   テンプレート urls:`, template.urls, `(${typeof template.urls})`)
+      console.log(`   既存 JSON:`, JSON.stringify(existingTask.urls))
+      console.log(`   テンプレ JSON:`, JSON.stringify(template.urls))
+      console.log(`   JSON一致:`, JSON.stringify(existingTask.urls) === JSON.stringify(template.urls))
+
       const needsUpdate =
         JSON.stringify(existingTask.urls) !== JSON.stringify(template.urls) ||
         existingTask.start_time !== template.start_time ||
@@ -373,6 +383,8 @@ export class TaskGeneratorService {
         } else {
           console.log(`✅ タスク同期完了: ${template.title} (${dueDate})`)
         }
+      } else {
+        console.log(`⏭️  同期不要: ${template.title} (${dueDate}) - データが一致しています`)
       }
       // 重複生成防止
       return
@@ -389,6 +401,9 @@ export class TaskGeneratorService {
       hasUrls: !!template.urls,
       urlsCount: template.urls?.length || 0,
       urls: template.urls,
+      urlsType: typeof template.urls,
+      urlsIsArray: Array.isArray(template.urls),
+      urlsJson: JSON.stringify(template.urls),
       hasStartTime: !!template.start_time,
       hasEndTime: !!template.end_time,
       hasAttachment: !!template.attachment_file_name
@@ -401,7 +416,7 @@ export class TaskGeneratorService {
       due_date: dueDate,
       category: template.category,
       importance: template.importance,
-      urls: template.urls, // テンプレートのURLsを引き継ぎ
+      urls: template.urls || [], // テンプレートのURLsを引き継ぎ（null/undefinedの場合は空配列）
       start_time: template.start_time, // 開始時刻を引き継ぎ
       end_time: template.end_time, // 終了時刻を引き継ぎ
       task_type: 'RECURRING',

@@ -75,6 +75,14 @@ export class RecurringTemplatesService {
         urlsCount: Array.isArray(t.urls) ? t.urls.length : 0,
         urls: t.urls
       })))
+
+      // 詳細ログ: 各テンプレートのURLsを個別に出力
+      data.forEach(t => {
+        console.log(`🔍 [${t.title}] urls:`, t.urls, 'type:', typeof t.urls, 'isArray:', Array.isArray(t.urls))
+        if (Array.isArray(t.urls) && t.urls.length > 0) {
+          console.log(`   ↳ URL内容:`, JSON.stringify(t.urls))
+        }
+      })
     }
 
     return data || []

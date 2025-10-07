@@ -86,18 +86,48 @@ const isValidUrl = (url: string): boolean => {
     // Only allow http and https protocols
     return urlObject.protocol === 'http:' || urlObject.protocol === 'https:'
   } catch {
+    // X検索クエリ形式（list:数字 で始まる）を許可
+    if (url.startsWith('list:')) {
+      return true
+    }
     return false
   }
 }
 
+// X検索クエリをURLに変換
+const convertXQueryToUrl = (query: string): string => {
+  if (query.startsWith('list:')) {
+    // list:数字 の後の検索条件を抽出
+    const match = query.match(/^list:(\d+)(.*)$/)
+    if (match) {
+      const listId = match[1]
+      const filters = match[2].trim()
+      // Xの検索URL形式に変換
+      const encodedFilters = encodeURIComponent(filters)
+      return `https://twitter.com/i/lists/${listId}${filters ? `?q=${encodedFilters}` : ''}`
+    }
+  }
+  return query
+}
+
 // URL一括開きアイコンのレンダリング関数
 const renderUrlIcon = (urls?: string[] | null) => {
+  // デバッグ: URLsの状態を詳細ログ
+  console.log('🌐 renderUrlIcon called with:', {
+    urls,
+    type: typeof urls,
+    isArray: Array.isArray(urls),
+    length: urls?.length,
+    isEmpty: !urls || urls.length === 0
+  })
+
   if (!urls || urls.length === 0) return '-'
 
   return (
     <button
       type="button"
       onClick={() => {
+        console.log('🌐 URL button clicked')
         if (process.env.NODE_ENV === 'development') {
           console.log('All URLs:', urls)
         }
@@ -132,10 +162,12 @@ const renderUrlIcon = (urls?: string[] | null) => {
           // ブラウザのポップアップブロッカー対策：順次開く
           validUrls.forEach((url, index) => {
             setTimeout(() => {
+              // X検索クエリをURL形式に変換
+              const finalUrl = convertXQueryToUrl(url)
               if (process.env.NODE_ENV === 'development') {
-                console.log(`Opening URL ${index + 1}:`, url)
+                console.log(`Opening URL ${index + 1}:`, finalUrl)
               }
-              const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+              const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer')
 
               // ポップアップブロック検知
               if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
