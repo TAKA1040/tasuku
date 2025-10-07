@@ -36,75 +36,91 @@ export class TaskGeneratorService {
     const lastProcessed = await this.getLastGenerationDate()
     console.log(`🚀 タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
 
+    let userId: string
     try {
-      const userId = await this.getCurrentUserId()
+      userId = await this.getCurrentUserId()
       console.log('👤 ユーザーID:', userId)
     } catch (error) {
       console.error('❌ ユーザー認証エラー:', error)
       return
     }
 
-    console.log('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
-
-    // 生成判定: 手動の場合は強制実行、自動の場合は日付チェック
-    if (lastProcessed < today || forceToday) {
-      console.log('🎯 タスク生成を実行します (forceToday:', forceToday, ')')
-
-      if (forceToday) {
-        // 手動生成: 自動生成と同じセキュリティルール適用
-        console.log('🎯 手動生成: セキュリティルール適用')
-
-        // 日次: 今日を含めた3日分を生成（過去2日 + 今日）
-        const startDate = subtractDays(today, 2)
-        await this.generateDailyTasks(startDate, today)
-
-        // 週次: 週が変わった場合のみ今週分
-        if (this.isNewWeek(lastProcessed, today)) {
-          const thisMonday = getStartOfWeek(today)
-          await this.generateWeeklyTasks(thisMonday, today)
-          console.log('🎯 手動週次生成: 今週分生成')
-        }
-
-        // 月次: 月が変わった場合のみ今月分
-        if (this.isNewMonth(lastProcessed, today)) {
-          const thisFirstDay = getStartOfMonth(today)
-          await this.generateMonthlyTasks(thisFirstDay, today)
-          console.log('🎯 手動月次生成: 今月分生成')
-        }
-      } else {
-        // 自動生成: パターン別の適切な生成期間
-
-        // 日次: 過去3日〜今日（毎日アクセス想定）
-        const dailyStart = subtractDays(today, 2)
-        await this.generateDailyTasks(dailyStart, today)
-
-        // 週次: 過去14日〜今日（週1回アクセス想定、2週間分カバー）
-        const weeklyStart = subtractDays(today, 14)
-        await this.generateWeeklyTasks(weeklyStart, today)
-
-        // 月次: 過去60日〜今日（月1回アクセス想定、2ヶ月分カバー）
-        const monthlyStart = subtractDays(today, 60)
-        await this.generateMonthlyTasks(monthlyStart, today)
-
-        // 年次: 過去730日〜今日（年1回アクセス想定、2年分カバー）
-        const yearlyStart = subtractDays(today, 730)
-        await this.generateYearlyTasks(yearlyStart, today)
-      }
-
-      // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
-      await this.processCompletedShoppingTasks(lastProcessed, today)
-
-      // 期限切れ繰り返しタスクの自動削除
-      await this.deleteExpiredRecurringTasks(today)
-
-      // 未来の繰り返しタスクの削除（明日以降のタスクを削除）
-      await this.deleteFutureRecurringTasks(today)
-
-      // 最終更新日を更新
-      await this.updateLastGenerationDate(today)
+    // 🔒 グローバルロック機構: 複数タブ/ページからの同時実行を防止
+    const lockAcquired = await this.acquireGenerationLock(userId)
+    if (!lockAcquired) {
+      console.log('⏭️  他のプロセスが日次処理実行中のためスキップ')
+      return
     }
 
-    console.log('タスク生成完了')
+    try {
+      console.log('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
+
+      // 生成判定: 手動の場合は強制実行、自動の場合は日付チェック
+      if (lastProcessed < today || forceToday) {
+        console.log('🎯 タスク生成を実行します (forceToday:', forceToday, ')')
+
+        if (forceToday) {
+          // 手動生成: 自動生成と同じセキュリティルール適用
+          console.log('🎯 手動生成: セキュリティルール適用')
+
+          // 日次: 今日を含めた3日分を生成（過去2日 + 今日）
+          const startDate = subtractDays(today, 2)
+          await this.generateDailyTasks(startDate, today)
+
+          // 週次: 週が変わった場合のみ今週分
+          if (this.isNewWeek(lastProcessed, today)) {
+            const thisMonday = getStartOfWeek(today)
+            await this.generateWeeklyTasks(thisMonday, today)
+            console.log('🎯 手動週次生成: 今週分生成')
+          }
+
+          // 月次: 月が変わった場合のみ今月分
+          if (this.isNewMonth(lastProcessed, today)) {
+            const thisFirstDay = getStartOfMonth(today)
+            await this.generateMonthlyTasks(thisFirstDay, today)
+            console.log('🎯 手動月次生成: 今月分生成')
+          }
+        } else {
+          // 自動生成: パターン別の適切な生成期間
+
+          // 日次: 過去3日〜今日（毎日アクセス想定）
+          const dailyStart = subtractDays(today, 2)
+          await this.generateDailyTasks(dailyStart, today)
+
+          // 週次: 過去14日〜今日（週1回アクセス想定、2週間分カバー）
+          const weeklyStart = subtractDays(today, 14)
+          await this.generateWeeklyTasks(weeklyStart, today)
+
+          // 月次: 過去60日〜今日（月1回アクセス想定、2ヶ月分カバー）
+          const monthlyStart = subtractDays(today, 60)
+          await this.generateMonthlyTasks(monthlyStart, today)
+
+          // 年次: 過去730日〜今日（年1回アクセス想定、2年分カバー）
+          const yearlyStart = subtractDays(today, 730)
+          await this.generateYearlyTasks(yearlyStart, today)
+        }
+
+        // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスクを処理
+        await this.processCompletedShoppingTasks(lastProcessed, today)
+
+        // 期限切れ繰り返しタスクの自動削除
+        await this.deleteExpiredRecurringTasks(today)
+
+        // 未来の繰り返しタスクの削除（明日以降のタスクを削除）
+        await this.deleteFutureRecurringTasks(today)
+
+        // 最終更新日を更新
+        await this.updateLastGenerationDate(today)
+      }
+
+      console.log('✅ タスク生成完了')
+    } catch (error) {
+      console.error('❌ タスク生成エラー:', error)
+      throw error
+    } finally {
+      // 🔓 ロック解放（必ず実行）
+      await this.releaseGenerationLock(userId)
+    }
   }
 
   // lastProcessed翌日から今日までに完了した買い物タスクの未完了子タスク処理
@@ -136,51 +152,83 @@ export class TaskGeneratorService {
 
       console.log(`📋 ${completedShoppingTasks.length}件の買い物タスクを処理`)
 
+      let processedCount = 0
+      let skippedCount = 0
+      let errorCount = 0
+
       // 各タスクの未完了子タスクを処理
       for (const task of completedShoppingTasks) {
-        console.log(`\n📝 処理中: "${task.title}" (ID: ${task.id})`)
+        try {
+          console.log(`\n📝 処理中: "${task.title}" (ID: ${task.id})`)
 
-        // 処理済みチェック: memoに処理済みマーカーがあるかチェック
-        if (task.memo && task.memo.includes('[繰り越し処理済み]')) {
-          console.log(`⏭️  スキップ: 既に処理済み`)
-          continue
-        }
+          // 処理済みチェック: memoに処理済みマーカーがあるかチェック
+          if (task.memo && task.memo.includes('[繰り越し処理済み]')) {
+            console.log(`⏭️  スキップ: 既に処理済み`)
+            skippedCount++
+            continue
+          }
 
-        // 未完了サブタスクの存在チェック
-        const { data: subtasks } = await this.supabase
-          .from('subtasks')
-          .select('*')
-          .eq('parent_task_id', task.id)
+          // 未完了サブタスクの存在チェック
+          const { data: subtasks, error: subtasksError } = await this.supabase
+            .from('subtasks')
+            .select('*')
+            .eq('parent_task_id', task.id)
 
-        const uncompletedSubtasks = subtasks?.filter(st => !st.completed) || []
+          if (subtasksError) {
+            console.error(`❌ サブタスク取得エラー (${task.title}):`, subtasksError)
+            errorCount++
+            continue
+          }
 
-        if (uncompletedSubtasks.length === 0) {
-          console.log(`⏭️  スキップ: 未完了サブタスクなし`)
-          // 処理済みマーカーを追加（空処理でも記録）
-          await this.supabase
+          const uncompletedSubtasks = subtasks?.filter(st => !st.completed) || []
+
+          if (uncompletedSubtasks.length === 0) {
+            console.log(`⏭️  スキップ: 未完了サブタスクなし`)
+            // 処理済みマーカーを追加（空処理でも記録）
+            const { error: updateError } = await this.supabase
+              .from('unified_tasks')
+              .update({
+                memo: (task.memo || '') + '\n[繰り越し処理済み]'
+              })
+              .eq('id', task.id)
+
+            if (updateError) {
+              console.error(`❌ 処理済みマーカー追加エラー (${task.title}):`, updateError)
+              errorCount++
+            } else {
+              skippedCount++
+            }
+            continue
+          }
+
+          console.log(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
+
+          // 繰り越し処理実行
+          await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
+
+          // 処理済みマーカーを追加
+          const { error: markError } = await this.supabase
             .from('unified_tasks')
             .update({
               memo: (task.memo || '') + '\n[繰り越し処理済み]'
             })
             .eq('id', task.id)
-          continue
+
+          if (markError) {
+            console.error(`❌ 処理済みマーカー追加エラー (${task.title}):`, markError)
+            errorCount++
+          } else {
+            console.log(`✅ 繰り越し完了`)
+            processedCount++
+          }
+        } catch (taskError) {
+          console.error(`❌ タスク処理エラー (${task.title}):`, taskError)
+          errorCount++
+          // エラーが起きても次のタスクに進む
         }
-
-        console.log(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
-
-        // 繰り越し処理実行
-        await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
-
-        // 処理済みマーカーを追加
-        await this.supabase
-          .from('unified_tasks')
-          .update({
-            memo: (task.memo || '') + '\n[繰り越し処理済み]'
-          })
-          .eq('id', task.id)
-
-        console.log(`✅ 繰り越し完了`)
       }
+
+      console.log(`\n📊 買い物タスク処理結果: 処理=${processedCount}件, スキップ=${skippedCount}件, エラー=${errorCount}件`)
 
       console.log('✅ 買い物タスク処理完了')
     } catch (error) {
@@ -228,7 +276,7 @@ export class TaskGeneratorService {
     const userId = await this.getCurrentUserId()
 
     // user_metadataテーブルに記録（upsert）
-    await this.supabase
+    const { error } = await this.supabase
       .from('user_metadata')
       .upsert({
         user_id: userId,
@@ -237,6 +285,83 @@ export class TaskGeneratorService {
       }, {
         onConflict: 'user_id,key'
       })
+
+    if (error) {
+      console.error('❌ last_task_generation更新エラー:', error)
+      throw error
+    }
+    console.log(`✅ last_task_generation更新: ${date}`)
+  }
+
+  // 🔒 ロック取得: 複数プロセスからの同時実行を防止
+  private async acquireGenerationLock(userId: string): Promise<boolean> {
+    try {
+      const lockKey = 'generation_lock'
+      const lockTimeout = 5 * 60 * 1000 // 5分（ミリ秒）
+      const now = new Date().toISOString()
+
+      // 既存のロックを確認
+      const { data: existingLock } = await this.supabase
+        .from('user_metadata')
+        .select('value, updated_at')
+        .eq('user_id', userId)
+        .eq('key', lockKey)
+        .single()
+
+      if (existingLock) {
+        // ロックのタイムスタンプをチェック
+        const lockTime = new Date(existingLock.updated_at).getTime()
+        const currentTime = new Date().getTime()
+
+        // ロックが5分以上古い場合は無効とみなす（デッドロック防止）
+        if (currentTime - lockTime < lockTimeout) {
+          console.log('⏳ ロック取得失敗: 他のプロセスが実行中')
+          return false
+        }
+        console.log('⚠️  古いロックを検出、上書きします')
+      }
+
+      // ロックを取得（upsert）
+      const { error } = await this.supabase
+        .from('user_metadata')
+        .upsert({
+          user_id: userId,
+          key: lockKey,
+          value: now
+        }, {
+          onConflict: 'user_id,key'
+        })
+
+      if (error) {
+        console.error('❌ ロック取得エラー:', error)
+        return false
+      }
+
+      console.log('🔒 ロック取得成功')
+      return true
+    } catch (error) {
+      console.error('❌ ロック取得処理エラー:', error)
+      return false
+    }
+  }
+
+  // 🔓 ロック解放
+  private async releaseGenerationLock(userId: string): Promise<void> {
+    try {
+      const { error } = await this.supabase
+        .from('user_metadata')
+        .delete()
+        .eq('user_id', userId)
+        .eq('key', 'generation_lock')
+
+      if (error) {
+        console.error('❌ ロック解放エラー:', error)
+      } else {
+        console.log('🔓 ロック解放完了')
+      }
+    } catch (error) {
+      console.error('❌ ロック解放処理エラー:', error)
+    }
   }
 
   // 日次タスク生成
