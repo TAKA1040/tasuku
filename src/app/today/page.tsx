@@ -496,7 +496,6 @@ export default function TodayPage() {
               <ThemeToggle />
             </div>
           </div>
-        </div>
 
         {/* データベース初期化メッセージは削除（通常は一瞬で完了するためチラつきの原因） */}
 
