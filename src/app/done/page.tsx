@@ -590,7 +590,7 @@ export default function DonePage() {
                     </td>
                     {taskData.completions.map((completed, idx) => (
                       <td
-                        key={idx}
+                        key={`${taskData.taskId}-${taskData.dates[idx]}`}
                         style={{
                           padding: '4px 2px',
                           textAlign: 'center',
@@ -666,7 +666,7 @@ export default function DonePage() {
                   }}>
                     {taskData.completions.slice(0, 15).map((completed, idx) => (
                       <div
-                        key={idx}
+                        key={`${taskData.taskId}-${taskData.dates[idx]}`}
                         style={{
                           width: '100%',
                           aspectRatio: '1',
@@ -698,7 +698,7 @@ export default function DonePage() {
                   }}>
                     {taskData.completions.slice(15).map((completed, idx) => (
                       <div
-                        key={idx}
+                        key={`${taskData.taskId}-${taskData.dates[15 + idx]}`}
                         style={{
                           width: '100%',
                           aspectRatio: '1',
