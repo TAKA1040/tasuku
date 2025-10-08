@@ -257,11 +257,11 @@ export class UnifiedTasksService {
 
       // テンプレートが存在する場合は更新
       if (task.recurring_template_id) {
-        // まず、テンプレートが存在するかチェック
+        // まず、テンプレートが存在するかチェック（URLsも取得）
         console.log('🔍 Checking if template exists:', task.recurring_template_id)
         const { data: existingTemplate, error: checkError } = await supabase
           .from('recurring_templates')
-          .select('id, title')
+          .select('id, title, urls')
           .eq('id', task.recurring_template_id)
           .single()
 
@@ -277,13 +277,23 @@ export class UnifiedTasksService {
 
         console.log('✅ Template exists:', existingTemplate)
 
+        // 🔒 URLs保護ロジック: タスクのURLsが空で、テンプレートにURLsがある場合は保持
+        const taskUrls = task.urls || []
+        const templateUrls = existingTemplate.urls || []
+        const finalUrls = (taskUrls.length === 0 && templateUrls.length > 0) ? templateUrls : taskUrls
+
+        if (taskUrls.length === 0 && templateUrls.length > 0) {
+          console.log('🛡️ URLs保護: タスクのURLsが空ですが、テンプレートのURLsを保持します')
+          console.log('  テンプレートURLs:', templateUrls)
+        }
+
         const updatePayload = {
           title: task.title,
           memo: task.memo,
           category: task.category,
           importance: task.importance,
           weekdays: task.recurring_weekdays,
-          urls: task.urls || [],  // URLsを同期
+          urls: finalUrls,  // 保護されたURLsを使用
           start_time: task.start_time,  // 開始時刻を同期
           end_time: task.end_time,  // 終了時刻を同期
           updated_at: new Date().toISOString()
