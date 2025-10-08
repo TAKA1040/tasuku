@@ -204,6 +204,88 @@ RETURNING id, title, urls;
 
 ---
 
+## ✅ 完了: コード品質改善（ESLint警告解消、React Key Props修正） (2025-10-09 追加作業)
+
+### 実施内容 🔧
+
+#### 1. ESLint警告の完全解消 (commit 2593fba)
+
+**inbox/page.tsx**:
+- 未使用の`Link`、`useRouter`のimportを削除
+- ビルド時の警告を解消
+
+**InboxCard.tsx**:
+- `<img>`タグを`<Image>`コンポーネントに変更（2箇所）
+- YouTubeサムネイル表示の最適化
+- Faviconアイコン表示の最適化
+
+**next.config.js**:
+- 外部画像用の`remotePatterns`設定を追加
+  - `i.ytimg.com` (YouTube サムネイル)
+  - `www.google.com` (Favicon サービス)
+
+**効果**:
+- ✅ ビルド時のESLint警告が0件に
+- ✅ パフォーマンス最適化（Next.js Image最適化機能を活用）
+- ✅ LCP (Largest Contentful Paint) の改善
+
+---
+
+#### 2. React Key Props問題の修正 (commit 97fa2c7)
+
+**done/page.tsx**:
+- インデックスベースのkeyを日付ベースに変更（3箇所）
+- より一意性の高い`{taskId}-{date}`形式のkeyを生成
+
+**修正箇所**:
+```typescript
+// Before
+key={idx}
+
+// After
+key={`${taskData.taskId}-${taskData.dates[idx]}`}
+key={`${taskData.taskId}-${taskData.dates[15 + idx]}`}  // slice(15)の場合
+```
+
+**効果**:
+- ✅ React警告の解消
+- ✅ リスト再レンダリングのパフォーマンス向上
+- ✅ CODE_ANALYSIS_REPORT.md High-7の問題を完全解決
+
+---
+
+### ビルド結果 ✅
+- **エラー**: 0件
+- **警告**: 0件
+- **ビルドサイズ**: 最適化済み（全ページで変更なし）
+
+---
+
+### 残りのHigh Priority課題（CODE_ANALYSIS_REPORT.mdより）
+
+**修正済み**:
+- ✅ Critical 1-3: 全て完了（2025-10-01）
+- ✅ High-1: useEffect無限ループ修正（2025-10-01）
+- ✅ High-4: Logger導入（2025-10-01）
+- ✅ High-7: React Key Props修正（2025-10-09）
+
+**残り**:
+- ⏳ High-2: 重複ディスプレイ番号生成ロジック統一
+- ⏳ High-3: データベース操作のエラーハンドリング強化
+- ⏳ High-5: 型安全性問題（Type assertion乱用）
+- ⏳ High-6: useUnifiedTasksキャッシュ管理改善
+- ⏳ High-8: 非同期操作のローディング状態追加
+
+---
+
+### 次回の推奨作業
+1. [ ] Playwrightでのe2eテスト実装（prompt.txtの指示より）
+2. [ ] 残りのHigh Priority課題の修正（High-8から着手推奨）
+3. [ ] 日次処理の動作確認（明朝）
+4. [ ] テンプレートURLsの本番環境での修復確認
+
+---
+
 ## ✅ 完了: 期限切れタスク表示改善と自動削除機能 (2025-10-02)
 
 ### 期限切れ繰り返しタスクの管理ルール ⚠️
