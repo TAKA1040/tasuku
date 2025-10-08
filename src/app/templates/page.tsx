@@ -63,21 +63,36 @@ export default function TemplatesPage() {
   // URL管理ヘルパー関数
   const handleAddUrl = () => {
     if (newUrl.trim() && editingTemplate) {
-      try {
-        new URL(newUrl.trim())
-        const currentUrls = editingTemplate.urls || []
-        if (currentUrls.length >= 5) {
-          alert('URLは最大5個まで追加できます')
-          return
+      const trimmedUrl = newUrl.trim()
+
+      // URL検証: HTTPSまたはlist:形式を許可
+      const isValidHttpUrl = (() => {
+        try {
+          new URL(trimmedUrl)
+          return true
+        } catch {
+          return false
         }
-        setEditingTemplate({
-          ...editingTemplate,
-          urls: [...currentUrls, newUrl.trim()]
-        })
-        setNewUrl('')
-      } catch {
-        alert('有効なURLを入力してください')
+      })()
+
+      const isListFormat = trimmedUrl.startsWith('list:')
+
+      if (!isValidHttpUrl && !isListFormat) {
+        alert('有効なURLまたはlist:形式のクエリを入力してください')
+        return
       }
+
+      const currentUrls = editingTemplate.urls || []
+      if (currentUrls.length >= 5) {
+        alert('URLは最大5個まで追加できます')
+        return
+      }
+
+      setEditingTemplate({
+        ...editingTemplate,
+        urls: [...currentUrls, trimmedUrl]
+      })
+      setNewUrl('')
     }
   }
 
