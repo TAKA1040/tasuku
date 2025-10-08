@@ -11,14 +11,11 @@ import { TaskCreateForm2 } from '@/components/TaskCreateForm2'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { parseInboxContent } from '@/lib/utils/parse-inbox-content'
 import type { UnifiedTask } from '@/lib/types/unified-task'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { TaskTabNavigation } from '@/components/TaskTabNavigation'
 
 export default function InboxPage() {
   const { isInitialized } = useDatabase()
   const unifiedTasks = useUnifiedTasks(isInitialized)
-  const router = useRouter()
 
   const [newContent, setNewContent] = useState('')
   const [isAdding, setIsAdding] = useState(false)

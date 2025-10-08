@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { extractDomain, isYouTubeUrl, getYouTubeThumbnail, getFaviconUrl } from '@/lib/utils/parse-inbox-content'
 import { formatDateForDisplay } from '@/lib/utils/date-jst'
@@ -111,12 +112,15 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete, o
       {thumbnailUrl && (
         <div style={{ marginBottom: '12px' }}>
           <a href={youtubeUrl!} target="_blank" rel="noopener noreferrer">
-            <img
+            <Image
               src={thumbnailUrl}
               alt="YouTube thumbnail"
+              width={320}
+              height={180}
               style={{
                 width: '100%',
                 maxWidth: '320px',
+                height: 'auto',
                 borderRadius: '6px',
                 cursor: 'pointer'
               }}
@@ -173,7 +177,7 @@ export function InboxCard({ item, onConvertToTask, onDelete, onToggleComplete, o
                 onMouseEnter={(e) => e.currentTarget.style.background = '#e0e7ff'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
               >
-                <img
+                <Image
                   src={getFaviconUrl(url)}
                   alt=""
                   width={16}
