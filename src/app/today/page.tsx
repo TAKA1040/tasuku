@@ -792,7 +792,7 @@ export default function TodayPage() {
                     color: '#1f2937',
                     cursor: 'pointer'
                   }}>
-                    🌅 9時まで ({timeFrameTasks.morning.length}件) {showMorningTasks ? '☑️' : '☐'}
+                    　🌅 9時まで ({timeFrameTasks.morning.length}件) {showMorningTasks ? '☑️' : '☐'}
                     <input
                       type="checkbox"
                       checked={showMorningTasks}
@@ -837,7 +837,7 @@ export default function TodayPage() {
                     color: '#1f2937',
                     cursor: 'pointer'
                   }}>
-                    ☀️ 13時まで ({timeFrameTasks.midday.length}件) {showMiddayTasks ? '☑️' : '☐'}
+                    　☀️ 13時まで ({timeFrameTasks.midday.length}件) {showMiddayTasks ? '☑️' : '☐'}
                     <input
                       type="checkbox"
                       checked={showMiddayTasks}
@@ -882,7 +882,7 @@ export default function TodayPage() {
                     color: '#1f2937',
                     cursor: 'pointer'
                   }}>
-                    🌤️ 18時まで ({timeFrameTasks.afternoon.length}件) {showAfternoonTasks ? '☑️' : '☐'}
+                    　🌤️ 18時まで ({timeFrameTasks.afternoon.length}件) {showAfternoonTasks ? '☑️' : '☐'}
                     <input
                       type="checkbox"
                       checked={showAfternoonTasks}
@@ -927,7 +927,7 @@ export default function TodayPage() {
                     color: '#1f2937',
                     cursor: 'pointer'
                   }}>
-                    🌙 24時まで ({timeFrameTasks.evening.length}件) {showEveningTasks ? '☑️' : '☐'}
+                    　🌙 24時まで ({timeFrameTasks.evening.length}件) {showEveningTasks ? '☑️' : '☐'}
                     <input
                       type="checkbox"
                       checked={showEveningTasks}
