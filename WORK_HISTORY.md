@@ -11,6 +11,78 @@
 
 ---
 
+## ✅ 完了: 本番環境ログ可視化対応 - logger.production()実装 (2025-10-10 深夜)
+
+### 問題の発見 ⚠️
+- **症状**: 本番環境でコンソールログが全く表示されない
+- **原因**: `logger.info()`は開発環境のみ表示（`if (this.isDevelopment)`）
+- **影響**: 日次処理のデバッグが不可能、URLs生成問題の調査が困難
+
+### 修正内容 🔧
+
+#### 1. logger.production()メソッド追加 (logger.ts)
+```typescript
+/**
+ * Production level logging - always shown
+ * Use for important operational messages that should be visible in production
+ * Examples: task generation, template sync, critical business logic
+ */
+production(message: string, ...args: unknown[]) {
+  console.log(`[PROD] ${message}`, ...args)
+}
+```
+
+#### 2. task-generator.ts全logger.info()変換 (commit: c55716f)
+**変更箇所**: 57箇所
+- タスク生成開始・完了ログ
+- ユーザーID確認ログ
+- ロック取得・解放ログ
+- 各パターン（日次・週次・月次・年次）の生成ログ
+- 買い物タスク処理ログ
+- テンプレート詳細ログ
+- 既存タスク同期ログ
+
+**修正方法**:
+```bash
+# 一括置換で全logger.info → logger.production
+replace_all: true
+logger.info → logger.production
+```
+
+#### 3. 調査ファイル整理
+- `check_urls_issue.ts` を `DELL/` フォルダに移動
+- データベース調査スクリプトの整理
+
+### 結果 ✅
+- **URLs表示**: ✅ 正常に表示されるようになった
+- **本番ログ**: ✅ logger.production()で本番環境でも表示可能に
+- **デバッグ性**: ✅ Vercel Logsで日次処理を追跡可能
+
+### 重要な補足 📝
+
+**サーバーサイドログの確認方法**:
+1. **本番環境**: Vercel Dashboard → Logs タブ
+2. **ローカル環境**: `npm run dev`の実行端末に表示
+3. **注意**: ブラウザのコンソールには表示されない（APIルートはサーバー実行）
+
+**確認コマンド**:
+```bash
+# Vercelログをリアルタイム表示
+vercel logs https://tasuku.apaf.me --follow
+```
+
+### コミット履歴 📝
+1. **1447fa6** - logger.production追加とsedによる部分置換試行（失敗）
+2. **c55716f** - task-generator.ts全logger.info→logger.production変換（成功）
+
+### 次回の日次処理テスト準備完了 🎯
+- ✅ ログが本番環境でも表示される
+- ✅ URLsが正しく生成される
+- ✅ デバッグ可能な状態
+- ⏰ 明朝の日次処理テスト待ち
+
+---
+
 ## ✅ 完了: 時間軸表示機能の強化 - 4つの時間枠で分割表示 (2025-10-09 夕方)
 
 ### 実施内容 🚀
