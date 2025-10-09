@@ -976,24 +976,26 @@ export default function TodayPage() {
           {/* ソートモードに応じて表示を切り替え */}
           {sortMode === 'priority' ? (
             // 重要度モード：カテゴリフィルター適用
-            <UnifiedTasksTable
-              title=""
-              tasks={applyCategoryFilter(
-                allUnifiedData.filter(task => task.due_date === getTodayJST()),
-                selectedCategories
-              )}
-              emptyMessage=""
-              unifiedTasks={unifiedTasks}
-              handleEditTask={handleEditTask}
-              shoppingSubTasks={shoppingSubTasks}
-              expandedShoppingLists={expandedShoppingLists}
-              toggleShoppingList={toggleShoppingList}
-              addShoppingSubTask={addShoppingSubTask}
-              toggleShoppingSubTask={toggleShoppingSubTask}
-              deleteShoppingSubTask={deleteShoppingSubTask}
-              updateShoppingSubTask={updateShoppingSubTask}
-              showTitle={false}
-            />
+            <div style={{ marginLeft: '16px' }}>
+              <UnifiedTasksTable
+                title=""
+                tasks={applyCategoryFilter(
+                  allUnifiedData.filter(task => task.due_date === getTodayJST()),
+                  selectedCategories
+                )}
+                emptyMessage=""
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+                showTitle={false}
+              />
+            </div>
           ) : (
             // 時間軸モード：4つの時間枠で表示
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1105,27 +1107,29 @@ export default function TodayPage() {
           {showOverdueTasks && (
             <>
               {/* 通常の期限切れタスク（繰り返しタスク以外） */}
-              <UnifiedTasksTable
-                title="🚨 期限切れタスク"
-                tasks={allUnifiedData.filter(task =>
-                  !task.completed &&
-                  task.due_date &&
-                  task.due_date < getTodayJST() &&
-                  (!task.recurring_template_id || task.recurring_template_id === '')
-                )}
-                emptyMessage=""
-                urgent={true}
-                showTitle={false}
-                unifiedTasks={unifiedTasks}
-                handleEditTask={handleEditTask}
-                shoppingSubTasks={shoppingSubTasks}
-                expandedShoppingLists={expandedShoppingLists}
-                toggleShoppingList={toggleShoppingList}
-                addShoppingSubTask={addShoppingSubTask}
-                toggleShoppingSubTask={toggleShoppingSubTask}
-                deleteShoppingSubTask={deleteShoppingSubTask}
-                updateShoppingSubTask={updateShoppingSubTask}
-              />
+              <div style={{ marginLeft: '16px' }}>
+                <UnifiedTasksTable
+                  title="🚨 期限切れタスク"
+                  tasks={allUnifiedData.filter(task =>
+                    !task.completed &&
+                    task.due_date &&
+                    task.due_date < getTodayJST() &&
+                    (!task.recurring_template_id || task.recurring_template_id === '')
+                  )}
+                  emptyMessage=""
+                  urgent={true}
+                  showTitle={false}
+                  unifiedTasks={unifiedTasks}
+                  handleEditTask={handleEditTask}
+                  shoppingSubTasks={shoppingSubTasks}
+                  expandedShoppingLists={expandedShoppingLists}
+                  toggleShoppingList={toggleShoppingList}
+                  addShoppingSubTask={addShoppingSubTask}
+                  toggleShoppingSubTask={toggleShoppingSubTask}
+                  deleteShoppingSubTask={deleteShoppingSubTask}
+                  updateShoppingSubTask={updateShoppingSubTask}
+                />
+              </div>
 
               {/* 期限切れ繰り返しタスク（二重折りたたみ） */}
               {allUnifiedData.filter(task =>
@@ -1170,7 +1174,7 @@ export default function TodayPage() {
                     </label>
                   </div>
                   {showOverdueRecurringTasks && (
-                    <div style={{ marginLeft: '16px' }}>
+                    <div style={{ marginLeft: '32px' }}>
                       <UnifiedTasksTable
                         title=""
                         tasks={allUnifiedData.filter(task =>
@@ -1229,23 +1233,25 @@ export default function TodayPage() {
             </label>
           </div>
           {showFutureTasks && (
-            <UnifiedTasksTable
-              title="📆 明日以降のタスク"
-              tasks={allUnifiedData.filter(task =>
-                !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31' && task.task_type !== 'RECURRING'
-              )}
-              emptyMessage=""
-              showTitle={false}
-              unifiedTasks={unifiedTasks}
-              handleEditTask={handleEditTask}
-              shoppingSubTasks={shoppingSubTasks}
-              expandedShoppingLists={expandedShoppingLists}
-              toggleShoppingList={toggleShoppingList}
-              addShoppingSubTask={addShoppingSubTask}
-              toggleShoppingSubTask={toggleShoppingSubTask}
-              deleteShoppingSubTask={deleteShoppingSubTask}
-              updateShoppingSubTask={updateShoppingSubTask}
-            />
+            <div style={{ marginLeft: '16px' }}>
+              <UnifiedTasksTable
+                title="📆 明日以降のタスク"
+                tasks={allUnifiedData.filter(task =>
+                  !task.completed && task.due_date && task.due_date > getTodayJST() && task.due_date !== '2999-12-31' && task.task_type !== 'RECURRING'
+                )}
+                emptyMessage=""
+                showTitle={false}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
+            </div>
           )}
         </div>
 
@@ -1278,24 +1284,26 @@ export default function TodayPage() {
             </label>
           </div>
           {showShoppingTasks && (
-            <UnifiedTasksTable
-              title="🛒 買い物タスク"
-              tasks={allUnifiedData.filter(task => {
-                // 買い物カテゴリで未完了のタスクのみ
-                return task.category === '買い物' && !task.completed
-              })}
-              emptyMessage=""
-              showTitle={false}
-              unifiedTasks={unifiedTasks}
-              handleEditTask={handleEditTask}
-              shoppingSubTasks={shoppingSubTasks}
-              expandedShoppingLists={expandedShoppingLists}
-              toggleShoppingList={toggleShoppingList}
-              addShoppingSubTask={addShoppingSubTask}
-              toggleShoppingSubTask={toggleShoppingSubTask}
-              deleteShoppingSubTask={deleteShoppingSubTask}
-              updateShoppingSubTask={updateShoppingSubTask}
-            />
+            <div style={{ marginLeft: '16px' }}>
+              <UnifiedTasksTable
+                title="🛒 買い物タスク"
+                tasks={allUnifiedData.filter(task => {
+                  // 買い物カテゴリで未完了のタスクのみ
+                  return task.category === '買い物' && !task.completed
+                })}
+                emptyMessage=""
+                showTitle={false}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
+            </div>
           )}
         </div>
 
@@ -1326,24 +1334,26 @@ export default function TodayPage() {
             </label>
           </div>
           {showTodoList && (
-            <UnifiedTasksTable
-              title="💡 やることリスト"
-              tasks={applyCategoryFilter(
-                allUnifiedData.filter(task => task.due_date === '2999-12-31'),
-                selectedCategories
-              )}
-              emptyMessage=""
-              showTitle={false}
-              unifiedTasks={unifiedTasks}
-              handleEditTask={handleEditTask}
-              shoppingSubTasks={shoppingSubTasks}
-              expandedShoppingLists={expandedShoppingLists}
-              toggleShoppingList={toggleShoppingList}
-              addShoppingSubTask={addShoppingSubTask}
-              toggleShoppingSubTask={toggleShoppingSubTask}
-              deleteShoppingSubTask={deleteShoppingSubTask}
-              updateShoppingSubTask={updateShoppingSubTask}
-            />
+            <div style={{ marginLeft: '16px' }}>
+              <UnifiedTasksTable
+                title="💡 やることリスト"
+                tasks={applyCategoryFilter(
+                  allUnifiedData.filter(task => task.due_date === '2999-12-31'),
+                  selectedCategories
+                )}
+                emptyMessage=""
+                showTitle={false}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
+            </div>
           )}
         </div>
       </main>
