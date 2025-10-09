@@ -81,8 +81,8 @@ test.describe('ナビゲーション', () => {
     // ページタイトルの確認
     await expect(page).toHaveTitle(/TASUKU/);
 
-    // テンプレートページのヘッダー確認
-    const heading = page.getByText(/テンプレート/i);
+    // テンプレートページのヘッダー確認（h1タグを明示的に指定）
+    const heading = page.getByRole('heading', { name: /繰り返しテンプレート管理/i, level: 1 });
     await expect(heading).toBeVisible();
   });
 });
