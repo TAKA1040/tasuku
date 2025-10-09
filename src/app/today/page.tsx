@@ -18,6 +18,7 @@ import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { createClient } from '@/lib/supabase/client'
 import { TaskTabNavigation } from '@/components/TaskTabNavigation'
 import { logger } from '@/lib/utils/logger'
+import { TimeFrameSection } from './components/TimeFrameSection'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -798,185 +799,81 @@ export default function TodayPage() {
           ) : (
             // 時間軸モード：4つの時間枠で表示
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* 9時まで */}
-              <div style={{ marginLeft: '16px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  gap: '8px'
-                }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '16px' : '14px',
-                    fontWeight: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '900' : '600',
-                    color: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '#dc2626' : '#1f2937',
-                    cursor: 'pointer'
-                  }}>
-                    　🌅 9時まで ({timeFrameTasks.morning.length}件) {showMorningTasks ? '☑️' : '☐'}
-                    <input
-                      type="checkbox"
-                      checked={showMorningTasks}
-                      onChange={(e) => setShowMorningTasks(e.target.checked)}
-                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                    />
-                  </label>
-                </div>
-                {showMorningTasks && (
-                  <UnifiedTasksTable
-                    title=""
-                    tasks={timeFrameTasks.morning}
-                    emptyMessage="タスクなし"
-                    unifiedTasks={unifiedTasks}
-                    handleEditTask={handleEditTask}
-                    shoppingSubTasks={shoppingSubTasks}
-                    expandedShoppingLists={expandedShoppingLists}
-                    toggleShoppingList={toggleShoppingList}
-                    addShoppingSubTask={addShoppingSubTask}
-                    toggleShoppingSubTask={toggleShoppingSubTask}
-                    deleteShoppingSubTask={deleteShoppingSubTask}
-                    updateShoppingSubTask={updateShoppingSubTask}
-                    showTitle={false}
-                  />
-                )}
-              </div>
+              <TimeFrameSection
+                emoji="🌅"
+                title="9時まで"
+                tasks={timeFrameTasks.morning}
+                deadline="09:00"
+                isOverdue={isTimeFrameOverdue('09:00', timeFrameTasks.morning)}
+                isExpanded={showMorningTasks}
+                onToggleExpanded={setShowMorningTasks}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
 
-              {/* 13時まで */}
-              <div style={{ marginLeft: '16px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  gap: '8px'
-                }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '16px' : '14px',
-                    fontWeight: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '900' : '600',
-                    color: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '#dc2626' : '#1f2937',
-                    cursor: 'pointer'
-                  }}>
-                    　☀️ 13時まで ({timeFrameTasks.midday.length}件) {showMiddayTasks ? '☑️' : '☐'}
-                    <input
-                      type="checkbox"
-                      checked={showMiddayTasks}
-                      onChange={(e) => setShowMiddayTasks(e.target.checked)}
-                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                    />
-                  </label>
-                </div>
-                {showMiddayTasks && (
-                  <UnifiedTasksTable
-                    title=""
-                    tasks={timeFrameTasks.midday}
-                    emptyMessage="タスクなし"
-                    unifiedTasks={unifiedTasks}
-                    handleEditTask={handleEditTask}
-                    shoppingSubTasks={shoppingSubTasks}
-                    expandedShoppingLists={expandedShoppingLists}
-                    toggleShoppingList={toggleShoppingList}
-                    addShoppingSubTask={addShoppingSubTask}
-                    toggleShoppingSubTask={toggleShoppingSubTask}
-                    deleteShoppingSubTask={deleteShoppingSubTask}
-                    updateShoppingSubTask={updateShoppingSubTask}
-                    showTitle={false}
-                  />
-                )}
-              </div>
+              <TimeFrameSection
+                emoji="☀️"
+                title="13時まで"
+                tasks={timeFrameTasks.midday}
+                deadline="13:00"
+                isOverdue={isTimeFrameOverdue('13:00', timeFrameTasks.midday)}
+                isExpanded={showMiddayTasks}
+                onToggleExpanded={setShowMiddayTasks}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
 
-              {/* 18時まで */}
-              <div style={{ marginLeft: '16px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  gap: '8px'
-                }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '16px' : '14px',
-                    fontWeight: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '900' : '600',
-                    color: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '#dc2626' : '#1f2937',
-                    cursor: 'pointer'
-                  }}>
-                    　🌤️ 18時まで ({timeFrameTasks.afternoon.length}件) {showAfternoonTasks ? '☑️' : '☐'}
-                    <input
-                      type="checkbox"
-                      checked={showAfternoonTasks}
-                      onChange={(e) => setShowAfternoonTasks(e.target.checked)}
-                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                    />
-                  </label>
-                </div>
-                {showAfternoonTasks && (
-                  <UnifiedTasksTable
-                    title=""
-                    tasks={timeFrameTasks.afternoon}
-                    emptyMessage="タスクなし"
-                    unifiedTasks={unifiedTasks}
-                    handleEditTask={handleEditTask}
-                    shoppingSubTasks={shoppingSubTasks}
-                    expandedShoppingLists={expandedShoppingLists}
-                    toggleShoppingList={toggleShoppingList}
-                    addShoppingSubTask={addShoppingSubTask}
-                    toggleShoppingSubTask={toggleShoppingSubTask}
-                    deleteShoppingSubTask={deleteShoppingSubTask}
-                    updateShoppingSubTask={updateShoppingSubTask}
-                    showTitle={false}
-                  />
-                )}
-              </div>
+              <TimeFrameSection
+                emoji="🌤️"
+                title="18時まで"
+                tasks={timeFrameTasks.afternoon}
+                deadline="18:00"
+                isOverdue={isTimeFrameOverdue('18:00', timeFrameTasks.afternoon)}
+                isExpanded={showAfternoonTasks}
+                onToggleExpanded={setShowAfternoonTasks}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
 
-              {/* 24時まで */}
-              <div style={{ marginLeft: '16px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '8px',
-                  gap: '8px'
-                }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '16px' : '14px',
-                    fontWeight: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '900' : '600',
-                    color: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '#dc2626' : '#1f2937',
-                    cursor: 'pointer'
-                  }}>
-                    　🌙 24時まで ({timeFrameTasks.evening.length}件) {showEveningTasks ? '☑️' : '☐'}
-                    <input
-                      type="checkbox"
-                      checked={showEveningTasks}
-                      onChange={(e) => setShowEveningTasks(e.target.checked)}
-                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                    />
-                  </label>
-                </div>
-                {showEveningTasks && (
-                  <UnifiedTasksTable
-                    title=""
-                    tasks={timeFrameTasks.evening}
-                    emptyMessage="タスクなし"
-                    unifiedTasks={unifiedTasks}
-                    handleEditTask={handleEditTask}
-                    shoppingSubTasks={shoppingSubTasks}
-                    expandedShoppingLists={expandedShoppingLists}
-                    toggleShoppingList={toggleShoppingList}
-                    addShoppingSubTask={addShoppingSubTask}
-                    toggleShoppingSubTask={toggleShoppingSubTask}
-                    deleteShoppingSubTask={deleteShoppingSubTask}
-                    updateShoppingSubTask={updateShoppingSubTask}
-                    showTitle={false}
-                  />
-                )}
-              </div>
+              <TimeFrameSection
+                emoji="🌙"
+                title="24時まで"
+                tasks={timeFrameTasks.evening}
+                deadline="23:59"
+                isOverdue={isTimeFrameOverdue('23:59', timeFrameTasks.evening)}
+                isExpanded={showEveningTasks}
+                onToggleExpanded={setShowEveningTasks}
+                unifiedTasks={unifiedTasks}
+                handleEditTask={handleEditTask}
+                shoppingSubTasks={shoppingSubTasks}
+                expandedShoppingLists={expandedShoppingLists}
+                toggleShoppingList={toggleShoppingList}
+                addShoppingSubTask={addShoppingSubTask}
+                toggleShoppingSubTask={toggleShoppingSubTask}
+                deleteShoppingSubTask={deleteShoppingSubTask}
+                updateShoppingSubTask={updateShoppingSubTask}
+              />
             </div>
           )}
         </div>
