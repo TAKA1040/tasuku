@@ -61,3 +61,15 @@ next-env.d.ts
 .idea/
 *.swp
 *.swo
+
+# Investigation and temporary scripts
+check_*.ts
+check_*.sql
+fix_*.ts
+fix_*.sql
+comprehensive_*.ts
+find_*.ts
+investigate_*.ts
+debug_*.ts
+temp_*.ts
+temp_*.sql
