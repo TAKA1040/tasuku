@@ -2,7 +2,7 @@
 
 import { UnifiedTasksTable } from '@/components/UnifiedTasksTable'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
-import type { UseUnifiedTasksReturn } from '@/hooks/useUnifiedTasks'
+import type { UseUnifiedTasksResult } from '@/hooks/useUnifiedTasks'
 
 interface TimeFrameSectionProps {
   emoji: string
@@ -12,15 +12,15 @@ interface TimeFrameSectionProps {
   isOverdue: boolean
   isExpanded: boolean
   onToggleExpanded: (expanded: boolean) => void
-  unifiedTasks: UseUnifiedTasksReturn
+  unifiedTasks: UseUnifiedTasksResult
   handleEditTask: (task: UnifiedTask) => void
   shoppingSubTasks: { [taskId: string]: SubTask[] }
   expandedShoppingLists: { [taskId: string]: boolean }
   toggleShoppingList: (taskId: string) => void
-  addShoppingSubTask: (taskId: string, text: string) => Promise<void>
-  toggleShoppingSubTask: (taskId: string, subtaskId: string, completed: boolean) => Promise<void>
-  deleteShoppingSubTask: (taskId: string, subtaskId: string) => Promise<void>
-  updateShoppingSubTask: (taskId: string, subtaskId: string, text: string) => Promise<void>
+  addShoppingSubTask: (taskId: string, itemName: string) => Promise<void>
+  toggleShoppingSubTask: (taskId: string, subTaskId: string) => Promise<void>
+  deleteShoppingSubTask: (taskId: string, subTaskId: string) => Promise<void>
+  updateShoppingSubTask: (taskId: string, subTaskId: string, updates: { title?: string }) => Promise<void>
 }
 
 export function TimeFrameSection({

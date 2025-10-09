@@ -30,7 +30,7 @@ const invalidateGlobalCache = () => {
   }
 }
 
-interface UseUnifiedTasksResult {
+export interface UseUnifiedTasksResult {
   tasks: UnifiedTask[]
   loading: boolean
   error: string | null
