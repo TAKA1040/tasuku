@@ -19,8 +19,17 @@ export async function GET() {
   }
 
   // パターン別に集計
-  const byPattern: Record<string, any[]> = {}
-  const shouldBeDeleted: any[] = []
+  interface TaskInfo {
+    id: string
+    due_date: string
+    title: string
+    recurring_pattern: string
+    daysOverdue: number
+    [key: string]: unknown
+  }
+
+  const byPattern: Record<string, TaskInfo[]> = {}
+  const shouldBeDeleted: TaskInfo[] = []
 
   tasks?.forEach(task => {
     const pattern = task.recurring_pattern || 'UNKNOWN'
