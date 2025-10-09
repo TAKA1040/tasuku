@@ -109,10 +109,11 @@ export function handleError(
       timestamp: appError.timestamp
     })
   } else {
-    // 本番環境では重要度が高いエラーのみログ出力
-    if (appError.severity === 'high' || appError.severity === 'critical') {
-      logger.error(`[${context}] ${appError.severity.toUpperCase()}:`, appError.message)
-    }
+    // 本番環境でも全てのエラーをログ出力（デバッグ用）
+    logger.error(`[${context}] ${appError.severity.toUpperCase()}:`, {
+      message: appError.message,
+      error: error instanceof Error ? error.message : String(error)
+    })
   }
 
   // UIにエラーメッセージを設定
