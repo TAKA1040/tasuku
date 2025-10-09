@@ -122,6 +122,14 @@ export default function TodayPage() {
     return sortedData
   }, [rawUnifiedData, sortMode])
 
+  // 現在時刻を取得（HH:mm形式）
+  const getCurrentTime = useCallback(() => {
+    const now = new Date()
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    return `${hours}:${minutes}`
+  }, [])
+
   // 時間軸モード用：今日のタスクを時間枠別に分割
   const timeFrameTasks = useMemo(() => {
     const todayTasks = allUnifiedData.filter(task => task.due_date === getTodayJST())
@@ -145,6 +153,13 @@ export default function TodayPage() {
       })
     }
   }, [allUnifiedData])
+
+  // 時間枠が期限切れで未完了タスクがあるかチェック
+  const isTimeFrameOverdue = useCallback((deadline: string, tasks: typeof timeFrameTasks.morning) => {
+    const currentTime = getCurrentTime()
+    const hasIncompleteTasks = tasks.some(task => !task.completed)
+    return currentTime >= deadline && hasIncompleteTasks
+  }, [getCurrentTime])
 
   // 買い物タスクのサブタスクを自動で取得（データベース参照と同時に）
   useEffect(() => {
@@ -788,8 +803,8 @@ export default function TodayPage() {
                     alignItems: 'center',
                     gap: '8px',
                     fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#1f2937',
+                    fontWeight: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '700' : '600',
+                    color: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
                     　🌅 9時まで ({timeFrameTasks.morning.length}件) {showMorningTasks ? '☑️' : '☐'}
@@ -833,8 +848,8 @@ export default function TodayPage() {
                     alignItems: 'center',
                     gap: '8px',
                     fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#1f2937',
+                    fontWeight: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '700' : '600',
+                    color: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
                     　☀️ 13時まで ({timeFrameTasks.midday.length}件) {showMiddayTasks ? '☑️' : '☐'}
@@ -878,8 +893,8 @@ export default function TodayPage() {
                     alignItems: 'center',
                     gap: '8px',
                     fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#1f2937',
+                    fontWeight: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '700' : '600',
+                    color: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
                     　🌤️ 18時まで ({timeFrameTasks.afternoon.length}件) {showAfternoonTasks ? '☑️' : '☐'}
@@ -923,8 +938,8 @@ export default function TodayPage() {
                     alignItems: 'center',
                     gap: '8px',
                     fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#1f2937',
+                    fontWeight: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '700' : '600',
+                    color: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
                     　🌙 24時まで ({timeFrameTasks.evening.length}件) {showEveningTasks ? '☑️' : '☐'}
