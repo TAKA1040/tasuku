@@ -7,6 +7,7 @@
 - **日次処理テスト失敗事例集**: `DAILY_TASK_GENERATION_ISSUES.md`（2025-10-09作成）
 - **不要ファイル削除計画**: `DELL/DELETION_PLAN.md`
 - **コード分析レポート**: `CODE_ANALYSIS_REPORT.md`（High Priority課題ほぼ全て解決済み）
+- **⭐ 詳細変更記録（2025-10-09）**: `DETAILED_CHANGES_2025-10-09.md` ← **不具合調査時に必読**
 
 ---
 
@@ -147,6 +148,14 @@ investigate_*.ts, debug_*.ts, temp_*.ts, temp_*.sql
 1. **2c10612** - console.log→Logger移行（45ファイル、272箇所）
 2. **a16b2ad** - 型アサーション改善（4ファイル、型安全性向上）
 3. **0150073** - プロジェクトクリーンアップ（14ファイル削除、ビルド最適化）
+4. **ccf5bbc** - 作業記録追加（WORK_HISTORY更新）
+5. **c98a6ea** - Medium課題検証・最終評価
+
+**📖 詳細な変更ファイルリスト**: `DETAILED_CHANGES_2025-10-09.md` 参照
+- 全48ファイルの変更箇所（行番号付き）
+- 各ファイルの影響範囲と重要度
+- トラブルシューティングガイド
+- 問題発生時の調査手順
 
 ---
 
