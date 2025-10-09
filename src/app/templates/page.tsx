@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { TimeInput } from '@/components/TimeInput'
+import { logger } from '@/lib/utils/logger'
 
 interface RecurringTemplate {
   id: string
@@ -167,7 +168,7 @@ export default function TemplatesPage() {
         return
       }
 
-      console.log('📋 テンプレート読み込み結果:', templatesData?.map(t => ({
+      logger.info('📋 テンプレート読み込み結果:', templatesData?.map(t => ({
         id: t.id,
         title: t.title,
         urls: t.urls,
@@ -177,7 +178,7 @@ export default function TemplatesPage() {
         rawData: t
       })))
 
-      console.log('📋 生データ全体:', templatesData)
+      logger.info('📋 生データ全体:', templatesData)
 
       // URLsフィールドを正規化（文字列を配列に変換）
       const normalizedTemplates = templatesData?.map(template => {
@@ -204,7 +205,7 @@ export default function TemplatesPage() {
         }
       }) || []
 
-      console.log('📋 正規化後:', normalizedTemplates.map(t => ({
+      logger.info('📋 正規化後:', normalizedTemplates.map(t => ({
         id: t.id,
         title: t.title,
         urls: t.urls,
@@ -295,7 +296,7 @@ export default function TemplatesPage() {
         ? template.urls.filter(url => url && url.trim())  // 空文字列を除去
         : []
 
-      console.log('🔄 テンプレート更新:', {
+      logger.info('🔄 テンプレート更新:', {
         title: template.title,
         originalUrls: template.urls,
         normalizedUrls: normalizedUrls,
@@ -323,12 +324,12 @@ export default function TemplatesPage() {
         .eq('id', template.id)
 
       if (error) {
-        console.error('❌ テンプレート更新エラー:', error)
+        logger.error('❌ テンプレート更新エラー:', error)
         setStatus(`更新エラー: ${error.message}`)
         return
       }
 
-      console.log('✅ テンプレート更新成功')
+      logger.info('✅ テンプレート更新成功')
 
       // 関連タスクのURLsも更新
       const { data: relatedTasks, error: tasksError } = await supabase
@@ -338,9 +339,9 @@ export default function TemplatesPage() {
         .eq('completed', false) // 未完了タスクのみ
 
       if (tasksError) {
-        console.warn('関連タスク取得エラー:', tasksError)
+        logger.warn('関連タスク取得エラー:', tasksError)
       } else if (relatedTasks && relatedTasks.length > 0) {
-        console.log(`🔄 関連タスク ${relatedTasks.length}件のURLsを更新中...`)
+        logger.info(`🔄 関連タスク ${relatedTasks.length}件のURLsを更新中...`)
 
         const { error: updateTasksError } = await supabase
           .from('unified_tasks')
@@ -353,10 +354,10 @@ export default function TemplatesPage() {
           .eq('completed', false)
 
         if (updateTasksError) {
-          console.error('関連タスク更新エラー:', updateTasksError)
+          logger.error('関連タスク更新エラー:', updateTasksError)
           setStatus(`テンプレート更新成功、但し関連タスク更新失敗: ${updateTasksError.message}`)
         } else {
-          console.log(`✅ 関連タスク ${relatedTasks.length}件のURLsを更新完了`)
+          logger.info(`✅ 関連タスク ${relatedTasks.length}件のURLsを更新完了`)
           setStatus(`✅ ${template.title}と関連タスク${relatedTasks.length}件を更新しました`)
         }
       } else {

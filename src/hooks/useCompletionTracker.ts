@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { CompletionTracker, type RecurringCompletionStats, type CompletionRecord } from '@/lib/services/completion-tracker'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 
 export interface UseCompletionTrackerReturn {
   // 完了記録データ
@@ -53,7 +54,7 @@ export function useCompletionTracker(
       setCompletions(todayCompletions)
       setError(null)
     } catch (err) {
-      console.error('Failed to load today completions:', err)
+      logger.error('Failed to load today completions:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
@@ -71,7 +72,7 @@ export function useCompletionTracker(
       })
       setRecurringStats(statsMap)
     } catch (err) {
-      console.error('Failed to load recurring stats:', err)
+      logger.error('Failed to load recurring stats:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }, [isDbInitialized])
@@ -92,7 +93,7 @@ export function useCompletionTracker(
         await loadRecurringStats([task.id])
       }
     } catch (err) {
-      console.error('Failed to record completion:', err)
+      logger.error('Failed to record completion:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }
@@ -108,7 +109,7 @@ export function useCompletionTracker(
       // 繰り返しタスクの統計も更新
       await loadRecurringStats([taskId])
     } catch (err) {
-      console.error('Failed to remove completion:', err)
+      logger.error('Failed to remove completion:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }

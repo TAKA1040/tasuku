@@ -1,6 +1,8 @@
 // 統一タスク管理システムの型定義
 // YYYYMMDDTTCCC 形式の番号システム
 
+import { logger } from '@/lib/utils/logger'
+
 // ファイルアタッチメント型
 export interface FileAttachment {
   file_name: string
@@ -220,12 +222,12 @@ export class DisplayNumberUtils {
   static formatCompact(displayNumber: string): string {
     // デバッグログ
     if (process.env.NODE_ENV === 'development') {
-      console.log('formatCompact input:', { displayNumber, type: typeof displayNumber, length: displayNumber?.length })
+      logger.info('formatCompact input:', { displayNumber, type: typeof displayNumber, length: displayNumber?.length })
     }
 
     // null/undefined/空文字チェック
     if (!displayNumber) {
-      console.log('formatCompact: displayNumber is empty')
+      logger.info('formatCompact: displayNumber is empty')
       return '---'
     }
 
@@ -234,11 +236,11 @@ export class DisplayNumberUtils {
       const number = displayNumber.substring(1)
       if (/^\d{3}$/.test(number)) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('formatCompact: T001 format matched, returning:', number)
+          logger.info('formatCompact: T001 format matched, returning:', number)
         }
         return number
       } else {
-        console.log('formatCompact: T format but invalid number part:', number)
+        logger.info('formatCompact: T format but invalid number part:', number)
       }
     }
 
@@ -249,7 +251,7 @@ export class DisplayNumberUtils {
       if (parts.length >= 2) {
         const suffix = parts[parts.length - 1]
         if (process.env.NODE_ENV === 'development') {
-          console.log('formatCompact: old idea format, returning suffix:', suffix)
+          logger.info('formatCompact: old idea format, returning suffix:', suffix)
         }
         return suffix.substring(0, 3).toUpperCase() // 最初の3文字を大文字で
       }
@@ -258,10 +260,10 @@ export class DisplayNumberUtils {
     // 旧形式 YYYYMMDDTTCCC のような形式にも対応
     const parsed = this.parseDisplayNumber(displayNumber)
     if (process.env.NODE_ENV === 'development') {
-      console.log('formatCompact: parseDisplayNumber result:', parsed)
+      logger.info('formatCompact: parseDisplayNumber result:', parsed)
     }
     if (!parsed.isValid) {
-      console.log('formatCompact: parsed invalid, returning ---')
+      logger.info('formatCompact: parsed invalid, returning ---')
       return '---'
     }
     return parsed.sequence.toString().padStart(3, '0')

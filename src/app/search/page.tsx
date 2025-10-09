@@ -8,6 +8,7 @@ import { ThemedContainer } from '@/components/ThemedContainer'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthStatus } from '@/components/AuthStatus'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 import { getTodayJST } from '@/lib/utils/date-jst'
 
 export default function SearchPage() {
@@ -134,7 +135,7 @@ export default function SearchPage() {
         await completeTask(task.id)
       }
     } catch (error) {
-      console.error('タスクの更新に失敗しました:', error)
+      logger.error('タスクの更新に失敗しました:', error)
     }
   }
 
@@ -145,7 +146,7 @@ export default function SearchPage() {
     try {
       await deleteUnifiedTask(task.id)
     } catch (error) {
-      console.error('タスクの削除に失敗しました:', error)
+      logger.error('タスクの削除に失敗しました:', error)
     }
   }
 
@@ -169,7 +170,7 @@ export default function SearchPage() {
 
       setSelectedItems(new Set())
     } catch (error) {
-      console.error('一括削除に失敗しました:', error)
+      logger.error('一括削除に失敗しました:', error)
     } finally {
       setIsDeleting(false)
     }

@@ -7,6 +7,7 @@ import { initializeDevFeatures } from '@/lib/features'
 import { setupDevTools } from '@/lib/db/reset'
 import { setupRecurringDevTools } from '@/lib/utils/recurring-test'
 import { UI_CONSTANTS } from '@/lib/constants'
+import { logger } from '@/lib/utils/logger'
 
 export function useDatabase() {
   const [isInitialized, setIsInitialized] = useState(false)
@@ -16,7 +17,7 @@ export function useDatabase() {
     // Ensure we're on the client side before attempting Supabase operations
     if (typeof window === 'undefined') {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Server side rendering detected, skipping database initialization')
+        logger.info('Server side rendering detected, skipping database initialization')
       }
       return
     }
@@ -26,7 +27,7 @@ export function useDatabase() {
     async function init() {
       try {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Starting database initialization...')
+          logger.info('Starting database initialization...')
         }
 
         // Check if user is authenticated before initializing database
@@ -36,7 +37,7 @@ export function useDatabase() {
 
         if (!user) {
           if (process.env.NODE_ENV === 'development') {
-            console.log('No authenticated user found, skipping database initialization')
+            logger.info('No authenticated user found, skipping database initialization')
           }
           if (mounted) {
             setIsInitialized(false)
@@ -48,18 +49,18 @@ export function useDatabase() {
         // Initialize Supabase connection
         await db.init()
         if (process.env.NODE_ENV === 'development') {
-          console.log('Supabase Database initialized')
+          logger.info('Supabase Database initialized')
         }
 
         await initializeDevFeatures()
         if (process.env.NODE_ENV === 'development') {
-          console.log('Dev features initialized')
+          logger.info('Dev features initialized')
         }
 
         setupDevTools()
         setupRecurringDevTools()
         if (process.env.NODE_ENV === 'development') {
-          console.log('Dev tools setup')
+          logger.info('Dev tools setup')
         }
 
         // Development: Add dummy data if no tasks exist
@@ -67,19 +68,19 @@ export function useDatabase() {
         // To manually add dummy data, use: window.seedDummyData() in console
         if (process.env.NODE_ENV === 'development') {
           if (process.env.NODE_ENV === 'development') {
-            console.log('Checking for dummy data... (auto-seeding disabled)')
+            logger.info('Checking for dummy data... (auto-seeding disabled)')
           }
           const { checkDatabaseState, seedDummyData } = await import('@/lib/db/seed')
           const state = await checkDatabaseState()
           if (process.env.NODE_ENV === 'development') {
-            console.log('Database state:', state)
+            logger.info('Database state:', state)
           }
 
           // Auto-seeding disabled - users can manually seed via console
           // if (state.tasks === 0) {
           //   await seedDummyData()
           //   if (process.env.NODE_ENV === 'development') {
-          //     console.log('Seeded dummy data for development')
+          //     logger.info('Seeded dummy data for development')
           //   }
           // }
 
@@ -92,11 +93,11 @@ export function useDatabase() {
         if (mounted) {
           setIsInitialized(true)
           if (process.env.NODE_ENV === 'development') {
-            console.log('Database initialization completed successfully')
+            logger.info('Database initialization completed successfully')
           }
         }
       } catch (err) {
-        console.error('Database initialization failed:', err)
+        logger.error('Database initialization failed:', err)
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Unknown error')
           setIsInitialized(false)

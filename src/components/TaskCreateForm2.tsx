@@ -5,6 +5,7 @@ import { getTodayJST } from '@/lib/utils/date-jst'
 import { URL_LIMITS } from '@/lib/db/schema'
 import { ImportanceDot } from '@/components/ImportanceDot'
 import { TimeInput } from '@/components/TimeInput'
+import { logger } from '@/lib/utils/logger'
 
 interface RecurringSettings {
   pattern: string
@@ -94,14 +95,14 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
   // 買い物リスト操作
   const addShoppingItem = () => {
     if (newShoppingItem.trim()) {
-      console.log('🛒 買い物リスト追加前:', { shoppingItems, newShoppingItem })
+      logger.info('🛒 買い物リスト追加前:', { shoppingItems, newShoppingItem })
       const newItems = [...shoppingItems, newShoppingItem.trim()]
       setShoppingItems(newItems)
-      console.log('🛒 買い物リスト追加後:', { newItems })
+      logger.info('🛒 買い物リスト追加後:', { newItems })
       setNewShoppingItem('')
       setIsTypingShopping(false) // 追加時にフラグをクリア
     } else {
-      console.log('🛒 買い物リスト追加: 空の入力のためスキップ')
+      logger.info('🛒 買い物リスト追加: 空の入力のためスキップ')
     }
   }
 
@@ -160,7 +161,7 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
           file_data: fileBase64
         }
       } catch (error) {
-        console.error('TaskCreateForm2: File conversion failed:', error)
+        logger.error('TaskCreateForm2: File conversion failed:', error)
         alert('ファイルの変換に失敗しました')
         return
       }
@@ -173,11 +174,11 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
       let finalShoppingItems = [...shoppingItems]
       if (category === '買い物' && newShoppingItem.trim()) {
         finalShoppingItems = [...shoppingItems, newShoppingItem.trim()]
-        console.log('🛒 入力フィールドの内容を自動追加:', newShoppingItem.trim())
+        logger.info('🛒 入力フィールドの内容を自動追加:', newShoppingItem.trim())
       }
 
       if (taskType === 'once' || taskType === 'deadline') {
-        console.log('🛒 TaskCreateForm2 - 買い物リスト送信:', {
+        logger.info('🛒 TaskCreateForm2 - 買い物リスト送信:', {
           category,
           shoppingItems: finalShoppingItems,
           shoppingItemsLength: finalShoppingItems.length,

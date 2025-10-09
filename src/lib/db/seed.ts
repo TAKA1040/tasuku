@@ -2,13 +2,14 @@
 // PHASE 0 合格条件：ダミーデータ読込可
 
 import { getTodayJST, addDays } from '../utils/date-jst'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * ダミーデータを生成してDBに投入（新統一システム対応）
  */
 export async function seedDummyData(): Promise<void> {
   if (process.env.NODE_ENV === 'development') {
-    console.log('Seeding dummy data...')
+    logger.info('Seeding dummy data...')
   }
 
   try {
@@ -18,7 +19,7 @@ export async function seedDummyData(): Promise<void> {
     // 認証済みユーザーのIDを取得
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
-      console.error('User not authenticated, skipping seed data')
+      logger.error('User not authenticated, skipping seed data')
       return
     }
 
@@ -98,7 +99,7 @@ export async function seedDummyData(): Promise<void> {
       // 既に同じタイトルのタスクが存在する場合はスキップ
       if (existingTitles.has(task.title)) {
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Skipping duplicate dummy task: ${task.title}`)
+          logger.info(`Skipping duplicate dummy task: ${task.title}`)
         }
         continue
       }
@@ -108,19 +109,19 @@ export async function seedDummyData(): Promise<void> {
         .insert(task)
 
       if (error) {
-        console.error('Failed to seed dummy task:', error, task.title)
+        logger.error('Failed to seed dummy task:', error, task.title)
       } else {
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Successfully seeded dummy task: ${task.title}`)
+          logger.info(`Successfully seeded dummy task: ${task.title}`)
         }
       }
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Seeded ${dummyUnifiedTasks.length} unified tasks`)
+      logger.info(`Seeded ${dummyUnifiedTasks.length} unified tasks`)
     }
   } catch (error) {
-    console.error('Failed to seed dummy data:', error)
+    logger.error('Failed to seed dummy data:', error)
   }
 }
 
@@ -129,7 +130,7 @@ export async function seedDummyData(): Promise<void> {
  */
 export async function clearAllData(): Promise<void> {
   if (process.env.NODE_ENV === 'development') {
-    console.log('Clearing all data...')
+    logger.info('Clearing all data...')
   }
 
   try {
@@ -139,7 +140,7 @@ export async function clearAllData(): Promise<void> {
     // 認証済みユーザーのIDを取得
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
-      console.error('User not authenticated, skipping clear data')
+      logger.error('User not authenticated, skipping clear data')
       return
     }
 
@@ -153,15 +154,15 @@ export async function clearAllData(): Promise<void> {
         .eq('user_id', user.id)
 
       if (error) {
-        console.error(`Failed to clear ${table}:`, error)
+        logger.error(`Failed to clear ${table}:`, error)
       }
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('All data cleared')
+      logger.info('All data cleared')
     }
   } catch (error) {
-    console.error('Failed to clear all data:', error)
+    logger.error('Failed to clear all data:', error)
   }
 }
 
@@ -191,7 +192,7 @@ export async function checkDatabaseState(): Promise<{
       .eq('user_id', user.id)
 
     if (tasksError) {
-      console.error('Failed to get unified tasks:', tasksError)
+      logger.error('Failed to get unified tasks:', tasksError)
       return { tasks: 0, recurringTasks: 0, recurringLogs: 0 }
     }
 
@@ -202,7 +203,7 @@ export async function checkDatabaseState(): Promise<{
       .eq('user_id', user.id)
 
     if (doneError) {
-      console.error('Failed to get done records:', doneError)
+      logger.error('Failed to get done records:', doneError)
     }
 
     const taskCount = (unifiedTasks || []).filter(t => t.task_type === 'TASK').length
@@ -215,7 +216,7 @@ export async function checkDatabaseState(): Promise<{
       recurringLogs: doneCount  // 完了記録数をrecurringLogsとして返す（互換性）
     }
   } catch (error) {
-    console.error('Failed to check database state:', error)
+    logger.error('Failed to check database state:', error)
     return { tasks: 0, recurringTasks: 0, recurringLogs: 0 }
   }
 }

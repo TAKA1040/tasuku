@@ -25,8 +25,8 @@ interface TaskStats {
 }
 
 export function RecurringTaskStats({ completedTasks, selectedTaskIds, onTaskSelect }: RecurringTaskStatsProps) {
-  console.log('🚀 RecurringTaskStats component mounted/rendered')
-  console.log('Props:', { completedTasksLength: completedTasks.length, selectedTaskIdsLength: selectedTaskIds.length })
+  logger.info('🚀 RecurringTaskStats component mounted/rendered')
+  logger.info('Props:', { completedTasksLength: completedTasks.length, selectedTaskIdsLength: selectedTaskIds.length })
 
   const [period, setPeriod] = useState<'week' | 'month' | 'all'>('month')
 

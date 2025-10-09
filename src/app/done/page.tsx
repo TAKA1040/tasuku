@@ -9,6 +9,7 @@ import { ThemedContainer } from '@/components/ThemedContainer'
 import type { Task } from '@/lib/db/schema'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { unifiedTaskToTask } from '@/lib/utils/type-converters'
+import { logger } from '@/lib/utils/logger'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
@@ -54,13 +55,13 @@ export default function DonePage() {
   useEffect(() => {
     const loadCompletedTasks = async () => {
       try {
-        console.log('📥 Loading completed tasks...')
+        logger.info('📥 Loading completed tasks...')
         const tasks = await getCompletedTasksWithHistory()
-        console.log('✅ Loaded completed tasks:', tasks.length)
-        console.log('📋 Tasks:', tasks)
+        logger.info('✅ Loaded completed tasks:', tasks.length)
+        logger.info('📋 Tasks:', tasks)
         setCompletedTasks(tasks)
       } catch (error) {
-        console.error('❌ Failed to load completed tasks:', error)
+        logger.error('❌ Failed to load completed tasks:', error)
       }
     }
     loadCompletedTasks()
@@ -73,7 +74,7 @@ export default function DonePage() {
       try {
         setSelectedDailyTasks(JSON.parse(saved))
       } catch (error) {
-        console.error('Failed to parse selected daily tasks:', error)
+        logger.error('Failed to parse selected daily tasks:', error)
       }
     }
   }, [])
@@ -273,7 +274,7 @@ export default function DonePage() {
       const tasks = await getCompletedTasksWithHistory()
       setCompletedTasks(tasks)
     } catch (error) {
-      console.error('更新エラー:', error)
+      logger.error('更新エラー:', error)
       alert('タスクの更新に失敗しました')
     } finally {
       // ローディング状態終了
@@ -300,7 +301,7 @@ export default function DonePage() {
       const tasks = await getCompletedTasksWithHistory()
       setCompletedTasks(tasks)
     } catch (error) {
-      console.error('未完了化エラー:', error)
+      logger.error('未完了化エラー:', error)
       alert('タスクの未完了化に失敗しました')
     } finally {
       // ローディング状態終了
@@ -322,7 +323,7 @@ export default function DonePage() {
       const tasks = await getCompletedTasksWithHistory()
       setCompletedTasks(tasks)
     } catch (error) {
-      console.error('削除エラー:', error)
+      logger.error('削除エラー:', error)
       alert('タスクの削除に失敗しました')
     } finally {
       // ローディング状態終了

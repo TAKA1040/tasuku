@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
+import { logger } from '@/lib/utils/logger'
 
 export default function ManagePage() {
   const [cleanupStatus, setCleanupStatus] = useState<string>('')
@@ -22,7 +23,7 @@ export default function ManagePage() {
         setCleanupStatus(`${result.deletedCount}件の孤児化したdone記録を削除しました。`)
       }
     } catch (error: unknown) {
-      console.error('Cleanup failed:', error)
+      logger.error('Cleanup failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       setCleanupStatus(`クリーンアップ中にエラーが発生しました: ${errorMessage}`)
     } finally {

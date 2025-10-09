@@ -2,17 +2,18 @@
 
 import { occursOn } from './recurring'
 import type { RecurringTask } from '../db/schema'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * 開発環境でのみ利用可能なテスト関数
  */
 export function testRecurringRules() {
   if (process.env.NODE_ENV !== 'development') {
-    console.warn('Recurring tests are only available in development mode')
+    logger.warn('Recurring tests are only available in development mode')
     return
   }
 
-  console.log('🧪 Testing recurring task rules...')
+  logger.info('🧪 Testing recurring task rules...')
 
   // テスト用の日付
   const testDates = [
@@ -35,10 +36,10 @@ export function testRecurringRules() {
     updated_at: new Date().toISOString()
   }
 
-  console.log('Daily task (every day from 2025-09-10):')
+  logger.info('Daily task (every day from 2025-09-10):')
   testDates.forEach(date => {
     const occurs = occursOn(date, dailyTask)
-    console.log(`  ${date}: ${occurs ? '✅' : '❌'}`)
+    logger.info(`  ${date}: ${occurs ? '✅' : '❌'}`)
   })
 
   // WEEKLY テスト（火・木曜日）
@@ -54,10 +55,10 @@ export function testRecurringRules() {
     updated_at: new Date().toISOString()
   }
 
-  console.log('Weekly task (Tue & Thu from 2025-09-09):')
+  logger.info('Weekly task (Tue & Thu from 2025-09-09):')
   testDates.forEach(date => {
     const occurs = occursOn(date, weeklyTask)
-    console.log(`  ${date}: ${occurs ? '✅' : '❌'}`)
+    logger.info(`  ${date}: ${occurs ? '✅' : '❌'}`)
   })
 
   // MONTHLY テスト（毎月15日）
@@ -73,10 +74,10 @@ export function testRecurringRules() {
     updated_at: new Date().toISOString()
   }
 
-  console.log('Monthly task (15th of each month from 2025-08-15):')
+  logger.info('Monthly task (15th of each month from 2025-08-15):')
   testDates.forEach(date => {
     const occurs = occursOn(date, monthlyTask)
-    console.log(`  ${date}: ${occurs ? '✅' : '❌'}`)
+    logger.info(`  ${date}: ${occurs ? '✅' : '❌'}`)
   })
 
   // 2日おきのテスト
@@ -91,13 +92,13 @@ export function testRecurringRules() {
     updated_at: new Date().toISOString()
   }
 
-  console.log('Interval task (every 2 days from 2025-09-10):')
+  logger.info('Interval task (every 2 days from 2025-09-10):')
   testDates.forEach(date => {
     const occurs = occursOn(date, intervalTask)
-    console.log(`  ${date}: ${occurs ? '✅' : '❌'}`)
+    logger.info(`  ${date}: ${occurs ? '✅' : '❌'}`)
   })
 
-  console.log('🧪 Recurring tests completed!')
+  logger.info('🧪 Recurring tests completed!')
 }
 
 /**
@@ -107,6 +108,6 @@ export function setupRecurringDevTools() {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     // @ts-expect-error Development tools: Adding global function for testing
     window.testRecurringRules = testRecurringRules
-    console.log('Development tools: window.testRecurringRules()')
+    logger.info('Development tools: window.testRecurringRules()')
   }
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useUnifiedTasks } from '@/hooks/useUnifiedTasks'
 import { useCompletionTracker } from '@/hooks/useCompletionTracker'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 
 export interface UnifiedRecurringTaskWithStatus {
   task: UnifiedTask
@@ -106,7 +107,7 @@ export function useUnifiedRecurringTasks(
 
       await completionTracker.recordCompletion(task, date)
     } catch (err) {
-      console.error('Failed to complete recurring task:', err)
+      logger.error('Failed to complete recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }
@@ -116,7 +117,7 @@ export function useUnifiedRecurringTasks(
     try {
       await completionTracker.removeCompletion(taskId, date)
     } catch (err) {
-      console.error('Failed to uncomplete recurring task:', err)
+      logger.error('Failed to uncomplete recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }
@@ -135,7 +136,7 @@ export function useUnifiedRecurringTasks(
       ])
       setError(null)
     } catch (err) {
-      console.error('Failed to refresh recurring tasks:', err)
+      logger.error('Failed to refresh recurring tasks:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)

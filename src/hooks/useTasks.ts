@@ -7,6 +7,7 @@ import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
 import { TIME_CONSTANTS } from '@/lib/constants'
 import { withErrorHandling } from '@/lib/utils/error-handler'
+import { logger } from '@/lib/utils/logger'
 
 // 簡易メモリキャッシュ
 let taskCache: { data: Task[]; timestamp: number } | null = null
@@ -21,7 +22,7 @@ export function useTasks(isDbInitialized: boolean = false) {
   const loadTasks = useCallback(async (forceRefresh = false) => {
     if (!isDbInitialized) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Database not yet initialized, skipping task loading')
+        logger.info('Database not yet initialized, skipping task loading')
       }
       setLoading(false) // Important: Set loading to false even when not initialized
       return
@@ -30,7 +31,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     // キャッシュチェック（強制更新でない場合）
     if (!forceRefresh && taskCache && Date.now() - taskCache.timestamp < CACHE_DURATION) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Using cached tasks data')
+        logger.info('Using cached tasks data')
       }
       setTasks(taskCache.data)
       setLoading(false)

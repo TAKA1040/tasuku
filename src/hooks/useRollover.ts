@@ -8,6 +8,7 @@ import {
   rolloverRecurringTask,
   getRolloverDisplayText
 } from '@/lib/utils/rollover'
+import { logger } from '@/lib/utils/logger'
 import type { Task, RecurringTask } from '@/lib/db/schema'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
 import { UI_CONSTANTS } from '@/lib/constants'
@@ -30,13 +31,13 @@ export function useRollover(
 
     setIsRollingOver(true)
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Auto rollover: Processing ${incompleteTasks.length} incomplete tasks`)
+      logger.info(`Auto rollover: Processing ${incompleteTasks.length} incomplete tasks`)
     }
 
     try {
       for (const task of incompleteTasks) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Auto rollover: Processing task:', task.title)
+          logger.info('Auto rollover: Processing task:', task.title)
         }
         const rolledOverTask = rolloverSingleTask(task)
 
@@ -46,7 +47,7 @@ export function useRollover(
         try {
           await db.createTask(taskForCreate)
           if (process.env.NODE_ENV === 'development') {
-            console.log('Auto rollover: Successfully created task:', task.title)
+            logger.info('Auto rollover: Successfully created task:', task.title)
           }
 
           // 元のタスクを完了済みにマーク（重複表示を防ぐ）
@@ -55,10 +56,10 @@ export function useRollover(
             completed_at: new Date().toLocaleDateString('ja-CA')
           })
           if (process.env.NODE_ENV === 'development') {
-            console.log('Auto rollover: Marked original task as completed:', task.title)
+            logger.info('Auto rollover: Marked original task as completed:', task.title)
           }
         } catch (createError) {
-          console.error('Auto rollover: Failed to create task:', {
+          logger.error('Auto rollover: Failed to create task:', {
             title: task.title,
             error: createError instanceof Error ? createError.message : 'Unknown error'
           })
@@ -73,10 +74,10 @@ export function useRollover(
       })
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Auto rollover completed successfully')
+        logger.info('Auto rollover completed successfully')
       }
     } catch (error) {
-      console.error('Auto rollover error:', error)
+      logger.error('Auto rollover error:', error)
     } finally {
       setIsRollingOver(false)
     }
@@ -112,7 +113,7 @@ export function useRollover(
           }, UI_CONSTANTS.AUTO_ROLLOVER_DELAY) // 1秒後に自動実行
         }
       } catch (error) {
-        console.error('Rollover detection error:', error)
+        logger.error('Rollover detection error:', error)
         setRolloverData({
           incompleteSingle: [],
           incompleteRecurring: []
@@ -194,7 +195,7 @@ export function useRollover(
       setRolloverData(null)
       
     } catch (error) {
-      console.error('Rollover failed:', error)
+      logger.error('Rollover failed:', error)
     } finally {
       setIsRollingOver(false)
     }

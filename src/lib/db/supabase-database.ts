@@ -16,6 +16,7 @@ import {
   type LocationTag,
   type UnifiedItem
 } from './schema'
+import { logger } from '@/lib/utils/logger'
 
 // Note: TaskInsert, RecurringTaskInsert, _IdeaInsert are unused (using Omit inline instead)
 // 挿入専用の薄い型定義（display_numberを省略可）
@@ -43,7 +44,7 @@ const serializeAttachment = (attachment: FileAttachment | undefined): Json | nul
       file_data: attachment.file_data
     }
   } catch (error) {
-    console.error('serializeAttachment error:', error)
+    logger.error('serializeAttachment error:', error)
     return null
   }
 }
@@ -128,7 +129,7 @@ class SupabaseTasukuDatabase {
 
     // 開発環境でのみデバッグログを出力
     if (process.env.NODE_ENV === 'development') {
-      console.log('createTask: Creating task:', task.title)
+      logger.info('createTask: Creating task:', task.title)
     }
 
     // buildUnifiedTaskInsertヘルパを使用
@@ -140,7 +141,7 @@ class SupabaseTasukuDatabase {
       .single()
 
     if (error) {
-      console.error('createTask: Failed to create task:', {
+      logger.error('createTask: Failed to create task:', {
         title: task.title,
         error: error.message,
         code: error.code
@@ -149,7 +150,7 @@ class SupabaseTasukuDatabase {
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('createTask: Successfully created task:', task.title)
+      logger.info('createTask: Successfully created task:', task.title)
     }
 
     // user_idを除いてTaskを返す、attachmentをデシリアライズ
@@ -317,7 +318,7 @@ class SupabaseTasukuDatabase {
 
   async updateRecurringTask(id: string, updates: Partial<Omit<RecurringTask, 'id' | 'created_at' | 'updated_at'>>): Promise<RecurringTask> {
     if (process.env.NODE_ENV === 'development') {
-      console.log('updateRecurringTask: Updating task:', updates.title || id)
+      logger.info('updateRecurringTask: Updating task:', updates.title || id)
     }
 
     const { data, error } = await this.supabase
@@ -331,7 +332,7 @@ class SupabaseTasukuDatabase {
       .single()
 
     if (error) {
-      console.error('Supabase updateRecurringTask error:', {
+      logger.error('Supabase updateRecurringTask error:', {
         error,
         id,
         updates,
@@ -343,7 +344,7 @@ class SupabaseTasukuDatabase {
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('updateRecurringTask: Successfully updated task')
+      logger.info('updateRecurringTask: Successfully updated task')
     }
     const { user_id: _user_id, ...taskData } = data
     return {
@@ -447,7 +448,7 @@ class SupabaseTasukuDatabase {
 
   async createIdea(idea: Omit<Idea, 'id' | 'created_at' | 'updated_at'>): Promise<Idea> {
     if (process.env.NODE_ENV === 'development') {
-      console.log('createIdea: Creating idea:', idea.text)
+      logger.info('createIdea: Creating idea:', idea.text)
     }
 
     // buildUnifiedTaskInsertヘルパを使用（text→title変換も含む）
@@ -459,7 +460,7 @@ class SupabaseTasukuDatabase {
       .single()
 
     if (error) {
-      console.error('createIdea: Failed to create idea:', {
+      logger.error('createIdea: Failed to create idea:', {
         text: idea.text,
         error: error.message,
         code: error.code
@@ -468,7 +469,7 @@ class SupabaseTasukuDatabase {
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('createIdea: Successfully created idea:', idea.text)
+      logger.info('createIdea: Successfully created idea:', idea.text)
     }
 
     const { user_id: _user_id, ...ideaData } = data
@@ -557,7 +558,7 @@ class SupabaseTasukuDatabase {
     const userId = await this.getCurrentUserId()
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('createSubTask: Creating subtask:', subTask.title)
+      logger.info('createSubTask: Creating subtask:', subTask.title)
     }
 
     const { data, error } = await this.supabase
@@ -567,7 +568,7 @@ class SupabaseTasukuDatabase {
       .single()
 
     if (error) {
-      console.error('createSubTask: Failed to create subtask:', {
+      logger.error('createSubTask: Failed to create subtask:', {
         title: subTask.title,
         error: error.message,
         code: error.code
@@ -576,7 +577,7 @@ class SupabaseTasukuDatabase {
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('createSubTask: Successfully created subtask:', subTask.title)
+      logger.info('createSubTask: Successfully created subtask:', subTask.title)
     }
 
     const { user_id: _user_id, ...subTaskData } = data
@@ -685,7 +686,7 @@ class SupabaseTasukuDatabase {
         updated_at: data.updated_at
       }
     } catch (err) {
-      console.error('Failed to get settings from database, using localStorage fallback:', err)
+      logger.error('Failed to get settings from database, using localStorage fallback:', err)
       return this.getSettingsFromLocalStorage()
     }
   }
@@ -728,7 +729,7 @@ class SupabaseTasukuDatabase {
         updated_at: data.updated_at
       }
     } catch (err) {
-      console.error('Failed to create default settings:', err)
+      logger.error('Failed to create default settings:', err)
       return this.getSettingsFromLocalStorage()
     }
   }
@@ -821,7 +822,7 @@ class SupabaseTasukuDatabase {
         updated_at: data.updated_at
       }
     } catch (err) {
-      console.error('Failed to update settings in database, using localStorage fallback:', err)
+      logger.error('Failed to update settings in database, using localStorage fallback:', err)
       // Fallback to localStorage
       const currentSettings = this.getSettingsFromLocalStorage()
       const updatedSettings: Settings = {

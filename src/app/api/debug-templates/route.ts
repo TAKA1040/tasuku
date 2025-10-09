@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export async function GET() {
   try {
@@ -48,7 +49,7 @@ export async function GET() {
       templates: debugInfo
     })
   } catch (error) {
-    console.error('Debug templates error:', error)
+    logger.error('Debug templates error:', error)
     return NextResponse.json({
       error: String(error)
     }, { status: 500 })

@@ -1,6 +1,8 @@
 // フィーチャーフラグ管理
 // 段階的機能有効化とデバッグ用
 
+import { logger } from '@/lib/utils/logger'
+
 // Supabaseデータベースを使用する場合は supabase-database をimport
 // import { supabaseDb as db } from './db/supabase-database'
 // import type { Settings } from './db/schema' // 将来使用予定
@@ -36,7 +38,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
     // return { ...DEFAULT_FEATURES, ...settings.features }
     return DEFAULT_FEATURES
   } catch (error) {
-    console.warn('Failed to load feature flags, using defaults:', error)
+    logger.warn('Failed to load feature flags, using defaults:', error)
     return DEFAULT_FEATURES
   }
 }
@@ -63,7 +65,7 @@ export async function updateFeatureFlag(
   // TODO: Supabaseでsettingsを更新
   // await db.updateSettings({ features: _updated })
   if (process.env.NODE_ENV === 'development') {
-    console.log('Feature flag would be updated:', feature, enabled)
+    logger.info('Feature flag would be updated:', feature, enabled)
   }
 }
 
@@ -78,7 +80,7 @@ export async function updateFeatureFlags(updates: Partial<FeatureFlags>): Promis
   // TODO: Supabaseでsettingsを更新
   // await db.updateSettings({ features: updated })
   if (process.env.NODE_ENV === 'development') {
-    console.log('Feature flags would be updated:', updates)
+    logger.info('Feature flags would be updated:', updates)
   }
 }
 
@@ -163,7 +165,7 @@ export const DEV_FEATURES: Partial<FeatureFlags> = {
 export async function initializeDevFeatures(): Promise<void> {
   if (process.env.NODE_ENV === 'development' && Object.keys(DEV_FEATURES).length > 0) {
     if (process.env.NODE_ENV === 'development') {
-      console.log('Initializing development feature flags:', DEV_FEATURES)
+      logger.info('Initializing development feature flags:', DEV_FEATURES)
     }
     await updateFeatureFlags(DEV_FEATURES)
   }

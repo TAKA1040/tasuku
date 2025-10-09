@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { DisplayNumberUtils } from '@/lib/types/unified-task'
 import { ImportanceDot } from '@/components/ImportanceDot'
+import { logger } from '@/lib/utils/logger'
 
 interface ShoppingTasksSectionProps {
   onEdit?: (task: UnifiedTask) => void
@@ -86,7 +87,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       // 親コンポーネントに更新を通知
       onSubTaskUpdate?.(taskId)
     } catch (error) {
-      console.error('Failed to toggle subtask:', error)
+      logger.error('Failed to toggle subtask:', error)
     }
   }
 
@@ -99,7 +100,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       // 親コンポーネントに更新を通知
       onSubTaskUpdate?.(taskId)
     } catch (error) {
-      console.error('Failed to delete subtask:', error)
+      logger.error('Failed to delete subtask:', error)
     }
   }
 
@@ -122,7 +123,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       // 親コンポーネントに更新を通知
       onSubTaskUpdate?.(taskId)
     } catch (error) {
-      console.error('Failed to add subtask:', error)
+      logger.error('Failed to add subtask:', error)
     }
   }
 
@@ -157,7 +158,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       // 親コンポーネントに更新を通知
       onSubTaskUpdate?.(editingSubTask.taskId)
     } catch (error) {
-      console.error('Failed to update subtask:', error)
+      logger.error('Failed to update subtask:', error)
     }
   }
 
@@ -176,7 +177,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       // サブタスクリストを再読み込み
       await loadSubTasks()
     } catch (error) {
-      console.error('Failed to complete task:', error)
+      logger.error('Failed to complete task:', error)
     }
   }
 
@@ -211,7 +212,7 @@ export function ShoppingTasksSection({ onEdit, onSubTaskUpdate }: ShoppingTasksS
       onEdit(task)
     } else {
       if (process.env.NODE_ENV === 'development') {
-        console.log('編集:', task)
+        logger.info('編集:', task)
       }
       alert(`タスク「${task.title}」の編集機能は今日のページで利用できます`)
     }

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
 import type { RecurringLog } from '@/lib/db/schema'
 import { getTodayJST } from '@/lib/utils/date-jst'
+import { logger } from '@/lib/utils/logger'
 
 export function useRecurringLogs(isDbInitialized: boolean) {
   const [logs, setLogs] = useState<RecurringLog[]>([])
@@ -23,7 +24,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       setLogs(allLogs)
       setError(null)
     } catch (err) {
-      console.error('Failed to load recurring logs:', err)
+      logger.error('Failed to load recurring logs:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
@@ -42,7 +43,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       
       if (existingLog) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Log already exists for this task and date')
+          logger.info('Log already exists for this task and date')
         }
         return existingLog
       }
@@ -57,7 +58,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       await loadLogs() // Reload logs
       return newLog
     } catch (err) {
-      console.error('Failed to add recurring log:', err)
+      logger.error('Failed to add recurring log:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }
@@ -74,7 +75,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       
       if (!existingLog) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('No log found for this task and date')
+          logger.info('No log found for this task and date')
         }
         return
       }
@@ -82,7 +83,7 @@ export function useRecurringLogs(isDbInitialized: boolean) {
       await db.deleteRecurringLog(recurringTaskId, logDate)
       await loadLogs() // Reload logs
     } catch (err) {
-      console.error('Failed to remove recurring log:', err)
+      logger.error('Failed to remove recurring log:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       throw err
     }

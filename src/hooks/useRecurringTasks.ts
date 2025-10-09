@@ -7,6 +7,7 @@ import { getTodayJST } from '@/lib/utils/date-jst'
 import { occursOn, getRecurringDisplayName } from '@/lib/utils/recurring'
 import type { RecurringTask, RecurringLog } from '@/lib/db/schema'
 import { TIME_CONSTANTS } from '@/lib/constants'
+import { logger } from '@/lib/utils/logger'
 
 export interface RecurringTaskWithStatus {
   task: RecurringTask
@@ -26,7 +27,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
   const loadRecurringData = useCallback(async () => {
     if (!isDbInitialized) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Database not yet initialized, skipping recurring data loading')
+        logger.info('Database not yet initialized, skipping recurring data loading')
       }
       setLoading(false) // Important: Set loading to false even when not initialized
       return
@@ -43,7 +44,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       setRecurringLogs(logs)
       setError(null)
     } catch (err) {
-      console.error('Failed to load recurring data:', err)
+      logger.error('Failed to load recurring data:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
@@ -144,7 +145,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       
       if (existingLog) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Task already completed today')
+          logger.info('Task already completed today')
         }
         return
       }
@@ -152,7 +153,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       await db.logRecurringTask(taskId, today)
       await loadRecurringData() // Reload data
     } catch (err) {
-      console.error('Failed to complete recurring task:', err)
+      logger.error('Failed to complete recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -173,7 +174,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
         await loadRecurringData()
       }
     } catch (err) {
-      console.error('Failed to uncomplete recurring task:', err)
+      logger.error('Failed to uncomplete recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -222,13 +223,13 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       }
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('useRecurringTasks: Creating recurring task with category:', category, '-> processed:', newRecurringTask.category)
+        logger.info('useRecurringTasks: Creating recurring task with category:', category, '-> processed:', newRecurringTask.category)
       }
 
       await db.createRecurringTask(newRecurringTask)
       await loadRecurringData() // Reload data
     } catch (err) {
-      console.error('Failed to create recurring task:', err)
+      logger.error('Failed to create recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -247,7 +248,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       await db.updateRecurringTask(taskId, updates)
       await loadRecurringData()
     } catch (err) {
-      console.error('Failed to update recurring task:', err)
+      logger.error('Failed to update recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -261,7 +262,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       
       await loadRecurringData()
     } catch (err) {
-      console.error('Failed to delete recurring task:', err)
+      logger.error('Failed to delete recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -277,7 +278,7 @@ export function useRecurringTasks(isDbInitialized: boolean = false) {
       await db.updateRecurringTask(taskId, { active: !existingTask.active })
       await loadRecurringData()
     } catch (err) {
-      console.error('Failed to toggle recurring task:', err)
+      logger.error('Failed to toggle recurring task:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }

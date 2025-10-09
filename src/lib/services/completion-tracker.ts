@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST, formatDateJST } from '@/lib/utils/date-jst'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 
 export interface CompletionRecord {
   id: string
@@ -44,7 +45,7 @@ export class CompletionTracker {
     // 既に記録されているかチェック
     const existing = await this.getCompletionForDate(task.id, date)
     if (existing) {
-      console.log(`Task ${task.id} already completed on ${date}`)
+      logger.info(`Task ${task.id} already completed on ${date}`)
       return existing
     }
 
@@ -283,8 +284,8 @@ export class CompletionTracker {
    * recurring_logsは既に存在しないため、この関数は使用されない
    */
   static async migrateFromRecurringLogs(): Promise<void> {
-    console.log('⚠️ Migration function disabled - recurring_logs table no longer exists')
-    console.log('✅ Data migration already completed in previous setup')
+    logger.info('⚠️ Migration function disabled - recurring_logs table no longer exists')
+    logger.info('✅ Data migration already completed in previous setup')
     return
   }
 }

@@ -8,6 +8,7 @@ import { PRIORITY_SCORES } from '@/lib/constants'
 import { ImportanceDot } from '@/components/ImportanceDot'
 import { TASK_CATEGORIES } from '@/lib/db/schema'
 import { subTaskService } from '@/lib/db/supabase-subtasks'
+import { logger } from '@/lib/utils/logger'
 
 interface TaskTableProps {
   tasks: TaskWithUrgency[]
@@ -110,7 +111,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         type="button"
         onClick={() => {
           if (process.env.NODE_ENV === 'development') {
-            console.log('All URLs:', urls)
+            logger.info('All URLs:', urls)
           }
 
           // Validate URLs before opening
@@ -118,8 +119,8 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           const invalidUrls = urls.filter(url => !isValidUrl(url))
 
           if (process.env.NODE_ENV === 'development') {
-            console.log('Valid URLs:', validUrls)
-            console.log('Invalid URLs:', invalidUrls)
+            logger.info('Valid URLs:', validUrls)
+            logger.info('Invalid URLs:', invalidUrls)
           }
 
           if (validUrls.length === 0) {
@@ -135,7 +136,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
           const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
           if (confirm(confirmMessage)) {
             if (process.env.NODE_ENV === 'development') {
-              console.log('Opening URLs:', validUrls)
+              logger.info('Opening URLs:', validUrls)
             }
 
             let blockedCount = 0
@@ -144,7 +145,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
             validUrls.forEach((url, index) => {
               setTimeout(() => {
                 if (process.env.NODE_ENV === 'development') {
-                  console.log(`Opening URL ${index + 1}:`, url)
+                  logger.info(`Opening URL ${index + 1}:`, url)
                 }
                 const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
 
@@ -152,7 +153,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
                 if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                   blockedCount++
                   if (process.env.NODE_ENV === 'development') {
-                    console.log(`URL ${index + 1} was blocked by popup blocker`)
+                    logger.info(`URL ${index + 1} was blocked by popup blocker`)
                   }
                 }
 
@@ -193,7 +194,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
         const taskSubTasks = await subTaskService.getSubTasksByParentId(taskId)
         newSubTasks[taskId] = taskSubTasks.sort((a, b) => a.sort_order - b.sort_order)
       } catch (error) {
-        console.error('Failed to load subtasks for task:', taskId, error)
+        logger.error('Failed to load subtasks for task:', taskId, error)
       }
     }
 
@@ -216,7 +217,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       await subTaskService.toggleSubTaskCompletion(subTaskId)
       await loadSubTasks()
     } catch (error) {
-      console.error('Failed to toggle subtask:', error)
+      logger.error('Failed to toggle subtask:', error)
     }
   }
 
@@ -225,7 +226,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       await subTaskService.deleteSubTask(subTaskId)
       await loadSubTasks()
     } catch (error) {
-      console.error('Failed to delete subtask:', error)
+      logger.error('Failed to delete subtask:', error)
     }
   }
 
@@ -246,7 +247,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
 
       await loadSubTasks()
     } catch (error) {
-      console.error('Failed to add subtask:', error)
+      logger.error('Failed to add subtask:', error)
     }
   }
 
@@ -273,7 +274,7 @@ export function TaskTable({ tasks, recurringTasks, completedTasks = [], complete
       await loadSubTasks()
       setEditingSubTask(null)
     } catch (error) {
-      console.error('Failed to update subtask:', error)
+      logger.error('Failed to update subtask:', error)
     }
   }
 

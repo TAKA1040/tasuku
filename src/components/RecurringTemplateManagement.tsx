@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRecurringTemplates } from '@/hooks/useRecurringTemplates'
 import type { RecurringTemplate, RecurringTemplateCreate } from '@/lib/types/recurring-template'
+import { logger } from '@/lib/utils/logger'
 
 export default function RecurringTemplateManagement() {
   const {
@@ -58,7 +59,7 @@ export default function RecurringTemplateManagement() {
       }
       handleCancel()
     } catch (error) {
-      console.error('Template save error:', error)
+      logger.error('Template save error:', error)
     }
   }
 
@@ -67,7 +68,7 @@ export default function RecurringTemplateManagement() {
       try {
         await deleteTemplate(templateId)
       } catch (error) {
-        console.error('Template delete error:', error)
+        logger.error('Template delete error:', error)
       }
     }
   }
@@ -76,7 +77,7 @@ export default function RecurringTemplateManagement() {
     try {
       await toggleTemplate(templateId)
     } catch (error) {
-      console.error('Template toggle error:', error)
+      logger.error('Template toggle error:', error)
     }
   }
 

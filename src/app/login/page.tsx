@@ -1,6 +1,7 @@
 'use client'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
+import { logger } from '@/lib/utils/logger'
 
 // Dynamic import to prevent static generation
 export const dynamic = 'force-dynamic'
@@ -16,9 +17,9 @@ export default function LoginPage() {
       setError(null)
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Starting Google OAuth...')
-        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-        console.log('Redirect URL:', `${window.location.origin}/auth/callback`)
+        logger.info('Starting Google OAuth...')
+        logger.info('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+        logger.info('Redirect URL:', `${window.location.origin}/auth/callback`)
       }
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -34,7 +35,7 @@ export default function LoginPage() {
 
       if (error) {
         if (process.env.NODE_ENV === 'development') {
-          console.error('OAuth error:', error)
+          logger.error('OAuth error:', error)
         }
         setError(`ログインエラー: ${error.message}`)
         setLoading(false)
@@ -42,7 +43,7 @@ export default function LoginPage() {
       // 成功時はリダイレクトが発生するのでloadingは自動でfalseになる
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        console.error('Unexpected error:', err)
+        logger.error('Unexpected error:', err)
       }
       setError(`予期しないエラー: ${err instanceof Error ? err.message : 'Unknown error'}`)
       setLoading(false)

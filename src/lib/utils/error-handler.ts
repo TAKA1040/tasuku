@@ -1,6 +1,8 @@
 // 統一エラーハンドリングシステム
 // アプリケーション全体で一貫したエラー処理を提供
 
+import { logger } from '@/lib/utils/logger'
+
 export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical'
 
 export interface AppError {
@@ -101,7 +103,7 @@ export function handleError(
 
   // 開発環境でのみ詳細ログを出力
   if (process.env.NODE_ENV === 'development') {
-    console.error(`[${context}] ${appError.severity.toUpperCase()}:`, {
+    logger.error(`[${context}] ${appError.severity.toUpperCase()}:`, {
       message: appError.message,
       originalError: error,
       timestamp: appError.timestamp
@@ -109,7 +111,7 @@ export function handleError(
   } else {
     // 本番環境では重要度が高いエラーのみログ出力
     if (appError.severity === 'high' || appError.severity === 'critical') {
-      console.error(`[${context}] ${appError.severity.toUpperCase()}:`, appError.message)
+      logger.error(`[${context}] ${appError.severity.toUpperCase()}:`, appError.message)
     }
   }
 

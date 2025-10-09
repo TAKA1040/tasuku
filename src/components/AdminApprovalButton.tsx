@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { logger } from '@/lib/utils/logger'
 
 interface AdminApprovalButtonProps {
   userId: string
@@ -36,7 +37,7 @@ export function AdminApprovalButton({ userId, userEmail }: AdminApprovalButtonPr
       }
     } catch (error) {
       setMessage('予期しないエラーが発生しました')
-      console.error('Approval error:', error)
+      logger.error('Approval error:', error)
     } finally {
       setLoading(false)
     }

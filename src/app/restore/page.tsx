@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST, formatDateJST } from '@/lib/utils/date-jst'
+import { logger } from '@/lib/utils/logger'
 
 function RestoreContent() {
   const [status, setStatus] = useState('')
@@ -78,19 +79,19 @@ function RestoreContent() {
           })
 
         if (insertError) {
-          console.error(`履歴作成エラー (${task.title}):`, insertError)
+          logger.error(`履歴作成エラー (${task.title}):`, insertError)
           results.push(`エラー: ${task.title} - ${insertError.message}`)
         } else {
           restoredCount++
           results.push(`復旧完了: ${task.title} (${yesterdayStr})`)
-          console.log(`復旧完了: ${task.title} (${yesterdayStr})`)
+          logger.info(`復旧完了: ${task.title} (${yesterdayStr})`)
         }
       }
 
       setStatus(`復旧完了！ ${restoredCount}件の昨日の達成記録を復旧しました。\n\n詳細:\n${results.join('\n')}`)
 
     } catch (error) {
-      console.error('復旧エラー:', error)
+      logger.error('復旧エラー:', error)
       setStatus(`エラー: ${error}`)
     } finally {
       setIsRestoring(false)

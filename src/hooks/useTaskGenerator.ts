@@ -6,6 +6,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { TaskGeneratorService } from '@/lib/services/task-generator'
 import { withErrorHandling } from '@/lib/utils/error-handler'
+import { logger } from '@/lib/utils/logger'
 
 interface UseTaskGeneratorResult {
   isGenerating: boolean
@@ -34,12 +35,12 @@ export function useTaskGenerator(autoGenerate: boolean = true): UseTaskGenerator
         setIsGenerating(true)
         setLastError(null)
 
-        console.log('🔄 タスク生成を開始...')
+        logger.info('🔄 タスク生成を開始...')
         await generatorService.generateMissingTasks(forceToday)
-        console.log('✅ タスク生成完了')
+        logger.info('✅ タスク生成完了')
 
         // タスク一覧を自動リロードするためのイベントを発火
-        console.log('📢 Dispatching tasksUpdated event...')
+        logger.info('📢 Dispatching tasksUpdated event...')
         window.dispatchEvent(new CustomEvent('tasksUpdated'))
       },
       'useTaskGenerator.generateMissingTasks',

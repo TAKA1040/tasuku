@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST, formatDateJST } from '@/lib/utils/date-jst'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/utils/logger'
 
 export async function POST() {
   try {
@@ -12,7 +13,7 @@ export async function POST() {
     yesterday.setDate(yesterday.getDate() - 1)
     const yesterdayStr = formatDateJST(yesterday)
 
-    console.log(`復旧対象: ${yesterdayStr} → ${today}`)
+    logger.info(`復旧対象: ${yesterdayStr} → ${today}`)
 
     // 現在のユーザーIDを取得
     const { data: { user } } = await supabase.auth.getUser()
@@ -32,7 +33,7 @@ export async function POST() {
       return NextResponse.json({ error: `今日のタスク取得エラー: ${todayError.message}` }, { status: 500 })
     }
 
-    console.log(`対象タスク数: ${todayTasks?.length || 0}件`)
+    logger.info(`対象タスク数: ${todayTasks?.length || 0}件`)
 
     // 各タスクについて昨日の完了履歴を作成
     let restoredCount = 0
@@ -69,12 +70,12 @@ export async function POST() {
         })
 
       if (insertError) {
-        console.error(`履歴作成エラー (${task.title}):`, insertError)
+        logger.error(`履歴作成エラー (${task.title}):`, insertError)
         results.push(`エラー: ${task.title} - ${insertError.message}`)
       } else {
         restoredCount++
         results.push(`復旧完了: ${task.title} (${yesterdayStr})`)
-        console.log(`復旧完了: ${task.title} (${yesterdayStr})`)
+        logger.info(`復旧完了: ${task.title} (${yesterdayStr})`)
       }
     }
 
@@ -88,7 +89,7 @@ export async function POST() {
     })
 
   } catch (error) {
-    console.error('復旧エラー:', error)
+    logger.error('復旧エラー:', error)
     return NextResponse.json({
       success: false,
       error: `復旧エラー: ${error}`

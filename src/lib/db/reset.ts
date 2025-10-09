@@ -1,6 +1,7 @@
 // IndexedDB リセット用ユーティリティ（開発時のみ）
 
 import { DB_NAME } from './schema'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * IndexedDBを完全に削除する（開発時のデバッグ用）
@@ -8,25 +9,25 @@ import { DB_NAME } from './schema'
 export async function deleteDatabase(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('Deleting IndexedDB database:', DB_NAME)
+      logger.info('Deleting IndexedDB database:', DB_NAME)
     }
     
     const deleteRequest = indexedDB.deleteDatabase(DB_NAME)
     
     deleteRequest.onsuccess = () => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Database deleted successfully')
+        logger.info('Database deleted successfully')
       }
       resolve()
     }
     
     deleteRequest.onerror = () => {
-      console.error('Failed to delete database:', deleteRequest.error)
+      logger.error('Failed to delete database:', deleteRequest.error)
       reject(deleteRequest.error)
     }
     
     deleteRequest.onblocked = () => {
-      console.warn('Database deletion blocked. Please close all tabs.')
+      logger.warn('Database deletion blocked. Please close all tabs.')
     }
   })
 }
@@ -43,7 +44,7 @@ export function setupDevTools() {
     }
     
     if (process.env.NODE_ENV === 'development') {
-      console.log('Development tools available: window.resetTasukuDB()')
+      logger.info('Development tools available: window.resetTasukuDB()')
     }
   }
 }

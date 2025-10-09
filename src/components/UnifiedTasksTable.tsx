@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { SubTask } from '@/lib/types/unified-task'
 import { getTodayJST } from '@/lib/utils/date-jst'
+import { logger } from '@/lib/utils/logger'
 
 interface UnifiedTasksTableProps {
   title: string
@@ -113,7 +114,7 @@ const convertXQueryToUrl = (query: string): string => {
 // URL一括開きアイコンのレンダリング関数
 const renderUrlIcon = (urls?: string[] | null) => {
   // デバッグ: URLsの状態を詳細ログ
-  console.log('🌐 renderUrlIcon called with:', {
+  logger.info('🌐 renderUrlIcon called with:', {
     urls,
     type: typeof urls,
     isArray: Array.isArray(urls),
@@ -127,9 +128,9 @@ const renderUrlIcon = (urls?: string[] | null) => {
     <button
       type="button"
       onClick={() => {
-        console.log('🌐 URL button clicked')
+        logger.info('🌐 URL button clicked')
         if (process.env.NODE_ENV === 'development') {
-          console.log('All URLs:', urls)
+          logger.info('All URLs:', urls)
         }
 
         // Validate URLs before opening
@@ -137,8 +138,8 @@ const renderUrlIcon = (urls?: string[] | null) => {
         const invalidUrls = urls.filter(url => !isValidUrl(url))
 
         if (process.env.NODE_ENV === 'development') {
-          console.log('Valid URLs:', validUrls)
-          console.log('Invalid URLs:', invalidUrls)
+          logger.info('Valid URLs:', validUrls)
+          logger.info('Invalid URLs:', invalidUrls)
         }
 
         if (validUrls.length === 0) {
@@ -154,7 +155,7 @@ const renderUrlIcon = (urls?: string[] | null) => {
         const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
         if (confirm(confirmMessage)) {
           if (process.env.NODE_ENV === 'development') {
-            console.log('Opening URLs:', validUrls)
+            logger.info('Opening URLs:', validUrls)
           }
 
           let blockedCount = 0
@@ -165,7 +166,7 @@ const renderUrlIcon = (urls?: string[] | null) => {
               // X検索クエリをURL形式に変換
               const finalUrl = convertXQueryToUrl(url)
               if (process.env.NODE_ENV === 'development') {
-                console.log(`Opening URL ${index + 1}:`, finalUrl)
+                logger.info(`Opening URL ${index + 1}:`, finalUrl)
               }
               const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer')
 
@@ -173,7 +174,7 @@ const renderUrlIcon = (urls?: string[] | null) => {
               if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                 blockedCount++
                 if (process.env.NODE_ENV === 'development') {
-                  console.log(`URL ${index + 1} was blocked by popup blocker`)
+                  logger.info(`URL ${index + 1} was blocked by popup blocker`)
                 }
               }
 
@@ -728,7 +729,7 @@ export function UnifiedTasksTable({
                             handleEditTask(item)
                           } else if (dataType === 'idea') {
                             if (process.env.NODE_ENV === 'development') {
-                              console.log('アイデア編集:', item.title)
+                              logger.info('アイデア編集:', item.title)
                             }
                             handleEditTask(item)
                           }

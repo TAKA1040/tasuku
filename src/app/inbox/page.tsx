@@ -12,6 +12,7 @@ import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { parseInboxContent } from '@/lib/utils/parse-inbox-content'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TaskTabNavigation } from '@/components/TaskTabNavigation'
+import { logger } from '@/lib/utils/logger'
 
 export default function InboxPage() {
   const { isInitialized } = useDatabase()
@@ -55,12 +56,12 @@ export default function InboxPage() {
       })
 
       setNewContent('')
-      console.log('✅ Inboxに追加しました:', parsed.title)
+      logger.info('✅ Inboxに追加しました:', parsed.title)
 
       // 追加後、管理タブに自動切り替え
       setActiveTab('manage')
     } catch (error) {
-      console.error('❌ Inbox追加エラー:', error)
+      logger.error('❌ Inbox追加エラー:', error)
     } finally {
       setIsAdding(false)
     }
@@ -76,9 +77,9 @@ export default function InboxPage() {
   const deleteItem = useCallback(async (id: string) => {
     try {
       await unifiedTasks.deleteTask(id)
-      console.log('✅ Inboxアイテムを削除しました')
+      logger.info('✅ Inboxアイテムを削除しました')
     } catch (error) {
-      console.error('❌ 削除エラー:', error)
+      logger.error('❌ 削除エラー:', error)
     }
   }, [unifiedTasks])
 
@@ -86,9 +87,9 @@ export default function InboxPage() {
   const toggleComplete = useCallback(async (id: string, completed: boolean) => {
     try {
       await unifiedTasks.updateTask(id, { completed })
-      console.log(`✅ Inbox処理済み状態を更新: ${completed ? '処理済み' : '未処理'}`)
+      logger.info(`✅ Inbox処理済み状態を更新: ${completed ? '処理済み' : '未処理'}`)
     } catch (error) {
-      console.error('❌ 処理済み更新エラー:', error)
+      logger.error('❌ 処理済み更新エラー:', error)
     }
   }, [unifiedTasks])
 
@@ -96,9 +97,9 @@ export default function InboxPage() {
   const editItem = useCallback(async (id: string, title: string, memo: string, urls: string[]) => {
     try {
       await unifiedTasks.updateTask(id, { title, memo, urls })
-      console.log('✅ Inboxアイテムを更新しました')
+      logger.info('✅ Inboxアイテムを更新しました')
     } catch (error) {
-      console.error('❌ 更新エラー:', error)
+      logger.error('❌ 更新エラー:', error)
     }
   }, [unifiedTasks])
 
@@ -142,18 +143,18 @@ export default function InboxPage() {
         await Promise.all(subtaskPromises)
       }
 
-      console.log('✅ Inbox → タスク変換完了')
+      logger.info('✅ Inbox → タスク変換完了')
       setShowTaskForm(false)
       setEditingInbox(null)
     } catch (error) {
-      console.error('❌ タスク変換エラー:', error)
+      logger.error('❌ タスク変換エラー:', error)
     }
   }, [editingInbox, unifiedTasks])
 
   // タブ切り替え時にクイック入力内容を自動保存
   const handleBeforeNavigate = useCallback(async () => {
     if (newContent.trim()) {
-      console.log('📥 タブ切り替え前にクイック入力を自動保存します...')
+      logger.info('📥 タブ切り替え前にクイック入力を自動保存します...')
       await addToInbox()
     }
   }, [newContent, addToInbox])
@@ -616,11 +617,11 @@ export default function InboxPage() {
               }}
               onSubmitRecurring={async () => {
                 // 繰り返しタスクには対応しない（必要なら後で実装）
-                console.log('繰り返しタスクは未対応')
+                logger.info('繰り返しタスクは未対応')
               }}
               onAddToIdeas={async () => {
                 // アイデアには対応しない
-                console.log('アイデアは未対応')
+                logger.info('アイデアは未対応')
               }}
               onCancel={() => {
                 setShowTaskForm(false)

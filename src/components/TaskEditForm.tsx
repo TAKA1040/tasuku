@@ -6,6 +6,7 @@ import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { TASK_IMPORTANCE_LABELS, TASK_IMPORTANCE, URL_LIMITS } from '@/lib/db/schema'
 import { QuickMoves } from '@/lib/utils/date-jst'
 import { TimeInput } from '@/components/TimeInput'
+import { logger } from '@/lib/utils/logger'
 
 interface TaskEditFormProps {
   task: Task | UnifiedTask | null
@@ -173,7 +174,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
             file_data: fileBase64
           }
         } catch (error) {
-          console.error('TaskEditForm: File conversion failed:', error)
+          logger.error('TaskEditForm: File conversion failed:', error)
           alert('ファイルの変換に失敗しました')
           return
         }
@@ -183,7 +184,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
 
       // onCancel() - today/page.tsxのhandleUpdateTaskで処理される
     } catch (error) {
-      console.error('Failed to update task:', error)
+      logger.error('Failed to update task:', error)
     } finally {
       setIsSubmitting(false)
     }
@@ -242,7 +243,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
         await onUncomplete(task.id)
         onCancel()
       } catch (error) {
-        console.error('Failed to uncomplete task:', error)
+        logger.error('Failed to uncomplete task:', error)
       }
     }
   }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,11 +18,11 @@ export async function GET(request: Request) {
         const next = searchParams.get('next') ?? '/today'
         return NextResponse.redirect(`${origin}${next}`)
       } else {
-        console.error('Auth callback error:', error)
+        logger.error('Auth callback error:', error)
         return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(error?.message || 'Unknown error')}`)
       }
     } catch (err) {
-      console.error('Auth callback exception:', err)
+      logger.error('Auth callback exception:', err)
       return NextResponse.redirect(`${origin}/auth/auth-code-error?error=callback_failed`)
     }
   } else {

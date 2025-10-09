@@ -4,6 +4,7 @@
 import { getTodayJST, getDaysDifference } from './date-jst'
 import type { Task, RecurringTask, RecurringLog } from '../db/schema'
 import { occursOn } from './recurring'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * 過去の未完了タスクを検出
@@ -25,7 +26,7 @@ export function findIncompleTasks(
     // 買い物カテゴリは専用の完了処理があるため繰り越し対象から除外
     if (task.category === '買い物') {
       if (process.env.NODE_ENV === 'development') {
-        console.log('自動繰り越しをスキップ（買い物タスク）:', task.title)
+        logger.info('自動繰り越しをスキップ（買い物タスク）:', task.title)
       }
       return
     }
@@ -41,7 +42,7 @@ export function findIncompleTasks(
         incompleteSingle.push(task)
       } else {
         if (process.env.NODE_ENV === 'development') {
-          console.log('自動繰り越しをスキップ（最近更新されたタスク）:', task.title, `${hoursSinceUpdate.toFixed(1)}時間前`)
+          logger.info('自動繰り越しをスキップ（最近更新されたタスク）:', task.title, `${hoursSinceUpdate.toFixed(1)}時間前`)
         }
       }
     }

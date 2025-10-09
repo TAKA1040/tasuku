@@ -8,6 +8,7 @@ import type {
   RecurringTemplateUpdate,
   RecurringTemplateFilters
 } from '@/lib/types/recurring-template'
+import { logger } from '@/lib/utils/logger'
 
 export class RecurringTemplatesService {
   private supabase = createClient()
@@ -31,7 +32,7 @@ export class RecurringTemplatesService {
       .single()
 
     if (error) {
-      console.error('Failed to create recurring template:', error)
+      logger.error('Failed to create recurring template:', error)
       throw error
     }
 
@@ -62,13 +63,13 @@ export class RecurringTemplatesService {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Failed to fetch recurring templates:', error)
+      logger.error('Failed to fetch recurring templates:', error)
       throw error
     }
 
     // デバッグ: 取得したテンプレートのURL情報をログ出力
     if (data && data.length > 0) {
-      console.log('📋 テンプレート取得:', data.map(t => ({
+      logger.info('📋 テンプレート取得:', data.map(t => ({
         id: t.id,
         title: t.title,
         hasUrls: !!t.urls,
@@ -78,9 +79,9 @@ export class RecurringTemplatesService {
 
       // 詳細ログ: 各テンプレートのURLsを個別に出力
       data.forEach(t => {
-        console.log(`🔍 [${t.title}] urls:`, t.urls, 'type:', typeof t.urls, 'isArray:', Array.isArray(t.urls))
+        logger.info(`🔍 [${t.title}] urls:`, t.urls, 'type:', typeof t.urls, 'isArray:', Array.isArray(t.urls))
         if (Array.isArray(t.urls) && t.urls.length > 0) {
-          console.log(`   ↳ URL内容:`, JSON.stringify(t.urls))
+          logger.info(`   ↳ URL内容:`, JSON.stringify(t.urls))
         }
       })
     }
@@ -105,7 +106,7 @@ export class RecurringTemplatesService {
       .single()
 
     if (error) {
-      console.error('Failed to fetch recurring template:', error)
+      logger.error('Failed to fetch recurring template:', error)
       throw error
     }
 
@@ -125,7 +126,7 @@ export class RecurringTemplatesService {
       .single()
 
     if (error) {
-      console.error('Failed to update recurring template:', error)
+      logger.error('Failed to update recurring template:', error)
       throw error
     }
 
@@ -143,7 +144,7 @@ export class RecurringTemplatesService {
       .eq('user_id', userId)
 
     if (error) {
-      console.error('Failed to delete recurring template:', error)
+      logger.error('Failed to delete recurring template:', error)
       throw error
     }
   }

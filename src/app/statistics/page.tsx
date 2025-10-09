@@ -9,6 +9,7 @@ import type { UnifiedRecurringTaskWithStatus } from '@/hooks/useUnifiedRecurring
 import { StatisticsCards } from '@/components/StatisticsCards'
 import { useMemo, useState, useEffect } from 'react'
 import type { UnifiedTask } from '@/lib/types/unified-task'
+import { logger } from '@/lib/utils/logger'
 
 export default function StatisticsPage() {
   const { isInitialized, error } = useDatabase()
@@ -69,7 +70,7 @@ export default function StatisticsPage() {
         const tasks = unifiedTasks.tasks.filter(task => task.completed)
         setCompletedTasks(tasks)
       } catch (error) {
-        console.error('Failed to load completed tasks:', error)
+        logger.error('Failed to load completed tasks:', error)
       }
     }
     if (isInitialized) {
@@ -93,7 +94,7 @@ export default function StatisticsPage() {
           localStorage.setItem('selectedDailyTasks', JSON.stringify(validTasks))
         }
       } catch (error) {
-        console.error('Failed to parse selected daily tasks:', error)
+        logger.error('Failed to parse selected daily tasks:', error)
       }
     }
   }, [unifiedTasks.tasks])

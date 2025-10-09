@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/utils/logger'
 
 export async function POST() {
   try {
@@ -17,7 +18,7 @@ export async function POST() {
       .select()
 
     if (error) {
-      console.error('Update error:', error)
+      logger.error('Update error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
@@ -27,7 +28,7 @@ export async function POST() {
       profiles: data 
     })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    logger.error('Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

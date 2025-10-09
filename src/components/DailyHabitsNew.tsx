@@ -2,6 +2,7 @@
 
 import React, { memo, useState, useEffect } from 'react'
 import type { RecurringTask } from '@/lib/db/schema'
+import { logger } from '@/lib/utils/logger'
 
 interface DailyHabitsProps {
   recurringTasks: RecurringTask[]
@@ -29,15 +30,15 @@ function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps) {
   // デバッグログ追加
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 DailyHabits - 受け取ったrecurringTasks:', recurringTasks)
-      console.log('🔧 DailyHabits - 受け取ったrecurringLogs:', recurringLogs)
+      logger.info('🔧 DailyHabits - 受け取ったrecurringTasks:', recurringTasks)
+      logger.info('🔧 DailyHabits - 受け取ったrecurringLogs:', recurringLogs)
     }
   }, [recurringTasks, recurringLogs])
 
   // データが渡されていない場合の処理
   if (!recurringTasks || !recurringLogs) {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 DailyHabits - データが未初期化')
+      logger.info('🔧 DailyHabits - データが未初期化')
     }
     return (
       <div style={{
@@ -164,7 +165,7 @@ function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps) {
   // 毎日実行するタスク（すべての繰り返しタスクを含める）
   const dailyRecurringTasks = recurringTasks.filter(task => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 フィルタリング中のタスク:', task.title, 'frequency:', task.frequency, 'weekdays:', task.weekdays)
+      logger.info('🔧 フィルタリング中のタスク:', task.title, 'frequency:', task.frequency, 'weekdays:', task.weekdays)
     }
 
     // より緩い条件でフィルタリング
@@ -175,7 +176,7 @@ function DailyHabits({ recurringTasks, recurringLogs }: DailyHabitsProps) {
   })
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 フィルタリング結果 - dailyRecurringTasks:', dailyRecurringTasks)
+    logger.info('🔧 フィルタリング結果 - dailyRecurringTasks:', dailyRecurringTasks)
   }
 
   const handleHabitToggle = (taskId: string) => {

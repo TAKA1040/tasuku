@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabaseDb as db } from '@/lib/db/supabase-database'
 import type { IdeaItem } from '@/components/IdeaBox'
+import { logger } from '@/lib/utils/logger'
 
 const STORAGE_KEY = 'tasuku-ideas'
 
@@ -15,7 +16,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
   const loadIdeas = useCallback(async () => {
     if (!isDbInitialized) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Database not yet initialized, trying localStorage fallback')
+        logger.info('Database not yet initialized, trying localStorage fallback')
       }
       loadIdeasFromLocalStorage()
       return
@@ -41,7 +42,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
         await migrateFromLocalStorage()
       }
     } catch (err) {
-      console.error('Failed to load ideas from database:', err)
+      logger.error('Failed to load ideas from database:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
       // Fallback to localStorage on database error
       loadIdeasFromLocalStorage()
@@ -59,7 +60,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
         setIdeas(parsedIdeas)
       }
     } catch (error) {
-      console.error('Failed to load ideas from localStorage:', error)
+      logger.error('Failed to load ideas from localStorage:', error)
     } finally {
       setLoading(false)
     }
@@ -72,7 +73,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       if (stored) {
         const parsedIdeas: IdeaItem[] = JSON.parse(stored)
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Migrating ${parsedIdeas.length} ideas from localStorage to database`)
+          logger.info(`Migrating ${parsedIdeas.length} ideas from localStorage to database`)
         }
 
         for (const idea of parsedIdeas) {
@@ -95,11 +96,11 @@ export function useIdeas(isDbInitialized: boolean = false) {
         // Clear localStorage after successful migration
         localStorage.removeItem(STORAGE_KEY)
         if (process.env.NODE_ENV === 'development') {
-          console.log('Ideas migration completed successfully')
+          logger.info('Ideas migration completed successfully')
         }
       }
     } catch (error) {
-      console.error('Failed to migrate ideas from localStorage:', error)
+      logger.error('Failed to migrate ideas from localStorage:', error)
     }
   }
 
@@ -125,7 +126,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       })
       await loadIdeas() // Reload from database
     } catch (err) {
-      console.error('Failed to add idea:', err)
+      logger.error('Failed to add idea:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -148,7 +149,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       await db.updateIdea(id, { completed: !idea.completed })
       await loadIdeas() // Reload from database
     } catch (err) {
-      console.error('Failed to toggle idea:', err)
+      logger.error('Failed to toggle idea:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -168,7 +169,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       await db.updateIdea(id, { text: newText.trim() })
       await loadIdeas() // Reload from database
     } catch (err) {
-      console.error('Failed to edit idea:', err)
+      logger.error('Failed to edit idea:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -186,7 +187,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       await db.deleteIdea(id)
       await loadIdeas() // Reload from database
     } catch (err) {
-      console.error('Failed to delete idea:', err)
+      logger.error('Failed to delete idea:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     }
   }
@@ -197,7 +198,7 @@ export function useIdeas(isDbInitialized: boolean = false) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newIdeas))
       setIdeas(newIdeas)
     } catch (error) {
-      console.error('Failed to save ideas to localStorage:', error)
+      logger.error('Failed to save ideas to localStorage:', error)
     }
   }
 
