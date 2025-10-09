@@ -145,7 +145,11 @@ function TaskCreateForm2({ isVisible, onSubmitRegular, onSubmitRecurring, onAddT
         const fileBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader()
           reader.onload = () => {
-            const result = reader.result as string
+            const result = reader.result
+            if (typeof result !== 'string') {
+              reject(new Error('Failed to read file as string'))
+              return
+            }
             // data:image/jpeg;base64, の部分を削除してBase64のみ取得
             const base64Data = result.split(',')[1]
             resolve(base64Data)

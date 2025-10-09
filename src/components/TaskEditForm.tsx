@@ -159,7 +159,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, onUncomplete, isVisible
           const fileBase64 = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader()
             reader.onload = () => {
-              const result = reader.result as string
+              const result = reader.result
+              if (typeof result !== 'string') {
+                reject(new Error('Failed to read file as string'))
+                return
+              }
               const base64 = result.split(',')[1] // data:image/jpeg;base64,の部分を除去
               resolve(base64)
             }

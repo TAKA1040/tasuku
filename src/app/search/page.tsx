@@ -121,7 +121,11 @@ export default function SearchPage() {
   // ユニークなカテゴリを取得
   const categories = useMemo(() => {
     if (!tasks?.length) return []
-    const categoriesSet = new Set(tasks.map(task => task.category).filter(Boolean) as string[])
+    const categoriesSet = new Set(
+      tasks
+        .map(task => task.category)
+        .filter((category): category is string => typeof category === 'string' && category.length > 0)
+    )
     const uniqueCategories = Array.from(categoriesSet)
     return uniqueCategories.sort()
   }, [tasks])

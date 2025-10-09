@@ -95,7 +95,7 @@ function DebugContent() {
           <p>No done records</p>
         ) : (
           doneData.map((record, index) => (
-            <div key={record.id as string || index} style={{ marginBottom: '10px', padding: '5px', border: '1px solid #ccc' }}>
+            <div key={String(record.id) || index} style={{ marginBottom: '10px', padding: '5px', border: '1px solid #ccc' }}>
               <strong>Done ID: {String(record.id)}</strong><br/>
               original_task_id: {String(record.original_task_id || '')}<br/>
               completed_at: {String(record.completed_at || '')}<br/>
