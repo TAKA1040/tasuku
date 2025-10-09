@@ -10,6 +10,7 @@ import { withErrorHandling } from '@/lib/utils/error-handler'
 import { createClient } from '@/lib/supabase/client'
 import { getTodayJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
+import { logger } from '@/lib/utils/logger'
 
 const NO_DUE_DATE = SPECIAL_DATES.NO_DUE_DATE
 
@@ -25,7 +26,7 @@ const CACHE_DURATION = 30000 // 30秒間キャッシュ（2秒から延長して
 const invalidateGlobalCache = () => {
   taskCache = null
   if (process.env.NODE_ENV === 'development') {
-    console.log('🗑️ Global task cache invalidated')
+    logger.info('🗑️ Global task cache invalidated')
   }
 }
 
@@ -80,7 +81,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
       Date.now() - taskCache.timestamp < CACHE_DURATION
     ) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('✅ Using cached unified tasks data (valid for',
+        logger.info('✅ Using cached unified tasks data (valid for',
           Math.round((CACHE_DURATION - (Date.now() - taskCache.timestamp)) / 1000), 'more seconds)')
       }
       setTasks(taskCache.data)
@@ -105,7 +106,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
         setError(null)
 
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🔄 Unified tasks loaded: ${allTasks.length} items (cache duration: ${CACHE_DURATION / 1000}s)`)
+          logger.info(`🔄 Unified tasks loaded: ${allTasks.length} items (cache duration: ${CACHE_DURATION / 1000}s)`)
         }
       },
       'useUnifiedTasks.loadTasks',
@@ -220,7 +221,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
           .order('completed_at', { ascending: false })
 
         if (doneError) {
-          console.error('Failed to fetch done records:', doneError)
+          logger.error('Failed to fetch done records:', doneError)
           return completedTasks
         }
 
@@ -431,7 +432,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
 
     const handleFocus = () => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Page focused, invalidating cache and reloading tasks...')
+        logger.info('Page focused, invalidating cache and reloading tasks...')
       }
       invalidateGlobalCache() // キャッシュを無効化
       loadTasks(true) // 強制リロード
@@ -440,7 +441,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Page became visible, invalidating cache and reloading tasks...')
+          logger.info('Page became visible, invalidating cache and reloading tasks...')
         }
         invalidateGlobalCache() // キャッシュを無効化
         loadTasks(true) // 強制リロード
@@ -449,7 +450,7 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
 
     const handleTasksUpdated = () => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Tasks updated event received, invalidating cache and reloading tasks...')
+        logger.info('Tasks updated event received, invalidating cache and reloading tasks...')
       }
       invalidateGlobalCache() // キャッシュを無効化
       loadTasks(true) // 強制リロード

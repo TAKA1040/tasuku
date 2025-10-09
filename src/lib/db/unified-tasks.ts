@@ -34,7 +34,7 @@ export class UnifiedTasksService {
         .limit(1)
 
       if (error) {
-        console.warn('Display number generation error:', error)
+        logger.warn('Display number generation error:', error)
         return 'T001'
       }
 
@@ -43,10 +43,10 @@ export class UnifiedTasksService {
       }
 
       const lastNumber = data[0].display_number
-      console.log('generateDisplayNumber: lastNumber found:', lastNumber)
+      logger.info('generateDisplayNumber: lastNumber found:', lastNumber)
 
       if (!lastNumber || !lastNumber.startsWith('T')) {
-        console.log('generateDisplayNumber: no valid T number, returning T001')
+        logger.info('generateDisplayNumber: no valid T number, returning T001')
         return 'T001'
       }
 
@@ -54,15 +54,15 @@ export class UnifiedTasksService {
       if (lastNumber.length === 4) {
         const number = parseInt(lastNumber.substring(1)) + 1
         if (isNaN(number)) {
-          console.log('generateDisplayNumber: parseInt failed for T001 format, returning T001')
+          logger.info('generateDisplayNumber: parseInt failed for T001 format, returning T001')
           return 'T001'
         }
         const result = `T${number.toString().padStart(3, '0')}`
-        console.log('generateDisplayNumber: T001 format, returning:', result)
+        logger.info('generateDisplayNumber: T001 format, returning:', result)
         return result
       } else {
         // 古い形式がある場合は、T001形式のみを検索し直す
-        console.log('generateDisplayNumber: found old format, searching for T001 format only')
+        logger.info('generateDisplayNumber: found old format, searching for T001 format only')
         const { data: t001Data, error: t001Error } = await supabase
           .from('unified_tasks')
           .select('display_number')
@@ -72,22 +72,22 @@ export class UnifiedTasksService {
           .limit(1)
 
         if (t001Error || !t001Data || t001Data.length === 0) {
-          console.log('generateDisplayNumber: no T001 format found, returning T001')
+          logger.info('generateDisplayNumber: no T001 format found, returning T001')
           return 'T001'
         }
 
         const lastT001 = t001Data[0].display_number
         const number = parseInt(lastT001.substring(1)) + 1
         if (isNaN(number)) {
-          console.log('generateDisplayNumber: parseInt failed for found T001, returning T001')
+          logger.info('generateDisplayNumber: parseInt failed for found T001, returning T001')
           return 'T001'
         }
         const result = `T${number.toString().padStart(3, '0')}`
-        console.log('generateDisplayNumber: T001 format search, returning:', result)
+        logger.info('generateDisplayNumber: T001 format search, returning:', result)
         return result
       }
     } catch (error) {
-      console.error('generateDisplayNumber error:', error)
+      logger.error('generateDisplayNumber error:', error)
       return 'T001'
     }
   }
@@ -148,7 +148,7 @@ export class UnifiedTasksService {
 
       return data || []
     } catch (error) {
-      console.error('UnifiedTasksService.getAllUnifiedTasks error:', error)
+      logger.error('UnifiedTasksService.getAllUnifiedTasks error:', error)
       throw error
     }
   }
@@ -214,7 +214,7 @@ export class UnifiedTasksService {
       // シンプルに処理（一時的にデバッグ用）
       const processedTask = { ...task }
 
-      console.log('タスク作成データ:', processedTask)
+      logger.info('タスク作成データ:', processedTask)
 
       const { data, error } = await supabase
         .from('unified_tasks')
@@ -237,7 +237,7 @@ export class UnifiedTasksService {
 
       return data
     } catch (error) {
-      console.error('UnifiedTasksService.createUnifiedTask error:', error)
+      logger.error('UnifiedTasksService.createUnifiedTask error:', error)
       throw error
     }
   }
@@ -245,7 +245,7 @@ export class UnifiedTasksService {
   // 繰り返しタスクからテンプレートを同期更新
   private static async syncTemplateFromTask(task: UnifiedTask): Promise<void> {
     try {
-      console.log('🔄 syncTemplateFromTask called with:', {
+      logger.info('🔄 syncTemplateFromTask called with:', {
         id: task.id,
         title: task.title,
         category: task.category,
@@ -258,7 +258,7 @@ export class UnifiedTasksService {
       // テンプレートが存在する場合は更新
       if (task.recurring_template_id) {
         // まず、テンプレートが存在するかチェック（URLsも取得）
-        console.log('🔍 Checking if template exists:', task.recurring_template_id)
+        logger.info('🔍 Checking if template exists:', task.recurring_template_id)
         const { data: existingTemplate, error: checkError } = await supabase
           .from('recurring_templates')
           .select('id, title, urls')
@@ -266,16 +266,16 @@ export class UnifiedTasksService {
           .single()
 
         if (checkError) {
-          console.error('❌ Error checking template existence:', JSON.stringify(checkError, null, 2))
+          logger.error('❌ Error checking template existence:', JSON.stringify(checkError, null, 2))
           return
         }
 
         if (!existingTemplate) {
-          console.error('❌ Template not found:', task.recurring_template_id)
+          logger.error('❌ Template not found:', task.recurring_template_id)
           return
         }
 
-        console.log('✅ Template exists:', existingTemplate)
+        logger.info('✅ Template exists:', existingTemplate)
 
         // 🔒 URLs保護ロジック: タスクのURLsが空で、テンプレートにURLsがある場合は保持
         const taskUrls = task.urls || []
@@ -283,8 +283,8 @@ export class UnifiedTasksService {
         const finalUrls = (taskUrls.length === 0 && templateUrls.length > 0) ? templateUrls : taskUrls
 
         if (taskUrls.length === 0 && templateUrls.length > 0) {
-          console.log('🛡️ URLs保護: タスクのURLsが空ですが、テンプレートのURLsを保持します')
-          console.log('  テンプレートURLs:', templateUrls)
+          logger.info('🛡️ URLs保護: タスクのURLsが空ですが、テンプレートのURLsを保持します')
+          logger.info('  テンプレートURLs:', templateUrls)
         }
 
         const updatePayload = {
@@ -299,7 +299,7 @@ export class UnifiedTasksService {
           updated_at: new Date().toISOString()
         }
 
-        console.log('🆕 Syncing template with payload:', JSON.stringify(updatePayload, null, 2))
+        logger.info('🆕 Syncing template with payload:', JSON.stringify(updatePayload, null, 2))
 
         const { error } = await supabase
           .from('recurring_templates')
@@ -307,19 +307,19 @@ export class UnifiedTasksService {
           .eq('id', task.recurring_template_id)
 
         if (error) {
-          console.error('❌ Failed to sync template - Full error details:')
-          console.error('  Error:', JSON.stringify(error, null, 2))
-          console.error('  Template ID:', task.recurring_template_id)
-          console.error('  Payload:', JSON.stringify(updatePayload, null, 2))
-          console.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
+          logger.error('❌ Failed to sync template - Full error details:')
+          logger.error('  Error:', JSON.stringify(error, null, 2))
+          logger.error('  Template ID:', task.recurring_template_id)
+          logger.error('  Payload:', JSON.stringify(updatePayload, null, 2))
+          logger.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
         } else {
-          console.log('✅ Template synced successfully')
+          logger.info('✅ Template synced successfully')
         }
       } else {
-        console.log('⚠️ No template_id found, cannot sync')
+        logger.info('⚠️ No template_id found, cannot sync')
       }
     } catch (error) {
-      console.error('❌ UnifiedTasksService.syncTemplateFromTask error:', error)
+      logger.error('❌ UnifiedTasksService.syncTemplateFromTask error:', error)
     }
   }
 
@@ -381,7 +381,7 @@ export class UnifiedTasksService {
         updated_at: new Date().toISOString()
       }
 
-      console.log('🆕 Creating new template with payload:', templatePayload)
+      logger.info('🆕 Creating new template with payload:', templatePayload)
 
       const { data: templateData, error: templateError } = await supabase
         .from('recurring_templates')
@@ -450,7 +450,7 @@ export class UnifiedTasksService {
       }
 
       // デバッグ: 更新されたタスクの情報をログ出力
-      console.log('🔍 DEBUG: Updated task info:', {
+      logger.info('🔍 DEBUG: Updated task info:', {
         id: data.id,
         title: data.title,
         task_type: data.task_type,
@@ -460,23 +460,23 @@ export class UnifiedTasksService {
 
       // 繰り返しタスクの場合、テンプレートも同期更新
       if (data.task_type === 'RECURRING') {
-        console.log('🔄 RECURRING task detected, attempting template sync...')
+        logger.info('🔄 RECURRING task detected, attempting template sync...')
 
         // recurring_template_idがない場合は、テンプレートを探すか作成
         if (!data.recurring_template_id) {
-          console.log('⚠️ No recurring_template_id found, searching for existing template...')
+          logger.info('⚠️ No recurring_template_id found, searching for existing template...')
           await this.createTemplateFromTask(data)
         } else {
-          console.log('🔗 recurring_template_id found, syncing template...')
+          logger.info('🔗 recurring_template_id found, syncing template...')
           await this.syncTemplateFromTask(data)
         }
       } else {
-        console.log('🔍 DEBUG: Task is not RECURRING type:', data.task_type)
+        logger.info('🔍 DEBUG: Task is not RECURRING type:', data.task_type)
       }
 
       return data
     } catch (error) {
-      console.error('UnifiedTasksService.updateUnifiedTask error:', error)
+      logger.error('UnifiedTasksService.updateUnifiedTask error:', error)
       throw error
     }
   }
@@ -515,12 +515,12 @@ export class UnifiedTasksService {
           .eq('original_task_id', id)
 
         if (doneDeleteError) {
-          console.warn('Failed to delete related done records:', doneDeleteError.message)
+          logger.warn('Failed to delete related done records:', doneDeleteError.message)
           // done記録の削除に失敗してもタスク削除は成功とする
         }
       }
     } catch (error) {
-      console.error('UnifiedTasksService.deleteUnifiedTask error:', error)
+      logger.error('UnifiedTasksService.deleteUnifiedTask error:', error)
       throw error
     }
   }
@@ -530,7 +530,7 @@ export class UnifiedTasksService {
     try {
       const supabase = createClient()
 
-      console.log('Starting cleanup of orphaned done records...')
+      logger.info('Starting cleanup of orphaned done records...')
 
       // まず、doneテーブルが存在するか確認
       const { data: allDoneRecords, error: doneError } = await supabase
@@ -538,7 +538,7 @@ export class UnifiedTasksService {
         .select('id, original_task_id')
 
       if (doneError) {
-        console.error('Error fetching done records:', doneError)
+        logger.error('Error fetching done records:', doneError)
 
         // doneテーブルが存在しない場合は作成が必要
         if (doneError.message.includes('does not exist') || doneError.message.includes('not found')) {
@@ -548,10 +548,10 @@ export class UnifiedTasksService {
         throw new Error(`Failed to fetch done records: ${doneError.message}`)
       }
 
-      console.log(`Found ${allDoneRecords?.length || 0} done records`)
+      logger.info(`Found ${allDoneRecords?.length || 0} done records`)
 
       if (!allDoneRecords || allDoneRecords.length === 0) {
-        console.log('No done records found, nothing to cleanup')
+        logger.info('No done records found, nothing to cleanup')
         return { deletedCount: 0 }
       }
 
@@ -561,11 +561,11 @@ export class UnifiedTasksService {
         .select('id')
 
       if (tasksError) {
-        console.error('Error fetching unified tasks:', tasksError)
+        logger.error('Error fetching unified tasks:', tasksError)
         throw new Error(`Failed to fetch unified tasks: ${tasksError.message}`)
       }
 
-      console.log(`Found ${allTasks?.length || 0} unified tasks`)
+      logger.info(`Found ${allTasks?.length || 0} unified tasks`)
 
       const validTaskIds = new Set(allTasks?.map(t => t.id) || [])
 
@@ -574,7 +574,7 @@ export class UnifiedTasksService {
         done => !validTaskIds.has(done.original_task_id)
       )
 
-      console.log(`Found ${orphanedRecords.length} orphaned done records`)
+      logger.info(`Found ${orphanedRecords.length} orphaned done records`)
 
       if (orphanedRecords.length === 0) {
         return { deletedCount: 0 }
@@ -588,14 +588,14 @@ export class UnifiedTasksService {
         .in('id', orphanedIds)
 
       if (deleteError) {
-        console.error('Error deleting orphaned records:', deleteError)
+        logger.error('Error deleting orphaned records:', deleteError)
         throw new Error(`Failed to delete orphaned done records: ${deleteError.message}`)
       }
 
-      console.log(`Successfully cleaned up ${orphanedRecords.length} orphaned done records`)
+      logger.info(`Successfully cleaned up ${orphanedRecords.length} orphaned done records`)
       return { deletedCount: orphanedRecords.length }
     } catch (error) {
-      console.error('UnifiedTasksService.cleanupOrphanedDoneRecords error:', error)
+      logger.error('UnifiedTasksService.cleanupOrphanedDoneRecords error:', error)
       throw error
     }
   }
@@ -631,7 +631,7 @@ export class UnifiedTasksService {
         completed_at: completedAt
       })
     } catch (error) {
-      console.error('UnifiedTasksService.completeTask error:', error)
+      logger.error('UnifiedTasksService.completeTask error:', error)
       throw error
     }
   }
@@ -644,7 +644,7 @@ export class UnifiedTasksService {
       const uncompletedSubTasks = incompleteSubTasks.filter(subTask => !subTask.completed)
 
       if (uncompletedSubTasks.length > 0) {
-        console.log(`🛒 買い物タスク「${task.title}」に未完了の子タスクが ${uncompletedSubTasks.length} 個あります`)
+        logger.info(`🛒 買い物タスク「${task.title}」に未完了の子タスクが ${uncompletedSubTasks.length} 個あります`)
 
         // 新しいタスクを期日なし（やることリスト）として作成
         const displayNumber = await this.generateDisplayNumber()
@@ -661,18 +661,18 @@ export class UnifiedTasksService {
         }
 
         const newTask = await this.createUnifiedTask(newTaskData)
-        console.log(`📝 新しい買い物タスク（やることリスト）を作成: ${newTask.title} (${newTask.id})`)
+        logger.info(`📝 新しい買い物タスク（やることリスト）を作成: ${newTask.title} (${newTask.id})`)
 
         // 未完了の子タスクを新しいタスクに移行
         for (const uncompletedSubTask of uncompletedSubTasks) {
           await this.createSubtask(newTask.id, uncompletedSubTask.title)
-          console.log(`  ✅ 子タスク移行: ${uncompletedSubTask.title}`)
+          logger.info(`  ✅ 子タスク移行: ${uncompletedSubTask.title}`)
         }
 
-        console.log(`🎯 買い物リストの未完了項目 ${uncompletedSubTasks.length} 個をやることリストに繰り越しました`)
+        logger.info(`🎯 買い物リストの未完了項目 ${uncompletedSubTasks.length} 個をやることリストに繰り越しました`)
       }
     } catch (error) {
-      console.error('買い物タスク完了処理エラー:', error)
+      logger.error('買い物タスク完了処理エラー:', error)
       throw error
     }
   }
@@ -698,11 +698,11 @@ export class UnifiedTasksService {
         })
 
       if (error) {
-        console.error('Failed to save completion history to done table:', error)
+        logger.error('Failed to save completion history to done table:', error)
         // エラーがあってもタスク完了処理は続行する
       }
     } catch (error) {
-      console.error('Error saving to done history:', error)
+      logger.error('Error saving to done history:', error)
       // エラーがあってもタスク完了処理は続行する
     }
   }
@@ -748,7 +748,7 @@ export class UnifiedTasksService {
           return addDays(todayJST, 1)
       }
     } catch (error) {
-      console.error('Error in calculateNextRecurringDate:', error, 'task:', task)
+      logger.error('Error in calculateNextRecurringDate:', error, 'task:', task)
       // フォールバック: 翌日を返す
       const today = new Date()
       const tomorrow = new Date(today)
@@ -793,7 +793,7 @@ export class UnifiedTasksService {
 
       return data || []
     } catch (error) {
-      console.error('UnifiedTasksService.getSubtasks error:', error)
+      logger.error('UnifiedTasksService.getSubtasks error:', error)
       throw error
     }
   }
@@ -807,7 +807,7 @@ export class UnifiedTasksService {
       const { data: { user }, error: authError } = await supabase.auth.getUser()
 
       if (authError) {
-        console.error('Authentication error:', authError)
+        logger.error('Authentication error:', authError)
         throw new Error(`Authentication failed: ${authError.message}`)
       }
 
@@ -815,9 +815,9 @@ export class UnifiedTasksService {
         throw new Error('User not authenticated - no user ID found')
       }
 
-      console.log('🔐 createSubtask - User ID:', user.id)
-      console.log('📝 createSubtask - Parent Task ID:', parentTaskId)
-      console.log('📄 createSubtask - Title:', title)
+      logger.info('🔐 createSubtask - User ID:', user.id)
+      logger.info('📝 createSubtask - Parent Task ID:', parentTaskId)
+      logger.info('📄 createSubtask - Title:', title)
 
       // 現在のサブタスク数を取得してsort_orderを決定
       const { data: existingSubtasks } = await supabase
@@ -840,7 +840,7 @@ export class UnifiedTasksService {
         user_id: user.id
       }
 
-      console.log('🔢 createSubtask - Insert data:', insertData)
+      logger.info('🔢 createSubtask - Insert data:', insertData)
 
       const { data, error } = await supabase
         .from('subtasks')
@@ -849,7 +849,7 @@ export class UnifiedTasksService {
         .single()
 
       if (error) {
-        console.error('🚨 Subtask insert error details:', {
+        logger.error('🚨 Subtask insert error details:', {
           code: error.code,
           message: error.message,
           details: error.details,
@@ -858,10 +858,10 @@ export class UnifiedTasksService {
         throw new Error(`Failed to create subtask: ${error.message}`)
       }
 
-      console.log('✅ Subtask created successfully:', data)
+      logger.info('✅ Subtask created successfully:', data)
       return data
     } catch (error) {
-      console.error('UnifiedTasksService.createSubtask error:', error)
+      logger.error('UnifiedTasksService.createSubtask error:', error)
       throw error
     }
   }
@@ -906,7 +906,7 @@ export class UnifiedTasksService {
 
       return data
     } catch (error) {
-      console.error('UnifiedTasksService.toggleSubtask error:', error)
+      logger.error('UnifiedTasksService.toggleSubtask error:', error)
       throw error
     }
   }
@@ -932,7 +932,7 @@ export class UnifiedTasksService {
         throw new Error(`Failed to delete subtask: ${error.message}`)
       }
     } catch (error) {
-      console.error('UnifiedTasksService.deleteSubtask error:', error)
+      logger.error('UnifiedTasksService.deleteSubtask error:', error)
       throw error
     }
   }
@@ -966,7 +966,7 @@ export class UnifiedTasksService {
 
       return data as SubTask
     } catch (error) {
-      console.error('UnifiedTasksService.updateSubtask error:', error)
+      logger.error('UnifiedTasksService.updateSubtask error:', error)
       throw error
     }
   }

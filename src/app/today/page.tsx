@@ -17,6 +17,7 @@ import { SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import { createClient } from '@/lib/supabase/client'
 import { TaskTabNavigation } from '@/components/TaskTabNavigation'
+import { logger } from '@/lib/utils/logger'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
@@ -43,7 +44,7 @@ export default function TodayPage() {
 
   // まず生データを統一形式に変換
   const rawUnifiedData = useMemo(() => {
-    console.log('🔧 rawUnifiedData useMemo 実行')
+    logger.info('🔧 rawUnifiedData useMemo 実行')
     if (!isInitialized || unifiedTasks.loading) return []
 
     const allTasks = unifiedTasks.tasks
@@ -60,19 +61,21 @@ export default function TodayPage() {
 
   // 次にソートを適用
   const allUnifiedData = useMemo(() => {
-    console.log('🚀🚀🚀 allUnifiedData ソート処理実行！')
-    console.log('🚀 sortMode:', sortMode)
-    console.log('🚀 rawUnifiedData.length:', rawUnifiedData.length)
+    logger.info('🚀🚀🚀 allUnifiedData ソート処理実行！')
+    logger.info('🚀 sortMode:', sortMode)
+    logger.info('🚀 rawUnifiedData.length:', rawUnifiedData.length)
 
     if (rawUnifiedData.length === 0) return []
 
-    console.log('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
-    console.log('📊 詳細データ（最初の5件）:', rawUnifiedData.slice(0, 5).map(t => ({
+    logger.info('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
+    logger.info('📊 詳細データ（最初の5件）:', rawUnifiedData.slice(0, 5).map(t => ({
       番号: t.display_number,
       タイトル: t.title,
       重要度: t.importance,
       開始時刻: t.start_time,
-      完了: t.completed
+      完了: t.completed,
+      URLs: t.urls,
+      URLsCount: t.urls?.length || 0
     })))
 
     const sortedData = [...rawUnifiedData].sort((a, b) => {
@@ -115,7 +118,7 @@ export default function TodayPage() {
       }
     })
 
-    console.log('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
+    logger.info('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
     return sortedData
   }, [rawUnifiedData, sortMode])
 
@@ -131,7 +134,7 @@ export default function TodayPage() {
             const subtasks = await unifiedTasks.getSubtasks(task.id)
             updates[task.id] = subtasks
           } catch (error) {
-            console.error(`サブタスク読み込みエラー (${task.id}):`, error)
+            logger.error(`サブタスク読み込みエラー (${task.id}):`, error)
           }
         }
       }
@@ -162,7 +165,7 @@ export default function TodayPage() {
         [taskId]: subtasks
       }))
     } catch (error) {
-      console.error('サブタスク読み込みエラー:', error)
+      logger.error('サブタスク読み込みエラー:', error)
     }
   }, [unifiedTasks])
 
@@ -172,10 +175,10 @@ export default function TodayPage() {
       await loadShoppingSubTasks(taskId) // 再読み込み
 
       if (process.env.NODE_ENV === 'development') {
-        console.log(`サブタスク追加: ${itemName} (Parent: ${taskId})`)
+        logger.info(`サブタスク追加: ${itemName} (Parent: ${taskId})`)
       }
     } catch (error) {
-      console.error('サブタスク追加エラー:', error)
+      logger.error('サブタスク追加エラー:', error)
     }
   }, [unifiedTasks, loadShoppingSubTasks])
 
@@ -184,7 +187,7 @@ export default function TodayPage() {
       await unifiedTasks.toggleSubtask(subTaskId)
       await loadShoppingSubTasks(taskId) // 再読み込み
     } catch (error) {
-      console.error('サブタスク切り替えエラー:', error)
+      logger.error('サブタスク切り替えエラー:', error)
     }
   }, [unifiedTasks, loadShoppingSubTasks])
 
@@ -193,7 +196,7 @@ export default function TodayPage() {
       await unifiedTasks.deleteSubtask(subTaskId)
       await loadShoppingSubTasks(taskId) // 再読み込み
     } catch (error) {
-      console.error('サブタスク削除エラー:', error)
+      logger.error('サブタスク削除エラー:', error)
     }
   }, [unifiedTasks, loadShoppingSubTasks])
 
@@ -202,7 +205,7 @@ export default function TodayPage() {
       await unifiedTasks.updateSubtask(subTaskId, updates)
       await loadShoppingSubTasks(taskId) // 再読み込み
     } catch (error) {
-      console.error('サブタスク更新エラー:', error)
+      logger.error('サブタスク更新エラー:', error)
     }
   }, [unifiedTasks, loadShoppingSubTasks])
 
@@ -240,8 +243,8 @@ export default function TodayPage() {
 
   const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
-      console.log('統一タスク作成:', { title, memo, dueDate, category, importance, urls, attachment, shoppingItems })
-      console.log('🛒 handleCreateRegular - 受け取った買い物リスト:', shoppingItems)
+      logger.info('統一タスク作成:', { title, memo, dueDate, category, importance, urls, attachment, shoppingItems })
+      logger.info('🛒 handleCreateRegular - 受け取った買い物リスト:', shoppingItems)
 
       // display_numberを正式に生成
       const displayNumber = await UnifiedTasksService.generateDisplayNumber()
@@ -270,13 +273,13 @@ export default function TodayPage() {
           .map(item => unifiedTasks.createSubtask(createdTask.id, item.trim()))
 
         await Promise.all(subtaskPromises)
-        console.log(`🛒 買い物リスト ${shoppingItems.length} 件をサブタスクとして並列追加完了`)
+        logger.info(`🛒 買い物リスト ${shoppingItems.length} 件をサブタスクとして並列追加完了`)
       }
 
-      console.log('✅ 通常タスク作成完了:', title)
+      logger.info('✅ 通常タスク作成完了:', title)
       setShowCreateForm(false) // フォームを閉じる
     } catch (error) {
-      console.error('❌ 通常タスク作成エラー:', error)
+      logger.error('❌ 通常タスク作成エラー:', error)
     }
   }, [unifiedTasks])
 
@@ -284,7 +287,7 @@ export default function TodayPage() {
     const timer = setTimeout(() => {
       if (!isInitialized) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('Forcing interface display after timeout')
+          logger.info('Forcing interface display after timeout')
         }
         setForceShow(true)
       }
@@ -327,7 +330,7 @@ export default function TodayPage() {
     dayOfYear: number
   }, importance?: number, urls?: string[], category?: string, attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
-      console.log('✨ 繰り返しタスクテンプレート作成開始:', { title, memo, settings, importance, urls, category, attachment, shoppingItems, startTime, endTime })
+      logger.info('✨ 繰り返しタスクテンプレート作成開始:', { title, memo, settings, importance, urls, category, attachment, shoppingItems, startTime, endTime })
 
       // 1. recurring_templatesにテンプレートを保存
       const supabase = createClient()
@@ -372,28 +375,28 @@ export default function TodayPage() {
         .single()
 
       if (templateError) {
-        console.error('❌ テンプレート保存エラー:', templateError)
+        logger.error('❌ テンプレート保存エラー:', templateError)
         throw templateError
       }
 
-      console.log('✅ テンプレート保存完了:', template.id)
+      logger.info('✅ テンプレート保存完了:', template.id)
 
       // 2. 買い物リストがあればsubtasksに保存（parent_task_id = template.id）
       if (shoppingItems && shoppingItems.length > 0 && category === '買い物') {
         for (const item of shoppingItems) {
           await unifiedTasks.createSubtask(template.id, item)
         }
-        console.log(`✅ テンプレートの買い物リスト保存完了: ${shoppingItems.length}件`)
+        logger.info(`✅ テンプレートの買い物リスト保存完了: ${shoppingItems.length}件`)
       }
 
       // 3. 今日の分のタスクを初回生成（自動生成システムに任せる）
       // generateMissingTasks を呼び出すことで、新しいテンプレートから自動生成される
       await generateMissingTasks(true)
 
-      console.log('✅ 繰り返しタスク作成完了:', title)
+      logger.info('✅ 繰り返しタスク作成完了:', title)
       setShowCreateForm(false)
     } catch (error) {
-      console.error('❌ 繰り返しタスク作成エラー:', error)
+      logger.error('❌ 繰り返しタスク作成エラー:', error)
     }
   }
 
@@ -412,7 +415,7 @@ export default function TodayPage() {
 
     // 繰り返しタスクの場合、テンプレートも更新
     if (editingTask?.recurring_template_id) {
-      console.log(`🔄 繰り返しタスク ${editingTask.title} の編集→テンプレート ${editingTask.recurring_template_id} も更新`)
+      logger.info(`🔄 繰り返しタスク ${editingTask.title} の編集→テンプレート ${editingTask.recurring_template_id} も更新`)
 
       try {
         const { error: templateError } = await supabase
@@ -428,12 +431,12 @@ export default function TodayPage() {
           .eq('id', editingTask.recurring_template_id)
 
         if (templateError) {
-          console.error('❌ テンプレート更新エラー:', templateError)
+          logger.error('❌ テンプレート更新エラー:', templateError)
         } else {
-          console.log('✅ テンプレートも更新しました')
+          logger.info('✅ テンプレートも更新しました')
         }
       } catch (error) {
-        console.error('❌ テンプレート更新処理エラー:', error)
+        logger.error('❌ テンプレート更新処理エラー:', error)
       }
     }
 
@@ -496,7 +499,7 @@ export default function TodayPage() {
               {/* タスク更新ボタン */}
               <button
                 onClick={() => {
-                  console.log('🔄 手動でタスク更新を実行...')
+                  logger.info('🔄 手動でタスク更新を実行...')
                   generateMissingTasks(true) // 手動フラグをtrueに
                 }}
                 disabled={isGenerating}
@@ -670,11 +673,11 @@ export default function TodayPage() {
             }}>
               <button
                 onClick={(e) => {
-                  console.log('🔥🔥🔥 重要度ボタンクリック検出！')
-                  console.log('🔥 Event:', e)
-                  console.log('🔥 Current sortMode:', sortMode)
+                  logger.info('🔥🔥🔥 重要度ボタンクリック検出！')
+                  logger.info('🔥 Event:', e)
+                  logger.info('🔥 Current sortMode:', sortMode)
                   setSortMode('priority')
-                  console.log('🔥 setSortMode(priority) 実行完了')
+                  logger.info('🔥 setSortMode(priority) 実行完了')
                 }}
                 style={{
                   background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
@@ -694,11 +697,11 @@ export default function TodayPage() {
               </button>
               <button
                 onClick={(e) => {
-                  console.log('⏰⏰⏰ 時間軸ボタンクリック検出！')
-                  console.log('⏰ Event:', e)
-                  console.log('⏰ Current sortMode:', sortMode)
+                  logger.info('⏰⏰⏰ 時間軸ボタンクリック検出！')
+                  logger.info('⏰ Event:', e)
+                  logger.info('⏰ Current sortMode:', sortMode)
                   setSortMode('time')
-                  console.log('⏰ setSortMode(time) 実行完了')
+                  logger.info('⏰ setSortMode(time) 実行完了')
                 }}
                 style={{
                   background: sortMode === 'time' ? '#3b82f6' : 'transparent',
@@ -922,12 +925,9 @@ export default function TodayPage() {
               color: '#1f2937',
               cursor: 'pointer'
             }}>
-              🛒 買い物タスク ({allUnifiedData.filter(task => {
-                if (task.category !== '買い物') return false
-                if (!task.completed) return true
-                const subtasks = shoppingSubTasks[task.id] || []
-                return subtasks.some(sub => !sub.completed)
-              }).length}件) {showShoppingTasks ? '☑️' : '☐'} 表示する
+              🛒 買い物タスク ({allUnifiedData.filter(task =>
+                task.category === '買い物' && !task.completed
+              ).length}件) {showShoppingTasks ? '☑️' : '☐'} 表示する
               <input
                 type="checkbox"
                 checked={showShoppingTasks}
@@ -1036,7 +1036,7 @@ export default function TodayPage() {
             onSubmitRecurring={handleCreateRecurring}
             onAddToIdeas={async (text: string) => {
               try {
-                console.log('アイデア作成:', text)
+                logger.info('アイデア作成:', text)
 
                 // アイデア（期限なしタスク）として作成
                 await unifiedTasks.createTask({
@@ -1048,9 +1048,9 @@ export default function TodayPage() {
                   archived: false
                 })
 
-                console.log('✅ アイデア作成完了:', text)
+                logger.info('✅ アイデア作成完了:', text)
               } catch (error) {
-                console.error('❌ アイデア作成エラー:', error)
+                logger.error('❌ アイデア作成エラー:', error)
               }
             }}
             onCancel={() => setShowCreateForm(false)}
