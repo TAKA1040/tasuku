@@ -265,6 +265,12 @@ export default function TodayPage() {
   const [showShoppingTasks, setShowShoppingTasks] = useState(false)
   const [showTodoList, setShowTodoList] = useState(false)
 
+  // 時間枠セクション表示切り替え状態
+  const [showMorningTasks, setShowMorningTasks] = useState(true)
+  const [showMiddayTasks, setShowMiddayTasks] = useState(true)
+  const [showAfternoonTasks, setShowAfternoonTasks] = useState(true)
+  const [showEveningTasks, setShowEveningTasks] = useState(true)
+
   const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
       logger.info('統一タスク作成:', { title, memo, dueDate, category, importance, urls, attachment, shoppingItems })
@@ -771,134 +777,182 @@ export default function TodayPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* 9時まで */}
               <div>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  margin: '0 0 8px 0',
-                  color: '#6b7280',
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
+                  marginBottom: '8px',
                   gap: '8px'
                 }}>
-                  🌅 9時まで
-                  <span style={{ fontSize: '12px', fontWeight: '400' }}>
-                    ({timeFrameTasks.morning.length}件)
-                  </span>
-                </h4>
-                <UnifiedTasksTable
-                  title=""
-                  tasks={timeFrameTasks.morning}
-                  emptyMessage="タスクなし"
-                  unifiedTasks={unifiedTasks}
-                  handleEditTask={handleEditTask}
-                  shoppingSubTasks={shoppingSubTasks}
-                  expandedShoppingLists={expandedShoppingLists}
-                  toggleShoppingList={toggleShoppingList}
-                  addShoppingSubTask={addShoppingSubTask}
-                  toggleShoppingSubTask={toggleShoppingSubTask}
-                  deleteShoppingSubTask={deleteShoppingSubTask}
-                  updateShoppingSubTask={updateShoppingSubTask}
-                  showTitle={false}
-                />
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    cursor: 'pointer'
+                  }}>
+                    🌅 9時まで ({timeFrameTasks.morning.length}件) {showMorningTasks ? '☑️' : '☐'}
+                    <input
+                      type="checkbox"
+                      checked={showMorningTasks}
+                      onChange={(e) => setShowMorningTasks(e.target.checked)}
+                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+                    />
+                  </label>
+                </div>
+                {showMorningTasks && (
+                  <UnifiedTasksTable
+                    title=""
+                    tasks={timeFrameTasks.morning}
+                    emptyMessage="タスクなし"
+                    unifiedTasks={unifiedTasks}
+                    handleEditTask={handleEditTask}
+                    shoppingSubTasks={shoppingSubTasks}
+                    expandedShoppingLists={expandedShoppingLists}
+                    toggleShoppingList={toggleShoppingList}
+                    addShoppingSubTask={addShoppingSubTask}
+                    toggleShoppingSubTask={toggleShoppingSubTask}
+                    deleteShoppingSubTask={deleteShoppingSubTask}
+                    updateShoppingSubTask={updateShoppingSubTask}
+                    showTitle={false}
+                  />
+                )}
               </div>
 
               {/* 13時まで */}
               <div>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  margin: '0 0 8px 0',
-                  color: '#6b7280',
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
+                  marginBottom: '8px',
                   gap: '8px'
                 }}>
-                  ☀️ 13時まで
-                  <span style={{ fontSize: '12px', fontWeight: '400' }}>
-                    ({timeFrameTasks.midday.length}件)
-                  </span>
-                </h4>
-                <UnifiedTasksTable
-                  title=""
-                  tasks={timeFrameTasks.midday}
-                  emptyMessage="タスクなし"
-                  unifiedTasks={unifiedTasks}
-                  handleEditTask={handleEditTask}
-                  shoppingSubTasks={shoppingSubTasks}
-                  expandedShoppingLists={expandedShoppingLists}
-                  toggleShoppingList={toggleShoppingList}
-                  addShoppingSubTask={addShoppingSubTask}
-                  toggleShoppingSubTask={toggleShoppingSubTask}
-                  deleteShoppingSubTask={deleteShoppingSubTask}
-                  updateShoppingSubTask={updateShoppingSubTask}
-                  showTitle={false}
-                />
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    cursor: 'pointer'
+                  }}>
+                    ☀️ 13時まで ({timeFrameTasks.midday.length}件) {showMiddayTasks ? '☑️' : '☐'}
+                    <input
+                      type="checkbox"
+                      checked={showMiddayTasks}
+                      onChange={(e) => setShowMiddayTasks(e.target.checked)}
+                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+                    />
+                  </label>
+                </div>
+                {showMiddayTasks && (
+                  <UnifiedTasksTable
+                    title=""
+                    tasks={timeFrameTasks.midday}
+                    emptyMessage="タスクなし"
+                    unifiedTasks={unifiedTasks}
+                    handleEditTask={handleEditTask}
+                    shoppingSubTasks={shoppingSubTasks}
+                    expandedShoppingLists={expandedShoppingLists}
+                    toggleShoppingList={toggleShoppingList}
+                    addShoppingSubTask={addShoppingSubTask}
+                    toggleShoppingSubTask={toggleShoppingSubTask}
+                    deleteShoppingSubTask={deleteShoppingSubTask}
+                    updateShoppingSubTask={updateShoppingSubTask}
+                    showTitle={false}
+                  />
+                )}
               </div>
 
               {/* 18時まで */}
               <div>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  margin: '0 0 8px 0',
-                  color: '#6b7280',
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
+                  marginBottom: '8px',
                   gap: '8px'
                 }}>
-                  🌤️ 18時まで
-                  <span style={{ fontSize: '12px', fontWeight: '400' }}>
-                    ({timeFrameTasks.afternoon.length}件)
-                  </span>
-                </h4>
-                <UnifiedTasksTable
-                  title=""
-                  tasks={timeFrameTasks.afternoon}
-                  emptyMessage="タスクなし"
-                  unifiedTasks={unifiedTasks}
-                  handleEditTask={handleEditTask}
-                  shoppingSubTasks={shoppingSubTasks}
-                  expandedShoppingLists={expandedShoppingLists}
-                  toggleShoppingList={toggleShoppingList}
-                  addShoppingSubTask={addShoppingSubTask}
-                  toggleShoppingSubTask={toggleShoppingSubTask}
-                  deleteShoppingSubTask={deleteShoppingSubTask}
-                  updateShoppingSubTask={updateShoppingSubTask}
-                  showTitle={false}
-                />
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    cursor: 'pointer'
+                  }}>
+                    🌤️ 18時まで ({timeFrameTasks.afternoon.length}件) {showAfternoonTasks ? '☑️' : '☐'}
+                    <input
+                      type="checkbox"
+                      checked={showAfternoonTasks}
+                      onChange={(e) => setShowAfternoonTasks(e.target.checked)}
+                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+                    />
+                  </label>
+                </div>
+                {showAfternoonTasks && (
+                  <UnifiedTasksTable
+                    title=""
+                    tasks={timeFrameTasks.afternoon}
+                    emptyMessage="タスクなし"
+                    unifiedTasks={unifiedTasks}
+                    handleEditTask={handleEditTask}
+                    shoppingSubTasks={shoppingSubTasks}
+                    expandedShoppingLists={expandedShoppingLists}
+                    toggleShoppingList={toggleShoppingList}
+                    addShoppingSubTask={addShoppingSubTask}
+                    toggleShoppingSubTask={toggleShoppingSubTask}
+                    deleteShoppingSubTask={deleteShoppingSubTask}
+                    updateShoppingSubTask={updateShoppingSubTask}
+                    showTitle={false}
+                  />
+                )}
               </div>
 
               {/* 24時まで */}
               <div>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  margin: '0 0 8px 0',
-                  color: '#6b7280',
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
+                  marginBottom: '8px',
                   gap: '8px'
                 }}>
-                  🌙 24時まで
-                  <span style={{ fontSize: '12px', fontWeight: '400' }}>
-                    ({timeFrameTasks.evening.length}件)
-                  </span>
-                </h4>
-                <UnifiedTasksTable
-                  title=""
-                  tasks={timeFrameTasks.evening}
-                  emptyMessage="タスクなし"
-                  unifiedTasks={unifiedTasks}
-                  handleEditTask={handleEditTask}
-                  shoppingSubTasks={shoppingSubTasks}
-                  expandedShoppingLists={expandedShoppingLists}
-                  toggleShoppingList={toggleShoppingList}
-                  addShoppingSubTask={addShoppingSubTask}
-                  toggleShoppingSubTask={toggleShoppingSubTask}
-                  deleteShoppingSubTask={deleteShoppingSubTask}
-                  updateShoppingSubTask={updateShoppingSubTask}
-                  showTitle={false}
-                />
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    cursor: 'pointer'
+                  }}>
+                    🌙 24時まで ({timeFrameTasks.evening.length}件) {showEveningTasks ? '☑️' : '☐'}
+                    <input
+                      type="checkbox"
+                      checked={showEveningTasks}
+                      onChange={(e) => setShowEveningTasks(e.target.checked)}
+                      style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+                    />
+                  </label>
+                </div>
+                {showEveningTasks && (
+                  <UnifiedTasksTable
+                    title=""
+                    tasks={timeFrameTasks.evening}
+                    emptyMessage="タスクなし"
+                    unifiedTasks={unifiedTasks}
+                    handleEditTask={handleEditTask}
+                    shoppingSubTasks={shoppingSubTasks}
+                    expandedShoppingLists={expandedShoppingLists}
+                    toggleShoppingList={toggleShoppingList}
+                    addShoppingSubTask={addShoppingSubTask}
+                    toggleShoppingSubTask={toggleShoppingSubTask}
+                    deleteShoppingSubTask={deleteShoppingSubTask}
+                    updateShoppingSubTask={updateShoppingSubTask}
+                    showTitle={false}
+                  />
+                )}
               </div>
             </div>
           )}
