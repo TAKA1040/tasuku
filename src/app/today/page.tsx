@@ -40,7 +40,15 @@ export default function TodayPage() {
   const [expandedShoppingLists, setExpandedShoppingLists] = useState<{[taskId: string]: boolean}>({})
 
   // ソート設定状態（今日のタスク用）
-  const [sortMode, setSortMode] = useState<'priority' | 'time'>('priority')
+  const [sortMode, setSortMode] = useState<'priority' | 'time'>(() => {
+    const saved = localStorage.getItem('tasuku_sortMode')
+    return (saved === 'priority' || saved === 'time') ? saved : 'time'
+  })
+
+  // sortMode変更時にlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('tasuku_sortMode', sortMode)
+  }, [sortMode])
 
   // まず生データを統一形式に変換
   const rawUnifiedData = useMemo(() => {
@@ -802,8 +810,8 @@ export default function TodayPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '700' : '600',
+                    fontSize: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '16px' : '14px',
+                    fontWeight: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '900' : '600',
                     color: isTimeFrameOverdue('09:00', timeFrameTasks.morning) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
@@ -847,8 +855,8 @@ export default function TodayPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '700' : '600',
+                    fontSize: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '16px' : '14px',
+                    fontWeight: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '900' : '600',
                     color: isTimeFrameOverdue('13:00', timeFrameTasks.midday) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
@@ -892,8 +900,8 @@ export default function TodayPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '700' : '600',
+                    fontSize: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '16px' : '14px',
+                    fontWeight: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '900' : '600',
                     color: isTimeFrameOverdue('18:00', timeFrameTasks.afternoon) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
@@ -937,8 +945,8 @@ export default function TodayPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '700' : '600',
+                    fontSize: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '16px' : '14px',
+                    fontWeight: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '900' : '600',
                     color: isTimeFrameOverdue('23:59', timeFrameTasks.evening) ? '#dc2626' : '#1f2937',
                     cursor: 'pointer'
                   }}>
