@@ -68,21 +68,23 @@ export function TimeFrameSection({
         </label>
       </div>
       {isExpanded && (
-        <UnifiedTasksTable
-          title=""
-          tasks={tasks}
-          emptyMessage=""
-          unifiedTasks={unifiedTasks}
-          handleEditTask={handleEditTask}
-          shoppingSubTasks={shoppingSubTasks}
-          expandedShoppingLists={expandedShoppingLists}
-          toggleShoppingList={toggleShoppingList}
-          addShoppingSubTask={addShoppingSubTask}
-          toggleShoppingSubTask={toggleShoppingSubTask}
-          deleteShoppingSubTask={deleteShoppingSubTask}
-          updateShoppingSubTask={updateShoppingSubTask}
-          showTitle={false}
-        />
+        <div style={{ marginLeft: '16px' }}>
+          <UnifiedTasksTable
+            title=""
+            tasks={tasks}
+            emptyMessage=""
+            unifiedTasks={unifiedTasks}
+            handleEditTask={handleEditTask}
+            shoppingSubTasks={shoppingSubTasks}
+            expandedShoppingLists={expandedShoppingLists}
+            toggleShoppingList={toggleShoppingList}
+            addShoppingSubTask={addShoppingSubTask}
+            toggleShoppingSubTask={toggleShoppingSubTask}
+            deleteShoppingSubTask={deleteShoppingSubTask}
+            updateShoppingSubTask={updateShoppingSubTask}
+            showTitle={false}
+          />
+        </div>
       )}
     </div>
   )
