@@ -64,7 +64,9 @@ next-env.d.ts
 
 # Investigation and temporary scripts
 check_*.ts
+check_*.js
 check_*.sql
+check_*.ps1
 fix_*.ts
 fix_*.sql
 comprehensive_*.ts
@@ -73,3 +75,5 @@ investigate_*.ts
 debug_*.ts
 temp_*.ts
 temp_*.sql
+build-output.txt
+rokaru.md
