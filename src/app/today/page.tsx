@@ -41,19 +41,40 @@ export default function TodayPage() {
   const [expandedShoppingLists, setExpandedShoppingLists] = useState<{[taskId: string]: boolean}>({})
 
   // ソート設定状態（今日のタスク用）
-  const [sortMode, setSortMode] = useState<'priority' | 'time'>(() => {
+  const [sortMode, setSortMode] = useState<'priority' | 'time'>('time')
+
+  // カテゴリフィルター状態（共通化）
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+
+  // 初回マウント時にlocalStorageから読み込み
+  useEffect(() => {
     const saved = localStorage.getItem('tasuku_sortMode')
-    return (saved === 'priority' || saved === 'time') ? saved : 'time'
-  })
+    if (saved === 'priority' || saved === 'time') {
+      setSortMode(saved)
+    }
+
+    const savedCategories = localStorage.getItem('tasuku_selectedCategories')
+    if (savedCategories) {
+      try {
+        setSelectedCategories(JSON.parse(savedCategories))
+      } catch (e) {
+        logger.error('カテゴリフィルター設定の読み込みエラー:', e)
+      }
+    }
+  }, [])
 
   // sortMode変更時にlocalStorageに保存
   useEffect(() => {
     localStorage.setItem('tasuku_sortMode', sortMode)
   }, [sortMode])
 
+  // カテゴリフィルター変更時にlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('tasuku_selectedCategories', JSON.stringify(selectedCategories))
+  }, [selectedCategories])
+
   // まず生データを統一形式に変換
   const rawUnifiedData = useMemo(() => {
-    logger.info('🔧 rawUnifiedData useMemo 実行')
     if (!isInitialized || unifiedTasks.loading) return []
 
     const allTasks = unifiedTasks.tasks
@@ -70,22 +91,7 @@ export default function TodayPage() {
 
   // 次にソートを適用
   const allUnifiedData = useMemo(() => {
-    logger.info('🚀🚀🚀 allUnifiedData ソート処理実行！')
-    logger.info('🚀 sortMode:', sortMode)
-    logger.info('🚀 rawUnifiedData.length:', rawUnifiedData.length)
-
     if (rawUnifiedData.length === 0) return []
-
-    logger.info('🔄 ソート前の順番:', rawUnifiedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
-    logger.info('📊 詳細データ（最初の5件）:', rawUnifiedData.slice(0, 5).map(t => ({
-      番号: t.display_number,
-      タイトル: t.title,
-      重要度: t.importance,
-      開始時刻: t.start_time,
-      完了: t.completed,
-      URLs: t.urls,
-      URLsCount: t.urls?.length || 0
-    })))
 
     const sortedData = [...rawUnifiedData].sort((a, b) => {
       // 完了状態による優先度（未完了が上、完了が下）
@@ -127,7 +133,6 @@ export default function TodayPage() {
       }
     })
 
-    logger.info('🔄 ソート後の順番:', sortedData.map(t => `${t.display_number}:${t.title.substring(0,10)}(imp:${t.importance},start:${t.start_time},完了:${t.completed})`))
     return sortedData
   }, [rawUnifiedData, sortMode])
 
@@ -139,29 +144,68 @@ export default function TodayPage() {
     return `${hours}:${minutes}`
   }, [])
 
-  // 時間軸モード用：今日のタスクを時間枠別に分割
+  // 全カテゴリ一覧を取得（今日のタスクとやることリストの両方から）
+  const allCategories = useMemo(() => {
+    const categories = new Set<string>()
+    let hasUncategorized = false
+
+    allUnifiedData
+      .filter(task => task.due_date === getTodayJST() || task.due_date === '2999-12-31')
+      .forEach(task => {
+        if (task.category && task.category.trim() !== '') {
+          categories.add(task.category)
+        } else {
+          hasUncategorized = true
+        }
+      })
+
+    const result = Array.from(categories).sort()
+    // 未分類のタスクがあれば最後に追加
+    if (hasUncategorized) {
+      result.push('未分類')
+    }
+    return result
+  }, [allUnifiedData])
+
+  // カテゴリフィルターを適用する関数
+  const applyCategoryFilter = useCallback((tasks: typeof allUnifiedData, filterCategories: string[]) => {
+    if (filterCategories.length === 0) {
+      return tasks // フィルターなしの場合は全て表示
+    }
+    return tasks.filter(task => {
+      const taskCategory = task.category || ''
+      // 「未分類」が選択されている場合は空のカテゴリもマッチ
+      if (filterCategories.includes('未分類') && taskCategory === '') {
+        return true
+      }
+      return filterCategories.includes(taskCategory)
+    })
+  }, [])
+
+  // 時間軸モード用：今日のタスクを時間枠別に分割（カテゴリフィルター適用）
   const timeFrameTasks = useMemo(() => {
     const todayTasks = allUnifiedData.filter(task => task.due_date === getTodayJST())
+    const filteredTasks = applyCategoryFilter(todayTasks, selectedCategories)
 
     return {
-      morning: todayTasks.filter(task => {
+      morning: filteredTasks.filter(task => {
         const startTime = task.start_time
         return startTime && startTime < '09:00'
       }),
-      midday: todayTasks.filter(task => {
+      midday: filteredTasks.filter(task => {
         const startTime = task.start_time
         return startTime && startTime >= '09:00' && startTime < '13:00'
       }),
-      afternoon: todayTasks.filter(task => {
+      afternoon: filteredTasks.filter(task => {
         const startTime = task.start_time
         return startTime && startTime >= '13:00' && startTime < '18:00'
       }),
-      evening: todayTasks.filter(task => {
+      evening: filteredTasks.filter(task => {
         const startTime = task.start_time
         return !startTime || startTime >= '18:00'
       })
     }
-  }, [allUnifiedData])
+  }, [allUnifiedData, selectedCategories, applyCategoryFilter])
 
   // 時間枠が期限切れで未完了タスクがあるかチェック
   const isTimeFrameOverdue = useCallback((deadline: string, tasks: typeof timeFrameTasks.morning) => {
@@ -203,6 +247,23 @@ export default function TodayPage() {
   }, [allUnifiedData])
 
   const loading = unifiedTasks.loading
+
+  // 期限切れ繰り返しタスクを非表示にすべきか判定
+  const shouldHideExpiredRecurringTask = useCallback((task: UnifiedTask): boolean => {
+    if (!task.recurring_template_id || !task.recurring_pattern) return false
+
+    const today = getTodayJST()
+    const dueDate = new Date(task.due_date)
+    const todayDate = new Date(today)
+    const daysOverdue = Math.floor((todayDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24))
+
+    // パターン別の非表示ルール
+    if (task.recurring_pattern === 'DAILY' && daysOverdue >= 3) return true
+    if (task.recurring_pattern === 'WEEKLY' && daysOverdue >= 7) return true
+    if (task.recurring_pattern === 'MONTHLY' && daysOverdue >= 365) return true
+
+    return false
+  }, [])
 
   // サブタスク管理関数 - データベース連携
   const loadShoppingSubTasks = useCallback(async (taskId: string) => {
@@ -288,6 +349,7 @@ export default function TodayPage() {
   const [showFutureTasks, setShowFutureTasks] = useState(false)
   const [showShoppingTasks, setShowShoppingTasks] = useState(false)
   const [showTodoList, setShowTodoList] = useState(false)
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false)
 
   // 時間枠セクション表示切り替え状態
   const [showMorningTasks, setShowMorningTasks] = useState(true)
@@ -696,7 +758,7 @@ export default function TodayPage() {
 
       <main>
         {/* 今日のメインタスク表示（大本） */}
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ marginBottom: '12px', position: 'relative' }}>
           {/* タイトルとソート切り替えUI */}
           <div style={{
             display: 'flex',
@@ -705,14 +767,49 @@ export default function TodayPage() {
             marginBottom: '8px',
             gap: '12px'
           }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              margin: '0',
-              color: '#1f2937'
-            }}>
-              📅 今日のタスク
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                margin: '0',
+                color: '#1f2937'
+              }}>
+                📅 今日のタスク
+              </h3>
+
+              {/* カテゴリフィルターボタン */}
+              <button
+                onClick={() => setShowCategoryFilter(!showCategoryFilter)}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  background: showCategoryFilter ? '#3b82f6' : '#f3f4f6',
+                  color: showCategoryFilter ? 'white' : '#6b7280',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  position: 'relative'
+                }}
+              >
+                🏷️ フィルター
+                {selectedCategories.length > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '2px',
+                    width: '6px',
+                    height: '6px',
+                    background: '#ef4444',
+                    borderRadius: '50%',
+                    border: '1px solid white'
+                  }} />
+                )}
+              </button>
+            </div>
 
             {/* ソート切り替えボタン */}
             <div style={{
@@ -726,12 +823,8 @@ export default function TodayPage() {
               pointerEvents: 'auto'
             }}>
               <button
-                onClick={(e) => {
-                  logger.info('🔥🔥🔥 重要度ボタンクリック検出！')
-                  logger.info('🔥 Event:', e)
-                  logger.info('🔥 Current sortMode:', sortMode)
+                onClick={() => {
                   setSortMode('priority')
-                  logger.info('🔥 setSortMode(priority) 実行完了')
                 }}
                 style={{
                   background: sortMode === 'priority' ? '#3b82f6' : 'transparent',
@@ -750,12 +843,8 @@ export default function TodayPage() {
                 重要度
               </button>
               <button
-                onClick={(e) => {
-                  logger.info('⏰⏰⏰ 時間軸ボタンクリック検出！')
-                  logger.info('⏰ Event:', e)
-                  logger.info('⏰ Current sortMode:', sortMode)
+                onClick={() => {
                   setSortMode('time')
-                  logger.info('⏰ setSortMode(time) 実行完了')
                 }}
                 style={{
                   background: sortMode === 'time' ? '#3b82f6' : 'transparent',
@@ -776,15 +865,124 @@ export default function TodayPage() {
             </div>
           </div>
 
+          {/* カテゴリフィルタードロップダウン（共通化） */}
+          {showCategoryFilter && allCategories.length > 0 && (
+            <div style={{
+              position: 'absolute',
+              top: '40px',
+              left: '140px',
+              zIndex: 1000,
+              padding: '12px',
+              background: 'white',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              minWidth: '200px',
+              maxWidth: '300px',
+              marginBottom: '8px'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px'
+              }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  color: '#6b7280'
+                }}>
+                  カテゴリフィルター
+                </div>
+                {selectedCategories.length > 0 && (
+                  <button
+                    onClick={() => setSelectedCategories([])}
+                    style={{
+                      padding: '2px 8px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      fontWeight: '500'
+                    }}
+                  >
+                    クリア
+                  </button>
+                )}
+              </div>
+              <div style={{
+                background: 'white',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}>
+                {allCategories.map((category, index) => (
+                  <label
+                    key={category}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      borderBottom: index < allCategories.length - 1 ? '1px solid #f3f4f6' : 'none',
+                      background: selectedCategories.includes(category) ? '#eff6ff' : 'transparent',
+                      transition: 'background 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!selectedCategories.includes(category)) {
+                        e.currentTarget.style.background = '#f9fafb'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!selectedCategories.includes(category)) {
+                        e.currentTarget.style.background = 'transparent'
+                      }
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedCategories([...selectedCategories, category])
+                        } else {
+                          setSelectedCategories(selectedCategories.filter(c => c !== category))
+                        }
+                      }}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                        accentColor: '#3b82f6'
+                      }}
+                    />
+                    <span style={{
+                      fontSize: '13px',
+                      color: '#374151',
+                      flex: 1
+                    }}>
+                      {category}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ソートモードに応じて表示を切り替え */}
           {sortMode === 'priority' ? (
-            // 重要度モード：従来通りの表示
+            // 重要度モード：カテゴリフィルター適用
             <UnifiedTasksTable
               title=""
-              tasks={allUnifiedData
-                .filter(task => task.due_date === getTodayJST())
-              }
-              emptyMessage="今日のタスクはありません"
+              tasks={applyCategoryFilter(
+                allUnifiedData.filter(task => task.due_date === getTodayJST()),
+                selectedCategories
+              )}
+              emptyMessage=""
               unifiedTasks={unifiedTasks}
               handleEditTask={handleEditTask}
               shoppingSubTasks={shoppingSubTasks}
@@ -913,7 +1111,7 @@ export default function TodayPage() {
                   !task.completed &&
                   task.due_date &&
                   task.due_date < getTodayJST() &&
-                  !task.recurring_template_id
+                  (!task.recurring_template_id || task.recurring_template_id === '')
                 )}
                 emptyMessage=""
                 urgent={true}
@@ -934,7 +1132,9 @@ export default function TodayPage() {
                 !task.completed &&
                 task.due_date &&
                 task.due_date < getTodayJST() &&
-                task.recurring_template_id
+                task.recurring_template_id &&
+                task.recurring_template_id !== '' &&
+                !shouldHideExpiredRecurringTask(task)
               ).length > 0 && (
                 <div style={{ marginTop: '12px' }}>
                   <div style={{
@@ -957,7 +1157,9 @@ export default function TodayPage() {
                         !task.completed &&
                         task.due_date &&
                         task.due_date < getTodayJST() &&
-                        task.recurring_template_id
+                        task.recurring_template_id &&
+                        task.recurring_template_id !== '' &&
+                        !shouldHideExpiredRecurringTask(task)
                       ).length}件) {showOverdueRecurringTasks ? '▼' : '▶'} 表示する
                       <input
                         type="checkbox"
@@ -975,7 +1177,9 @@ export default function TodayPage() {
                           !task.completed &&
                           task.due_date &&
                           task.due_date < getTodayJST() &&
-                          task.recurring_template_id
+                          task.recurring_template_id &&
+                          task.recurring_template_id !== '' &&
+                          !shouldHideExpiredRecurringTask(task)
                         )}
                         emptyMessage=""
                         urgent={true}
@@ -1124,8 +1328,9 @@ export default function TodayPage() {
           {showTodoList && (
             <UnifiedTasksTable
               title="💡 やることリスト"
-              tasks={allUnifiedData.filter(task =>
-                task.due_date === '2999-12-31' // 期限のないタスク
+              tasks={applyCategoryFilter(
+                allUnifiedData.filter(task => task.due_date === '2999-12-31'),
+                selectedCategories
               )}
               emptyMessage=""
               showTitle={false}

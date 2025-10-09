@@ -71,7 +71,7 @@ export function TimeFrameSection({
         <UnifiedTasksTable
           title=""
           tasks={tasks}
-          emptyMessage="タスクなし"
+          emptyMessage=""
           unifiedTasks={unifiedTasks}
           handleEditTask={handleEditTask}
           shoppingSubTasks={shoppingSubTasks}

@@ -113,15 +113,6 @@ const convertXQueryToUrl = (query: string): string => {
 
 // URL一括開きアイコンのレンダリング関数
 const renderUrlIcon = (urls?: string[] | null) => {
-  // デバッグ: URLsの状態を詳細ログ
-  logger.info('🌐 renderUrlIcon called with:', {
-    urls,
-    type: typeof urls,
-    isArray: Array.isArray(urls),
-    length: urls?.length,
-    isEmpty: !urls || urls.length === 0
-  })
-
   if (!urls || urls.length === 0) return '-'
 
   return (
@@ -226,64 +217,23 @@ export function UnifiedTasksTable({
   // サブタスク編集状態
   const [editingSubTask, setEditingSubTask] = useState<{ taskId: string; subTaskId: string; title: string } | null>(null)
 
-  // メモ展開状態（タスクIDをキーとする）
-  const [expandedMemos, setExpandedMemos] = useState<{[taskId: string]: boolean}>({})
+  // メモポップアップ表示状態
+  const [showMemoPopup, setShowMemoPopup] = useState(false)
+  const [selectedMemo, setSelectedMemo] = useState<{ taskId: string; memo: string; title: string } | null>(null)
 
-  // メモの展開/折りたたみトグル
-  const toggleMemo = (taskId: string) => {
-    setExpandedMemos(prev => ({
-      ...prev,
-      [taskId]: !prev[taskId]
-    }))
+  // メモアイコンクリックハンドラー
+  const handleMemoClick = (taskId: string, memo: string, title: string) => {
+    // 内部処理用マーカーを除外してユーザーに表示
+    const displayMemo = memo.replace(/\n?\[繰り越し処理済み\]/g, '').trim()
+    if (displayMemo) {
+      setSelectedMemo({ taskId, memo: displayMemo, title })
+      setShowMemoPopup(true)
+    }
   }
 
-  // メモ表示コンポーネント（2行制限付き）
-  const MemoDisplay = ({ memo, taskId }: { memo: string; taskId: string }) => {
-    const isExpanded = expandedMemos[taskId] || false
-
-    return (
-      <div style={{
-        fontSize: '12px',
-        color: '#6b7280',
-        fontStyle: 'italic',
-        position: 'relative'
-      }}>
-        <span style={{ marginRight: '4px' }}>-</span>
-        <span style={{
-          display: 'inline',
-          overflow: isExpanded ? 'visible' : 'hidden',
-          textOverflow: isExpanded ? 'clip' : 'ellipsis',
-          WebkitLineClamp: isExpanded ? 'unset' : 2,
-          WebkitBoxOrient: 'vertical',
-          ...(isExpanded ? {} : { display: '-webkit-box' })
-        }}>
-          {memo}
-        </span>
-        {memo.length > 50 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleMemo(taskId)
-            }}
-            style={{
-              position: 'absolute',
-              right: '0',
-              bottom: '0',
-              background: 'rgba(255, 255, 255, 0.9)',
-              border: 'none',
-              color: '#3b82f6',
-              cursor: 'pointer',
-              fontSize: '11px',
-              textDecoration: 'underline',
-              padding: '0 2px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {isExpanded ? '閉じる' : '続きを表示'}
-          </button>
-        )}
-      </div>
-    )
+  const closeMemoPopup = () => {
+    setShowMemoPopup(false)
+    setSelectedMemo(null)
   }
 
   const handleFileClick = (attachment: { file_name: string; file_type: string; file_data: string }) => {
@@ -371,6 +321,7 @@ export function UnifiedTasksTable({
               <tr style={{ backgroundColor: '#f9fafb' }}>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '40px' }}>完了</th>
                 <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>タイトル</th>
+                <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '50px' }}>メモ</th>
                 <th style={{ padding: '8px', textAlign: 'left', fontSize: '12px', fontWeight: '600', width: '80px' }}>カテゴリ</th>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '30px' }}>🌍</th>
                 <th style={{ padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: '600', width: '90px' }}>期限</th>
@@ -416,7 +367,7 @@ export function UnifiedTasksTable({
                     </button>
                   </td>
 
-                  {/* タイトル + メモ（1段表示） */}
+                  {/* タイトル */}
                   <td style={{ padding: '8px', fontSize: '14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {/* 重要度インディケーター */}
@@ -449,7 +400,7 @@ export function UnifiedTasksTable({
 
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {totalItems > 0 && toggleShoppingList && (
+                            {toggleShoppingList && (
                               <button
                                 onClick={() => toggleShoppingList(item.id)}
                                 style={{
@@ -466,15 +417,9 @@ export function UnifiedTasksTable({
                                 🛒 リスト ({totalItems})
                               </button>
                             )}
-                            {item.memo && <MemoDisplay memo={item.memo} taskId={item.id} />}
                           </div>
                         )
                       })()}
-
-                      {/* 買い物カテゴリ以外のメモを右に表示 */}
-                      {((dataType === 'task' && item.category !== '買い物') || dataType === 'recurring') && item.memo && (
-                        <MemoDisplay memo={item.memo} taskId={item.id} />
-                      )}
                     </div>
 
                     {/* サブタスクリスト（展開時） */}
@@ -648,6 +593,29 @@ export function UnifiedTasksTable({
                         )}
                       </div>
                     )}
+                  </td>
+
+                  {/* メモアイコン */}
+                  <td style={{ padding: '8px', textAlign: 'center' }}>
+                    {item.memo && (() => {
+                      const displayMemo = item.memo.replace(/\n?\[繰り越し処理済み\]/g, '').trim()
+                      return displayMemo ? (
+                        <button
+                          type="button"
+                          onClick={() => handleMemoClick(item.id, item.memo || '', item.title || '')}
+                          style={{
+                            border: 'none',
+                            background: 'none',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            padding: '2px'
+                          }}
+                          title="メモを表示"
+                        >
+                          📝
+                        </button>
+                      ) : '-'
+                    })() || '-'}
                   </td>
 
                   {/* カテゴリ */}
@@ -850,27 +818,26 @@ export function UnifiedTasksTable({
                         flexWrap: 'wrap'
                       }}>
                         {item.title || '無題'}
-                        {hasSubTasks && (
-                          <span style={{
-                            fontSize: '11px',
-                            color: '#6b7280',
-                            backgroundColor: '#f3f4f6',
-                            padding: '2px 6px',
-                            borderRadius: '10px'
-                          }}>
-                            🛒 {subTasks.filter(st => st.completed).length}/{subTasks.length}
-                          </span>
-                        )}
+                        {item.memo && (() => {
+                          const displayMemo = item.memo.replace(/\n?\[繰り越し処理済み\]/g, '').trim()
+                          return displayMemo ? (
+                            <button
+                              onClick={() => handleMemoClick(item.id, item.memo || '', item.title || '')}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                padding: '2px',
+                                marginLeft: '4px'
+                              }}
+                              title="メモを表示"
+                            >
+                              📝
+                            </button>
+                          ) : null
+                        })()}
                       </div>
-                      {item.memo && (
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#6b7280',
-                          marginTop: '4px'
-                        }}>
-                          <MemoDisplay memo={item.memo} taskId={item.id} />
-                        </div>
-                      )}
                     </div>
 
                     {/* 操作ボタン */}
@@ -906,17 +873,8 @@ export function UnifiedTasksTable({
                     </div>
                   </div>
 
-                  {/* 下段：カテゴリ・期限・URL */}
+                  {/* 下段：期限・URL */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#6b7280' }}>
-                    {item.category && (
-                      <span style={{
-                        backgroundColor: '#f3f4f6',
-                        padding: '2px 8px',
-                        borderRadius: '4px'
-                      }}>
-                        📁 {item.category}
-                      </span>
-                    )}
                     {item.due_date && item.due_date !== '2999-12-31' && (
                       <span style={{
                         backgroundColor: item.due_date < getTodayJST() ? '#fee2e2' : '#f3f4f6',
@@ -940,7 +898,7 @@ export function UnifiedTasksTable({
                   </div>
 
                   {/* 買い物リスト */}
-                  {hasSubTasks && (
+                  {item.category === '買い物' && (
                     <div style={{ marginTop: '8px' }}>
                       <button
                         onClick={() => toggleShoppingList && toggleShoppingList(item.id)}
@@ -1088,6 +1046,80 @@ export function UnifiedTasksTable({
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* メモ表示ポップアップ */}
+      {showMemoPopup && selectedMemo && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={closeMemoPopup}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '20px',
+              maxWidth: '600px',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              position: 'relative',
+              minWidth: '300px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+              <button
+                onClick={closeMemoPopup}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '0',
+                  width: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              paddingRight: '30px',
+              color: '#1f2937'
+            }}>
+              📝 {selectedMemo.title}
+            </h3>
+
+            <div style={{
+              fontSize: '14px',
+              color: '#374151',
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }}>
+              {selectedMemo.memo}
+            </div>
           </div>
         </div>
       )}

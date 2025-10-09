@@ -1,0 +1,40 @@
+main-app.js?v=1760018286244:1149 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+hot-reloader-app.js:197 [Fast Refresh] rebuilding
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Starting database initialization...
+report-hmr-latency.js:14 [Fast Refresh] done in 292ms
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Supabase Database initialized
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Dev features initialized
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Development tools available: window.resetTasukuDB()
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Development tools: window.testRecurringRules()
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Dev tools setup
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Checking for dummy data... (auto-seeding disabled)
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Database state: {tasks: 0, recurringTasks: 50, recurringLogs: 48}
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Database initialization completed successfully
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔄 タスク生成を開始...
+favicon.ico:1  GET http://localhost:3000/favicon.ico 500 (Internal Server Error)
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] user_metadataから取得: last_task_generation = 2025-10-09
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🚀 タスク生成開始: 今日=2025-10-09, 前回=2025-10-09
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔄 Unified tasks loaded: 65 items (cache duration: 30s)
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 👤 ユーザーID: 93d599a3-ebec-4eb7-995c-b9a36e8eda19
+fetch.js:30  GET https://wgtrffjwdtytqgqybjwx.supabase.co/rest/v1/user_metadata?select=value%2Cupdated_at&user_id=eq.93d599a3-ebec-4eb7-995c-b9a36e8eda19&key=eq.generation_lock 406 (Not Acceptable)
+eval @ fetch.js:30
+eval @ fetch.js:51
+fulfilled @ fetch.js:11
+Promise.then
+step @ fetch.js:13
+eval @ fetch.js:14
+__awaiter @ fetch.js:10
+eval @ fetch.js:41
+then @ PostgrestBuilder.js:66
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔒 ロック取得成功
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔍 生成判定: lastProcessed (2025-10-09) < today (2025-10-09) = false
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 📅 last_shopping_processed: 2025-10-09
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🛒 買い物タスク処理: 2025-10-10〜2025-10-09に完了したタスクをチェック (last_shopping: 2025-10-09)
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] ✅ 期間内に完了した買い物タスクなし
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] ✅ タスク生成完了
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔓 ロック解放完了
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] ✅ タスク生成完了
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 📢 Dispatching tasksUpdated event...
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] Tasks updated event received, invalidating cache and reloading tasks...
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🗑️ Global task cache invalidated
+C:\Windsurf\tasuku\src\lib\utils\logger.ts:34 [INFO] 🔄 Unified tasks loaded: 65 items (cache duration: 30s)

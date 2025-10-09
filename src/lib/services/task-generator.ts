@@ -365,7 +365,7 @@ export class TaskGeneratorService {
         .select('value, updated_at')
         .eq('user_id', userId)
         .eq('key', lockKey)
-        .single()
+        .maybeSingle()
 
       if (existingLock) {
         // ロックのタイムスタンプをチェック
@@ -781,7 +781,7 @@ export class TaskGeneratorService {
         .eq('completed', false)
         .eq('recurring_pattern', 'DAILY')
         .not('recurring_template_id', 'is', null)
-        .lt('due_date', dailyThreshold)
+        .lte('due_date', dailyThreshold)
         .select('id')
 
       if (dailyError) {
@@ -799,7 +799,7 @@ export class TaskGeneratorService {
         .eq('completed', false)
         .eq('recurring_pattern', 'WEEKLY')
         .not('recurring_template_id', 'is', null)
-        .lt('due_date', weeklyThreshold)
+        .lte('due_date', weeklyThreshold)
         .select('id')
 
       if (weeklyError) {
@@ -817,7 +817,7 @@ export class TaskGeneratorService {
         .eq('completed', false)
         .eq('recurring_pattern', 'MONTHLY')
         .not('recurring_template_id', 'is', null)
-        .lt('due_date', monthlyThreshold)
+        .lte('due_date', monthlyThreshold)
         .select('id')
 
       if (monthlyError) {
