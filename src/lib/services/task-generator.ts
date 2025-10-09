@@ -35,12 +35,12 @@ export class TaskGeneratorService {
 
     // 既存データから最終処理日を取得
     const lastProcessed = await this.getLastGenerationDate()
-    logger.info(`🚀 タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
+    logger.production(`🚀 タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
 
     let userId: string
     try {
       userId = await this.getCurrentUserId()
-      logger.info('👤 ユーザーID:', userId)
+      logger.production('👤 ユーザーID:', userId)
     } catch (error) {
       logger.error('❌ ユーザー認証エラー:', error)
       return
@@ -49,20 +49,20 @@ export class TaskGeneratorService {
     // 🔒 グローバルロック機構: 複数タブ/ページからの同時実行を防止
     const lockAcquired = await this.acquireGenerationLock(userId)
     if (!lockAcquired) {
-      logger.info('⏭️  他のプロセスが日次処理実行中のためスキップ')
+      logger.production('⏭️  他のプロセスが日次処理実行中のためスキップ')
       return
     }
 
     try {
-      logger.info('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
+      logger.production('🔍 生成判定:', `lastProcessed (${lastProcessed}) < today (${today})`, '=', lastProcessed < today)
 
       // 繰り返しタスク生成: 手動の場合は強制実行、自動の場合は日付チェック
       if (lastProcessed < today || forceToday) {
-        logger.info('🎯 繰り返しタスク生成を実行します (forceToday:', forceToday, ')')
+        logger.production('🎯 繰り返しタスク生成を実行します (forceToday:', forceToday, ')')
 
         if (forceToday) {
           // 手動生成: 自動生成と同じセキュリティルール適用
-          logger.info('🎯 手動生成: セキュリティルール適用')
+          logger.production('🎯 手動生成: セキュリティルール適用')
 
           // 日次: 今日を含めた3日分を生成（過去2日 + 今日）
           const startDate = subtractDays(today, 2)
@@ -72,14 +72,14 @@ export class TaskGeneratorService {
           if (this.isNewWeek(lastProcessed, today)) {
             const thisMonday = getStartOfWeek(today)
             await this.generateWeeklyTasks(thisMonday, today)
-            logger.info('🎯 手動週次生成: 今週分生成')
+            logger.production('🎯 手動週次生成: 今週分生成')
           }
 
           // 月次: 月が変わった場合のみ今月分
           if (this.isNewMonth(lastProcessed, today)) {
             const thisFirstDay = getStartOfMonth(today)
             await this.generateMonthlyTasks(thisFirstDay, today)
-            logger.info('🎯 手動月次生成: 今月分生成')
+            logger.production('🎯 手動月次生成: 今月分生成')
           }
         } else {
           // 自動生成: パターン別の適切な生成期間
@@ -131,7 +131,7 @@ export class TaskGeneratorService {
       const lastShoppingProcessed = await this.getLastShoppingProcessedDate()
       const startDate = addDays(lastShoppingProcessed, 1)
 
-      logger.info(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック (last_shopping: ${lastShoppingProcessed})`)
+      logger.production(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック (last_shopping: ${lastShoppingProcessed})`)
 
       // startDate翌日から今日までに完了した買い物タスクを取得
       // completed_atは日付のみ or 日時の可能性があるため、両方に対応
@@ -149,11 +149,11 @@ export class TaskGeneratorService {
       }
 
       if (!completedShoppingTasks || completedShoppingTasks.length === 0) {
-        logger.info('✅ 期間内に完了した買い物タスクなし')
+        logger.production('✅ 期間内に完了した買い物タスクなし')
         return
       }
 
-      logger.info(`📋 ${completedShoppingTasks.length}件の買い物タスクを処理`)
+      logger.production(`📋 ${completedShoppingTasks.length}件の買い物タスクを処理`)
 
       let processedCount = 0
       let skippedCount = 0
@@ -162,11 +162,11 @@ export class TaskGeneratorService {
       // 各タスクの未完了子タスクを処理
       for (const task of completedShoppingTasks) {
         try {
-          logger.info(`\n📝 処理中: "${task.title}" (ID: ${task.id})`)
+          logger.production(`\n📝 処理中: "${task.title}" (ID: ${task.id})`)
 
           // 処理済みチェック: memoに処理済みマーカーがあるかチェック
           if (task.memo && task.memo.includes('[繰り越し処理済み]')) {
-            logger.info(`⏭️  スキップ: 既に処理済み`)
+            logger.production(`⏭️  スキップ: 既に処理済み`)
             skippedCount++
             continue
           }
@@ -186,7 +186,7 @@ export class TaskGeneratorService {
           const uncompletedSubtasks = subtasks?.filter(st => !st.completed) || []
 
           if (uncompletedSubtasks.length === 0) {
-            logger.info(`⏭️  スキップ: 未完了サブタスクなし`)
+            logger.production(`⏭️  スキップ: 未完了サブタスクなし`)
             // 処理済みマーカーを追加（空処理でも記録）
             const { error: updateError } = await this.supabase
               .from('unified_tasks')
@@ -204,7 +204,7 @@ export class TaskGeneratorService {
             continue
           }
 
-          logger.info(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
+          logger.production(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
 
           // 繰り越し処理実行
           await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
@@ -221,7 +221,7 @@ export class TaskGeneratorService {
             logger.error(`❌ 処理済みマーカー追加エラー (${task.title}):`, markError)
             errorCount++
           } else {
-            logger.info(`✅ 繰り越し完了`)
+            logger.production(`✅ 繰り越し完了`)
             processedCount++
           }
         } catch (taskError) {
@@ -231,7 +231,7 @@ export class TaskGeneratorService {
         }
       }
 
-      logger.info(`\n📊 買い物タスク処理結果: 処理=${processedCount}件, スキップ=${skippedCount}件, エラー=${errorCount}件`)
+      logger.production(`\n📊 買い物タスク処理結果: 処理=${processedCount}件, スキップ=${skippedCount}件, エラー=${errorCount}件`)
 
       // 買い物処理の最終処理日を更新
       await this.updateLastShoppingProcessedDate(today)
@@ -256,7 +256,7 @@ export class TaskGeneratorService {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          logger.info('初回買い物処理（user_metadataにレコードなし）')
+          logger.production('初回買い物処理（user_metadataにレコードなし）')
           return '1970-01-01'
         }
         logger.warn('買い物処理日取得エラー:', error)
@@ -267,7 +267,7 @@ export class TaskGeneratorService {
         return '1970-01-01'
       }
 
-      logger.info(`📅 last_shopping_processed: ${data.value}`)
+      logger.production(`📅 last_shopping_processed: ${data.value}`)
       return data.value
     } catch (error) {
       logger.error('買い物処理日取得エラー:', error)
@@ -310,7 +310,7 @@ export class TaskGeneratorService {
       if (error) {
         // レコードが存在しない場合は初回実行
         if (error.code === 'PGRST116') {
-          logger.info('初回タスク生成（user_metadataにレコードなし）')
+          logger.production('初回タスク生成（user_metadataにレコードなし）')
           return '1970-01-01'
         }
         logger.warn('最終処理日取得エラー:', error)
@@ -318,11 +318,11 @@ export class TaskGeneratorService {
       }
 
       if (!data || !data.value) {
-        logger.info('user_metadataに値なし、初期値を返す')
+        logger.production('user_metadataに値なし、初期値を返す')
         return '1970-01-01'
       }
 
-      logger.info(`user_metadataから取得: last_task_generation = ${data.value}`)
+      logger.production(`user_metadataから取得: last_task_generation = ${data.value}`)
       return data.value
     } catch (error) {
       logger.error('最終処理日取得エラー:', error)
@@ -349,7 +349,7 @@ export class TaskGeneratorService {
       logger.error('❌ last_task_generation更新エラー:', error)
       throw error
     }
-    logger.info(`✅ last_task_generation更新: ${date}`)
+    logger.production(`✅ last_task_generation更新: ${date}`)
   }
 
   // 🔒 ロック取得: 複数プロセスからの同時実行を防止
@@ -374,10 +374,10 @@ export class TaskGeneratorService {
 
         // ロックが5分以上古い場合は無効とみなす（デッドロック防止）
         if (currentTime - lockTime < lockTimeout) {
-          logger.info('⏳ ロック取得失敗: 他のプロセスが実行中')
+          logger.production('⏳ ロック取得失敗: 他のプロセスが実行中')
           return false
         }
-        logger.info('⚠️  古いロックを検出、上書きします')
+        logger.production('⚠️  古いロックを検出、上書きします')
       }
 
       // ロックを取得（upsert）
@@ -396,7 +396,7 @@ export class TaskGeneratorService {
         return false
       }
 
-      logger.info('🔒 ロック取得成功')
+      logger.production('🔒 ロック取得成功')
       return true
     } catch (error) {
       logger.error('❌ ロック取得処理エラー:', error)
@@ -416,7 +416,7 @@ export class TaskGeneratorService {
       if (error) {
         logger.error('❌ ロック解放エラー:', error)
       } else {
-        logger.info('🔓 ロック解放完了')
+        logger.production('🔓 ロック解放完了')
       }
     } catch (error) {
       logger.error('❌ ロック解放処理エラー:', error)
@@ -426,8 +426,8 @@ export class TaskGeneratorService {
   // 日次タスク生成
   async generateDailyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('DAILY')
-    logger.info(`🔄 日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
-    logger.info('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, active: t.active })))
+    logger.production(`🔄 日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    logger.production('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, active: t.active })))
 
     for (const template of templates) {
       let currentDate = startDate
@@ -441,7 +441,7 @@ export class TaskGeneratorService {
   // 週次タスク生成（今日のみ・安全版）
   async generateWeeklyTasksForToday(today: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
-    logger.info(`週次タスク生成（今日のみ）: ${today}, テンプレート数: ${templates.length}`)
+    logger.production(`週次タスク生成（今日のみ）: ${today}, テンプレート数: ${templates.length}`)
 
     const todayWeekday = new Date(today).getDay()
     const todayIsoWeekday = todayWeekday === 0 ? 7 : todayWeekday // 日曜=7に変換
@@ -449,7 +449,7 @@ export class TaskGeneratorService {
     for (const template of templates) {
       // 今日が指定された曜日かチェック
       if (template.weekdays?.includes(todayIsoWeekday)) {
-        logger.info(`今日用タスク作成: ${template.title} (${today})`)
+        logger.production(`今日用タスク作成: ${template.title} (${today})`)
         await this.createTaskFromTemplate(template, today)
       }
     }
@@ -458,7 +458,7 @@ export class TaskGeneratorService {
   // 週次タスク生成（範囲指定版）
   async generateWeeklyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
-    logger.info(`週次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    logger.production(`週次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
@@ -479,7 +479,7 @@ export class TaskGeneratorService {
   // 月次タスク生成
   async generateMonthlyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('MONTHLY')
-    logger.info(`月次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    logger.production(`月次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
@@ -499,7 +499,7 @@ export class TaskGeneratorService {
   // 年次タスク生成
   async generateYearlyTasks(startDate: string, endDate: string): Promise<void> {
     const templates = await this.templatesService.getTemplatesByPattern('YEARLY')
-    logger.info(`年次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
+    logger.production(`年次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
@@ -537,13 +537,13 @@ export class TaskGeneratorService {
       const existingTask = existing[0]
 
       // デバッグ: 比較前の状態をログ出力
-      logger.info(`🔍 既存タスクチェック: ${template.title} (${dueDate})`)
-      logger.info(`   既存タスクID: ${existingTask.id}`)
-      logger.info(`   既存タスク urls:`, existingTask.urls, `(${typeof existingTask.urls})`)
-      logger.info(`   テンプレート urls:`, template.urls, `(${typeof template.urls})`)
-      logger.info(`   既存 JSON:`, JSON.stringify(existingTask.urls))
-      logger.info(`   テンプレ JSON:`, JSON.stringify(template.urls))
-      logger.info(`   JSON一致:`, JSON.stringify(existingTask.urls) === JSON.stringify(template.urls))
+      logger.production(`🔍 既存タスクチェック: ${template.title} (${dueDate})`)
+      logger.production(`   既存タスクID: ${existingTask.id}`)
+      logger.production(`   既存タスク urls:`, existingTask.urls, `(${typeof existingTask.urls})`)
+      logger.production(`   テンプレート urls:`, template.urls, `(${typeof template.urls})`)
+      logger.production(`   既存 JSON:`, JSON.stringify(existingTask.urls))
+      logger.production(`   テンプレ JSON:`, JSON.stringify(template.urls))
+      logger.production(`   JSON一致:`, JSON.stringify(existingTask.urls) === JSON.stringify(template.urls))
 
       const needsUpdate =
         JSON.stringify(existingTask.urls) !== JSON.stringify(template.urls) ||
@@ -551,7 +551,7 @@ export class TaskGeneratorService {
         existingTask.end_time !== template.end_time
 
       if (needsUpdate) {
-        logger.info(`🔄 既存タスクを同期更新: ${template.title} (${dueDate})`)
+        logger.production(`🔄 既存タスクを同期更新: ${template.title} (${dueDate})`)
         const { error: updateError } = await this.supabase
           .from('unified_tasks')
           .update({
@@ -565,10 +565,10 @@ export class TaskGeneratorService {
         if (updateError) {
           logger.error(`❌ タスク同期エラー: ${template.title}`, updateError)
         } else {
-          logger.info(`✅ タスク同期完了: ${template.title} (${dueDate})`)
+          logger.production(`✅ タスク同期完了: ${template.title} (${dueDate})`)
         }
       } else {
-        logger.info(`⏭️  同期不要: ${template.title} (${dueDate}) - データが一致しています`)
+        logger.production(`⏭️  同期不要: ${template.title} (${dueDate}) - データが一致しています`)
       }
       // 重複生成防止
       return
@@ -578,7 +578,7 @@ export class TaskGeneratorService {
     const displayNumber = await UnifiedTasksService.generateDisplayNumber()
 
     // デバッグ: テンプレートの情報をログ出力
-    logger.info('📝 テンプレートからタスク生成:', {
+    logger.production('📝 テンプレートからタスク生成:', {
       templateId: template.id,
       title: template.title,
       dueDate: dueDate,
@@ -662,7 +662,7 @@ export class TaskGeneratorService {
         if (subtasksError) {
           logger.error(`買い物リストコピーエラー: ${template.title}`, subtasksError)
         } else {
-          logger.info(`✅ 買い物リストコピー完了: ${newSubtasks.length}件`)
+          logger.production(`✅ 買い物リストコピー完了: ${newSubtasks.length}件`)
         }
       }
     }
@@ -701,7 +701,7 @@ export class TaskGeneratorService {
         .select('id, title')
 
       if (dailyDeleted && dailyDeleted.length > 0) {
-        logger.info(`🗑️  DAILY 未来タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}より後)`)
+        logger.production(`🗑️  DAILY 未来タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}より後)`)
         totalDeleted += dailyDeleted.length
       }
 
@@ -718,7 +718,7 @@ export class TaskGeneratorService {
         .select('id, title')
 
       if (weeklyDeleted && weeklyDeleted.length > 0) {
-        logger.info(`🗑️  WEEKLY 未来タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}より後)`)
+        logger.production(`🗑️  WEEKLY 未来タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}より後)`)
         totalDeleted += weeklyDeleted.length
       }
 
@@ -735,7 +735,7 @@ export class TaskGeneratorService {
         .select('id, title')
 
       if (monthlyDeleted && monthlyDeleted.length > 0) {
-        logger.info(`🗑️  MONTHLY 未来タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}より後)`)
+        logger.production(`🗑️  MONTHLY 未来タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}より後)`)
         totalDeleted += monthlyDeleted.length
       }
 
@@ -752,14 +752,14 @@ export class TaskGeneratorService {
         .select('id, title')
 
       if (yearlyDeleted && yearlyDeleted.length > 0) {
-        logger.info(`🗑️  YEARLY 未来タスク削除: ${yearlyDeleted.length}件 (${yearlyThreshold}より後)`)
+        logger.production(`🗑️  YEARLY 未来タスク削除: ${yearlyDeleted.length}件 (${yearlyThreshold}より後)`)
         totalDeleted += yearlyDeleted.length
       }
 
       if (totalDeleted > 0) {
-        logger.info(`✅ 未来タスク削除完了: 合計${totalDeleted}件`)
+        logger.production(`✅ 未来タスク削除完了: 合計${totalDeleted}件`)
       } else {
-        logger.info('✅ 削除対象の未来タスクなし')
+        logger.production('✅ 削除対象の未来タスクなし')
       }
     } catch (error) {
       logger.error('❌ 未来タスク削除処理エラー:', error)
@@ -787,7 +787,7 @@ export class TaskGeneratorService {
       if (dailyError) {
         logger.error('❌ 日次タスク削除エラー:', dailyError)
       } else if (dailyDeleted && dailyDeleted.length > 0) {
-        logger.info(`🗑️  期限切れ日次タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}以前)`)
+        logger.production(`🗑️  期限切れ日次タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}以前)`)
       }
 
       // 週次タスク: 期限から7日経過
@@ -805,7 +805,7 @@ export class TaskGeneratorService {
       if (weeklyError) {
         logger.error('❌ 週次タスク削除エラー:', weeklyError)
       } else if (weeklyDeleted && weeklyDeleted.length > 0) {
-        logger.info(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}以前)`)
+        logger.production(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}以前)`)
       }
 
       // 月次タスク: 期限から365日経過
@@ -823,14 +823,14 @@ export class TaskGeneratorService {
       if (monthlyError) {
         logger.error('❌ 月次タスク削除エラー:', monthlyError)
       } else if (monthlyDeleted && monthlyDeleted.length > 0) {
-        logger.info(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}以前)`)
+        logger.production(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}以前)`)
       }
 
       const totalDeleted = (dailyDeleted?.length || 0) + (weeklyDeleted?.length || 0) + (monthlyDeleted?.length || 0)
       if (totalDeleted > 0) {
-        logger.info(`✅ 期限切れ繰り返しタスク削除完了: 合計${totalDeleted}件`)
+        logger.production(`✅ 期限切れ繰り返しタスク削除完了: 合計${totalDeleted}件`)
       } else {
-        logger.info('✅ 削除対象の期限切れ繰り返しタスクなし')
+        logger.production('✅ 削除対象の期限切れ繰り返しタスクなし')
       }
     } catch (error) {
       logger.error('❌ 期限切れタスク削除処理エラー:', error)
