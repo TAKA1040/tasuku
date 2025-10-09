@@ -776,7 +776,7 @@ export default function TodayPage() {
             // 時間軸モード：4つの時間枠で表示
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* 9時まで */}
-              <div>
+              <div style={{ marginLeft: '16px' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -821,7 +821,7 @@ export default function TodayPage() {
               </div>
 
               {/* 13時まで */}
-              <div>
+              <div style={{ marginLeft: '16px' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -866,7 +866,7 @@ export default function TodayPage() {
               </div>
 
               {/* 18時まで */}
-              <div>
+              <div style={{ marginLeft: '16px' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -911,7 +911,7 @@ export default function TodayPage() {
               </div>
 
               {/* 24時まで */}
-              <div>
+              <div style={{ marginLeft: '16px' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
