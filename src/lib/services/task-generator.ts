@@ -114,7 +114,7 @@ export class TaskGeneratorService {
       // 買い物タスク処理: 日付に関わらず毎回実行（同日の2回目アクセスでも処理）
       await this.processCompletedShoppingTasks(lastProcessed, today)
 
-      logger.info('✅ タスク生成完了')
+      logger.production('✅ タスク生成完了')
     } catch (error) {
       logger.error('❌ タスク生成エラー:', error)
       throw error
@@ -235,7 +235,7 @@ export class TaskGeneratorService {
 
       // 買い物処理の最終処理日を更新
       await this.updateLastShoppingProcessedDate(today)
-      logger.info(`✅ 買い物タスク処理完了 (last_shopping_processed: ${today})`)
+      logger.production(`✅ 買い物タスク処理完了 (last_shopping_processed: ${today})`)
     } catch (error) {
       logger.error('❌ 買い物タスク処理エラー:', error)
       // エラーでも throw しない（他の処理を継続）
@@ -631,7 +631,7 @@ export class TaskGeneratorService {
       throw error
     }
 
-    logger.info(`✅ タスク作成成功: ${template.title} (${dueDate})`, {
+    logger.production(`✅ タスク作成成功: ${template.title} (${dueDate})`, {
       newTaskId: newTask.id,
       hasUrls: !!newTask.urls,
       urlsCount: Array.isArray(newTask.urls) ? newTask.urls.length : 0,

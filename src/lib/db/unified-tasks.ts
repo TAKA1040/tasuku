@@ -313,7 +313,7 @@ export class UnifiedTasksService {
           logger.error('  Payload:', JSON.stringify(updatePayload, null, 2))
           logger.error('  Query:', `recurring_templates.update().eq('id', '${task.recurring_template_id}')`)
         } else {
-          logger.info('✅ Template synced successfully')
+          logger.production('✅ Template synced successfully')
         }
       } else {
         logger.info('⚠️ No template_id found, cannot sync')

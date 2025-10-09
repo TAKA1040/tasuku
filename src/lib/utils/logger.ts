@@ -36,6 +36,15 @@ class Logger {
   }
 
   /**
+   * Production level logging - always shown
+   * Use for important operational messages that should be visible in production
+   * Examples: task generation, template sync, critical business logic
+   */
+  production(message: string, ...args: unknown[]) {
+    console.log(`[PROD] ${message}`, ...args)
+  }
+
+  /**
    * Warning level logging - always shown
    * Use for potentially problematic situations
    */
