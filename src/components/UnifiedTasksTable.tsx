@@ -325,7 +325,8 @@ export function UnifiedTasksTable({
                       borderTop: index > 0 ? '1px solid #f3f4f6' : 'none',
                       backgroundColor: item.completed ? '#f8f9fa' : 'transparent',
                       opacity: item.completed ? 0.6 : 1,
-                      color: item.completed ? '#6b7280' : 'inherit'
+                      color: item.completed ? '#6b7280' : 'inherit',
+                      transition: 'all 0.3s ease'
                     }}>
                   {/* 完了チェックボックス */}
                   <td style={{ padding: '8px', textAlign: 'center' }}>
@@ -348,7 +349,8 @@ export function UnifiedTasksTable({
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '12px',
-                        color: 'white'
+                        color: 'white',
+                        transition: 'all 0.2s ease'
                       }}
                     >
                       {item.completed ? '✓' : ''}
@@ -373,7 +375,8 @@ export function UnifiedTasksTable({
                       {/* タイトル */}
                       <span style={{
                         fontWeight: '500',
-                        textDecoration: item.completed ? 'line-through' : 'none'
+                        textDecoration: item.completed ? 'line-through' : 'none',
+                        transition: 'text-decoration 0.2s ease'
                       }}>
                         {item.title}
                       </span>
@@ -762,7 +765,8 @@ export function UnifiedTasksTable({
                   padding: '12px',
                   borderBottom: index < tasks.length - 1 ? '1px solid #f3f4f6' : 'none',
                   backgroundColor: item.completed ? '#f8f9fa' : 'white',
-                  opacity: item.completed ? 0.6 : 1
+                  opacity: item.completed ? 0.6 : 1,
+                  transition: 'all 0.3s ease'
                 }}>
                   {/* 上段：完了・タイトル・操作 */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
@@ -787,7 +791,8 @@ export function UnifiedTasksTable({
                         justifyContent: 'center',
                         fontSize: '12px',
                         color: 'white',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        transition: 'all 0.2s ease'
                       }}
                     >
                       {item.completed ? '✓' : ''}
@@ -803,7 +808,8 @@ export function UnifiedTasksTable({
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        flexWrap: 'wrap'
+                        flexWrap: 'wrap',
+                        transition: 'text-decoration 0.2s ease'
                       }}>
                         {item.title || '無題'}
                         {item.memo && (() => {
