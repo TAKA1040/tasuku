@@ -817,10 +817,7 @@ export default function TodayPage() {
               background: '#f3f4f6',
               borderRadius: '6px',
               padding: '2px',
-              gap: '2px',
-              position: 'relative',
-              zIndex: 9999,
-              pointerEvents: 'auto'
+              gap: '2px'
             }}>
               <button
                 onClick={() => {
@@ -835,9 +832,7 @@ export default function TodayPage() {
                   fontSize: '12px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  pointerEvents: 'auto',
-                  zIndex: 10000
+                  transition: 'all 0.2s ease'
                 }}
               >
                 重要度
@@ -855,9 +850,7 @@ export default function TodayPage() {
                   fontSize: '12px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  pointerEvents: 'auto',
-                  zIndex: 10000
+                  transition: 'all 0.2s ease'
                 }}
               >
                 時間軸
