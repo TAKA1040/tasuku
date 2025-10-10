@@ -75,6 +75,12 @@ export default function HelpPage() {
         </ol>
       </nav>
 
+      {/*
+        ⚠️ SYNC NOTICE: このページの内容を修正した場合
+        Welcomeページ（src/app/welcome/page.tsx）の簡易版使い方ガイドセクション（id="how-to-use"）も
+        同時に更新してください。主要な機能説明、操作方法の変更があった場合は必ず同期が必要です。
+      */}
+
       {/* 1. TASUKUについて */}
       <section id="about" style={{ marginBottom: '48px' }}>
         <h2 style={{ fontSize: '24px', color: '#1f2937', marginBottom: '16px', borderBottom: '2px solid #3b82f6', paddingBottom: '8px' }}>
