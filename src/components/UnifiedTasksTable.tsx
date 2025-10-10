@@ -235,13 +235,11 @@ export function UnifiedTasksTable({
       <button
         type="button"
         onClick={(e) => {
-          alert('ボタンがクリックされました！') // デバッグ用
           e.preventDefault()
           e.stopPropagation()
           handleUrlClick(taskTitle, urls)
         }}
         onTouchEnd={(e) => {
-          alert('タッチされました！') // デバッグ用
           e.preventDefault()
           e.stopPropagation()
           handleUrlClick(taskTitle, urls)
@@ -875,7 +873,7 @@ export function UnifiedTasksTable({
                   </div>
 
                   {/* 下段：期限・URL */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#6b7280' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#6b7280', alignItems: 'center' }}>
                     {item.due_date && item.due_date !== '2999-12-31' && (
                       <span style={{
                         backgroundColor: item.due_date < getTodayJST() ? '#fee2e2' : '#f3f4f6',
@@ -887,14 +885,40 @@ export function UnifiedTasksTable({
                       </span>
                     )}
                     {item.urls && item.urls.length > 0 && (
-                      <span style={{
-                        backgroundColor: '#dbeafe',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        color: '#1e40af'
-                      }}>
-                        🌍 {item.urls.length}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleUrlClick(item.title || '', item.urls || [])
+                        }}
+                        onTouchEnd={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleUrlClick(item.title || '', item.urls || [])
+                        }}
+                        style={{
+                          backgroundColor: '#dbeafe',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          color: '#1e40af',
+                          border: '2px solid #3b82f6',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          minWidth: '60px',
+                          minHeight: '36px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation',
+                          userSelect: 'none'
+                        }}
+                      >
+                        🌍 {item.urls.length}個
+                      </button>
                     )}
                   </div>
 
