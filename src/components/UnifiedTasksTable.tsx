@@ -234,13 +234,33 @@ export function UnifiedTasksTable({
     return (
       <button
         type="button"
-        onClick={() => handleUrlClick(taskTitle, urls)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          handleUrlClick(taskTitle, urls)
+        }}
         style={{
-          border: 'none',
-          background: 'none',
-          fontSize: '16px',
+          border: '1px solid #e5e7eb',
+          background: '#f9fafb',
+          fontSize: '18px',
           cursor: 'pointer',
-          padding: '2px'
+          padding: '8px 12px',
+          borderRadius: '6px',
+          minWidth: '44px',
+          minHeight: '44px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+          WebkitTapHighlightColor: 'transparent'
+        }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.backgroundColor = '#e5e7eb'
+          e.currentTarget.style.transform = 'scale(0.95)'
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.backgroundColor = '#f9fafb'
+          e.currentTarget.style.transform = 'scale(1)'
         }}
         title={`${urls.length}個のURLを開く`}
       >
