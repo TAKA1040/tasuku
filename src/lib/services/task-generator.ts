@@ -99,17 +99,17 @@ export class TaskGeneratorService {
           // 年次: 過去730日〜今日（年1回アクセス想定、2年分カバー）
           const yearlyStart = subtractDays(today, 730)
           await this.generateYearlyTasks(yearlyStart, today)
+
+          // 最終更新日を更新
+          await this.updateLastGenerationDate(today)
         }
-
-        // 期限切れ繰り返しタスクの自動削除
-        await this.deleteExpiredRecurringTasks(today)
-
-        // 未来の繰り返しタスクの削除（明日以降のタスクを削除）
-        await this.deleteFutureRecurringTasks(today)
-
-        // 最終更新日を更新
-        await this.updateLastGenerationDate(today)
       }
+
+      // 期限切れ繰り返しタスクの自動削除: 日付に関わらず毎回実行（同日の2回目アクセスでも処理）
+      await this.deleteExpiredRecurringTasks(today)
+
+      // 未来の繰り返しタスクの削除: 日付に関わらず毎回実行（同日の2回目アクセスでも処理）
+      await this.deleteFutureRecurringTasks(today)
 
       // 買い物タスク処理: 日付に関わらず毎回実行（同日の2回目アクセスでも処理）
       await this.processCompletedShoppingTasks(lastProcessed, today)
