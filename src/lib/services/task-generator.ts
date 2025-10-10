@@ -523,22 +523,29 @@ export class TaskGeneratorService {
     const userId = await this.getCurrentUserId()
 
     // 既に同じテンプレート&日付のタスクが存在するかチェック
+    // 注意: completed の条件は付けない（完了済みタスクも重複防止の対象）
     const { data: existing } = await this.supabase
       .from('unified_tasks')
-      .select('id, urls, start_time, end_time')
+      .select('id, urls, start_time, end_time, completed')
       .eq('user_id', userId)
       .eq('recurring_template_id', template.id)
       .eq('due_date', dueDate)
-      .eq('completed', false)
       .limit(1)
 
     if (existing && existing.length > 0) {
-      // 既存タスクが存在する場合、テンプレートから最新のURLsと時刻を同期
+      // 既存タスクが存在する場合
       const existingTask = existing[0]
 
-      // デバッグ: 比較前の状態をログ出力
       logger.production(`🔍 既存タスクチェック: ${template.title} (${dueDate})`)
-      logger.production(`   既存タスクID: ${existingTask.id}`)
+      logger.production(`   既存タスクID: ${existingTask.id}, 完了: ${existingTask.completed}`)
+
+      // 完了済みタスクの場合は、更新せずに重複生成を防止
+      if (existingTask.completed) {
+        logger.production(`⏭️  スキップ: 既に完了済み - 重複生成を防止`)
+        return
+      }
+
+      // 未完了タスクの場合、テンプレートから最新のURLsと時刻を同期
       logger.production(`   既存タスク urls:`, existingTask.urls, `(${typeof existingTask.urls})`)
       logger.production(`   テンプレート urls:`, template.urls, `(${typeof template.urls})`)
       logger.production(`   既存 JSON:`, JSON.stringify(existingTask.urls))
