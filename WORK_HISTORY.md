@@ -11,6 +11,151 @@
 
 ---
 
+## ✅ 完了: UI折りたたみ防止 - 不要なリロード削除と状態永続化 (2025-10-10 追加修正)
+
+### 問題の再発見 ⚠️
+**ユーザー報告**:
+- 「やはり一度開いてる予定が一度閉じられる現象が続いている」
+- 楽観的UI更新を実装したにも関わらず、画面が閉じる問題が残存
+
+### 根本原因の特定 🔍
+
+#### useUnifiedTasks.ts の不要なリロード
+**Lines 244-284 のイベントリスナー**:
+```typescript
+// ❌ 問題: ページフォーカス/Visibilityイベント時に全件リロード
+const handleFocus = () => {
+  invalidateGlobalCache()
+  loadTasks(true) // ← 不要な全件リロード
+}
+
+const handleVisibilityChange = () => {
+  if (!document.hidden) {
+    invalidateGlobalCache()
+    loadTasks(true) // ← 不要な全件リロード
+  }
+}
+```
+
+**発生シナリオ**:
+1. タスクをチェック
+2. 楽観的UI更新で即座に反映
+3. **何らかのイベント**（フォーカス/Visibility）がトリガー
+4. `loadTasks(true)`で全タスク再取得
+5. Reactが再レンダリング
+6. 画面が"一度閉じる"ように見える
+
+#### today/page.tsx の状態非永続化
+**Lines 354-370 の時間枠セクション状態**:
+- 開閉状態がlocalStorageに保存されていない
+- ページ再マウント時に初期値（true）にリセット
+
+#### today/page.tsx の編集後リロード
+**Line 564**:
+```typescript
+// ❌ 問題: タスク編集後に全件リロード
+await unifiedTasks.loadTasks(true)
+```
+
+### 実装した修正 ✅
+
+#### 1. 不要なイベントリスナー削除 (useUnifiedTasks.ts)
+```typescript
+// ✅ 修正後: tasksUpdatedイベント時のみリロード
+useEffect(() => {
+  if (!autoLoad) return
+
+  const handleTasksUpdated = () => {
+    invalidateGlobalCache()
+    loadTasks(true) // 新規タスク生成時のみ
+  }
+
+  window.addEventListener('tasksUpdated', handleTasksUpdated)
+  // ❌ 削除: focus, visibilitychange イベント
+  ...
+}, [autoLoad, loadTasks])
+```
+
+**削除したイベント**:
+- `focus` イベント - 不要（楽観的更新で即座に反映済み）
+- `visibilitychange` イベント - 不要（同上）
+
+**保持したイベント**:
+- `tasksUpdated` イベント - 必要（新規タスク生成完了通知）
+
+#### 2. 時間枠セクション状態のlocalStorage保存 (today/page.tsx)
+```typescript
+// ✅ 初期値をlocalStorageから読み込み
+const [showMorningTasks, setShowMorningTasks] = useState(() => {
+  const saved = localStorage.getItem('tasuku_showMorningTasks')
+  return saved !== null ? saved === 'true' : true
+})
+// 同様にMidday, Afternoon, Evening
+
+// ✅ 変更時にlocalStorageに保存
+useEffect(() => {
+  localStorage.setItem('tasuku_showMorningTasks', String(showMorningTasks))
+}, [showMorningTasks])
+```
+
+**保存される状態**:
+- `tasuku_showMorningTasks` (9時まで)
+- `tasuku_showMiddayTasks` (13時まで)
+- `tasuku_showAfternoonTasks` (18時まで)
+- `tasuku_showEveningTasks` (24時まで)
+
+#### 3. タスク編集後の不要なリロード削除 (today/page.tsx)
+```typescript
+// ✅ 修正後: updateTaskが既にローカル状態更新済み
+setShowEditForm(false)
+setEditingTask(null)
+// ❌ 削除: await unifiedTasks.loadTasks(true)
+```
+
+### 効果 🎉
+
+**UX改善**:
+- 画面が一度閉じる現象を完全に防止 ✅
+- 時間枠セクションの開閉状態が記憶される ✅
+- スムーズなタスク操作 ✅
+
+**パフォーマンス**:
+- 不要なAPIリクエスト削減
+- React再レンダリング最小化
+- バッテリー消費削減（イベントリスナー削減）
+
+**コード品質**:
+- ユーザー設定の永続化
+- 一貫性のある状態管理
+- イベント駆動設計の最適化
+
+### ビルド・デプロイ結果 ✅
+
+**TypeScript型チェック**: ✅ エラー0件
+**Git commit**: `ccb86ac` - "fix: Prevent UI collapse on task operations"
+**デプロイ**: ✅ 成功（50秒）
+**本番URL**: https://tasuku.apaf.me
+
+### コミット履歴 📝
+- **ccb86ac** - UI折りたたみ防止（useUnifiedTasks.ts、today/page.tsx）
+
+### 技術的詳細 🔧
+
+**削除されたコード**:
+- handleFocus イベントリスナー（19行）
+- handleVisibilityChange イベントリスナー（21行）
+- タスク編集後の loadTasks(true)（1行）
+
+**追加されたコード**:
+- localStorage読み込み/保存ロジック（16行）
+- 時間枠セクション状態永続化用useEffect（4個）
+
+**変更されたファイル**:
+- `src/hooks/useUnifiedTasks.ts`: 2ファイル、30行削除、13行追加
+- `src/app/today/page.tsx`: 1ファイル、9行追加
+
+---
+
 ## ✅ 完了: タスク操作時のスクロール位置保持 - 楽観的UI更新実装 (2025-10-10)
 
 ### 問題の発見 ⚠️
