@@ -11,7 +11,7 @@ export default function WelcomePage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
       color: '#ffffff'
     }}>
       {/* ヒーローセクション */}
@@ -52,7 +52,7 @@ export default function WelcomePage() {
             fontSize: '20px',
             fontWeight: 'bold',
             backgroundColor: '#ffffff',
-            color: '#667eea',
+            color: '#3b82f6',
             borderRadius: '50px',
             textDecoration: 'none',
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
@@ -92,7 +92,7 @@ export default function WelcomePage() {
             textAlign: 'center',
             marginBottom: '64px',
             fontWeight: 'bold',
-            color: '#667eea'
+            color: '#3b82f6'
           }}>
             TASUKUの特徴
           </h2>
@@ -111,7 +111,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔄</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 繰り返しタスク自動生成
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -128,7 +128,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏰</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 時間軸ソート
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -145,7 +145,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛒</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 買い物リスト管理
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -162,7 +162,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌍</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 URL機能
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -179,7 +179,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 統計・達成度可視化
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -196,7 +196,7 @@ export default function WelcomePage() {
               transition: 'all 0.3s ease'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📱</div>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#667eea' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '12px', color: '#3b82f6' }}>
                 モバイル完全対応
               </h3>
               <p style={{ color: '#6b7280', lineHeight: 1.7 }}>
@@ -210,7 +210,7 @@ export default function WelcomePage() {
       {/* 使い方セクション */}
       <section style={{
         padding: '80px 20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
         color: '#ffffff'
       }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -237,7 +237,7 @@ export default function WelcomePage() {
                 fontSize: '36px',
                 fontWeight: 'bold',
                 backgroundColor: '#ffffff',
-                color: '#667eea',
+                color: '#3b82f6',
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
@@ -271,7 +271,7 @@ export default function WelcomePage() {
                 fontSize: '36px',
                 fontWeight: 'bold',
                 backgroundColor: '#ffffff',
-                color: '#667eea',
+                color: '#3b82f6',
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
@@ -305,7 +305,7 @@ export default function WelcomePage() {
                 fontSize: '36px',
                 fontWeight: 'bold',
                 backgroundColor: '#ffffff',
-                color: '#667eea',
+                color: '#3b82f6',
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
@@ -346,7 +346,7 @@ export default function WelcomePage() {
             textAlign: 'center',
             marginBottom: '16px',
             fontWeight: 'bold',
-            color: '#667eea'
+            color: '#3b82f6'
           }}>
             使い方ガイド
           </h2>
@@ -366,7 +366,7 @@ export default function WelcomePage() {
               fontWeight: 'bold',
               marginBottom: '24px',
               color: '#1f2937',
-              borderBottom: '2px solid #667eea',
+              borderBottom: '2px solid #3b82f6',
               paddingBottom: '8px'
             }}>
               📝 タスクの作成
@@ -453,7 +453,7 @@ export default function WelcomePage() {
               fontWeight: 'bold',
               marginBottom: '24px',
               color: '#1f2937',
-              borderBottom: '2px solid #667eea',
+              borderBottom: '2px solid #3b82f6',
               paddingBottom: '8px'
             }}>
               ✨ 主要機能
@@ -578,7 +578,7 @@ export default function WelcomePage() {
                 padding: '12px 32px',
                 fontSize: '16px',
                 fontWeight: 'bold',
-                backgroundColor: '#667eea',
+                backgroundColor: '#3b82f6',
                 color: '#ffffff',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -627,9 +627,9 @@ export default function WelcomePage() {
           <div style={{
             marginTop: '48px',
             padding: '24px',
-            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
             borderRadius: '12px',
-            border: '2px solid rgba(102, 126, 234, 0.3)'
+            border: '2px solid rgba(59, 130, 246, 0.3)'
           }}>
             <p style={{ fontSize: '16px', margin: 0, lineHeight: 1.7 }}>
               💡 現在β版テスト運用中です。<br />
@@ -642,7 +642,7 @@ export default function WelcomePage() {
       {/* CTAセクション */}
       <section style={{
         padding: '80px 20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
         textAlign: 'center'
       }}>
         <h2 style={{
@@ -668,7 +668,7 @@ export default function WelcomePage() {
             fontSize: '24px',
             fontWeight: 'bold',
             backgroundColor: '#ffffff',
-            color: '#667eea',
+            color: '#3b82f6',
             borderRadius: '50px',
             textDecoration: 'none',
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
