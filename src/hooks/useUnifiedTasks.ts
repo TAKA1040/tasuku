@@ -556,26 +556,10 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
   }, [autoLoad, isInitialized, loadTasks])
 
   // ページフォーカス時の自動リロード & タスク生成完了時のリロード
+  // 注: 楽観的UI更新実装により、フォーカス/Visibility イベントでの自動リロードは不要
+  // タスク更新は即座に反映され、サーバー同期はバックグラウンドで行われる
   useEffect(() => {
     if (!autoLoad) return
-
-    const handleFocus = () => {
-      if (process.env.NODE_ENV === 'development') {
-        logger.info('Page focused, invalidating cache and reloading tasks...')
-      }
-      invalidateGlobalCache() // キャッシュを無効化
-      loadTasks(true) // 強制リロード
-    }
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        if (process.env.NODE_ENV === 'development') {
-          logger.info('Page became visible, invalidating cache and reloading tasks...')
-        }
-        invalidateGlobalCache() // キャッシュを無効化
-        loadTasks(true) // 強制リロード
-      }
-    }
 
     const handleTasksUpdated = () => {
       if (process.env.NODE_ENV === 'development') {
@@ -585,14 +569,10 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
       loadTasks(true) // 強制リロード
     }
 
-    // フォーカス時、ページが表示状態になった時、タスク生成完了時にリロード
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    // タスク生成完了時のみリロード（新しいタスクが追加された場合）
     window.addEventListener('tasksUpdated', handleTasksUpdated)
 
     return () => {
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('tasksUpdated', handleTasksUpdated)
     }
   }, [autoLoad, loadTasks])

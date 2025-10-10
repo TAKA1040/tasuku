@@ -351,11 +351,40 @@ export default function TodayPage() {
   const [showTodoList, setShowTodoList] = useState(false)
   const [showCategoryFilter, setShowCategoryFilter] = useState(false)
 
-  // 時間枠セクション表示切り替え状態
-  const [showMorningTasks, setShowMorningTasks] = useState(true)
-  const [showMiddayTasks, setShowMiddayTasks] = useState(true)
-  const [showAfternoonTasks, setShowAfternoonTasks] = useState(true)
-  const [showEveningTasks, setShowEveningTasks] = useState(true)
+  // 時間枠セクション表示切り替え状態（localStorage保存）
+  const [showMorningTasks, setShowMorningTasks] = useState(() => {
+    const saved = localStorage.getItem('tasuku_showMorningTasks')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [showMiddayTasks, setShowMiddayTasks] = useState(() => {
+    const saved = localStorage.getItem('tasuku_showMiddayTasks')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [showAfternoonTasks, setShowAfternoonTasks] = useState(() => {
+    const saved = localStorage.getItem('tasuku_showAfternoonTasks')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [showEveningTasks, setShowEveningTasks] = useState(() => {
+    const saved = localStorage.getItem('tasuku_showEveningTasks')
+    return saved !== null ? saved === 'true' : true
+  })
+
+  // 時間枠セクション開閉状態をlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('tasuku_showMorningTasks', String(showMorningTasks))
+  }, [showMorningTasks])
+
+  useEffect(() => {
+    localStorage.setItem('tasuku_showMiddayTasks', String(showMiddayTasks))
+  }, [showMiddayTasks])
+
+  useEffect(() => {
+    localStorage.setItem('tasuku_showAfternoonTasks', String(showAfternoonTasks))
+  }, [showAfternoonTasks])
+
+  useEffect(() => {
+    localStorage.setItem('tasuku_showEveningTasks', String(showEveningTasks))
+  }, [showEveningTasks])
 
   const handleCreateRegular = useCallback(async (title: string, memo: string, dueDate: string, category?: string, importance?: number, urls?: string[], attachment?: { file_name: string; file_type: string; file_size: number; file_data: string }, shoppingItems?: string[], startTime?: string, endTime?: string) => {
     try {
@@ -560,8 +589,8 @@ export default function TodayPage() {
     setShowEditForm(false)
     setEditingTask(null)
 
-    // タスクリストを再読み込み（買い物リストの変更を反映）
-    await unifiedTasks.loadTasks(true)
+    // 注: 楽観的UI更新により、タスクリストの再読み込みは不要
+    // updateTaskが既にローカル状態とキャッシュを更新している
   }
 
   const handleCancelEdit = () => {
