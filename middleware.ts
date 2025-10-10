@@ -39,9 +39,12 @@ export async function middleware(req: NextRequest) {
   // Validate the JWT token properly
   const { data: { session } } = await supabase.auth.getSession()
 
-  // If user is not signed in and the current path is not the login page,
+  // Public pages that don't require authentication
+  const publicPages = ['/login', '/welcome', '/help']
+
+  // If user is not signed in and the current path is not a public page,
   // redirect to the login page
-  if (!session && req.nextUrl.pathname !== '/login') {
+  if (!session && !publicPages.includes(req.nextUrl.pathname)) {
     const redirectUrl = new URL('/login', req.url)
     // Add the original URL as a query parameter to redirect back after login
     redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
