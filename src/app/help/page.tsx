@@ -208,7 +208,7 @@ export default function HelpPage() {
           <li><strong>カテゴリ</strong>：仕事/買い物/プライベート等</li>
           <li><strong>重要度</strong>：1～5（数字が大きいほど重要）</li>
           <li><strong>開始時間・終了時間</strong>：時間軸ソートに使用</li>
-          <li><strong>URL</strong>：参考リンク（最大5個、🌍アイコンで一括オープン）</li>
+          <li><strong>URL</strong>：参考リンク（最大5個、🌍アイコンをクリックして個別に開く）</li>
           <li><strong>ファイル添付</strong>：画像・PDFなど（📷アイコンで表示）</li>
           <li><strong>買い物リスト</strong>：カテゴリ「買い物」選択時のみ</li>
         </ul>
@@ -317,10 +317,16 @@ export default function HelpPage() {
           6. 便利な機能
         </h2>
 
-        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>6-1. URL一括オープン</h3>
+        <h3 style={{ fontSize: '18px', color: '#374151', marginTop: '24px', marginBottom: '12px' }}>6-1. URL機能</h3>
         <p style={{ color: '#6b7280', marginBottom: '12px' }}>
-          🌍 アイコンをクリック → 登録された全URLが新しいタブで一括オープン
+          🌍 2 のようにアイコンと数字が表示されます。クリックするとURL選択画面が開き、個別にURLを選んで開けます。
         </p>
+        <div style={{ backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #bbf7d0', marginBottom: '16px' }}>
+          <p style={{ margin: '0 0 8px 0', color: '#374151', fontWeight: 'bold' }}>モバイル対応</p>
+          <p style={{ margin: 0, color: '#374151' }}>
+            スマートフォンでは、複数のURLを同時に開くことができません。そのため、開きたいURLを個別にタップして開く形式になっています。
+          </p>
+        </div>
         <p style={{ color: '#6b7280', marginBottom: '8px' }}>用途：</p>
         <ul style={{ color: '#6b7280', marginBottom: '16px' }}>
           <li>Zoomミーティングリンク</li>
