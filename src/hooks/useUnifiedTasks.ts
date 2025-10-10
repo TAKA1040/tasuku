@@ -8,7 +8,7 @@ import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { withErrorHandling } from '@/lib/utils/error-handler'
 import { createClient } from '@/lib/supabase/client'
-import { getTodayJST } from '@/lib/utils/date-jst'
+import { getTodayJST, getNowJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
 import { logger } from '@/lib/utils/logger'
 
@@ -292,9 +292,15 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
         }
 
         const createdTask = await UnifiedTasksService.createUnifiedTask(taskWithUserId)
-        // グローバルキャッシュを無効化して強制リロード
-        invalidateGlobalCache()
-        await loadTasks(true)
+
+        // 作成されたタスクをローカル状態に追加（全タスク再取得を回避）
+        setTasks(prevTasks => [...prevTasks, createdTask])
+
+        // キャッシュにも追加
+        if (taskCache) {
+          taskCache.data = [...taskCache.data, createdTask]
+        }
+
         return createdTask
       },
       'useUnifiedTasks.createTask',
@@ -306,59 +312,190 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
     }
 
     return result
-  }, [loadTasks])
+  }, [])
 
   const completeTask = useCallback(async (id: string) => {
+    // 楽観的UI更新: 即座にローカル状態を更新してスクロール位置を保持
+    const completedAt = getNowJST()
+
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id
+          ? { ...task, completed: true, completed_at: completedAt }
+          : task
+      )
+    )
+
+    // キャッシュも部分更新
+    if (taskCache) {
+      taskCache.data = taskCache.data.map(task =>
+        task.id === id
+          ? { ...task, completed: true, completed_at: completedAt }
+          : task
+      )
+    }
+
+    // バックグラウンドでサーバー更新
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.completeTask(id)
-        // グローバルキャッシュを無効化して強制リロード
-        invalidateGlobalCache()
-        await loadTasks(true)
+        // 成功時は既にローカル状態が更新済みなので、全タスク再取得は不要
       },
       'useUnifiedTasks.completeTask',
-      setError
+      (error) => {
+        // エラー時はローカル状態をロールバック
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === id
+              ? { ...task, completed: false, completed_at: undefined }
+              : task
+          )
+        )
+        // キャッシュもロールバック
+        if (taskCache) {
+          taskCache.data = taskCache.data.map(task =>
+            task.id === id
+              ? { ...task, completed: false, completed_at: undefined }
+              : task
+          )
+        }
+        setError(error)
+      }
     )
-  }, [loadTasks])
+  }, [])
 
   const uncompleteTask = useCallback(async (id: string) => {
+    // 楽観的UI更新: 即座にローカル状態を更新してスクロール位置を保持
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id
+          ? { ...task, completed: false, completed_at: undefined }
+          : task
+      )
+    )
+
+    // キャッシュも部分更新
+    if (taskCache) {
+      taskCache.data = taskCache.data.map(task =>
+        task.id === id
+          ? { ...task, completed: false, completed_at: undefined }
+          : task
+      )
+    }
+
+    // バックグラウンドでサーバー更新
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.uncompleteTask(id)
-        // グローバルキャッシュを無効化して強制リロード
-        invalidateGlobalCache()
-        await loadTasks(true)
+        // 成功時は既にローカル状態が更新済みなので、全タスク再取得は不要
       },
       'useUnifiedTasks.uncompleteTask',
-      setError
+      (error) => {
+        // エラー時はローカル状態をロールバック
+        const completedAt = getNowJST()
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === id
+              ? { ...task, completed: true, completed_at: completedAt }
+              : task
+          )
+        )
+        // キャッシュもロールバック
+        if (taskCache) {
+          taskCache.data = taskCache.data.map(task =>
+            task.id === id
+              ? { ...task, completed: true, completed_at: completedAt }
+              : task
+          )
+        }
+        setError(error)
+      }
     )
-  }, [loadTasks])
+  }, [])
 
   const deleteTask = useCallback(async (id: string) => {
+    // 楽観的UI更新: 削除前の状態を保存
+    let deletedTask: UnifiedTask | undefined
+
+    setTasks(prevTasks => {
+      deletedTask = prevTasks.find(task => task.id === id)
+      return prevTasks.filter(task => task.id !== id)
+    })
+
+    // キャッシュも部分更新
+    if (taskCache) {
+      taskCache.data = taskCache.data.filter(task => task.id !== id)
+    }
+
+    // バックグラウンドでサーバー削除
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.deleteUnifiedTask(id)
-        // グローバルキャッシュを無効化して強制リロード
-        invalidateGlobalCache()
-        await loadTasks(true)
+        // 成功時は既にローカル状態が更新済みなので、全タスク再取得は不要
       },
       'useUnifiedTasks.deleteTask',
-      setError
+      (error) => {
+        // エラー時はローカル状態をロールバック（削除したタスクを復元）
+        if (deletedTask) {
+          setTasks(prevTasks => [...prevTasks, deletedTask!])
+          // キャッシュもロールバック
+          if (taskCache) {
+            taskCache.data = [...taskCache.data, deletedTask!]
+          }
+        }
+        setError(error)
+      }
     )
-  }, [loadTasks])
+  }, [])
 
   const updateTask = useCallback(async (id: string, updates: Partial<UnifiedTask>) => {
+    // 楽観的UI更新: 更新前の状態を保存
+    let previousTask: UnifiedTask | undefined
+
+    setTasks(prevTasks => {
+      previousTask = prevTasks.find(task => task.id === id)
+      return prevTasks.map(task =>
+        task.id === id
+          ? { ...task, ...updates, updated_at: getNowJST() }
+          : task
+      )
+    })
+
+    // キャッシュも部分更新
+    if (taskCache) {
+      taskCache.data = taskCache.data.map(task =>
+        task.id === id
+          ? { ...task, ...updates, updated_at: getNowJST() }
+          : task
+      )
+    }
+
+    // バックグラウンドでサーバー更新
     await withErrorHandling(
       async () => {
         await UnifiedTasksService.updateUnifiedTask(id, updates)
-        // グローバルキャッシュを無効化して強制リロード
-        invalidateGlobalCache()
-        await loadTasks(true)
+        // 成功時は既にローカル状態が更新済みなので、全タスク再取得は不要
       },
       'useUnifiedTasks.updateTask',
-      setError
+      (error) => {
+        // エラー時はローカル状態をロールバック
+        if (previousTask) {
+          setTasks(prevTasks =>
+            prevTasks.map(task =>
+              task.id === id ? previousTask! : task
+            )
+          )
+          // キャッシュもロールバック
+          if (taskCache) {
+            taskCache.data = taskCache.data.map(task =>
+              task.id === id ? previousTask! : task
+            )
+          }
+        }
+        setError(error)
+      }
     )
-  }, [loadTasks])
+  }, [])
 
   // サブタスク管理関数
   const getSubtasks = useCallback(async (parentTaskId: string) => {
