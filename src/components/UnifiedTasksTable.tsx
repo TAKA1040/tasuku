@@ -245,18 +245,14 @@ export function UnifiedTasksTable({
           handleUrlClick(taskTitle, urls)
         }}
         style={{
-          border: '2px solid #3b82f6',
-          background: '#dbeafe',
-          fontSize: '20px',
+          border: 'none',
+          background: 'transparent',
+          fontSize: '16px',
           cursor: 'pointer',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          minWidth: '50px',
-          minHeight: '50px',
+          padding: '4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'all 0.2s ease',
           WebkitTapHighlightColor: 'transparent',
           touchAction: 'manipulation',
           userSelect: 'none'
@@ -898,26 +894,24 @@ export function UnifiedTasksTable({
                           handleUrlClick(item.title || '', item.urls || [])
                         }}
                         style={{
-                          backgroundColor: '#dbeafe',
-                          padding: '8px 12px',
-                          borderRadius: '6px',
+                          backgroundColor: 'transparent',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
                           color: '#1e40af',
-                          border: '2px solid #3b82f6',
-                          fontSize: '14px',
-                          fontWeight: '500',
+                          border: 'none',
+                          fontSize: '13px',
+                          fontWeight: '400',
                           cursor: 'pointer',
-                          minWidth: '60px',
-                          minHeight: '36px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '6px',
+                          gap: '4px',
                           WebkitTapHighlightColor: 'transparent',
                           touchAction: 'manipulation',
                           userSelect: 'none'
                         }}
                       >
-                        🌍 {item.urls.length}個
+                        🌍 {item.urls.length}
                       </button>
                     )}
                   </div>
@@ -1213,37 +1207,10 @@ export function UnifiedTasksTable({
             <p style={{
               fontSize: '13px',
               color: '#6b7280',
-              marginBottom: '12px'
+              marginBottom: '16px'
             }}>
               開きたいURLをタップしてください
             </p>
-
-            {/* すべて開くボタン */}
-            <button
-              onClick={() => {
-                selectedUrls.urls.forEach((url, index) => {
-                  setTimeout(() => {
-                    const finalUrl = convertXQueryToUrl(url)
-                    window.open(finalUrl, '_blank', 'noopener,noreferrer')
-                  }, index * 100)
-                })
-                closeUrlListPopup()
-              }}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                marginBottom: '16px'
-              }}
-            >
-              🌍 すべて開く ({selectedUrls.urls.length}個)
-            </button>
 
             <div style={{
               display: 'flex',
