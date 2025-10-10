@@ -229,38 +229,39 @@ export function UnifiedTasksTable({
 
   // URLアイコンのレンダリング関数
   const renderUrlIcon = (taskTitle: string, urls?: string[] | null) => {
-    if (!urls || urls.length === 0) return '-'
+    if (!urls || urls.length === 0) return <span>-</span>
 
     return (
       <button
         type="button"
         onClick={(e) => {
+          alert('ボタンがクリックされました！') // デバッグ用
+          e.preventDefault()
+          e.stopPropagation()
+          handleUrlClick(taskTitle, urls)
+        }}
+        onTouchEnd={(e) => {
+          alert('タッチされました！') // デバッグ用
           e.preventDefault()
           e.stopPropagation()
           handleUrlClick(taskTitle, urls)
         }}
         style={{
-          border: '1px solid #e5e7eb',
-          background: '#f9fafb',
-          fontSize: '18px',
+          border: '2px solid #3b82f6',
+          background: '#dbeafe',
+          fontSize: '20px',
           cursor: 'pointer',
-          padding: '8px 12px',
-          borderRadius: '6px',
-          minWidth: '44px',
-          minHeight: '44px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          minWidth: '50px',
+          minHeight: '50px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           transition: 'all 0.2s ease',
-          WebkitTapHighlightColor: 'transparent'
-        }}
-        onTouchStart={(e) => {
-          e.currentTarget.style.backgroundColor = '#e5e7eb'
-          e.currentTarget.style.transform = 'scale(0.95)'
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.backgroundColor = '#f9fafb'
-          e.currentTarget.style.transform = 'scale(1)'
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+          userSelect: 'none'
         }}
         title={`${urls.length}個のURLを開く`}
       >
