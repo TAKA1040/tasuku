@@ -111,13 +111,6 @@ const convertXQueryToUrl = (query: string): string => {
   return query
 }
 
-// モバイル判定ヘルパー関数
-const isMobileDevice = (): boolean => {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth <= 640
-}
-
-
 export function UnifiedTasksTable({
   title,
   tasks,
@@ -223,49 +216,9 @@ export function UnifiedTasksTable({
       alert(`無効なURL: ${invalidUrls.join(', ')}`)
     }
 
-    // モバイル判定：スマホの場合はURL選択ポップアップを表示
-    if (isMobileDevice()) {
-      setSelectedUrls({ taskTitle, urls: validUrls })
-      setShowUrlListPopup(true)
-      return
-    }
-
-    // デスクトップ：従来通り一括で開く
-    const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
-    if (confirm(confirmMessage)) {
-      if (process.env.NODE_ENV === 'development') {
-        logger.info('Opening URLs:', validUrls)
-      }
-
-      let blockedCount = 0
-
-      // ブラウザのポップアップブロッカー対策：順次開く
-      validUrls.forEach((url, index) => {
-        setTimeout(() => {
-          // X検索クエリをURL形式に変換
-          const finalUrl = convertXQueryToUrl(url)
-          if (process.env.NODE_ENV === 'development') {
-            logger.info(`Opening URL ${index + 1}:`, finalUrl)
-          }
-          const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer')
-
-          // ポップアップブロック検知
-          if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-            blockedCount++
-            if (process.env.NODE_ENV === 'development') {
-              logger.info(`URL ${index + 1} was blocked by popup blocker`)
-            }
-          }
-
-          // 最後のURLを開いた後、ブロックされたURLがあれば通知
-          if (index === validUrls.length - 1 && blockedCount > 0) {
-            setTimeout(() => {
-              alert(`⚠️ ポップアップブロッカーにより ${blockedCount} 個のURLがブロックされました。\n\nブラウザのアドレスバー右側のアイコンをクリックして、このサイトのポップアップを「許可」してください。`)
-            }, 200)
-          }
-        }, index * 100) // 100ms間隔で開く
-      })
-    }
+    // 全デバイスでURL選択ポップアップを表示（モバイル・デスクトップ共通）
+    setSelectedUrls({ taskTitle, urls: validUrls })
+    setShowUrlListPopup(true)
   }
 
   // URLポップアップを閉じる
@@ -1215,10 +1168,37 @@ export function UnifiedTasksTable({
             <p style={{
               fontSize: '13px',
               color: '#6b7280',
-              marginBottom: '16px'
+              marginBottom: '12px'
             }}>
               開きたいURLをタップしてください
             </p>
+
+            {/* すべて開くボタン */}
+            <button
+              onClick={() => {
+                selectedUrls.urls.forEach((url, index) => {
+                  setTimeout(() => {
+                    const finalUrl = convertXQueryToUrl(url)
+                    window.open(finalUrl, '_blank', 'noopener,noreferrer')
+                  }, index * 100)
+                })
+                closeUrlListPopup()
+              }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                marginBottom: '16px'
+              }}
+            >
+              🌍 すべて開く ({selectedUrls.urls.length}個)
+            </button>
 
             <div style={{
               display: 'flex',
