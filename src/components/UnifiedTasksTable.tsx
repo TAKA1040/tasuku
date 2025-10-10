@@ -111,86 +111,10 @@ const convertXQueryToUrl = (query: string): string => {
   return query
 }
 
-// URL一括開きアイコンのレンダリング関数
-const renderUrlIcon = (urls?: string[] | null) => {
-  if (!urls || urls.length === 0) return '-'
-
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        logger.info('🌐 URL button clicked')
-        if (process.env.NODE_ENV === 'development') {
-          logger.info('All URLs:', urls)
-        }
-
-        // Validate URLs before opening
-        const validUrls = urls.filter(isValidUrl)
-        const invalidUrls = urls.filter(url => !isValidUrl(url))
-
-        if (process.env.NODE_ENV === 'development') {
-          logger.info('Valid URLs:', validUrls)
-          logger.info('Invalid URLs:', invalidUrls)
-        }
-
-        if (validUrls.length === 0) {
-          alert('有効なURLが見つかりませんでした。')
-          return
-        }
-
-        // Show invalid URLs if any
-        if (invalidUrls.length > 0) {
-          alert(`無効なURL: ${invalidUrls.join(', ')}`)
-        }
-
-        const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
-        if (confirm(confirmMessage)) {
-          if (process.env.NODE_ENV === 'development') {
-            logger.info('Opening URLs:', validUrls)
-          }
-
-          let blockedCount = 0
-
-          // ブラウザのポップアップブロッカー対策：順次開く
-          validUrls.forEach((url, index) => {
-            setTimeout(() => {
-              // X検索クエリをURL形式に変換
-              const finalUrl = convertXQueryToUrl(url)
-              if (process.env.NODE_ENV === 'development') {
-                logger.info(`Opening URL ${index + 1}:`, finalUrl)
-              }
-              const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer')
-
-              // ポップアップブロック検知
-              if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                blockedCount++
-                if (process.env.NODE_ENV === 'development') {
-                  logger.info(`URL ${index + 1} was blocked by popup blocker`)
-                }
-              }
-
-              // 最後のURLを開いた後、ブロックされたURLがあれば通知
-              if (index === validUrls.length - 1 && blockedCount > 0) {
-                setTimeout(() => {
-                  alert(`⚠️ ポップアップブロッカーにより ${blockedCount} 個のURLがブロックされました。\n\nブラウザのアドレスバー右側のアイコンをクリックして、このサイトのポップアップを「許可」してください。`)
-                }, 200)
-              }
-            }, index * 100) // 100ms間隔で開く
-          })
-        }
-      }}
-      style={{
-        border: 'none',
-        background: 'none',
-        fontSize: '16px',
-        cursor: 'pointer',
-        padding: '2px'
-      }}
-      title={`${urls.length}個のURLを一括で開く`}
-    >
-      🌍
-    </button>
-  )
+// モバイル判定ヘルパー関数
+const isMobileDevice = (): boolean => {
+  if (typeof window === 'undefined') return false
+  return window.innerWidth <= 640
 }
 
 
@@ -220,6 +144,10 @@ export function UnifiedTasksTable({
   // メモポップアップ表示状態
   const [showMemoPopup, setShowMemoPopup] = useState(false)
   const [selectedMemo, setSelectedMemo] = useState<{ taskId: string; memo: string; title: string } | null>(null)
+
+  // URLリストポップアップ表示状態（モバイル用）
+  const [showUrlListPopup, setShowUrlListPopup] = useState(false)
+  const [selectedUrls, setSelectedUrls] = useState<{ taskTitle: string; urls: string[] } | null>(null)
 
   // メモアイコンクリックハンドラー
   const handleMemoClick = (taskId: string, memo: string, title: string) => {
@@ -265,6 +193,105 @@ export function UnifiedTasksTable({
         title={`画像: ${attachment.file_name}`}
       >
         📷
+      </button>
+    )
+  }
+
+  // URLリスト選択ポップアップを開く
+  const handleUrlClick = (taskTitle: string, urls: string[]) => {
+    logger.info('🌐 URL button clicked')
+    if (process.env.NODE_ENV === 'development') {
+      logger.info('All URLs:', urls)
+    }
+
+    // Validate URLs before opening
+    const validUrls = urls.filter(isValidUrl)
+    const invalidUrls = urls.filter(url => !isValidUrl(url))
+
+    if (process.env.NODE_ENV === 'development') {
+      logger.info('Valid URLs:', validUrls)
+      logger.info('Invalid URLs:', invalidUrls)
+    }
+
+    if (validUrls.length === 0) {
+      alert('有効なURLが見つかりませんでした。')
+      return
+    }
+
+    // Show invalid URLs if any
+    if (invalidUrls.length > 0) {
+      alert(`無効なURL: ${invalidUrls.join(', ')}`)
+    }
+
+    // モバイル判定：スマホの場合はURL選択ポップアップを表示
+    if (isMobileDevice()) {
+      setSelectedUrls({ taskTitle, urls: validUrls })
+      setShowUrlListPopup(true)
+      return
+    }
+
+    // デスクトップ：従来通り一括で開く
+    const confirmMessage = `${validUrls.length}個の有効なURLを開きますか？`
+    if (confirm(confirmMessage)) {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Opening URLs:', validUrls)
+      }
+
+      let blockedCount = 0
+
+      // ブラウザのポップアップブロッカー対策：順次開く
+      validUrls.forEach((url, index) => {
+        setTimeout(() => {
+          // X検索クエリをURL形式に変換
+          const finalUrl = convertXQueryToUrl(url)
+          if (process.env.NODE_ENV === 'development') {
+            logger.info(`Opening URL ${index + 1}:`, finalUrl)
+          }
+          const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer')
+
+          // ポップアップブロック検知
+          if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            blockedCount++
+            if (process.env.NODE_ENV === 'development') {
+              logger.info(`URL ${index + 1} was blocked by popup blocker`)
+            }
+          }
+
+          // 最後のURLを開いた後、ブロックされたURLがあれば通知
+          if (index === validUrls.length - 1 && blockedCount > 0) {
+            setTimeout(() => {
+              alert(`⚠️ ポップアップブロッカーにより ${blockedCount} 個のURLがブロックされました。\n\nブラウザのアドレスバー右側のアイコンをクリックして、このサイトのポップアップを「許可」してください。`)
+            }, 200)
+          }
+        }, index * 100) // 100ms間隔で開く
+      })
+    }
+  }
+
+  // URLポップアップを閉じる
+  const closeUrlListPopup = () => {
+    setShowUrlListPopup(false)
+    setSelectedUrls(null)
+  }
+
+  // URLアイコンのレンダリング関数
+  const renderUrlIcon = (taskTitle: string, urls?: string[] | null) => {
+    if (!urls || urls.length === 0) return '-'
+
+    return (
+      <button
+        type="button"
+        onClick={() => handleUrlClick(taskTitle, urls)}
+        style={{
+          border: 'none',
+          background: 'none',
+          fontSize: '16px',
+          cursor: 'pointer',
+          padding: '2px'
+        }}
+        title={`${urls.length}個のURLを開く`}
+      >
+        🌍
       </button>
     )
   }
@@ -625,7 +652,7 @@ export function UnifiedTasksTable({
 
                   {/* URL一括開きアイコン */}
                   <td style={{ padding: '8px', textAlign: 'center' }}>
-                    {renderUrlIcon(item.urls)}
+                    {renderUrlIcon(item.title || '', item.urls)}
                   </td>
 
                   {/* 期限 */}
@@ -1119,6 +1146,146 @@ export function UnifiedTasksTable({
               wordBreak: 'break-word'
             }}>
               {selectedMemo.memo}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* URLリスト選択ポップアップ（モバイル用） */}
+      {showUrlListPopup && selectedUrls && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={closeUrlListPopup}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '20px',
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              position: 'relative',
+              minWidth: '280px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+              <button
+                onClick={closeUrlListPopup}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '0',
+                  width: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              paddingRight: '30px',
+              color: '#1f2937'
+            }}>
+              🌍 {selectedUrls.taskTitle}
+            </h3>
+
+            <p style={{
+              fontSize: '13px',
+              color: '#6b7280',
+              marginBottom: '16px'
+            }}>
+              開きたいURLをタップしてください
+            </p>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
+            }}>
+              {selectedUrls.urls.map((url, index) => {
+                const finalUrl = convertXQueryToUrl(url)
+                // URLの表示用ラベルを生成
+                const displayLabel = url.startsWith('list:')
+                  ? `X リスト ${index + 1}`
+                  : new URL(finalUrl).hostname.replace('www.', '')
+
+                return (
+                  <a
+                    key={index}
+                    href={finalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      // ログ出力（開発環境のみ）
+                      if (process.env.NODE_ENV === 'development') {
+                        logger.info(`Opening URL ${index + 1}:`, finalUrl)
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '12px 16px',
+                      backgroundColor: '#f3f4f6',
+                      borderRadius: '8px',
+                      textDecoration: 'none',
+                      color: '#1f2937',
+                      border: '1px solid #e5e7eb',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e5e7eb'
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6'
+                    }}
+                  >
+                    <span style={{ fontSize: '20px' }}>🔗</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        marginBottom: '2px'
+                      }}>
+                        {displayLabel}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: '#6b7280',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {url}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '16px', color: '#3b82f6' }}>→</span>
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>
