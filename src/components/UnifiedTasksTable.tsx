@@ -216,9 +216,23 @@ export function UnifiedTasksTable({
       alert(`無効なURL: ${invalidUrls.join(', ')}`)
     }
 
-    // 全デバイスでURL選択ポップアップを表示（モバイル・デスクトップ共通）
-    setSelectedUrls({ taskTitle, urls: validUrls })
-    setShowUrlListPopup(true)
+    // デバイス判定：画面幅640px以下をモバイルとみなす
+    const isMobile = window.innerWidth <= 640
+
+    if (isMobile) {
+      // モバイル：URL選択ポップアップを表示
+      setSelectedUrls({ taskTitle, urls: validUrls })
+      setShowUrlListPopup(true)
+    } else {
+      // PC：全URLをまとめて開く
+      validUrls.forEach((url, index) => {
+        const finalUrl = convertXQueryToUrl(url)
+        if (process.env.NODE_ENV === 'development') {
+          logger.info(`Opening URL ${index + 1}:`, finalUrl)
+        }
+        window.open(finalUrl, '_blank', 'noopener,noreferrer')
+      })
+    }
   }
 
   // URLポップアップを閉じる
