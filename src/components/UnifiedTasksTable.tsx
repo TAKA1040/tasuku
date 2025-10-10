@@ -239,27 +239,20 @@ export function UnifiedTasksTable({
           e.stopPropagation()
           handleUrlClick(taskTitle, urls)
         }}
-        onTouchEnd={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          handleUrlClick(taskTitle, urls)
-        }}
         style={{
           border: 'none',
           background: 'transparent',
-          fontSize: '16px',
+          fontSize: '13px',
+          color: '#1e40af',
           cursor: 'pointer',
-          padding: '4px',
+          padding: '2px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          WebkitTapHighlightColor: 'transparent',
-          touchAction: 'manipulation',
-          userSelect: 'none'
+          gap: '2px'
         }}
         title={`${urls.length}個のURLを開く`}
       >
-        🌍
+        🌍 {urls.length}
       </button>
     )
   }
