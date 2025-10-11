@@ -522,6 +522,13 @@ export class TaskGeneratorService {
   private async createTaskFromTemplate(template: RecurringTemplate, dueDate: string): Promise<void> {
     const userId = await this.getCurrentUserId()
 
+    // テンプレート作成日より前の期限のタスクは生成しない
+    const templateCreatedDate = template.created_at.split('T')[0]
+    if (dueDate < templateCreatedDate) {
+      logger.production(`⏭️ スキップ: テンプレート作成日(${templateCreatedDate})より前の期限(${dueDate}) - ${template.title}`)
+      return
+    }
+
     // 既に同じテンプレート&日付のタスクが存在するかチェック
     // 注意: completed の条件は付けない（完了済みタスクも重複防止の対象）
     const { data: existing } = await this.supabase
@@ -774,12 +781,14 @@ export class TaskGeneratorService {
   }
 
   // 期限切れ繰り返しタスクの自動削除
-  // 日次: 期限から3日経過、週次: 7日経過、月次: 365日経過で削除
+  // 動作: 今日を基準に過去N日間を保持、それより古い未完了タスクを削除
+  // 日次: 期限から3日経過で削除（過去3日間保持）, 週次: 7日経過で削除（過去7日間保持）, 月次: 365日経過で削除（過去365日間保持）
+  // 例: 今日が10/12の場合、10/06のタスクは10/13に削除（7日経過）
   private async deleteExpiredRecurringTasks(today: string): Promise<void> {
     try {
       const userId = await this.getCurrentUserId()
 
-      // 日次タスク: 期限から3日経過
+      // 日次タスク: 期限から3日経過で削除（過去3日間を保持）
       const dailyThreshold = subtractDays(today, 3)
       const { data: dailyDeleted, error: dailyError } = await this.supabase
         .from('unified_tasks')
@@ -797,7 +806,7 @@ export class TaskGeneratorService {
         logger.production(`🗑️  期限切れ日次タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}以前)`)
       }
 
-      // 週次タスク: 期限から7日経過
+      // 週次タスク: 期限から7日経過で削除（過去7日間を保持）
       const weeklyThreshold = subtractDays(today, 7)
       const { data: weeklyDeleted, error: weeklyError } = await this.supabase
         .from('unified_tasks')
@@ -815,7 +824,7 @@ export class TaskGeneratorService {
         logger.production(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}以前)`)
       }
 
-      // 月次タスク: 期限から365日経過
+      // 月次タスク: 期限から365日経過で削除（過去365日間を保持）
       const monthlyThreshold = subtractDays(today, 365)
       const { data: monthlyDeleted, error: monthlyError } = await this.supabase
         .from('unified_tasks')

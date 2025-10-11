@@ -1187,6 +1187,14 @@ export default function TodayPage() {
                         task.recurring_template_id !== '' &&
                         !shouldHideExpiredRecurringTask(task)
                       ).length}件) {showOverdueRecurringTasks ? '▼' : '▶'} 表示する
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '400',
+                        color: '#9ca3af',
+                        marginLeft: '8px'
+                      }}>
+                        (日次: 期限から3日経過で削除 / 週次: 期限から7日経過で削除)
+                      </span>
                       <input
                         type="checkbox"
                         checked={showOverdueRecurringTasks}
