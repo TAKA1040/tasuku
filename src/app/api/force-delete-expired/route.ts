@@ -18,9 +18,9 @@ export async function POST() {
     const results = {
       today,
       userId: user.id,
-      daily: { threshold: '', deleted: 0, error: null as any },
-      weekly: { threshold: '', deleted: 0, error: null as any },
-      monthly: { threshold: '', deleted: 0, error: null as any },
+      daily: { threshold: '', deleted: 0, error: null as unknown },
+      weekly: { threshold: '', deleted: 0, error: null as unknown },
+      monthly: { threshold: '', deleted: 0, error: null as unknown },
       total: 0
     }
 
