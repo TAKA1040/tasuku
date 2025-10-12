@@ -373,6 +373,45 @@ export default function TemplatesPage() {
     }
   }
 
+  const toggleActive = async (template: RecurringTemplate) => {
+    const newActiveState = !template.active
+
+    try {
+      // 楽観的UI更新: 即座にローカル状態を更新
+      setTemplates(prev => prev.map(t =>
+        t.id === template.id ? { ...t, active: newActiveState } : t
+      ))
+
+      setStatus(`${template.title}を${newActiveState ? '有効化' : '無効化'}中...`)
+
+      const { error } = await supabase
+        .from('recurring_templates')
+        .update({
+          active: newActiveState,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', template.id)
+
+      if (error) {
+        // エラー時はロールバック
+        setTemplates(prev => prev.map(t =>
+          t.id === template.id ? { ...t, active: !newActiveState } : t
+        ))
+        setStatus(`更新エラー: ${error.message}`)
+        return
+      }
+
+      setStatus(`✅ ${template.title}を${newActiveState ? '有効化' : '無効化'}しました`)
+
+    } catch (error) {
+      // エラー時はロールバック
+      setTemplates(prev => prev.map(t =>
+        t.id === template.id ? { ...t, active: !newActiveState } : t
+      ))
+      setStatus(`エラー: ${error}`)
+    }
+  }
+
   const deleteTemplate = async (template: RecurringTemplate) => {
     if (!confirm(`テンプレート「${template.title}」を削除しますか？`)) {
       return
@@ -525,17 +564,24 @@ export default function TemplatesPage() {
                   borderBottom: '1px solid #f3f4f6'
                 }}>
                   <td style={{ padding: '8px' }}>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '2px 6px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: '500',
-                      backgroundColor: template.active ? '#dcfce7' : '#fee2e2',
-                      color: template.active ? '#166534' : '#991b1b'
-                    }}>
-                      {template.active ? 'アクティブ' : '停止中'}
-                    </span>
+                    <button
+                      onClick={() => toggleActive(template)}
+                      style={{
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: '500',
+                        backgroundColor: template.active ? '#dcfce7' : '#fee2e2',
+                        color: template.active ? '#166534' : '#991b1b',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      title={template.active ? 'クリックで無効化' : 'クリックで有効化'}
+                    >
+                      {template.active ? '✅ ON' : '⏸️ OFF'}
+                    </button>
                   </td>
                   <td style={{ padding: '8px' }}>
                     <span style={{
@@ -712,15 +758,22 @@ export default function TemplatesPage() {
                   {/* 下段: 状態・パターン・カテゴリ・重要度・URL */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px' }}>
                     {/* 状態 */}
-                    <span style={{
-                      padding: '3px 8px',
-                      borderRadius: '12px',
-                      fontWeight: '500',
-                      backgroundColor: template.active ? '#dcfce7' : '#fee2e2',
-                      color: template.active ? '#166534' : '#991b1b'
-                    }}>
-                      {template.active ? 'アクティブ' : '停止中'}
-                    </span>
+                    <button
+                      onClick={() => toggleActive(template)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontWeight: '500',
+                        backgroundColor: template.active ? '#dcfce7' : '#fee2e2',
+                        color: template.active ? '#166534' : '#991b1b',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '11px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {template.active ? '✅ ON' : '⏸️ OFF'}
+                    </button>
 
                     {/* パターン */}
                     <span style={{
