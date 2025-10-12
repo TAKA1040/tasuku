@@ -739,7 +739,7 @@ export default function TemplatesPage() {
                   padding: '12px',
                   marginBottom: '12px'
                 }}>
-                  {/* 上段: タイトルと編集ボタン */}
+                  {/* 上段: タイトルと編集・削除ボタン */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
@@ -751,25 +751,39 @@ export default function TemplatesPage() {
                         </div>
                       )}
                     </div>
-                    <button
-                      onClick={() => setEditingTemplate(template)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        flexShrink: 0,
-                        marginLeft: '8px'
-                      }}
-                    >
-                      編集
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0, marginLeft: '8px' }}>
+                      <button
+                        onClick={() => setEditingTemplate(template)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        編集
+                      </button>
+                      <button
+                        onClick={() => deleteTemplate(template)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
 
-                  {/* 下段: 状態・パターン・カテゴリ・重要度・URL */}
+                  {/* 下段: 状態・パターン・URL */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '11px' }}>
                     {/* 状態 */}
                     <button
@@ -798,29 +812,6 @@ export default function TemplatesPage() {
                       color: '#1e40af'
                     }}>
                       {formatPatternDetails(template)}
-                    </span>
-
-                    {/* カテゴリ */}
-                    {template.category && (
-                      <span style={{
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: '#fef3c7',
-                        color: '#92400e'
-                      }}>
-                        {template.category}
-                      </span>
-                    )}
-
-                    {/* 重要度 */}
-                    <span style={{
-                      padding: '3px 8px',
-                      borderRadius: '4px',
-                      backgroundColor: getImportanceColor(template.importance) + '20',
-                      color: getImportanceColor(template.importance),
-                      fontWeight: '600'
-                    }}>
-                      ★{template.importance || '-'}
                     </span>
 
                     {/* URL数 */}
