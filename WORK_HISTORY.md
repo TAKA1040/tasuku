@@ -12,6 +12,258 @@
 
 ---
 
+## 🚧 進行中: テンプレートON/OFF切替時の不要タスク生成を防止 (2025-10-12)
+
+### ユーザーからの問題指摘 🔍
+
+**prompt.txt からの要求**:
+```
+あと、毎日のタスクを、
+1日。2日.3日とONで過ごして
+4日.5日をストップさせて
+6日からまたONに変更したとき
+日時処理で、4と5が生成されないかを調べて。
+多分まだ調査中のエラーの流れから行くと、6日にONにすると4と5が生成されそうな気がする。
+```
+
+**ユーザーの追加指摘**:
+「本気で調べてないよね。これは毎日開いている人だけではなく、数日ぶりにアプリを開いたときの機能が働いて、過去3日分生成されてしまうような気がするんだよね。」
+
+### 調査結果: 2つの深刻な問題を発見 ⚠️
+
+#### 問題1: OFF→ON切替時の不要タスク生成
+
+**シナリオ**:
+```
+1日、2日、3日: テンプレートON → タスク生成される
+4日、5日: テンプレートOFF → タスク生成されない（意図通り）
+6日: テンプレートを再度ONに切替
+6日にアプリを開く → 日次処理が「過去3日分」（4日、5日、6日）を生成しようとする
+```
+
+**問題の原因**: `task-generator.ts` lines 87-89, 307-320
+```typescript
+// 日次: 過去3日〜今日（毎日アクセス想定）
+const dailyStart = subtractDays(today, 2)  // 6日 - 2 = 4日
+await this.generateDailyTasks(dailyStart, today)  // 4, 5, 6日を生成
+
+async generateDailyTasks(startDate: string, endDate: string) {
+  const templates = await this.templatesService.getTemplatesByPattern('DAILY')
+  // ↑ 6日時点でactiveなテンプレートを取得（テンプレートはON）
+
+  for (const template of templates) {
+    let currentDate = startDate  // 4日から
+    while (currentDate <= endDate) {  // 4, 5, 6日をループ
+      await this.createTaskFromTemplate(template, currentDate)
+      // ↑ 問題: 4日と5日（OFF期間）のタスクも生成してしまう ❌
+      currentDate = addDays(currentDate, 1)
+    }
+  }
+}
+```
+
+**既存のチェックで防げない理由**:
+- **テンプレート作成日チェック** (lines 525-530): 1日に作成されているので問題なし
+- **重複チェック** (lines 542-577): 4日・5日のタスクは存在しないので問題なし
+
+**最初の修正案（不完全）**: `updated_at` をチェック
+```typescript
+// task-generator.ts に追加（lines 532-540）
+const templateUpdatedDate = template.updated_at.split('T')[0]
+if (dueDate < templateUpdatedDate) {
+  logger.production(`⏭️ スキップ: テンプレート更新日より前の期限`)
+  return
+}
+```
+
+#### 問題2: テンプレート編集後の過去タスク生成失敗
+
+**シナリオ**:
+```
+10/10: テンプレート作成、ON (updated_at = 10/10)
+10/11: 正常動作
+10/12: アプリを開いてテンプレートのURLsを編集 (updated_at = 10/12)
+10/13: アプリを開く → 過去3日分（10/11, 10/12, 10/13）を生成しようとする
+```
+
+**問題**: `templates/page.tsx` line 103
+```typescript
+const { error } = await supabase
+  .from('recurring_templates')
+  .update({
+    // ... 他のフィールド
+    updated_at: new Date().toISOString()  // ← URLs編集でもupdated_atが更新される
+  })
+```
+
+**結果**:
+- 10/11のタスク: `dueDate(10/11) < updated_at(10/12)` → スキップされてしまう ❌
+- テンプレートは ずっとONなのに、編集したせいで過去のタスクが生成されない
+
+### 根本的な解決策: `last_activated_at` フィールドの追加 ✅
+
+**設計意図**:
+- `updated_at`: あらゆる編集で更新される（タイトル、URL、時刻、ON/OFF等）
+- `last_activated_at`: **テンプレートが最後に `active=true` になった日時のみ記録**
+- テンプレートの内容編集では `last_activated_at` は変更されない
+
+**動作定義**:
+1. **新規作成時**: `last_activated_at = created_at`（active=trueの場合）
+2. **OFF→ON切替**: `last_activated_at = now()`
+3. **ON→OFF切替**: `last_activated_at` はそのまま（次にONになる時まで保持）
+4. **その他の編集**（タイトル、URL、時刻等）: `last_activated_at` はそのまま
+
+**タスク生成時のチェック**:
+```typescript
+// task-generator.ts の createTaskFromTemplate 内
+const lastActivatedDate = template.last_activated_at?.split('T')[0]
+if (lastActivatedDate && dueDate < lastActivatedDate) {
+  logger.production(`⏭️ スキップ: アクティブ化日(${lastActivatedDate})より前の期限(${dueDate})`)
+  logger.production(`   理由: このテンプレートは${lastActivatedDate}にONになったため、それより前の期間はOFFだった`)
+  return
+}
+```
+
+### テストシナリオ 🧪
+
+#### テストケース1: OFF→ON切替時の過去タスク生成防止
+
+**手順**:
+1. 10/12にテンプレート「テストタスク」を作成、ON
+2. 10/13-14に正常動作を確認（タスク生成される）
+3. 10/15にテンプレートをOFFに切替
+4. 10/16-17にアプリを開く → タスク生成されないことを確認
+5. 10/18にテンプレートをONに切替（`last_activated_at = 10/18` に更新）
+6. 10/19にアプリを開く → 日次処理実行
+
+**期待される動作**:
+```
+generateDailyTasks の範囲: 10/17, 10/18, 10/19（過去3日分）
+
+createTaskFromTemplate での判定:
+- 10/17のタスク: dueDate(10/17) < last_activated_at(10/18) → スキップ ✅
+- 10/18のタスク: dueDate(10/18) >= last_activated_at(10/18) → 生成 ✅
+- 10/19のタスク: dueDate(10/19) >= last_activated_at(10/18) → 生成 ✅
+```
+
+**結果**: 10/16-17（OFF期間）のタスクは生成されない ✅
+
+#### テストケース2: テンプレート編集後の過去タスク生成（正常動作）
+
+**手順**:
+1. 10/12にテンプレート作成、ON（`last_activated_at = 10/12`）
+2. 10/13に正常動作
+3. 10/14にアプリを開き、テンプレートのURLsを編集（`updated_at = 10/14`、`last_activated_at = 10/12` のまま）
+4. 10/15にアプリを開く → 日次処理実行
+
+**期待される動作**:
+```
+generateDailyTasks の範囲: 10/13, 10/14, 10/15（過去3日分）
+
+createTaskFromTemplate での判定:
+- 10/13のタスク: dueDate(10/13) >= last_activated_at(10/12) → 生成 ✅
+- 10/14のタスク: dueDate(10/14) >= last_activated_at(10/12) → 既存タスク同期更新 ✅
+- 10/15のタスク: dueDate(10/15) >= last_activated_at(10/12) → 生成 ✅
+```
+
+**結果**: テンプレート編集しても過去のタスクは正常に生成される ✅
+
+#### テストケース3: 既存テンプレート（ずっとON）の互換性確認
+
+**手順**:
+1. マイグレーション実行前から存在するテンプレート
+2. `last_activated_at = created_at` で初期化される
+3. 数日アクセスなし
+4. 10/20にアプリを開く → 過去3日分生成
+
+**期待される動作**:
+```
+例: テンプレート作成日 = 10/01
+generateDailyTasks の範囲: 10/18, 10/19, 10/20
+
+createTaskFromTemplate での判定:
+- 10/18のタスク: dueDate(10/18) >= last_activated_at(10/01) → 生成 ✅
+- 10/19のタスク: dueDate(10/19) >= last_activated_at(10/01) → 生成 ✅
+- 10/20のタスク: dueDate(10/20) >= last_activated_at(10/01) → 生成 ✅
+```
+
+**結果**: 既存テンプレートの動作に影響なし ✅
+
+#### テストケース4: 複数回のON/OFF切替
+
+**手順**:
+1. 10/12: 作成、ON（`last_activated_at = 10/12`）
+2. 10/13-14: 正常動作
+3. 10/15: OFF に切替（`last_activated_at = 10/12` のまま）
+4. 10/16: ON に切替（`last_activated_at = 10/16` に更新）
+5. 10/17: OFF に切替（`last_activated_at = 10/16` のまま）
+6. 10/18: ON に切替（`last_activated_at = 10/18` に更新）
+7. 10/20: アプリを開く → 過去3日分（10/18, 10/19, 10/20）を生成
+
+**期待される動作**:
+```
+最終的な last_activated_at = 10/18（最後にONになった日）
+
+createTaskFromTemplate での判定:
+- 10/18のタスク: dueDate(10/18) >= last_activated_at(10/18) → 生成 ✅
+- 10/19のタスク: dueDate(10/19) >= last_activated_at(10/18) → 生成 ✅
+- 10/20のタスク: dueDate(10/20) >= last_activated_at(10/18) → 生成 ✅
+```
+
+**結果**: 最後にONにした日以降のみタスク生成される ✅
+
+### 実装内容 🔧
+
+#### 1. マイグレーション作成
+- **ファイル**: `supabase/migrations/YYYYMMDDHHMMSS_add_last_activated_at_to_recurring_templates.sql`
+- **内容**:
+  - `recurring_templates` テーブルに `last_activated_at TIMESTAMPTZ` カラムを追加
+  - 既存レコードの `last_activated_at` を `created_at` で初期化
+  - `active=true` のレコードのみ初期化（`active=false` は NULL のまま）
+
+#### 2. テンプレートページの修正
+- **ファイル**: `src/app/templates/page.tsx`
+- **関数**: `toggleActive` (lines 157-194)
+- **変更内容**:
+  - `active=false → true` の場合のみ `last_activated_at = now()` を更新
+  - `active=true → false` の場合は `last_activated_at` を更新しない
+  - その他の編集（`updateTemplate` 関数）では `last_activated_at` に触れない
+
+#### 3. タスク生成ロジックの修正
+- **ファイル**: `src/lib/services/task-generator.ts`
+- **関数**: `createTaskFromTemplate` (lines 521-540)
+- **変更内容**:
+  - `updated_at` チェックを削除
+  - `last_activated_at` チェックを追加
+  - ログ出力を詳細化
+
+### 検証方法 📊
+
+**本番環境での確認**:
+1. https://tasuku.apaf.me/templates でテストテンプレート作成
+2. OFF→ON切替を実行
+3. 翌日アプリを開いて、OFF期間のタスクが生成されないことを確認
+4. テンプレート編集後も過去のタスクが正常に生成されることを確認
+
+**ログ確認**:
+- Vercel Logs で `⏭️ スキップ: アクティブ化日より前の期限` ログを確認
+- OFF期間のタスクが正しくスキップされているか検証
+
+### なぜこのドキュメントが必要か 📝
+
+**理由**:
+1. **複雑な問題**: OFF→ON切替時の挙動は、説明なしでは理解が難しい
+2. **将来のセッション**: 毎回ゼロから説明するのは非効率
+3. **テストシナリオ**: 4つのテストケースを網羅的に記述
+4. **設計意図**: `last_activated_at` が必要な理由を明確に記録
+
+**このドキュメントの使い方**:
+- 次回セッションで「テンプレートON/OFF問題」について質問された場合、このセクションを参照
+- テストシナリオに従って動作確認を実施
+- 問題が再発した場合の調査起点として使用
+
+---
+
 ## ✅ 完了: テンプレート作成日より前のタスク生成を防止 (2025-10-12)
 
 ### 問題の発見 🔍

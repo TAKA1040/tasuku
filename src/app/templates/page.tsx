@@ -384,12 +384,26 @@ export default function TemplatesPage() {
 
       setStatus(`${template.title}を${newActiveState ? '有効化' : '無効化'}中...`)
 
+      // OFF→ON切替時のみ last_activated_at を更新
+      // ON→OFF切替時は last_activated_at を保持（次にONになる時まで）
+      const updateData: {
+        active: boolean
+        updated_at: string
+        last_activated_at?: string
+      } = {
+        active: newActiveState,
+        updated_at: new Date().toISOString()
+      }
+
+      if (newActiveState) {
+        // OFF→ONに切り替え: last_activated_at を現在時刻に更新
+        updateData.last_activated_at = new Date().toISOString()
+      }
+      // newActiveState === false の場合: last_activated_at は更新しない（保持）
+
       const { error } = await supabase
         .from('recurring_templates')
-        .update({
-          active: newActiveState,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', template.id)
 
       if (error) {

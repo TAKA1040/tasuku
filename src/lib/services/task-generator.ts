@@ -529,6 +529,17 @@ export class TaskGeneratorService {
       return
     }
 
+    // テンプレート最終アクティブ化日チェック（OFF→ON切替対策）
+    // last_activated_at: テンプレートが最後に active=true になった日時
+    // 理由: テンプレートがOFFだった期間のタスクは生成しない
+    // 例: 10/12作成→10/15 OFF→10/18 ON の場合、10/18以降のみ生成
+    const lastActivatedDate = template.last_activated_at?.split('T')[0]
+    if (lastActivatedDate && dueDate < lastActivatedDate) {
+      logger.production(`⏭️ スキップ: アクティブ化日(${lastActivatedDate})より前の期限(${dueDate}) - ${template.title}`)
+      logger.production(`   理由: このテンプレートは${lastActivatedDate}にONになったため、それより前の期間はOFFだった`)
+      return
+    }
+
     // 既に同じテンプレート&日付のタスクが存在するかチェック
     // 注意: completed の条件は付けない（完了済みタスクも重複防止の対象）
     const { data: existing } = await this.supabase

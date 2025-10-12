@@ -45,6 +45,7 @@ export interface RecurringTemplate {
   user_id: string
   created_at: string
   updated_at: string
+  last_activated_at?: string  // Timestamp when template was last set to active=true
 }
 
 export type RecurringTemplateCreate = Omit<RecurringTemplate, 'id' | 'user_id' | 'created_at' | 'updated_at'>
