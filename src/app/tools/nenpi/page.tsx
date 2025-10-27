@@ -168,22 +168,24 @@ export default function NenpiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
             ⛽ 燃費記録
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             給油記録を管理して燃費を追跡
           </p>
         </div>
 
         {/* Input Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingRecord ? '記録の編集' : '新しい給油記録'}</CardTitle>
+        <Card className="shadow-lg border-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+            <CardTitle className="text-blue-900 dark:text-blue-100">
+              {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -252,7 +254,7 @@ export default function NenpiPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button type="submit">
+                <Button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
                   <Plus className="w-4 h-4 mr-2" />
                   {editingRecord ? '更新' : '登録'}
                 </Button>
@@ -267,9 +269,11 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>給油履歴 ({records.length}件)</CardTitle>
+        <Card className="shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+            <CardTitle className="text-purple-900 dark:text-purple-100">
+              📋 給油履歴 ({records.length}件)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {records.length === 0 ? (
@@ -285,40 +289,40 @@ export default function NenpiPage() {
                   return (
                     <div
                       key={record.id}
-                      className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl transition-all duration-200"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">
                               {record.date}
                             </span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
                               {record.station}
                             </span>
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                            <div>
-                              <span className="text-gray-600 dark:text-gray-400">給油量: </span>
-                              <span className="font-medium">{record.amount.toFixed(2)}L</span>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                            <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
+                              <div className="text-blue-600 dark:text-blue-400 text-xs mb-1">給油量</div>
+                              <div className="font-bold text-blue-900 dark:text-blue-100">{record.amount.toFixed(2)} L</div>
                             </div>
-                            <div>
-                              <span className="text-gray-600 dark:text-gray-400">金額: </span>
-                              <span className="font-medium">¥{record.cost.toLocaleString()}</span>
+                            <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
+                              <div className="text-green-600 dark:text-green-400 text-xs mb-1">金額</div>
+                              <div className="font-bold text-green-900 dark:text-green-100">¥{record.cost.toLocaleString()}</div>
                             </div>
-                            <div>
-                              <span className="text-gray-600 dark:text-gray-400">単価: </span>
-                              <span className="font-medium">¥{pricePerLiter.toFixed(1)}/L</span>
+                            <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded-lg">
+                              <div className="text-purple-600 dark:text-purple-400 text-xs mb-1">単価</div>
+                              <div className="font-bold text-purple-900 dark:text-purple-100">¥{pricePerLiter.toFixed(1)}/L</div>
                             </div>
-                            <div>
-                              <span className="text-gray-600 dark:text-gray-400">走行距離: </span>
-                              <span className="font-medium">{record.mileage.toFixed(1)}km</span>
+                            <div className="bg-orange-50 dark:bg-orange-950 p-3 rounded-lg">
+                              <div className="text-orange-600 dark:text-orange-400 text-xs mb-1">走行距離</div>
+                              <div className="font-bold text-orange-900 dark:text-orange-100">{record.mileage.toFixed(1)} km</div>
                             </div>
                           </div>
                           {efficiency && (
-                            <div className="mt-2 flex items-center gap-2">
-                              <TrendingUp className="w-4 h-4 text-green-600" />
-                              <span className="text-sm font-semibold text-green-600">
+                            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full border-2 border-green-300 dark:border-green-700">
+                              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                              <span className="text-sm font-bold text-green-700 dark:text-green-300">
                                 燃費: {efficiency.toFixed(2)} km/L
                               </span>
                             </div>
@@ -349,11 +353,44 @@ export default function NenpiPage() {
           </CardContent>
         </Card>
 
+        {/* Statistics Summary */}
+        {records.length > 0 && (
+          <Card className="shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 border-2 border-indigo-200 dark:border-indigo-800">
+            <CardHeader>
+              <CardTitle className="text-indigo-900 dark:text-indigo-100">
+                📊 統計情報
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                  <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                    {records.length}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">件の記録</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総給油量 (L)</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                    ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総金額</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Manual Link */}
         <div className="text-center py-6">
           <a
             href="/tools/nenpi/manual"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full hover:from-blue-700 hover:to-indigo-700 font-medium shadow-lg hover:shadow-xl transition-all"
           >
             📖 使い方マニュアル
           </a>
