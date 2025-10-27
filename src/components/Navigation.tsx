@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/today', label: '今日', icon: '📅' },
   { href: '/manage', label: '管理', icon: '⚙️' },
-  { href: '/statistics', label: '統計', icon: '📊' }
+  { href: '/statistics', label: '統計', icon: '📊' },
+  { href: '/tools', label: 'ツール', icon: '🛠️' }
 ]
 
 export function Navigation() {
