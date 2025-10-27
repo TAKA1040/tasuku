@@ -348,6 +348,16 @@ export default function NenpiPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Manual Link */}
+        <div className="text-center py-6">
+          <a
+            href="/tools/nenpi/manual"
+            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+          >
+            📖 使い方マニュアル
+          </a>
+        </div>
       </div>
     </div>
   )
