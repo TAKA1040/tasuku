@@ -24,8 +24,16 @@ export default function NenpiPage() {
   const [records, setRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null)
+  const [stationList, setStationList] = useState<string[]>([])
+
+  // デフォルトで今日の日付を設定
+  const getTodayDate = () => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }
+
   const [formData, setFormData] = useState({
-    date: '',
+    date: getTodayDate(),
     amount: '',
     cost: '',
     mileage: '',
@@ -53,6 +61,10 @@ export default function NenpiPage() {
       console.error('Error fetching records:', error)
     } else {
       setRecords(data as FuelRecord[])
+
+      // スタンド名リストを作成（重複を除去）
+      const stations = Array.from(new Set(data.map(r => r.station)))
+      setStationList(stations)
     }
     setLoading(false)
   }
@@ -127,7 +139,7 @@ export default function NenpiPage() {
 
   const resetForm = () => {
     setFormData({
-      date: '',
+      date: getTodayDate(),
       amount: '',
       cost: '',
       mileage: '',
@@ -191,11 +203,17 @@ export default function NenpiPage() {
                   <Input
                     id="station"
                     type="text"
+                    list="station-list"
                     value={formData.station}
                     onChange={(e) => setFormData({ ...formData, station: e.target.value })}
                     placeholder="例: ENEOS ○○店"
                     required
                   />
+                  <datalist id="station-list">
+                    {stationList.map((station) => (
+                      <option key={station} value={station} />
+                    ))}
+                  </datalist>
                 </div>
                 <div>
                   <Label htmlFor="amount">給油量 (L)</Label>
