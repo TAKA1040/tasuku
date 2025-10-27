@@ -49,7 +49,10 @@ export default function NenpiPage() {
   const fetchRecords = async () => {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('fuel_records')
