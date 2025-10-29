@@ -341,24 +341,38 @@ export default function NenpiPage() {
                         background: 'white',
                         borderRadius: '8px',
                         border: '1px solid #e5e7eb',
-                        marginBottom: '12px'
+                        marginBottom: '12px',
+                        overflow: 'hidden',
+                        width: '100%',
+                        boxSizing: 'border-box'
                       }}
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div style={{
-                            marginBottom: '12px',
-                            paddingBottom: '12px',
-                            borderBottom: '1px solid #f3f4f6'
-                          }}>
-                            <span style={{
-                              fontSize: '1.125rem',
-                              fontWeight: '600',
-                              color: '#1f2937'
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          flexWrap: 'wrap',
+                          gap: '12px'
+                        }}>
+                          <div style={{ flex: '1', minWidth: '200px' }}>
+                            <div style={{
+                              marginBottom: '12px',
+                              paddingBottom: '12px',
+                              borderBottom: '1px solid #f3f4f6'
                             }}>
-                              {record.date}
-                            </span>
-                          </div>
+                              <span style={{
+                                fontSize: '1.125rem',
+                                fontWeight: '600',
+                                color: '#1f2937'
+                              }}>
+                                {record.date}
+                              </span>
+                            </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {/* スタンド名と給油量 - 横並び */}
                             <div style={{ display: 'flex', gap: '8px' }}>
@@ -428,45 +442,51 @@ export default function NenpiPage() {
                               <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.mileage.toFixed(1)} km</span>
                             </div>
                           </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '16px' }}>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(record)}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(record.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           </div>
-                          {efficiency && (
-                            <div style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              padding: '8px 16px',
-                              background: '#dcfce7',
-                              borderRadius: '20px',
-                              border: '1px solid #86efac',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              <TrendingUp className="w-4 h-4" style={{ color: '#16a34a' }} />
-                              <span style={{
-                                fontSize: '0.875rem',
-                                fontWeight: '600',
-                                color: '#16a34a'
-                              }}>
-                                {efficiency.toFixed(2)} km/L
-                              </span>
+                          <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(record)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(record.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
-                          )}
+                            {efficiency && (
+                              <div style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px 16px',
+                                background: '#dcfce7',
+                                borderRadius: '20px',
+                                border: '1px solid #86efac',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                <TrendingUp className="w-4 h-4" style={{ color: '#16a34a' }} />
+                                <span style={{
+                                  fontSize: '0.875rem',
+                                  fontWeight: '600',
+                                  color: '#16a34a'
+                                }}>
+                                  {efficiency.toFixed(2)} km/L
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -498,7 +518,7 @@ export default function NenpiPage() {
             }}>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                 gap: '16px',
                 textAlign: 'center'
               }}>
