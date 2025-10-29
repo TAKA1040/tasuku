@@ -176,26 +176,26 @@ export default function NenpiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-extrabold text-white drop-shadow-lg mb-4">
             ⛽ 燃費記録
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <p className="text-white text-xl font-medium drop-shadow">
             給油記録を管理して燃費を追跡
           </p>
         </div>
 
         {/* Input Form */}
-        <Card className="shadow-2xl border-0 bg-white overflow-hidden">
-          <CardHeader className="pb-4 bg-gradient-to-r from-blue-600 to-indigo-700">
-            <CardTitle className="text-white text-2xl font-bold flex items-center gap-2">
+        <Card className="shadow-2xl border-0 overflow-hidden">
+          <CardHeader className="pb-6 bg-gradient-to-r from-blue-600 to-indigo-700 py-8">
+            <CardTitle className="text-white text-3xl font-bold flex items-center gap-3">
               {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-white p-6">
+          <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -277,13 +277,13 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card className="shadow-2xl border-0 bg-white overflow-hidden">
-          <CardHeader className="pb-4 bg-gradient-to-r from-purple-600 to-pink-700">
-            <CardTitle className="text-white text-2xl font-bold flex items-center gap-2">
-              📋 給油履歴 <span className="text-white/90 text-xl font-semibold">({records.length}件)</span>
+        <Card className="shadow-2xl border-0 overflow-hidden">
+          <CardHeader className="pb-6 bg-gradient-to-r from-purple-600 to-pink-700 py-8">
+            <CardTitle className="text-white text-3xl font-bold flex items-center gap-3">
+              📋 給油履歴 <span className="text-white/90 text-2xl font-semibold">({records.length}件)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-white p-6">
+          <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
             {records.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
                 まだ記録がありません
@@ -363,13 +363,13 @@ export default function NenpiPage() {
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-2xl border-0 bg-white overflow-hidden">
-            <CardHeader className="pb-4 bg-gradient-to-r from-indigo-600 to-purple-700">
-              <CardTitle className="text-white text-2xl font-bold">
+          <Card className="shadow-2xl border-0 overflow-hidden">
+            <CardHeader className="pb-6 bg-gradient-to-r from-indigo-600 to-purple-700 py-8">
+              <CardTitle className="text-white text-3xl font-bold">
                 📊 統計情報
               </CardTitle>
             </CardHeader>
-            <CardContent className="bg-white p-6">
+            <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 p-6 rounded-xl shadow-lg">
                   <div className="text-4xl font-bold text-white">
