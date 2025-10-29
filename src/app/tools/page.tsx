@@ -154,7 +154,11 @@ export default function ToolsPage() {
               >
                 <div style={{ marginBottom: '16px' }}>
                   <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${colors.icon}`}>
-                    <span style={{ fontSize: '24px' }}>{tool.icon}</span>
+                    {tool.href === '/tools/nenpi' ? (
+                      <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '32px', height: '32px' }} />
+                    ) : (
+                      <span style={{ fontSize: '24px' }}>{tool.icon}</span>
+                    )}
                   </div>
                 </div>
                 <div style={{ marginBottom: '8px' }}>

@@ -184,14 +184,27 @@ export default function NenpiPage() {
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            color: '#1f2937',
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
             marginBottom: '8px'
           }}>
-            ⛽ 燃費記録
-          </h1>
+            <img
+              src="/nenpi-icon.png"
+              alt="燃費記録"
+              style={{ width: '48px', height: '48px' }}
+            />
+            <h1 style={{
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              color: '#1f2937',
+              margin: 0
+            }}>
+              燃費記録
+            </h1>
+          </div>
           <p style={{
             color: '#6b7280',
             fontSize: '1rem',
