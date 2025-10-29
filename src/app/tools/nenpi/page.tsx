@@ -181,17 +181,17 @@ export default function NenpiPage() {
         </div>
 
         {/* Input Form */}
-        <Card className="shadow-lg border-2 border-blue-100 dark:border-blue-900">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
-            <CardTitle className="text-blue-900 dark:text-blue-100">
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden">
+          <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
+            <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
               {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-white/95 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="date">給油日</Label>
+                  <Label htmlFor="date" className="text-gray-700 font-semibold">給油日</Label>
                   <Input
                     id="date"
                     type="date"
@@ -201,7 +201,7 @@ export default function NenpiPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="station">スタンド名</Label>
+                  <Label htmlFor="station" className="text-gray-700 font-semibold">スタンド名</Label>
                   <Input
                     id="station"
                     type="text"
@@ -218,7 +218,7 @@ export default function NenpiPage() {
                   </datalist>
                 </div>
                 <div>
-                  <Label htmlFor="amount">給油量 (L)</Label>
+                  <Label htmlFor="amount" className="text-gray-700 font-semibold">給油量 (L)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -230,7 +230,7 @@ export default function NenpiPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="cost">金額 (円)</Label>
+                  <Label htmlFor="cost" className="text-gray-700 font-semibold">金額 (円)</Label>
                   <Input
                     id="cost"
                     type="number"
@@ -241,7 +241,7 @@ export default function NenpiPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="mileage">走行距離 (km)</Label>
+                  <Label htmlFor="mileage" className="text-gray-700 font-semibold">走行距離 (km)</Label>
                   <Input
                     id="mileage"
                     type="number"
@@ -269,19 +269,19 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-            <CardTitle className="text-purple-900 dark:text-purple-100">
-              📋 給油履歴 ({records.length}件)
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden">
+          <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
+            <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
+              📋 給油履歴 <span className="text-white/80 text-base font-normal">({records.length}件)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-white/95 backdrop-blur-sm">
             {records.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+              <p className="text-center text-gray-500 py-8">
                 まだ記録がありません
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {records.map((record, index) => {
                   const efficiency = calculateFuelEfficiency(index)
                   const pricePerLiter = record.cost / record.amount
@@ -289,7 +289,7 @@ export default function NenpiPage() {
                   return (
                     <div
                       key={record.id}
-                      className="p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl transition-all duration-200"
+                      className="p-5 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-xl border-2 border-blue-200 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -355,31 +355,31 @@ export default function NenpiPage() {
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 border-2 border-indigo-200 dark:border-indigo-800">
-            <CardHeader>
-              <CardTitle className="text-indigo-900 dark:text-indigo-100">
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden">
+            <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
+              <CardTitle className="text-white text-xl font-bold">
                 📊 統計情報
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white/95 backdrop-blur-sm">
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl shadow-lg">
+                  <div className="text-3xl font-bold text-indigo-600">
                     {records.length}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">件の記録</div>
+                  <div className="text-sm text-indigo-800 mt-1 font-medium">件の記録</div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl shadow-lg">
+                  <div className="text-3xl font-bold text-green-600">
                     {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総給油量 (L)</div>
+                  <div className="text-sm text-green-800 mt-1 font-medium">総給油量 (L)</div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl shadow-lg">
+                  <div className="text-3xl font-bold text-purple-600">
                     ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総金額</div>
+                  <div className="text-sm text-purple-800 mt-1 font-medium">総金額</div>
                 </div>
               </div>
             </CardContent>
