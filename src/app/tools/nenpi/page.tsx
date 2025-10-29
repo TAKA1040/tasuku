@@ -347,9 +347,6 @@ export default function NenpiPage() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
                             marginBottom: '12px',
                             paddingBottom: '12px',
                             borderBottom: '1px solid #f3f4f6'
@@ -361,59 +358,72 @@ export default function NenpiPage() {
                             }}>
                               {record.date}
                             </span>
-                            <span style={{
-                              padding: '4px 12px',
-                              background: '#eff6ff',
-                              color: '#1e40af',
-                              borderRadius: '12px',
-                              fontSize: '0.875rem',
-                              fontWeight: '500'
-                            }}>
-                              {record.station}
-                            </span>
                           </div>
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '12px',
-                            fontSize: '0.875rem'
-                          }}>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              padding: '8px',
-                              background: '#f9fafb',
-                              borderRadius: '6px'
-                            }}>
-                              <span style={{ color: '#6b7280' }}>給油量</span>
-                              <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.amount.toFixed(2)} L</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {/* スタンド名と給油量 - 横並び */}
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <div style={{
+                                flex: '1',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '8px',
+                                background: '#f9fafb',
+                                borderRadius: '6px',
+                                fontSize: '0.875rem'
+                              }}>
+                                <span style={{ color: '#6b7280' }}>スタンド</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.station}</span>
+                              </div>
+                              <div style={{
+                                flex: '1',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '8px',
+                                background: '#f9fafb',
+                                borderRadius: '6px',
+                                fontSize: '0.875rem'
+                              }}>
+                                <span style={{ color: '#6b7280' }}>給油量</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.amount.toFixed(2)} L</span>
+                              </div>
                             </div>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              padding: '8px',
-                              background: '#f9fafb',
-                              borderRadius: '6px'
-                            }}>
-                              <span style={{ color: '#6b7280' }}>金額</span>
-                              <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{record.cost.toLocaleString()}</span>
+
+                            {/* 金額と単価 - 横並び */}
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <div style={{
+                                flex: '1',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '8px',
+                                background: '#f9fafb',
+                                borderRadius: '6px',
+                                fontSize: '0.875rem'
+                              }}>
+                                <span style={{ color: '#6b7280' }}>金額</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{record.cost.toLocaleString()}</span>
+                              </div>
+                              <div style={{
+                                flex: '1',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '8px',
+                                background: '#f9fafb',
+                                borderRadius: '6px',
+                                fontSize: '0.875rem'
+                              }}>
+                                <span style={{ color: '#6b7280' }}>単価</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{pricePerLiter.toFixed(1)}/L</span>
+                              </div>
                             </div>
+
+                            {/* 走行距離 - 1行 */}
                             <div style={{
                               display: 'flex',
                               justifyContent: 'space-between',
                               padding: '8px',
                               background: '#f9fafb',
-                              borderRadius: '6px'
-                            }}>
-                              <span style={{ color: '#6b7280' }}>単価</span>
-                              <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{pricePerLiter.toFixed(1)}/L</span>
-                            </div>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              padding: '8px',
-                              background: '#f9fafb',
-                              borderRadius: '6px'
+                              borderRadius: '6px',
+                              fontSize: '0.875rem'
                             }}>
                               <span style={{ color: '#6b7280' }}>走行距離</span>
                               <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.mileage.toFixed(1)} km</span>
