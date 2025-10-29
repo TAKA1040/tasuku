@@ -168,248 +168,273 @@ export default function NenpiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-2 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center py-4">
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            ⛽ 燃費記録
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xl md:text-2xl">
-            給油記録を管理して燃費を追跡
-          </p>
+    <div className="min-h-screen bg-white dark:bg-black">
+      {/* Clean Header */}
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <span className="text-2xl">⛽</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+                燃費記録
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Fuel Tracking
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
+        {/* Input Form */}
+        <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {editingRecord ? '記録を編集' : '新規記録'}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              給油情報を入力してください
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  給油日
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  required
+                  className="h-14 text-base bg-white dark:bg-black border-gray-300 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="station" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  スタンド名
+                </Label>
+                <Input
+                  id="station"
+                  type="text"
+                  list="station-list"
+                  value={formData.station}
+                  onChange={(e) => setFormData({ ...formData, station: e.target.value })}
+                  placeholder="ENEOS ○○店"
+                  required
+                  className="h-14 text-base bg-white dark:bg-black border-gray-300 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+                <datalist id="station-list">
+                  {stationList.map((station) => (
+                    <option key={station} value={station} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="amount" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  給油量 (L)
+                </Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  placeholder="40.5"
+                  required
+                  className="h-14 text-base bg-white dark:bg-black border-gray-300 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cost" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  金額 (円)
+                </Label>
+                <Input
+                  id="cost"
+                  type="number"
+                  value={formData.cost}
+                  onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                  placeholder="6500"
+                  required
+                  className="h-14 text-base bg-white dark:bg-black border-gray-300 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="mileage" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  走行距離 (km)
+                </Label>
+                <Input
+                  id="mileage"
+                  type="number"
+                  step="0.1"
+                  value={formData.mileage}
+                  onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
+                  placeholder="12345.6"
+                  required
+                  className="h-14 text-base bg-white dark:bg-black border-gray-300 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                className="h-12 px-8 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-medium rounded-xl transition-colors"
+              >
+                {editingRecord ? '更新' : '追加'}
+              </Button>
+              {editingRecord && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                  className="h-12 px-6 border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  キャンセル
+                </Button>
+              )}
+            </div>
+          </form>
         </div>
 
-        {/* Input Form */}
-        <Card className="shadow-2xl border-4 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-8">
-            <CardTitle className="text-3xl md:text-4xl font-bold flex items-center gap-3">
-              {editingRecord ? (
-                <>
-                  <Edit className="w-10 h-10" />
-                  記録の編集
-                </>
-              ) : (
-                <>
-                  <Plus className="w-10 h-10" />
-                  新しい給油記録
-                </>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <Label htmlFor="date" className="text-2xl font-bold mb-3 block text-gray-800 dark:text-gray-100">給油日</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    required
-                    className="h-20 text-2xl border-4 border-gray-300 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="station" className="text-2xl font-bold mb-3 block text-gray-800 dark:text-gray-100">スタンド名</Label>
-                  <Input
-                    id="station"
-                    type="text"
-                    list="station-list"
-                    value={formData.station}
-                    onChange={(e) => setFormData({ ...formData, station: e.target.value })}
-                    placeholder="例: ENEOS ○○店"
-                    required
-                    className="h-20 text-2xl border-4 border-gray-300 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
-                  />
-                  <datalist id="station-list">
-                    {stationList.map((station) => (
-                      <option key={station} value={station} />
-                    ))}
-                  </datalist>
-                </div>
-                <div>
-                  <Label htmlFor="amount" className="text-2xl font-bold mb-3 block text-gray-800 dark:text-gray-100">給油量 (L)</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    placeholder="例: 40.5"
-                    required
-                    className="h-20 text-2xl border-4 border-gray-300 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cost" className="text-2xl font-bold mb-3 block text-gray-800 dark:text-gray-100">金額 (円)</Label>
-                  <Input
-                    id="cost"
-                    type="number"
-                    value={formData.cost}
-                    onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-                    placeholder="例: 6500"
-                    required
-                    className="h-20 text-2xl border-4 border-gray-300 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <Label htmlFor="mileage" className="text-2xl font-bold mb-3 block text-gray-800 dark:text-gray-100">走行距離 (km)</Label>
-                  <Input
-                    id="mileage"
-                    type="number"
-                    step="0.1"
-                    value={formData.mileage}
-                    onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
-                    placeholder="例: 12345.6"
-                    required
-                    className="h-20 text-2xl border-4 border-gray-300 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button type="submit" className="h-20 text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-2xl hover:shadow-3xl transition-all flex-1">
-                  <Plus className="w-8 h-8 mr-3" />
-                  {editingRecord ? '更新する' : '記録を追加'}
-                </Button>
-                {editingRecord && (
-                  <Button type="button" variant="outline" onClick={resetForm} className="h-20 text-2xl font-bold border-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                    キャンセル
-                  </Button>
-                )}
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
         {/* Records List */}
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-            <CardTitle className="text-purple-900 dark:text-purple-100">
-              📋 給油履歴 ({records.length}件)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {records.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                まだ記録がありません
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {records.map((record, index) => {
-                  const efficiency = calculateFuelEfficiency(index)
-                  const pricePerLiter = record.cost / record.amount
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              履歴
+            </h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {records.length}件
+            </span>
+          </div>
 
-                  return (
-                    <div
-                      key={record.id}
-                      className="p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl transition-all duration-200"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="text-xl font-bold text-gray-900 dark:text-white">
-                              {record.date}
-                            </span>
-                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-                              {record.station}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
-                              <div className="text-blue-600 dark:text-blue-400 text-xs mb-1">給油量</div>
-                              <div className="font-bold text-blue-900 dark:text-blue-100">{record.amount.toFixed(2)} L</div>
-                            </div>
-                            <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
-                              <div className="text-green-600 dark:text-green-400 text-xs mb-1">金額</div>
-                              <div className="font-bold text-green-900 dark:text-green-100">¥{record.cost.toLocaleString()}</div>
-                            </div>
-                            <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded-lg">
-                              <div className="text-purple-600 dark:text-purple-400 text-xs mb-1">単価</div>
-                              <div className="font-bold text-purple-900 dark:text-purple-100">¥{pricePerLiter.toFixed(1)}/L</div>
-                            </div>
-                            <div className="bg-orange-50 dark:bg-orange-950 p-3 rounded-lg">
-                              <div className="text-orange-600 dark:text-orange-400 text-xs mb-1">走行距離</div>
-                              <div className="font-bold text-orange-900 dark:text-orange-100">{record.mileage.toFixed(1)} km</div>
-                            </div>
-                          </div>
-                          {efficiency && (
-                            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full border-2 border-green-300 dark:border-green-700">
-                              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                              <span className="text-sm font-bold text-green-700 dark:text-green-300">
-                                燃費: {efficiency.toFixed(2)} km/L
-                              </span>
-                            </div>
-                          )}
+          {records.length === 0 ? (
+            <div className="text-center py-20 bg-gray-50 dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800">
+              <p className="text-gray-500 dark:text-gray-400">
+                記録がありません
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {records.map((record, index) => {
+                const efficiency = calculateFuelEfficiency(index)
+                const pricePerLiter = record.cost / record.amount
+
+                return (
+                  <div
+                    key={record.id}
+                    className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <div className="font-semibold text-gray-900 dark:text-white mb-1">
+                          {record.date}
                         </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(record)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(record.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {record.station}
+                        </div>
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(record)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(record.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">給油量</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {record.amount.toFixed(2)} L
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">金額</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          ¥{record.cost.toLocaleString()}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">単価</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          ¥{pricePerLiter.toFixed(1)}/L
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">走行距離</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {record.mileage.toFixed(1)} km
                         </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+
+                    {efficiency && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                        <div className="flex items-center gap-2 text-sm">
+                          <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            燃費: {efficiency.toFixed(2)} km/L
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 border-2 border-indigo-200 dark:border-indigo-800">
-            <CardHeader>
-              <CardTitle className="text-indigo-900 dark:text-indigo-100">
-                📊 統計情報
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {records.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">件の記録</div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                    {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総給油量 (L)</div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                    ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">総金額</div>
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              統計
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">総記録数</div>
+                <div className="text-3xl font-semibold text-gray-900 dark:text-white">
+                  {records.length}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">総給油量</div>
+                <div className="text-3xl font-semibold text-gray-900 dark:text-white">
+                  {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)} L
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">総支出額</div>
+                <div className="text-3xl font-semibold text-gray-900 dark:text-white">
+                  ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
-
-        {/* Manual Link */}
-        <div className="text-center py-6">
-          <a
-            href="/tools/nenpi/manual"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full hover:from-blue-700 hover:to-indigo-700 font-medium shadow-lg hover:shadow-xl transition-all"
-          >
-            📖 使い方マニュアル
-          </a>
-        </div>
       </div>
     </div>
   )
