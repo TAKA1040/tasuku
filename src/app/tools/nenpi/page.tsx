@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Edit, Trash2, TrendingUp } from 'lucide-react'
+import { Plus, Edit, Trash2, TrendingUp, LogIn, Home } from 'lucide-react'
+import Link from 'next/link'
 
 interface FuelRecord {
   id: string
@@ -180,13 +181,29 @@ export default function NenpiPage() {
       {/* Header */}
       <div className="bg-blue-600 dark:bg-blue-700 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">⛽</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⛽</span>
+              </div>
+              <h1 className="text-2xl font-bold text-white">
+                燃費記録
+              </h1>
             </div>
-            <h1 className="text-2xl font-bold text-white">
-              燃費記録
-            </h1>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <Home className="w-4 h-4 mr-2" />
+                  ホーム
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  ログイン
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
