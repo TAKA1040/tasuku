@@ -72,141 +72,202 @@ export default function ToolsPage() {
   return (
     <ThemedContainer>
       <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '20px',
-        width: '100%',
-        boxSizing: 'border-box'
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)',
+        paddingBottom: '60px'
       }}>
-        {/* Header */}
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px'
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '20px',
+          width: '100%',
+          boxSizing: 'border-box'
         }}>
-          <h1 className="dark:text-white" style={{
-            fontSize: '28px',
-            fontWeight: 'bold',
-            color: '#1f2937',
-            margin: 0
-          }}>
-            TASUKU
-          </h1>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <ThemeToggle />
-            <AuthStatus />
-          </div>
-        </div>
-
-        {/* Navigation Tabs */}
-        <TaskTabNavigation />
-
-        {/* Page Header */}
-        <div style={{ marginTop: '32px', marginBottom: '32px' }}>
+          {/* Header */}
           <div style={{
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '12px',
-            marginBottom: '12px'
+            marginBottom: '20px'
           }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px'
+            <h1 className="dark:text-white" style={{
+              fontSize: '28px',
+              fontWeight: 'bold',
+              color: '#1f2937',
+              margin: 0
             }}>
-              🛠️
-            </div>
-            <div>
-              <h2 className="dark:text-white" style={{
-                fontSize: '24px',
-                fontWeight: 'bold',
-                color: '#1f2937',
-                margin: 0
-              }}>
-                ツール
-              </h2>
-              <p className="dark:text-gray-400" style={{
-                fontSize: '14px',
-                color: '#6b7280',
-                margin: '4px 0 0 0'
-              }}>
-                日常を便利にするミニツール集
-              </p>
+              TASUKU
+            </h1>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <ThemeToggle />
+              <AuthStatus />
             </div>
           </div>
-        </div>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {toolItems.map((tool) => {
-            const colors = getColorClasses(tool.color)
-            return (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className={`block p-6 rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md ${colors.bg} ${colors.hover} ${colors.border}`}
-              >
-                <div style={{ marginBottom: '16px' }}>
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg ${colors.icon}`}>
-                    {tool.href === '/tools/nenpi' ? (
-                      <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '32px', height: '32px' }} />
-                    ) : (
-                      <span style={{ fontSize: '24px' }}>{tool.icon}</span>
-                    )}
-                  </div>
-                </div>
-                <div style={{ marginBottom: '8px' }}>
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${colors.text}`} style={{
-                    backgroundColor: 'currentColor',
-                    color: 'white',
-                    opacity: 0.9
-                  }}>
-                    {tool.category}
-                  </span>
-                </div>
-                <h3 className="dark:text-white" style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  color: '#1f2937',
-                  marginBottom: '8px'
-                }}>
-                  {tool.title}
-                </h3>
-                <p className="dark:text-gray-400" style={{
-                  fontSize: '14px',
-                  color: '#6b7280',
-                  lineHeight: '1.5'
-                }}>
-                  {tool.description}
-                </p>
-              </Link>
-            )
-          })}
-        </div>
+          {/* Navigation Tabs */}
+          <TaskTabNavigation />
 
-        {/* Coming Soon Section */}
-        <div className="mt-8 p-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
-            <h3 className="dark:text-white" style={{
-              fontSize: '18px',
-              fontWeight: '600',
+          {/* Page Header */}
+          <div style={{
+            marginTop: '48px',
+            marginBottom: '48px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                width: '72px',
+                height: '72px',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                borderRadius: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '40px',
+                boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)'
+              }}>
+                🛠️
+              </div>
+            </div>
+            <h2 className="dark:text-white" style={{
+              fontSize: '36px',
+              fontWeight: 'bold',
               color: '#1f2937',
-              marginBottom: '8px'
+              margin: '0 0 12px 0'
+            }}>
+              ツール
+            </h2>
+            <p className="dark:text-gray-400" style={{
+              fontSize: '16px',
+              color: '#6b7280',
+              margin: 0
+            }}>
+              日常を便利にするミニツール集
+            </p>
+          </div>
+
+          {/* Tools Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+            marginBottom: '40px'
+          }}>
+            {toolItems.map((tool) => {
+              return (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  style={{
+                    display: 'block',
+                    padding: '32px',
+                    background: 'white',
+                    borderRadius: '24px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 20px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid rgba(0, 0, 0, 0.05)',
+                    transition: 'all 0.3s ease',
+                    textDecoration: 'none'
+                  }}
+                  className="hover:shadow-xl hover:-translate-y-1"
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '24px'
+                  }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+                      borderRadius: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    }}>
+                      {tool.href === '/tools/nenpi' ? (
+                        <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '40px', height: '40px' }} />
+                      ) : (
+                        <span style={{ fontSize: '32px' }}>{tool.icon}</span>
+                      )}
+                    </div>
+                    <div style={{
+                      padding: '6px 14px',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: 'white',
+                      boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                    }}>
+                      {tool.category}
+                    </div>
+                  </div>
+                  <h3 style={{
+                    fontSize: '22px',
+                    fontWeight: '700',
+                    color: '#1f2937',
+                    marginBottom: '12px'
+                  }}>
+                    {tool.title}
+                  </h3>
+                  <p style={{
+                    fontSize: '15px',
+                    color: '#6b7280',
+                    lineHeight: '1.6',
+                    margin: 0
+                  }}>
+                    {tool.description}
+                  </p>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Coming Soon Section */}
+          <div style={{
+            padding: '48px 32px',
+            borderRadius: '24px',
+            border: '2px dashed #cbd5e1',
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)',
+              borderRadius: '20px',
+              fontSize: '48px',
+              marginBottom: '24px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+            }}>
+              📦
+            </div>
+            <h3 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#1f2937',
+              marginBottom: '12px'
             }}>
               もっとツールを追加予定
             </h3>
-            <p className="dark:text-gray-400" style={{
-              fontSize: '14px',
-              color: '#6b7280'
+            <p style={{
+              fontSize: '16px',
+              color: '#6b7280',
+              lineHeight: '1.6',
+              maxWidth: '500px',
+              margin: '0 auto'
             }}>
-              今後も便利なツールを追加していきます
+              今後も便利なツールを追加していきます。<br />
+              お楽しみに！
             </p>
           </div>
         </div>
