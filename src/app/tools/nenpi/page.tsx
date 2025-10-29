@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Edit, Trash2, TrendingUp, LogIn, Home } from 'lucide-react'
+import { Plus, Edit, Trash2, TrendingUp, LogIn, Grid3x3 } from 'lucide-react'
 import Link from 'next/link'
 
 interface FuelRecord {
@@ -191,10 +191,10 @@ export default function NenpiPage() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
-              <Link href="/">
+              <Link href="/tools">
                 <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
-                  <Home className="w-4 h-4 mr-2" />
-                  ホーム
+                  <Grid3x3 className="w-4 h-4 mr-2" />
+                  ツール
                 </Button>
               </Link>
               <Link href="/login?redirectTo=/tools/nenpi">
