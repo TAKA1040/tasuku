@@ -176,26 +176,54 @@ export default function NenpiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #7c3aed 100%)',
+      padding: '32px 16px'
+    }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-extrabold text-white drop-shadow-lg mb-4">
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{
+            fontSize: '3rem',
+            fontWeight: '900',
+            color: 'white',
+            textShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            marginBottom: '16px'
+          }}>
             ⛽ 燃費記録
           </h1>
-          <p className="text-white text-xl font-medium drop-shadow">
+          <p style={{
+            color: 'white',
+            fontSize: '1.25rem',
+            fontWeight: '500',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
             給油記録を管理して燃費を追跡
           </p>
         </div>
 
         {/* Input Form */}
-        <Card className="shadow-2xl border-0 overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-r from-blue-600 to-indigo-700 py-8">
-            <CardTitle className="text-white text-3xl font-bold flex items-center gap-3">
+        <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+          <CardHeader style={{
+            background: 'linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)',
+            padding: '32px 24px'
+          }}>
+            <CardTitle style={{
+              color: 'white',
+              fontSize: '1.875rem',
+              fontWeight: '700',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
               {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
+          <CardContent style={{
+            background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
+            padding: '32px'
+          }}>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -277,13 +305,26 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card className="shadow-2xl border-0 overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-r from-purple-600 to-pink-700 py-8">
-            <CardTitle className="text-white text-3xl font-bold flex items-center gap-3">
-              📋 給油履歴 <span className="text-white/90 text-2xl font-semibold">({records.length}件)</span>
+        <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+          <CardHeader style={{
+            background: 'linear-gradient(90deg, #9333ea 0%, #ec4899 100%)',
+            padding: '32px 24px'
+          }}>
+            <CardTitle style={{
+              color: 'white',
+              fontSize: '1.875rem',
+              fontWeight: '700',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              📋 給油履歴 <span style={{ opacity: 0.9, fontSize: '1.5rem', fontWeight: 600 }}>({records.length}件)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
+          <CardContent style={{
+            background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
+            padding: '32px'
+          }}>
             {records.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
                 まだ記録がありません
@@ -363,13 +404,23 @@ export default function NenpiPage() {
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-2xl border-0 overflow-hidden">
-            <CardHeader className="pb-6 bg-gradient-to-r from-indigo-600 to-purple-700 py-8">
-              <CardTitle className="text-white text-3xl font-bold">
+          <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+            <CardHeader style={{
+              background: 'linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)',
+              padding: '32px 24px'
+            }}>
+              <CardTitle style={{
+                color: 'white',
+                fontSize: '1.875rem',
+                fontWeight: '700'
+              }}>
                 📊 統計情報
               </CardTitle>
             </CardHeader>
-            <CardContent className="bg-gradient-to-br from-gray-50 to-white p-8">
+            <CardContent style={{
+              background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
+              padding: '32px'
+            }}>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 p-6 rounded-xl shadow-lg">
                   <div className="text-4xl font-bold text-white">
