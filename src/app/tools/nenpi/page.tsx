@@ -191,21 +191,21 @@ export default function NenpiPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 gap-8">
                 <div>
-                  <Label htmlFor="date" className="text-lg font-semibold mb-2 block">給油日</Label>
+                  <Label htmlFor="date" className="text-2xl font-bold mb-3 block">給油日</Label>
                   <Input
                     id="date"
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     required
-                    className="h-14 text-lg"
+                    className="h-20 text-2xl"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="station" className="text-lg font-semibold mb-2 block">スタンド名</Label>
+                  <Label htmlFor="station" className="text-2xl font-bold mb-3 block">スタンド名</Label>
                   <Input
                     id="station"
                     type="text"
@@ -214,7 +214,7 @@ export default function NenpiPage() {
                     onChange={(e) => setFormData({ ...formData, station: e.target.value })}
                     placeholder="例: ENEOS ○○店"
                     required
-                    className="h-14 text-lg"
+                    className="h-20 text-2xl"
                   />
                   <datalist id="station-list">
                     {stationList.map((station) => (
@@ -223,7 +223,7 @@ export default function NenpiPage() {
                   </datalist>
                 </div>
                 <div>
-                  <Label htmlFor="amount" className="text-lg font-semibold mb-2 block">給油量 (L)</Label>
+                  <Label htmlFor="amount" className="text-2xl font-bold mb-3 block">給油量 (L)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -232,11 +232,11 @@ export default function NenpiPage() {
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     placeholder="例: 40.5"
                     required
-                    className="h-14 text-lg"
+                    className="h-20 text-2xl"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="cost" className="text-lg font-semibold mb-2 block">金額 (円)</Label>
+                  <Label htmlFor="cost" className="text-2xl font-bold mb-3 block">金額 (円)</Label>
                   <Input
                     id="cost"
                     type="number"
@@ -244,11 +244,11 @@ export default function NenpiPage() {
                     onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
                     placeholder="例: 6500"
                     required
-                    className="h-14 text-lg"
+                    className="h-20 text-2xl"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="mileage" className="text-lg font-semibold mb-2 block">走行距離 (km)</Label>
+                  <Label htmlFor="mileage" className="text-2xl font-bold mb-3 block">走行距離 (km)</Label>
                   <Input
                     id="mileage"
                     type="number"
@@ -257,17 +257,17 @@ export default function NenpiPage() {
                     onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
                     placeholder="例: 12345.6"
                     required
-                    className="h-14 text-lg"
+                    className="h-20 text-2xl"
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-3 pt-2">
-                <Button type="submit" size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 h-14 text-lg font-bold">
-                  <Plus className="w-5 h-5 mr-2" />
+              <div className="flex flex-col gap-4 pt-4">
+                <Button type="submit" size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 h-20 text-2xl font-bold">
+                  <Plus className="w-6 h-6 mr-3" />
                   {editingRecord ? '更新' : '登録'}
                 </Button>
                 {editingRecord && (
-                  <Button type="button" variant="outline" size="lg" onClick={resetForm} className="h-14 text-lg">
+                  <Button type="button" variant="outline" size="lg" onClick={resetForm} className="h-20 text-2xl">
                     キャンセル
                   </Button>
                 )}
