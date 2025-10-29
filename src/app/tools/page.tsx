@@ -155,7 +155,9 @@ export default function ToolsPage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '24px',
-            marginBottom: '40px'
+            marginBottom: '40px',
+            maxWidth: '900px',
+            margin: '0 auto 40px auto'
           }}>
             {toolItems.map((tool) => {
               return (
@@ -235,7 +237,9 @@ export default function ToolsPage() {
             borderRadius: '24px',
             border: '2px dashed #cbd5e1',
             background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            textAlign: 'center'
+            textAlign: 'center',
+            maxWidth: '900px',
+            margin: '0 auto'
           }}>
             <div style={{
               display: 'inline-flex',
