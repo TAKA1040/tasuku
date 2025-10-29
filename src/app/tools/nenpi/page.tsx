@@ -363,43 +363,66 @@ export default function NenpiPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">給油量</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          {record.amount.toFixed(2)} L
-                        </span>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-1 uppercase tracking-wide">
+                          給油量
+                        </div>
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                          {record.amount.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                          リットル
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">金額</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">
+
+                      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1 uppercase tracking-wide">
+                          金額
+                        </div>
+                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
                           ¥{record.cost.toLocaleString()}
-                        </span>
+                        </div>
+                        <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                          総額
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">単価</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          ¥{pricePerLiter.toFixed(1)}/L
-                        </span>
+
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
+                        <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1 uppercase tracking-wide">
+                          単価
+                        </div>
+                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                          ¥{pricePerLiter.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                          1リットル
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">走行距離</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          {record.mileage.toFixed(1)} km
-                        </span>
+
+                      <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 p-4 rounded-xl border border-orange-200 dark:border-orange-800">
+                        <div className="text-xs font-medium text-orange-700 dark:text-orange-300 mb-1 uppercase tracking-wide">
+                          走行距離
+                        </div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                          {record.mileage.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                          キロメートル
+                        </div>
                       </div>
                     </div>
 
                     {efficiency && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                            <TrendingUp className="w-4 h-4" />
-                            <span>燃費</span>
+                      <div className="mt-4">
+                        <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-xl flex items-center gap-3 shadow-lg">
+                          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                            <TrendingUp className="w-6 h-6" />
                           </div>
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {efficiency.toFixed(2)} km/L
-                          </span>
+                          <div>
+                            <div className="text-xs font-medium opacity-90 uppercase tracking-wide">燃費効率</div>
+                            <div className="text-2xl font-bold">{efficiency.toFixed(2)} km/L</div>
+                          </div>
                         </div>
                       </div>
                     )}
