@@ -165,7 +165,9 @@ export default function ToolsPage() {
                   key={tool.href}
                   href={tool.href}
                   style={{
-                    display: 'block',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '24px',
                     padding: '32px',
                     background: 'white',
                     borderRadius: '24px',
@@ -176,56 +178,44 @@ export default function ToolsPage() {
                   }}
                   className="hover:shadow-xl hover:-translate-y-1"
                 >
+                  {/* アイコン - 左側 */}
                   <div style={{
+                    width: '80px',
+                    height: '80px',
+                    minWidth: '80px',
+                    background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+                    borderRadius: '20px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '24px'
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
                   }}>
-                    <div style={{
-                      width: '64px',
-                      height: '64px',
-                      background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
-                      borderRadius: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-                    }}>
-                      {tool.href === '/tools/nenpi' ? (
-                        <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '40px', height: '40px' }} />
-                      ) : (
-                        <span style={{ fontSize: '32px' }}>{tool.icon}</span>
-                      )}
-                    </div>
-                    <div style={{
-                      padding: '6px 14px',
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                      borderRadius: '20px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: 'white',
-                      boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-                    }}>
-                      {tool.category}
-                    </div>
+                    {tool.href === '/tools/nenpi' ? (
+                      <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '50px', height: '50px' }} />
+                    ) : (
+                      <span style={{ fontSize: '40px' }}>{tool.icon}</span>
+                    )}
                   </div>
-                  <h3 style={{
-                    fontSize: '22px',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '12px'
-                  }}>
-                    {tool.title}
-                  </h3>
-                  <p style={{
-                    fontSize: '15px',
-                    color: '#6b7280',
-                    lineHeight: '1.6',
-                    margin: 0
-                  }}>
-                    {tool.description}
-                  </p>
+
+                  {/* タイトルと説明 - 右側 */}
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{
+                      fontSize: '22px',
+                      fontWeight: '700',
+                      color: '#1f2937',
+                      marginBottom: '8px'
+                    }}>
+                      {tool.title}
+                    </h3>
+                    <p style={{
+                      fontSize: '15px',
+                      color: '#6b7280',
+                      lineHeight: '1.6',
+                      margin: 0
+                    }}>
+                      {tool.description}
+                    </p>
+                  </div>
                 </Link>
               )
             })}
