@@ -82,6 +82,30 @@ export function TaskTabNavigation({ onBeforeNavigate }: TaskTabNavigationProps =
       >
         📥 Inbox
       </Link>
+      <Link
+        href="/tools"
+        onClick={(e) => handleClick(e, '/tools')}
+        style={{
+          padding: '10px 20px',
+          textDecoration: 'none',
+          color: pathname === '/tools' ? '#3b82f6' : '#6b7280',
+          fontWeight: pathname === '/tools' ? '600' : '500',
+          fontSize: '15px',
+          background: pathname === '/tools' ? '#eff6ff' : 'transparent',
+          border: pathname === '/tools' ? '1px solid #3b82f6' : '1px solid transparent',
+          borderBottom: pathname === '/tools' ? '1px solid #eff6ff' : '1px solid transparent',
+          borderRadius: '8px 8px 0 0',
+          marginBottom: '-1px',
+          transition: 'all 0.2s ease',
+          cursor: 'pointer',
+          position: 'relative' as const,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}
+      >
+        🛠️ ツール
+      </Link>
     </div>
   )
 }

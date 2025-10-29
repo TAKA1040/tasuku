@@ -24,7 +24,6 @@ export const viewport = 'width=device-width, initial-scale=1'
 export const dynamic = 'force-dynamic'
 
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { Navigation } from '@/components/Navigation'
 import './globals.css'
 
 export default function RootLayout({
@@ -40,7 +39,6 @@ export default function RootLayout({
         overflowX: 'hidden'
       }}>
         <ThemeProvider>
-          <Navigation />
           {children}
         </ThemeProvider>
       </body>
