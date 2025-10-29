@@ -48,25 +48,33 @@ export default function NenpiPage() {
 
   const fetchRecords = async () => {
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
-    const { data, error } = await supabase
-      .from('fuel_records')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
+      const { data, error } = await supabase
+        .from('fuel_records')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching records:', error)
-    } else {
-      setRecords(data as FuelRecord[])
+      if (error) {
+        console.error('Error fetching records:', error)
+      } else {
+        setRecords(data as FuelRecord[])
 
-      // スタンド名リストを作成（重複を除去）
-      const stations = Array.from(new Set(data.map(r => r.station)))
-      setStationList(stations)
+        // スタンド名リストを作成（重複を除去）
+        const stations = Array.from(new Set(data.map(r => r.station)))
+        setStationList(stations)
+      }
+    } catch (error) {
+      console.error('Error in fetchRecords:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
