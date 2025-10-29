@@ -197,7 +197,7 @@ export default function NenpiPage() {
                   ホーム
                 </Button>
               </Link>
-              <Link href="/login">
+              <Link href="/login?redirectTo=/tools/nenpi">
                 <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
                   <LogIn className="w-4 h-4 mr-2" />
                   ログイン
