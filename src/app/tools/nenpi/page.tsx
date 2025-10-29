@@ -371,7 +371,6 @@ export default function NenpiPage() {
                                 borderRadius: '6px',
                                 fontSize: '0.875rem'
                               }}>
-                                <span style={{ color: '#6b7280' }}>スタンド</span>
                                 <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.station}</span>
                               </div>
                               <div style={{
@@ -429,16 +428,34 @@ export default function NenpiPage() {
                               <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.mileage.toFixed(1)} km</span>
                             </div>
                           </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '16px' }}>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(record)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(record.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                           {efficiency && (
                             <div style={{
-                              marginTop: '12px',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '8px',
                               padding: '8px 16px',
                               background: '#dcfce7',
                               borderRadius: '20px',
-                              border: '1px solid #86efac'
+                              border: '1px solid #86efac',
+                              whiteSpace: 'nowrap'
                             }}>
                               <TrendingUp className="w-4 h-4" style={{ color: '#16a34a' }} />
                               <span style={{
@@ -446,26 +463,10 @@ export default function NenpiPage() {
                                 fontWeight: '600',
                                 color: '#16a34a'
                               }}>
-                                燃費: {efficiency.toFixed(2)} km/L
+                                {efficiency.toFixed(2)} km/L
                               </span>
                             </div>
                           )}
-                        </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(record)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(record.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
                         </div>
                       </div>
                     </div>
