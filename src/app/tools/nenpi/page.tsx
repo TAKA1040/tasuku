@@ -168,7 +168,7 @@ export default function NenpiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
@@ -181,13 +181,13 @@ export default function NenpiPage() {
         </div>
 
         {/* Input Form */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden">
-          <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
-            <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
+        <Card className="shadow-2xl border-0 bg-white overflow-hidden">
+          <CardHeader className="pb-4 bg-gradient-to-r from-blue-600 to-indigo-700">
+            <CardTitle className="text-white text-2xl font-bold flex items-center gap-2">
               {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-white/95 backdrop-blur-sm">
+          <CardContent className="bg-white p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -269,13 +269,13 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden">
-          <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
-            <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
-              📋 給油履歴 <span className="text-white/80 text-base font-normal">({records.length}件)</span>
+        <Card className="shadow-2xl border-0 bg-white overflow-hidden">
+          <CardHeader className="pb-4 bg-gradient-to-r from-purple-600 to-pink-700">
+            <CardTitle className="text-white text-2xl font-bold flex items-center gap-2">
+              📋 給油履歴 <span className="text-white/90 text-xl font-semibold">({records.length}件)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="bg-white/95 backdrop-blur-sm">
+          <CardContent className="bg-white p-6">
             {records.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
                 まだ記録がありません
@@ -289,7 +289,7 @@ export default function NenpiPage() {
                   return (
                     <div
                       key={record.id}
-                      className="p-5 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-xl border-2 border-blue-200 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200"
+                      className="p-5 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 rounded-xl border-2 border-purple-300 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -355,31 +355,31 @@ export default function NenpiPage() {
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-xl border-0 bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden">
-            <CardHeader className="pb-4 bg-white/10 backdrop-blur-sm">
-              <CardTitle className="text-white text-xl font-bold">
+          <Card className="shadow-2xl border-0 bg-white overflow-hidden">
+            <CardHeader className="pb-4 bg-gradient-to-r from-indigo-600 to-purple-700">
+              <CardTitle className="text-white text-2xl font-bold">
                 📊 統計情報
               </CardTitle>
             </CardHeader>
-            <CardContent className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="bg-white p-6">
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl shadow-lg">
-                  <div className="text-3xl font-bold text-indigo-600">
+                <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 p-6 rounded-xl shadow-lg">
+                  <div className="text-4xl font-bold text-white">
                     {records.length}
                   </div>
-                  <div className="text-sm text-indigo-800 mt-1 font-medium">件の記録</div>
+                  <div className="text-sm text-white mt-2 font-semibold">件の記録</div>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl shadow-lg">
-                  <div className="text-3xl font-bold text-green-600">
+                <div className="bg-gradient-to-br from-green-400 to-green-600 p-6 rounded-xl shadow-lg">
+                  <div className="text-4xl font-bold text-white">
                     {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
                   </div>
-                  <div className="text-sm text-green-800 mt-1 font-medium">総給油量 (L)</div>
+                  <div className="text-sm text-white mt-2 font-semibold">総給油量 (L)</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl shadow-lg">
-                  <div className="text-3xl font-bold text-purple-600">
+                <div className="bg-gradient-to-br from-purple-400 to-purple-600 p-6 rounded-xl shadow-lg">
+                  <div className="text-4xl font-bold text-white">
                     ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-purple-800 mt-1 font-medium">総金額</div>
+                  <div className="text-sm text-white mt-2 font-semibold">総金額</div>
                 </div>
               </div>
             </CardContent>
