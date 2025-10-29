@@ -363,39 +363,42 @@ export default function NenpiPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">給油量</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">給油量</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           {record.amount.toFixed(2)} L
-                        </div>
+                        </span>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">金額</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">金額</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           ¥{record.cost.toLocaleString()}
-                        </div>
+                        </span>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">単価</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">単価</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           ¥{pricePerLiter.toFixed(1)}/L
-                        </div>
+                        </span>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">走行距離</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">走行距離</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           {record.mileage.toFixed(1)} km
-                        </div>
+                        </span>
                       </div>
                     </div>
 
                     {efficiency && (
                       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center gap-2 text-sm">
-                          <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            燃費: {efficiency.toFixed(2)} km/L
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <TrendingUp className="w-4 h-4" />
+                            <span>燃費</span>
+                          </div>
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {efficiency.toFixed(2)} km/L
                           </span>
                         </div>
                       </div>
