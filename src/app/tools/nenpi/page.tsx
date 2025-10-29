@@ -178,51 +178,49 @@ export default function NenpiPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #7c3aed 100%)',
+      background: '#f3f4f6',
       padding: '32px 16px'
     }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{
-            fontSize: '3rem',
-            fontWeight: '900',
-            color: 'white',
-            textShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            marginBottom: '16px'
+            fontSize: '2.5rem',
+            fontWeight: '700',
+            color: '#1f2937',
+            marginBottom: '8px'
           }}>
             ⛽ 燃費記録
           </h1>
           <p style={{
-            color: 'white',
-            fontSize: '1.25rem',
-            fontWeight: '500',
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            color: '#6b7280',
+            fontSize: '1rem',
+            fontWeight: '400'
           }}>
             給油記録を管理して燃費を追跡
           </p>
         </div>
 
         {/* Input Form */}
-        <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+        <Card className="shadow-lg border overflow-hidden" style={{ marginBottom: '24px', backgroundColor: 'white' }}>
           <CardHeader style={{
-            background: 'linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)',
-            padding: '32px 24px'
+            background: '#3b82f6',
+            padding: '20px 24px'
           }}>
             <CardTitle style={{
               color: 'white',
-              fontSize: '1.875rem',
-              fontWeight: '700',
+              fontSize: '1.25rem',
+              fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              gap: '8px'
             }}>
               {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
             </CardTitle>
           </CardHeader>
           <CardContent style={{
-            background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
-            padding: '32px'
+            background: 'white',
+            padding: '24px'
           }}>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,25 +303,25 @@ export default function NenpiPage() {
         </Card>
 
         {/* Records List */}
-        <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+        <Card className="shadow-lg border overflow-hidden" style={{ marginBottom: '24px', backgroundColor: 'white' }}>
           <CardHeader style={{
-            background: 'linear-gradient(90deg, #9333ea 0%, #ec4899 100%)',
-            padding: '32px 24px'
+            background: '#64748b',
+            padding: '20px 24px'
           }}>
             <CardTitle style={{
               color: 'white',
-              fontSize: '1.875rem',
-              fontWeight: '700',
+              fontSize: '1.25rem',
+              fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              gap: '8px'
             }}>
-              📋 給油履歴 <span style={{ opacity: 0.9, fontSize: '1.5rem', fontWeight: 600 }}>({records.length}件)</span>
+              📋 給油履歴 <span style={{ opacity: 0.9, fontSize: '1rem', fontWeight: 500 }}>({records.length}件)</span>
             </CardTitle>
           </CardHeader>
           <CardContent style={{
-            background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
-            padding: '32px'
+            background: 'white',
+            padding: '24px'
           }}>
             {records.length === 0 ? (
               <p className="text-center text-gray-500 py-8">
@@ -338,40 +336,106 @@ export default function NenpiPage() {
                   return (
                     <div
                       key={record.id}
-                      className="p-5 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 rounded-xl border-2 border-purple-300 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200"
+                      style={{
+                        padding: '16px',
+                        background: 'white',
+                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        marginBottom: '12px'
+                      }}
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            marginBottom: '12px',
+                            paddingBottom: '12px',
+                            borderBottom: '1px solid #f3f4f6'
+                          }}>
+                            <span style={{
+                              fontSize: '1.125rem',
+                              fontWeight: '600',
+                              color: '#1f2937'
+                            }}>
                               {record.date}
                             </span>
-                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                            <span style={{
+                              padding: '4px 12px',
+                              background: '#eff6ff',
+                              color: '#1e40af',
+                              borderRadius: '12px',
+                              fontSize: '0.875rem',
+                              fontWeight: '500'
+                            }}>
                               {record.station}
                             </span>
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
-                              <div className="text-blue-600 dark:text-blue-400 text-xs mb-1">給油量</div>
-                              <div className="font-bold text-blue-900 dark:text-blue-100">{record.amount.toFixed(2)} L</div>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            gap: '12px',
+                            fontSize: '0.875rem'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              background: '#f9fafb',
+                              borderRadius: '6px'
+                            }}>
+                              <span style={{ color: '#6b7280' }}>給油量</span>
+                              <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.amount.toFixed(2)} L</span>
                             </div>
-                            <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
-                              <div className="text-green-600 dark:text-green-400 text-xs mb-1">金額</div>
-                              <div className="font-bold text-green-900 dark:text-green-100">¥{record.cost.toLocaleString()}</div>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              background: '#f9fafb',
+                              borderRadius: '6px'
+                            }}>
+                              <span style={{ color: '#6b7280' }}>金額</span>
+                              <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{record.cost.toLocaleString()}</span>
                             </div>
-                            <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded-lg">
-                              <div className="text-purple-600 dark:text-purple-400 text-xs mb-1">単価</div>
-                              <div className="font-bold text-purple-900 dark:text-purple-100">¥{pricePerLiter.toFixed(1)}/L</div>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              background: '#f9fafb',
+                              borderRadius: '6px'
+                            }}>
+                              <span style={{ color: '#6b7280' }}>単価</span>
+                              <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{pricePerLiter.toFixed(1)}/L</span>
                             </div>
-                            <div className="bg-orange-50 dark:bg-orange-950 p-3 rounded-lg">
-                              <div className="text-orange-600 dark:text-orange-400 text-xs mb-1">走行距離</div>
-                              <div className="font-bold text-orange-900 dark:text-orange-100">{record.mileage.toFixed(1)} km</div>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '8px',
+                              background: '#f9fafb',
+                              borderRadius: '6px'
+                            }}>
+                              <span style={{ color: '#6b7280' }}>走行距離</span>
+                              <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.mileage.toFixed(1)} km</span>
                             </div>
                           </div>
                           {efficiency && (
-                            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full border-2 border-green-300 dark:border-green-700">
-                              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                              <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                            <div style={{
+                              marginTop: '12px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '8px 16px',
+                              background: '#dcfce7',
+                              borderRadius: '20px',
+                              border: '1px solid #86efac'
+                            }}>
+                              <TrendingUp className="w-4 h-4" style={{ color: '#16a34a' }} />
+                              <span style={{
+                                fontSize: '0.875rem',
+                                fontWeight: '600',
+                                color: '#16a34a'
+                              }}>
                                 燃費: {efficiency.toFixed(2)} km/L
                               </span>
                             </div>
@@ -404,41 +468,88 @@ export default function NenpiPage() {
 
         {/* Statistics Summary */}
         {records.length > 0 && (
-          <Card className="shadow-2xl border-0 overflow-hidden" style={{ marginBottom: '24px' }}>
+          <Card className="shadow-lg border overflow-hidden" style={{ marginBottom: '24px', backgroundColor: 'white' }}>
             <CardHeader style={{
-              background: 'linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)',
-              padding: '32px 24px'
+              background: '#475569',
+              padding: '20px 24px'
             }}>
               <CardTitle style={{
                 color: 'white',
-                fontSize: '1.875rem',
-                fontWeight: '700'
+                fontSize: '1.25rem',
+                fontWeight: '600'
               }}>
                 📊 統計情報
               </CardTitle>
             </CardHeader>
             <CardContent style={{
-              background: 'linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)',
-              padding: '32px'
+              background: 'white',
+              padding: '24px'
             }}>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-gradient-to-br from-indigo-400 to-indigo-600 p-6 rounded-xl shadow-lg">
-                  <div className="text-4xl font-bold text-white">
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '16px',
+                textAlign: 'center'
+              }}>
+                <div style={{
+                  background: '#f3f4f6',
+                  padding: '24px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{
+                    fontSize: '2.25rem',
+                    fontWeight: '700',
+                    color: '#1f2937'
+                  }}>
                     {records.length}
                   </div>
-                  <div className="text-sm text-white mt-2 font-semibold">件の記録</div>
+                  <div style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    marginTop: '8px',
+                    fontWeight: '500'
+                  }}>件の記録</div>
                 </div>
-                <div className="bg-gradient-to-br from-green-400 to-green-600 p-6 rounded-xl shadow-lg">
-                  <div className="text-4xl font-bold text-white">
+                <div style={{
+                  background: '#f3f4f6',
+                  padding: '24px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{
+                    fontSize: '2.25rem',
+                    fontWeight: '700',
+                    color: '#1f2937'
+                  }}>
                     {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
                   </div>
-                  <div className="text-sm text-white mt-2 font-semibold">総給油量 (L)</div>
+                  <div style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    marginTop: '8px',
+                    fontWeight: '500'
+                  }}>総給油量 (L)</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-400 to-purple-600 p-6 rounded-xl shadow-lg">
-                  <div className="text-4xl font-bold text-white">
+                <div style={{
+                  background: '#f3f4f6',
+                  padding: '24px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{
+                    fontSize: '2.25rem',
+                    fontWeight: '700',
+                    color: '#1f2937'
+                  }}>
                     ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-white mt-2 font-semibold">総金額</div>
+                  <div style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    marginTop: '8px',
+                    fontWeight: '500'
+                  }}>総金額</div>
                 </div>
               </div>
             </CardContent>
