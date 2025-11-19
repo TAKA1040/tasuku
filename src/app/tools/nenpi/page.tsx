@@ -48,19 +48,37 @@ export default function NenpiPage() {
 
   const supabase = createClient()
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
-    if (user) {
-      fetchRecords()
-    } else {
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+
+      if (user) {
+        // ユーザーが存在する場合、直接データを取得
+        try {
+          const { data, error } = await supabase
+            .from('fuel_records')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('date', { ascending: false })
+
+          if (error) {
+            console.error('Error fetching records:', error)
+          } else {
+            setRecords(data as FuelRecord[])
+            // スタンド名リストを作成（重複を除去）
+            const stations = Array.from(new Set(data.map(r => r.station)))
+            setStationList(stations)
+          }
+        } catch (error) {
+          console.error('Error in fetchRecords:', error)
+        }
+      }
+
       setLoading(false)
     }
-  }
 
-  useEffect(() => {
     checkUser()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleLogin = () => {
@@ -70,7 +88,6 @@ export default function NenpiPage() {
   const fetchRecords = async () => {
     if (!user) return
 
-    setLoading(true)
     try {
       const { data, error } = await supabase
         .from('fuel_records')
@@ -89,8 +106,6 @@ export default function NenpiPage() {
       }
     } catch (error) {
       console.error('Error in fetchRecords:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
