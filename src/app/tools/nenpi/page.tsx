@@ -25,6 +25,7 @@ export default function NenpiPage() {
   const [loading, setLoading] = useState(true)
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null)
   const [stationList, setStationList] = useState<string[]>([])
+  const [user, setUser] = useState<any>(null)
 
   // デフォルトで今日の日付を設定
   const getTodayDate = () => {
@@ -43,18 +44,28 @@ export default function NenpiPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    fetchRecords()
+    checkUser()
   }, [])
 
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+    if (user) {
+      fetchRecords()
+    } else {
+      setLoading(false)
+    }
+  }
+
+  const handleLogin = () => {
+    window.location.href = '/login?redirect=/tools/nenpi'
+  }
+
   const fetchRecords = async () => {
+    if (!user) return
+
     setLoading(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
       const { data, error } = await supabase
         .from('fuel_records')
         .select('*')
@@ -79,8 +90,6 @@ export default function NenpiPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
     const payload = {
@@ -171,6 +180,65 @@ export default function NenpiPage() {
         <div className="max-w-7xl mx-auto">
           <p className="text-center text-gray-600 dark:text-gray-400">読み込み中...</p>
         </div>
+      </div>
+    )
+  }
+
+  // 未ログイン時の表示
+  if (!user) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#f3f4f6',
+        padding: '32px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Card className="shadow-lg border overflow-hidden" style={{ maxWidth: '500px', width: '100%', backgroundColor: 'white' }}>
+          <CardHeader style={{
+            background: '#3b82f6',
+            padding: '24px'
+          }}>
+            <CardTitle style={{
+              color: 'white',
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px'
+            }}>
+              <img
+                src="/nenpi-icon.png"
+                alt="燃費記録"
+                style={{ width: '40px', height: '40px' }}
+              />
+              燃費記録
+            </CardTitle>
+          </CardHeader>
+          <CardContent style={{
+            background: 'white',
+            padding: '32px',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              color: '#6b7280',
+              fontSize: '1rem',
+              marginBottom: '24px'
+            }}>
+              燃費記録を利用するにはログインが必要です
+            </p>
+            <Button
+              onClick={handleLogin}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full"
+              style={{ fontSize: '1rem', padding: '12px 24px' }}
+            >
+              🔑 ログインする
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
