@@ -20,12 +20,17 @@ interface FuelRecord {
   updated_at?: string
 }
 
+interface User {
+  id: string
+  email?: string
+}
+
 export default function NenpiPage() {
   const [records, setRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null)
   const [stationList, setStationList] = useState<string[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   // デフォルトで今日の日付を設定
   const getTodayDate = () => {
@@ -43,10 +48,6 @@ export default function NenpiPage() {
 
   const supabase = createClient()
 
-  useEffect(() => {
-    checkUser()
-  }, [])
-
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setUser(user)
@@ -56,6 +57,11 @@ export default function NenpiPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    checkUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleLogin = () => {
     window.location.href = '/login?redirect=/tools/nenpi'
