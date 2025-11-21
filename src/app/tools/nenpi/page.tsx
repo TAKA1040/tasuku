@@ -54,6 +54,9 @@ export default function NenpiPage() {
       setUser(user)
 
       if (user) {
+        // デバッグ情報
+        console.log('🔍 ログイン中のユーザー:', user.email, 'ID:', user.id)
+
         // ユーザーが存在する場合、直接データを取得
         try {
           const { data, error } = await supabase
@@ -65,6 +68,7 @@ export default function NenpiPage() {
           if (error) {
             console.error('Error fetching records:', error)
           } else {
+            console.log('📊 取得したレコード数:', data.length)
             setRecords(data as FuelRecord[])
             // スタンド名リストを作成（重複を除去）
             const stations = Array.from(new Set(data.map(r => r.station)))
@@ -73,6 +77,8 @@ export default function NenpiPage() {
         } catch (error) {
           console.error('Error in fetchRecords:', error)
         }
+      } else {
+        console.log('⚠️ ユーザーがログインしていません')
       }
 
       setLoading(false)
