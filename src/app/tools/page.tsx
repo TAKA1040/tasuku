@@ -14,6 +14,14 @@ const toolItems = [
     description: '給油記録を管理して燃費を追跡',
     category: '記録',
     color: 'blue'
+  },
+  {
+    href: '/tools/label-maker',
+    icon: '🏷️',
+    title: 'シール職人',
+    description: 'A4シール用紙に印刷できるラベル作成',
+    category: '印刷',
+    color: 'purple'
   }
   // 将来的にここに追加するツールの例
   // {
@@ -183,12 +191,16 @@ export default function ToolsPage() {
                     width: '80px',
                     height: '80px',
                     minWidth: '80px',
-                    background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+                    background: tool.color === 'purple'
+                      ? 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)'
+                      : 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
                     borderRadius: '20px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    boxShadow: tool.color === 'purple'
+                      ? '0 4px 12px rgba(139, 92, 246, 0.3)'
+                      : '0 4px 12px rgba(59, 130, 246, 0.3)'
                   }}>
                     {tool.href === '/tools/nenpi' ? (
                       <img src="/nenpi-icon.png" alt="燃費記録" style={{ width: '50px', height: '50px' }} />
