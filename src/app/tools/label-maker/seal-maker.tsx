@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Printer, Plus, Trash2, Copy } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X } from 'lucide-react';
 
 // 型定義
 interface SealData {
@@ -39,6 +39,21 @@ interface GlobalSettings {
   alignVertical: 'top' | 'center' | 'bottom';
   alignHorizontal: 'left' | 'center' | 'right';
 }
+
+// 保存データの型
+interface SavedTemplate {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  layout: string;
+  sealData: SealData[];
+  printOffset: PrintOffset;
+  globalSettings: GlobalSettings;
+}
+
+const STORAGE_KEY = 'seal-maker-templates';
+const PRINT_OFFSET_KEY = 'seal-maker-print-offset';
 
 const createDefaultSeal = (fontSize: number = 11): SealData => ({
   text: '',
@@ -190,6 +205,43 @@ const styles = {
     borderRadius: '8px',
     padding: '16px',
     background: '#eef2ff'
+  } as React.CSSProperties,
+  orangeButton: {
+    background: '#ea580c',
+    color: 'white'
+  } as React.CSSProperties,
+  purpleButton: {
+    background: '#7c3aed',
+    color: 'white'
+  } as React.CSSProperties,
+  modal: {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  } as React.CSSProperties,
+  modalContent: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    maxWidth: '500px',
+    width: '90%',
+    maxHeight: '80vh',
+    overflow: 'auto'
+  } as React.CSSProperties,
+  templateItem: {
+    padding: '12px',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    marginBottom: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
   } as React.CSSProperties
 };
 
@@ -215,6 +267,112 @@ const SealMaker = () => {
     alignHorizontal: 'center'
   });
   const printRef = useRef<HTMLDivElement>(null);
+
+  // 保存機能用の状態
+  const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [saveName, setSaveName] = useState('');
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+
+  // 初期化時に保存データと印刷設定を読み込み
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setSavedTemplates(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to load templates:', e);
+      }
+    }
+    const storedOffset = localStorage.getItem(PRINT_OFFSET_KEY);
+    if (storedOffset) {
+      try {
+        setPrintOffset(JSON.parse(storedOffset));
+      } catch (e) {
+        console.error('Failed to load print offset:', e);
+      }
+    }
+  }, []);
+
+  // 印刷設定が変わったら自動保存
+  useEffect(() => {
+    localStorage.setItem(PRINT_OFFSET_KEY, JSON.stringify(printOffset));
+  }, [printOffset]);
+
+  // テンプレートを保存
+  const saveTemplate = () => {
+    if (!saveName.trim()) {
+      alert('テンプレート名を入力してください');
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const newTemplate: SavedTemplate = {
+      id: currentTemplateId || Date.now().toString(),
+      name: saveName.trim(),
+      createdAt: currentTemplateId
+        ? savedTemplates.find(t => t.id === currentTemplateId)?.createdAt || now
+        : now,
+      updatedAt: now,
+      layout,
+      sealData,
+      printOffset,
+      globalSettings
+    };
+
+    let updated: SavedTemplate[];
+    if (currentTemplateId) {
+      updated = savedTemplates.map(t => t.id === currentTemplateId ? newTemplate : t);
+    } else {
+      updated = [...savedTemplates, newTemplate];
+    }
+
+    setSavedTemplates(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    setCurrentTemplateId(newTemplate.id);
+    setShowSaveModal(false);
+    setSaveName('');
+    alert('保存しました！');
+  };
+
+  // テンプレートを読み込み
+  const loadTemplate = (template: SavedTemplate) => {
+    setLayout(template.layout);
+    setSealData(template.sealData);
+    setPrintOffset(template.printOffset);
+    setGlobalSettings(template.globalSettings);
+    setCurrentTemplateId(template.id);
+    setSaveName(template.name);
+    setShowLoadModal(false);
+    setEditingIndex(null);
+  };
+
+  // テンプレートを削除
+  const deleteTemplate = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('このテンプレートを削除しますか？')) return;
+
+    const updated = savedTemplates.filter(t => t.id !== id);
+    setSavedTemplates(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    if (currentTemplateId === id) {
+      setCurrentTemplateId(null);
+      setSaveName('');
+    }
+  };
+
+  // 新規作成
+  const createNew = () => {
+    if (sealData.some(s => s.text || s.image)) {
+      if (!confirm('現在の内容は破棄されます。新規作成しますか？')) return;
+    }
+    setLayout('24');
+    setSealData(Array(24).fill(null).map(() => createDefaultSeal()));
+    setCurrentTemplateId(null);
+    setSaveName('');
+    setEditingIndex(null);
+  };
 
   const layouts: Record<string, LayoutConfig> = {
     '10': { name: '10面（名刺サイズ）', cols: 2, rows: 5, width: 91, height: 55, gap: 3, fontSize: 14 },
@@ -355,14 +513,45 @@ const SealMaker = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div>
             <h1 style={styles.title}>🏷️ シール職人</h1>
-            <p style={styles.subtitle}>A4サイズのシール印刷ツール</p>
+            <p style={styles.subtitle}>
+              A4サイズのシール印刷ツール
+              {currentTemplateId && saveName && (
+                <span style={{ marginLeft: '8px', color: '#4f46e5', fontWeight: '600' }}>
+                  - {saveName}
+                </span>
+              )}
+            </p>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <button
+              onClick={createNew}
+              style={{ ...styles.button, ...styles.grayButton }}
+            >
+              <Plus size={18} />
+              新規
+            </button>
+            <button
+              onClick={() => {
+                setSaveName(currentTemplateId ? saveName : '');
+                setShowSaveModal(true);
+              }}
+              style={{ ...styles.button, ...styles.orangeButton }}
+            >
+              <Save size={18} />
+              保存
+            </button>
+            <button
+              onClick={() => setShowLoadModal(true)}
+              style={{ ...styles.button, ...styles.purpleButton }}
+            >
+              <FolderOpen size={18} />
+              読込
+            </button>
             <button
               onClick={() => setShowPrintSettings(!showPrintSettings)}
               style={{ ...styles.button, ...styles.grayButton }}
             >
-              ⚙️ 印刷調整
+              ⚙️ 調整
             </button>
             <button
               onClick={handlePrint}
@@ -943,6 +1132,144 @@ const SealMaker = () => {
           </div>
         </div>
       </div>
+
+      {/* 保存モーダル */}
+      {showSaveModal && (
+        <div style={styles.modal} onClick={() => setShowSaveModal(false)}>
+          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                💾 テンプレートを保存
+              </h2>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={styles.label}>テンプレート名</label>
+              <input
+                type="text"
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                placeholder="例: 商品ラベル、住所シール..."
+                style={styles.input}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setShowSaveModal(false)}
+                style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={saveTemplate}
+                style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
+              >
+                <Save size={18} />
+                {currentTemplateId ? '上書き保存' : '新規保存'}
+              </button>
+            </div>
+            {currentTemplateId && (
+              <button
+                onClick={() => {
+                  setCurrentTemplateId(null);
+                  setSaveName('');
+                }}
+                style={{ marginTop: '12px', fontSize: '14px', color: '#4f46e5', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center' }}
+              >
+                別名で新規保存する
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 読み込みモーダル */}
+      {showLoadModal && (
+        <div style={styles.modal} onClick={() => setShowLoadModal(false)}>
+          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                📂 テンプレートを読み込み
+              </h2>
+              <button
+                onClick={() => setShowLoadModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+            {savedTemplates.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#6b7280' }}>
+                <p style={{ fontSize: '48px', marginBottom: '16px' }}>📭</p>
+                <p>保存されたテンプレートがありません</p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                {savedTemplates.map(template => (
+                  <div
+                    key={template.id}
+                    onClick={() => loadTemplate(template)}
+                    style={{
+                      ...styles.templateItem,
+                      background: currentTemplateId === template.id ? '#eef2ff' : 'white',
+                      borderColor: currentTemplateId === template.id ? '#4f46e5' : '#e5e7eb'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (currentTemplateId !== template.id) {
+                        e.currentTarget.style.background = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (currentTemplateId !== template.id) {
+                        e.currentTarget.style.background = 'white';
+                      }
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+                          {template.name}
+                          {currentTemplateId === template.id && (
+                            <span style={{ marginLeft: '8px', fontSize: '12px', color: '#4f46e5' }}>（編集中）</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                          {layouts[template.layout]?.name || template.layout} ・
+                          更新: {new Date(template.updatedAt).toLocaleDateString('ja-JP')}
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => deleteTemplate(template.id, e)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          color: '#dc2626'
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={() => setShowLoadModal(false)}
+              style={{ ...styles.button, ...styles.grayButton, width: '100%', marginTop: '16px', justifyContent: 'center' }}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 印刷用スタイル */}
       <style>{`
