@@ -6,6 +6,7 @@ import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X } from 'lucide-react';
 // 型定義
 interface SealData {
   text: string;
+  textColor: string;
   fontSize: number;
   fontFamily: string;
   alignVertical: 'top' | 'center' | 'bottom';
@@ -14,6 +15,7 @@ interface SealData {
   imageSize: number;
   imagePosition: 'top' | 'center' | 'bottom';
   imageAlignHorizontal: 'left' | 'center' | 'right';
+  richText?: string; // HTML形式のリッチテキスト
 }
 
 interface LayoutConfig {
@@ -36,6 +38,7 @@ interface PrintOffset {
 interface GlobalSettings {
   fontSize: number;
   fontFamily: string;
+  textColor: string;
   alignVertical: 'top' | 'center' | 'bottom';
   alignHorizontal: 'left' | 'center' | 'right';
 }
@@ -57,6 +60,7 @@ const PRINT_OFFSET_KEY = 'seal-maker-print-offset';
 
 const createDefaultSeal = (fontSize: number = 11): SealData => ({
   text: '',
+  textColor: '#000000',
   fontSize,
   fontFamily: 'sans-serif',
   alignVertical: 'center',
@@ -64,8 +68,23 @@ const createDefaultSeal = (fontSize: number = 11): SealData => ({
   image: null,
   imageSize: 50,
   imagePosition: 'top',
-  imageAlignHorizontal: 'center'
+  imageAlignHorizontal: 'center',
+  richText: ''
 });
+
+// プリセットカラー
+const colorPresets = [
+  { name: '黒', value: '#000000' },
+  { name: '赤', value: '#dc2626' },
+  { name: '青', value: '#2563eb' },
+  { name: '緑', value: '#16a34a' },
+  { name: 'オレンジ', value: '#ea580c' },
+  { name: '紫', value: '#7c3aed' },
+  { name: 'ピンク', value: '#db2777' },
+  { name: '茶', value: '#92400e' },
+  { name: '灰', value: '#6b7280' },
+  { name: '紺', value: '#1e3a8a' },
+];
 
 // スタイル定義
 const styles = {
@@ -263,6 +282,7 @@ const SealMaker = () => {
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     fontSize: 11,
     fontFamily: 'sans-serif',
+    textColor: '#000000',
     alignVertical: 'center',
     alignHorizontal: 'center'
   });
@@ -408,6 +428,7 @@ const SealMaker = () => {
         ...seal,
         fontSize: globalSettings.fontSize,
         fontFamily: globalSettings.fontFamily,
+        textColor: globalSettings.textColor,
         alignVertical: globalSettings.alignVertical,
         alignHorizontal: globalSettings.alignHorizontal
       })));
@@ -699,6 +720,35 @@ const SealMaker = () => {
                       </div>
 
                       <div style={{ marginBottom: '16px' }}>
+                        <label style={styles.label}>文字色</label>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {colorPresets.map(color => (
+                            <button
+                              key={color.value}
+                              onClick={() => handleGlobalSettingChange('textColor', color.value)}
+                              style={{
+                                width: '28px',
+                                height: '28px',
+                                borderRadius: '50%',
+                                border: globalSettings.textColor === color.value ? '3px solid #4f46e5' : '2px solid #d1d5db',
+                                background: color.value,
+                                cursor: 'pointer',
+                                padding: 0
+                              }}
+                              title={color.name}
+                            />
+                          ))}
+                          <input
+                            type="color"
+                            value={globalSettings.textColor}
+                            onChange={(e) => handleGlobalSettingChange('textColor', e.target.value)}
+                            style={{ width: '28px', height: '28px', border: 'none', cursor: 'pointer', padding: 0 }}
+                            title="カスタム色"
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: '16px' }}>
                         <label style={styles.label}>縦位置</label>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           {(['top', 'center', 'bottom'] as const).map(v => (
@@ -835,6 +885,7 @@ const SealMaker = () => {
                                   textAlign: seal.alignHorizontal,
                                   fontSize: `${seal.fontSize * 0.5}pt`,
                                   fontFamily: seal.fontFamily,
+                                  color: seal.textColor || '#000000',
                                   wordBreak: 'break-word',
                                   lineHeight: 1.4,
                                   whiteSpace: 'pre-wrap',
@@ -1005,6 +1056,35 @@ const SealMaker = () => {
                             </div>
 
                             <div style={{ marginBottom: '12px' }}>
+                              <label style={styles.label}>文字色</label>
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                {colorPresets.map(color => (
+                                  <button
+                                    key={color.value}
+                                    onClick={() => handleSealChange(index, 'textColor', color.value)}
+                                    style={{
+                                      width: '24px',
+                                      height: '24px',
+                                      borderRadius: '50%',
+                                      border: seal.textColor === color.value ? '3px solid #4f46e5' : '2px solid #d1d5db',
+                                      background: color.value,
+                                      cursor: 'pointer',
+                                      padding: 0
+                                    }}
+                                    title={color.name}
+                                  />
+                                ))}
+                                <input
+                                  type="color"
+                                  value={seal.textColor || '#000000'}
+                                  onChange={(e) => handleSealChange(index, 'textColor', e.target.value)}
+                                  style={{ width: '24px', height: '24px', border: 'none', cursor: 'pointer', padding: 0 }}
+                                  title="カスタム色"
+                                />
+                              </div>
+                            </div>
+
+                            <div style={{ marginBottom: '12px' }}>
                               <label style={styles.label}>縦位置</label>
                               <div style={{ display: 'flex', gap: '8px' }}>
                                 {(['top', 'center', 'bottom'] as const).map(v => (
@@ -1098,6 +1178,7 @@ const SealMaker = () => {
                                 textAlign: seal.alignHorizontal,
                                 fontSize: `${seal.fontSize}pt`,
                                 fontFamily: seal.fontFamily,
+                                color: seal.textColor || '#000000',
                                 wordBreak: 'break-word',
                                 lineHeight: 1.4,
                                 whiteSpace: 'pre-wrap',
