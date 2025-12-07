@@ -349,6 +349,23 @@ const SealMaker = () => {
     suffix: ''
   });
 
+  // プリンタ設定
+  const [printerSettings, setPrinterSettings] = useState({
+    name: '',
+    dpi: 300,
+    brightness: 100,  // 明るさ (0-200)
+    contrast: 100,    // コントラスト (0-200)
+    borderWidth: 1    // シール境界線の太さ (0-3)
+  });
+  const [showPrinterSettingsModal, setShowPrinterSettingsModal] = useState(false);
+  const [savedPrinterProfiles, setSavedPrinterProfiles] = useState<Array<{
+    id: string;
+    name: string;
+    settings: typeof printerSettings;
+  }>>([]);
+
+  const PRINTER_PROFILES_KEY = 'seal-maker-printer-profiles';
+
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -373,6 +390,14 @@ const SealMaker = () => {
         setCustomPresets(JSON.parse(storedPresets));
       } catch (e) {
         console.error('Failed to load paper presets:', e);
+      }
+    }
+    const storedPrinterProfiles = localStorage.getItem(PRINTER_PROFILES_KEY);
+    if (storedPrinterProfiles) {
+      try {
+        setSavedPrinterProfiles(JSON.parse(storedPrinterProfiles));
+      } catch (e) {
+        console.error('Failed to load printer profiles:', e);
       }
     }
   }, []);
@@ -418,7 +443,39 @@ const SealMaker = () => {
     localStorage.setItem(PAPER_PRESETS_KEY, JSON.stringify(updated));
   };
 
-  
+  // プリンタプロファイルを保存
+  const savePrinterProfile = () => {
+    if (!printerSettings.name.trim()) {
+      alert('プロファイル名を入力してください');
+      return;
+    }
+    const newProfile = {
+      id: Date.now().toString(),
+      name: printerSettings.name.trim(),
+      settings: { ...printerSettings }
+    };
+    // 同名のプロファイルがあれば上書き
+    const existingIndex = savedPrinterProfiles.findIndex(p => p.name === newProfile.name);
+    let updated;
+    if (existingIndex >= 0) {
+      updated = [...savedPrinterProfiles];
+      updated[existingIndex] = newProfile;
+    } else {
+      updated = [...savedPrinterProfiles, newProfile];
+    }
+    setSavedPrinterProfiles(updated);
+    localStorage.setItem(PRINTER_PROFILES_KEY, JSON.stringify(updated));
+    alert('プロファイルを保存しました！');
+  };
+
+  // プリンタプロファイルを削除
+  const deletePrinterProfile = (id: string) => {
+    if (!confirm('このプロファイルを削除しますか？')) return;
+    const updated = savedPrinterProfiles.filter(p => p.id !== id);
+    setSavedPrinterProfiles(updated);
+    localStorage.setItem(PRINTER_PROFILES_KEY, JSON.stringify(updated));
+  };
+
   // テンプレートを保存
   const saveTemplate = () => {
     if (!saveName.trim()) {
@@ -857,6 +914,16 @@ const SealMaker = () => {
               }}
             >
               📊 差込
+            </button>
+            <button
+              onClick={() => setShowPrinterSettingsModal(true)}
+              style={{
+                ...styles.button,
+                background: printerSettings.name ? '#0891b2' : '#6b7280',
+                color: 'white'
+              }}
+            >
+              🖨️ プリンタ
             </button>
           </div>
         </div>
@@ -1652,13 +1719,14 @@ const SealMaker = () => {
                           style={{
                             width: `${currentLayout.width}mm`,
                             height: `${currentLayout.height}mm`,
-                            border: '1px solid #ddd',
+                            border: printerSettings.borderWidth === 0 ? 'none' : `${printerSettings.borderWidth}px solid #ddd`,
                             display: 'flex',
                             flexDirection: 'column',
                             padding: '2mm',
                             boxSizing: 'border-box',
                             overflow: 'hidden',
-                            background: isSkipped ? '#f9fafb' : 'white'
+                            background: isSkipped ? '#f9fafb' : 'white',
+                            filter: `brightness(${printerSettings.brightness}%) contrast(${printerSettings.contrast}%)`
                           }}
                         >
                           {isSkipped ? (
@@ -2090,6 +2158,208 @@ const SealMaker = () => {
                   クリア
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* プリンタ設定モーダル */}
+      {showPrinterSettingsModal && (
+        <div style={styles.modal} onClick={() => setShowPrinterSettingsModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                🖨️ プリンタ設定
+              </h2>
+              <button
+                onClick={() => setShowPrinterSettingsModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+              プリンタの特性に合わせて印刷品質を調整できます。設定をプロファイルとして保存し、次回以降も使えます。
+            </p>
+
+            {/* 保存済みプロファイル */}
+            {savedPrinterProfiles.length > 0 && (
+              <div style={{ marginBottom: '16px', padding: '12px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+                <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>📋 保存済みプロファイル</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {savedPrinterProfiles.map(profile => (
+                    <div key={profile.id} style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                      <button
+                        onClick={() => {
+                          setPrinterSettings(profile.settings);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          borderRadius: '6px 0 0 6px',
+                          border: '1px solid #0891b2',
+                          borderRight: 'none',
+                          cursor: 'pointer',
+                          background: printerSettings.name === profile.settings.name ? '#0891b2' : '#ecfeff',
+                          color: printerSettings.name === profile.settings.name ? 'white' : '#0891b2',
+                        }}
+                      >
+                        {profile.name}
+                      </button>
+                      <button
+                        onClick={() => deletePrinterProfile(profile.id)}
+                        style={{
+                          padding: '6px 8px',
+                          fontSize: '12px',
+                          borderRadius: '0 6px 6px 0',
+                          border: '1px solid #0891b2',
+                          cursor: 'pointer',
+                          background: '#0891b2',
+                          color: 'white',
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* プロファイル名 */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+              <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>プロファイル名</label>
+              <input
+                type="text"
+                value={printerSettings.name}
+                onChange={(e) => setPrinterSettings({ ...printerSettings, name: e.target.value })}
+                placeholder="例: Canon TS8330"
+                style={{ ...styles.input, width: '100%' }}
+              />
+            </div>
+
+            {/* DPI設定 */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+              <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>
+                解像度 (DPI): {printerSettings.dpi}
+              </label>
+              <input
+                type="range"
+                min="150"
+                max="600"
+                step="50"
+                value={printerSettings.dpi}
+                onChange={(e) => setPrinterSettings({ ...printerSettings, dpi: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
+                <span>150 (高速)</span>
+                <span>300 (標準)</span>
+                <span>600 (高画質)</span>
+              </div>
+            </div>
+
+            {/* 明るさ・コントラスト */}
+            <div style={{ marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>
+                  明るさ: {printerSettings.brightness}%
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={printerSettings.brightness}
+                  onChange={(e) => setPrinterSettings({ ...printerSettings, brightness: parseInt(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>
+                  コントラスト: {printerSettings.contrast}%
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={printerSettings.contrast}
+                  onChange={(e) => setPrinterSettings({ ...printerSettings, contrast: parseInt(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* シール境界線の太さ */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+              <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>
+                シール境界線: {printerSettings.borderWidth === 0 ? 'なし' : `${printerSettings.borderWidth}px`}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="3"
+                value={printerSettings.borderWidth}
+                onChange={(e) => setPrinterSettings({ ...printerSettings, borderWidth: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
+                <span>なし</span>
+                <span>細い</span>
+                <span>普通</span>
+                <span>太い</span>
+              </div>
+            </div>
+
+            {/* プレビュー */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#fefce8', borderRadius: '8px', border: '1px solid #fde047' }}>
+              <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>プレビュー</label>
+              <div style={{
+                width: '80px',
+                height: '40px',
+                background: 'white',
+                border: `${printerSettings.borderWidth}px solid #d1d5db`,
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                filter: `brightness(${printerSettings.brightness}%) contrast(${printerSettings.contrast}%)`,
+                margin: '0 auto'
+              }}>
+                <span style={{ fontSize: '10px', color: '#374151' }}>サンプル</span>
+              </div>
+            </div>
+
+            {/* ボタン */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  setPrinterSettings({ name: '', dpi: 300, brightness: 100, contrast: 100, borderWidth: 1 });
+                }}
+                style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+              >
+                リセット
+              </button>
+              <button
+                onClick={savePrinterProfile}
+                disabled={!printerSettings.name.trim()}
+                style={{
+                  ...styles.button,
+                  background: printerSettings.name.trim() ? '#16a34a' : '#d1d5db',
+                  color: 'white',
+                  flex: 1,
+                  cursor: printerSettings.name.trim() ? 'pointer' : 'not-allowed'
+                }}
+              >
+                <Save size={16} />
+                保存
+              </button>
+              <button
+                onClick={() => setShowPrinterSettingsModal(false)}
+                style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
+              >
+                閉じる
+              </button>
             </div>
           </div>
         </div>
