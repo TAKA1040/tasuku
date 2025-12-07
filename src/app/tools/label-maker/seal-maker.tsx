@@ -316,6 +316,13 @@ const SealMaker = () => {
   const [showPresetSaveModal, setShowPresetSaveModal] = useState(false);
   const [presetName, setPresetName] = useState('');
 
+  // ガイド出力用の状態
+  const [showGuides, setShowGuides] = useState({
+    cutMarks: false,
+    centerLine: false,
+    testPattern: false
+  });
+
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -738,6 +745,43 @@ const SealMaker = () => {
               >
                 + 現在の設定をプリセット保存
               </button>
+            </div>
+
+            {/* ガイド出力オプション */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>📐 ガイド出力</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151' }}>
+                  <input
+                    type="checkbox"
+                    checked={showGuides.cutMarks}
+                    onChange={(e) => setShowGuides({ ...showGuides, cutMarks: e.target.checked })}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  カットマーク
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151' }}>
+                  <input
+                    type="checkbox"
+                    checked={showGuides.centerLine}
+                    onChange={(e) => setShowGuides({ ...showGuides, centerLine: e.target.checked })}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  センターライン
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151' }}>
+                  <input
+                    type="checkbox"
+                    checked={showGuides.testPattern}
+                    onChange={(e) => setShowGuides({ ...showGuides, testPattern: e.target.checked })}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  テストパターン
+                </label>
+              </div>
+              <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '8px', marginBottom: 0 }}>
+                印刷時にガイドを表示して位置合わせに使用できます
+              </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
@@ -1334,6 +1378,7 @@ const SealMaker = () => {
                       ref={printRef}
                       id="print-area"
                       style={{
+                        position: 'relative',
                         background: 'white',
                         width: '210mm',
                         height: '297mm',
@@ -1410,6 +1455,42 @@ const SealMaker = () => {
                         </div>
                       ))}
                     </div>
+
+                    {/* カットマーク */}
+                    {showGuides.cutMarks && (
+                      <>
+                        {/* 四隅のカットマーク */}
+                        <div style={{ position: 'absolute', top: '3mm', left: '3mm', width: '5mm', height: '5mm', borderTop: '1px solid #000', borderLeft: '1px solid #000' }} />
+                        <div style={{ position: 'absolute', top: '3mm', right: '3mm', width: '5mm', height: '5mm', borderTop: '1px solid #000', borderRight: '1px solid #000' }} />
+                        <div style={{ position: 'absolute', bottom: '3mm', left: '3mm', width: '5mm', height: '5mm', borderBottom: '1px solid #000', borderLeft: '1px solid #000' }} />
+                        <div style={{ position: 'absolute', bottom: '3mm', right: '3mm', width: '5mm', height: '5mm', borderBottom: '1px solid #000', borderRight: '1px solid #000' }} />
+                        {/* 中央のカットマーク */}
+                        <div style={{ position: 'absolute', top: '3mm', left: '50%', transform: 'translateX(-50%)', width: '1px', height: '5mm', background: '#000' }} />
+                        <div style={{ position: 'absolute', bottom: '3mm', left: '50%', transform: 'translateX(-50%)', width: '1px', height: '5mm', background: '#000' }} />
+                        <div style={{ position: 'absolute', left: '3mm', top: '50%', transform: 'translateY(-50%)', height: '1px', width: '5mm', background: '#000' }} />
+                        <div style={{ position: 'absolute', right: '3mm', top: '50%', transform: 'translateY(-50%)', height: '1px', width: '5mm', background: '#000' }} />
+                      </>
+                    )}
+
+                    {/* センターライン */}
+                    {showGuides.centerLine && (
+                      <>
+                        <div style={{ position: 'absolute', top: 0, left: '50%', width: '1px', height: '100%', borderLeft: '1px dashed #ccc' }} />
+                        <div style={{ position: 'absolute', left: 0, top: '50%', height: '1px', width: '100%', borderTop: '1px dashed #ccc' }} />
+                      </>
+                    )}
+
+                    {/* テストパターン */}
+                    {showGuides.testPattern && (
+                      <div style={{ position: 'absolute', bottom: '5mm', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', fontSize: '8pt', color: '#666' }}>
+                        <div style={{ marginBottom: '2mm', display: 'flex', gap: '2mm', justifyContent: 'center' }}>
+                          {[0, 1, 2, 3, 4].map(i => (
+                            <div key={i} style={{ width: '10mm', height: '3mm', background: i % 2 === 0 ? '#000' : '#fff', border: '0.5px solid #000' }} />
+                          ))}
+                        </div>
+                        <div>印刷テストパターン - 10mm単位</div>
+                      </div>
+                    )}
                   </div>
                   </div>
                 </div>
