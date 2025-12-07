@@ -1158,19 +1158,20 @@ const SealMaker = () => {
                     />
                   </div>
                 </div>
-                <div style={{ border: '2px solid #d1d5db', borderRadius: '8px', padding: '16px', background: '#f9fafb', overflow: 'auto', maxHeight: '70vh' }}>
-                  <div
-                    ref={printRef}
-                    id="print-area"
-                    style={{
-                      background: 'white',
-                      width: '210mm',
-                      height: '297mm',
-                      transform: `scale(${previewScale})`,
-                      transformOrigin: 'top left',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                    }}
-                  >
+                <div style={{ border: '2px solid #d1d5db', borderRadius: '8px', padding: '16px', background: '#f9fafb', overflow: 'auto' }}>
+                  <div style={{ width: `calc(210mm * ${previewScale})`, height: `calc(297mm * ${previewScale})`, margin: '0 auto' }}>
+                    <div
+                      ref={printRef}
+                      id="print-area"
+                      style={{
+                        background: 'white',
+                        width: '210mm',
+                        height: '297mm',
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: 'top left',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                      }}
+                    >
                     <div
                       style={{
                         display: 'grid',
@@ -1239,6 +1240,7 @@ const SealMaker = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
                   </div>
                 </div>
               </div>
