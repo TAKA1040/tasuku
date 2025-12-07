@@ -294,6 +294,7 @@ const SealMaker = () => {
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [saveName, setSaveName] = useState('');
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
+  const [previewScale, setPreviewScale] = useState(0.4);
 
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
@@ -1125,17 +1126,49 @@ const SealMaker = () => {
             {/* プレビュー */}
             {activeTab === 'preview' && (
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', marginBottom: '16px' }}>プレビュー</h2>
-                <div style={{ border: '2px solid #d1d5db', borderRadius: '8px', padding: '16px', background: '#f9fafb', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>プレビュー</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '14px', color: '#6b7280' }}>表示サイズ:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => setPreviewScale(Math.max(0.2, previewScale - 0.1))}
+                        style={{ ...styles.button, ...styles.grayButton, padding: '4px 12px', fontSize: '16px' }}
+                      >
+                        −
+                      </button>
+                      <span style={{ fontSize: '14px', fontWeight: '600', minWidth: '50px', textAlign: 'center' }}>
+                        {Math.round(previewScale * 100)}%
+                      </span>
+                      <button
+                        onClick={() => setPreviewScale(Math.min(1, previewScale + 0.1))}
+                        style={{ ...styles.button, ...styles.grayButton, padding: '4px 12px', fontSize: '16px' }}
+                      >
+                        ＋
+                      </button>
+                    </div>
+                    <input
+                      type="range"
+                      min="20"
+                      max="100"
+                      step="5"
+                      value={previewScale * 100}
+                      onChange={(e) => setPreviewScale(parseInt(e.target.value) / 100)}
+                      style={{ width: '120px' }}
+                    />
+                  </div>
+                </div>
+                <div style={{ border: '2px solid #d1d5db', borderRadius: '8px', padding: '16px', background: '#f9fafb', overflow: 'auto', maxHeight: '70vh' }}>
                   <div
                     ref={printRef}
+                    id="print-area"
                     style={{
                       background: 'white',
-                      margin: '0 auto',
                       width: '210mm',
-                      transform: 'scale(0.5)',
+                      height: '297mm',
+                      transform: `scale(${previewScale})`,
                       transformOrigin: 'top left',
-                      height: '297mm'
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                     }}
                   >
                     <div
