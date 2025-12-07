@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X } from 'lucide-react';
+import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X, FileDown } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // 型定義
 interface SealData {
@@ -331,6 +333,9 @@ const SealMaker = () => {
     startLabel: 1  // 開始ラベル位置（部分印刷用）
   });
 
+  // PDF生成中フラグ
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -592,6 +597,56 @@ const SealMaker = () => {
     window.print();
   };
 
+  // PDF書き出し
+  const handleExportPDF = async () => {
+    const printArea = document.getElementById('print-area');
+    if (!printArea) return;
+
+    setIsGeneratingPDF(true);
+
+    try {
+      // 一時的にスケールを100%に設定してキャプチャ
+      const originalTransform = printArea.style.transform;
+      printArea.style.transform = 'none';
+
+      const canvas = await html2canvas(printArea, {
+        scale: 2, // 高解像度でキャプチャ
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      // 元のスケールに戻す
+      printArea.style.transform = originalTransform;
+
+      // A4サイズのPDFを作成（210mm x 297mm）
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // キャンバスをPDFに追加
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      // ファイル名を生成
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const filename = `シール_${layouts[layout].name}_${timestamp}.pdf`;
+
+      // ダウンロード
+      pdf.save(filename);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('PDF生成に失敗しました');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
   // フォントオプション
   const fontOptions = [
     { group: '日本語ゴシック体', options: [
@@ -661,6 +716,19 @@ const SealMaker = () => {
             >
               <Printer size={20} />
               印刷
+            </button>
+            <button
+              onClick={handleExportPDF}
+              disabled={isGeneratingPDF}
+              style={{
+                ...styles.button,
+                ...styles.blueButton,
+                opacity: isGeneratingPDF ? 0.6 : 1,
+                cursor: isGeneratingPDF ? 'not-allowed' : 'pointer'
+              }}
+            >
+              <FileDown size={20} />
+              {isGeneratingPDF ? 'PDF生成中...' : 'PDF'}
             </button>
           </div>
         </div>
