@@ -323,6 +323,14 @@ const SealMaker = () => {
     testPattern: false
   });
 
+  // 複数ページ印刷用の状態
+  const [printSettings, setPrintSettings] = useState({
+    copies: 1,
+    startPage: 1,
+    endPage: 1,
+    startLabel: 1  // 開始ラベル位置（部分印刷用）
+  });
+
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -781,6 +789,46 @@ const SealMaker = () => {
               </div>
               <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '8px', marginBottom: 0 }}>
                 印刷時にガイドを表示して位置合わせに使用できます
+              </p>
+            </div>
+
+            {/* 複数ページ印刷設定 */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>📄 印刷設定</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div>
+                  <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>部数</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={printSettings.copies}
+                    onChange={(e) => setPrintSettings({ ...printSettings, copies: Math.max(1, parseInt(e.target.value) || 1) })}
+                    style={{ ...styles.input, width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>開始ラベル番号</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalSeals}
+                    value={printSettings.startLabel}
+                    onChange={(e) => setPrintSettings({ ...printSettings, startLabel: Math.max(1, Math.min(totalSeals, parseInt(e.target.value) || 1)) })}
+                    style={{ ...styles.input, width: '100%' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button
+                    onClick={() => setPrintSettings({ copies: 1, startPage: 1, endPage: 1, startLabel: 1 })}
+                    style={{ ...styles.button, ...styles.grayButton, fontSize: '12px', width: '100%' }}
+                  >
+                    リセット
+                  </button>
+                </div>
+              </div>
+              <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '8px', marginBottom: 0 }}>
+                開始ラベル番号: 途中から印刷を開始（既に使用済みのラベル用紙を再利用）
               </p>
             </div>
 
@@ -1398,7 +1446,11 @@ const SealMaker = () => {
                         paddingBottom: `${10 + printOffset.bottom}mm`
                       }}
                     >
-                      {sealData.map((seal, index) => (
+                      {sealData.map((seal, index) => {
+                        // 開始ラベル番号より前は空白で表示（印刷時のスキップ用）
+                        const isSkipped = index < (printSettings.startLabel - 1);
+
+                        return (
                         <div
                           key={index}
                           style={{
@@ -1409,9 +1461,16 @@ const SealMaker = () => {
                             flexDirection: 'column',
                             padding: '2mm',
                             boxSizing: 'border-box',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            background: isSkipped ? '#f9fafb' : 'white'
                           }}
                         >
+                          {isSkipped ? (
+                            <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ color: '#ccc', fontSize: '8pt' }}>スキップ</span>
+                            </div>
+                          ) : (
+                            <>
                           {seal.image && seal.imagePosition === 'top' && (
                             <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginBottom: '1mm' }}>
                               <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.4}mm`, objectFit: 'contain' }} />
@@ -1452,8 +1511,11 @@ const SealMaker = () => {
                               <span style={{ color: '#ccc', fontSize: '10pt' }}>{index + 1}</span>
                             </div>
                           )}
+                            </>
+                          )}
                         </div>
-                      ))}
+                      );
+                      })}
                     </div>
 
                     {/* カットマーク */}
