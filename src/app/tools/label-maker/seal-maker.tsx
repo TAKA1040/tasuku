@@ -35,6 +35,22 @@ interface PrintOffset {
   bottom: number;
 }
 
+// 用紙プリセット
+interface PaperPreset {
+  id: string;
+  name: string;
+  layout: string;
+  offset: PrintOffset;
+}
+
+// 組み込みプリセット（よく使う用紙設定）
+const builtInPresets: PaperPreset[] = [
+  { id: 'default', name: '標準（オフセットなし）', layout: '24', offset: { top: 0, left: 0, right: 0, bottom: 0 } },
+  { id: 'a-one-72224', name: 'A-one 72224（24面）', layout: '24', offset: { top: -1, left: 0.5, right: 0.5, bottom: -1 } },
+  { id: 'a-one-72230', name: 'A-one 72230（10面）', layout: '10', offset: { top: -0.5, left: 0, right: 0, bottom: -0.5 } },
+  { id: 'a-one-72244', name: 'A-one 72244（44面）', layout: '44', offset: { top: -1, left: 0.5, right: 0.5, bottom: -1 } },
+];
+
 interface GlobalSettings {
   fontSize: number;
   fontFamily: string;
@@ -57,6 +73,7 @@ interface SavedTemplate {
 
 const STORAGE_KEY = 'seal-maker-templates';
 const PRINT_OFFSET_KEY = 'seal-maker-print-offset';
+const PAPER_PRESETS_KEY = 'seal-maker-paper-presets';
 
 const createDefaultSeal = (fontSize: number = 11): SealData => ({
   text: '',
@@ -295,6 +312,9 @@ const SealMaker = () => {
   const [saveName, setSaveName] = useState('');
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(null);
   const [previewScale, setPreviewScale] = useState(0.4);
+  const [customPresets, setCustomPresets] = useState<PaperPreset[]>([]);
+  const [showPresetSaveModal, setShowPresetSaveModal] = useState(false);
+  const [presetName, setPresetName] = useState('');
 
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
@@ -314,6 +334,14 @@ const SealMaker = () => {
         console.error('Failed to load print offset:', e);
       }
     }
+    const storedPresets = localStorage.getItem(PAPER_PRESETS_KEY);
+    if (storedPresets) {
+      try {
+        setCustomPresets(JSON.parse(storedPresets));
+      } catch (e) {
+        console.error('Failed to load paper presets:', e);
+      }
+    }
   }, []);
 
   // 印刷設定が変わったら自動保存
@@ -321,6 +349,43 @@ const SealMaker = () => {
     localStorage.setItem(PRINT_OFFSET_KEY, JSON.stringify(printOffset));
   }, [printOffset]);
 
+  // 用紙プリセットを保存
+  const savePaperPreset = () => {
+    if (!presetName.trim()) {
+      alert('プリセット名を入力してください');
+      return;
+    }
+    const newPreset: PaperPreset = {
+      id: Date.now().toString(),
+      name: presetName.trim(),
+      layout,
+      offset: { ...printOffset }
+    };
+    const updated = [...customPresets, newPreset];
+    setCustomPresets(updated);
+    localStorage.setItem(PAPER_PRESETS_KEY, JSON.stringify(updated));
+    setShowPresetSaveModal(false);
+    setPresetName('');
+    alert('プリセットを保存しました！');
+  };
+
+  // 用紙プリセットを適用
+  const applyPaperPreset = (preset: PaperPreset) => {
+    if (preset.layout !== layout) {
+      handleLayoutChange(preset.layout);
+    }
+    setPrintOffset(preset.offset);
+  };
+
+  // カスタムプリセットを削除
+  const deleteCustomPreset = (id: string) => {
+    if (!confirm('このプリセットを削除しますか？')) return;
+    const updated = customPresets.filter(p => p.id !== id);
+    setCustomPresets(updated);
+    localStorage.setItem(PAPER_PRESETS_KEY, JSON.stringify(updated));
+  };
+
+  
   // テンプレートを保存
   const saveTemplate = () => {
     if (!saveName.trim()) {
@@ -594,6 +659,87 @@ const SealMaker = () => {
             <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
               実際のシール用紙に合わせて印刷位置を調整できます。
             </p>
+
+            {/* 用紙プリセット */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>📄 用紙プリセット</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                {builtInPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyPaperPreset(preset)}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #d1d5db',
+                      cursor: 'pointer',
+                      background: 'white',
+                      color: '#374151',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              {customPresets.length > 0 && (
+                <div style={{ marginTop: '8px' }}>
+                  <label style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>カスタムプリセット</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {customPresets.map(preset => (
+                      <div key={preset.id} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <button
+                          onClick={() => applyPaperPreset(preset)}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            borderRadius: '6px 0 0 6px',
+                            border: '1px solid #7c3aed',
+                            borderRight: 'none',
+                            cursor: 'pointer',
+                            background: '#f5f3ff',
+                            color: '#7c3aed',
+                          }}
+                        >
+                          {preset.name}
+                        </button>
+                        <button
+                          onClick={() => deleteCustomPreset(preset.id)}
+                          style={{
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            borderRadius: '0 6px 6px 0',
+                            border: '1px solid #7c3aed',
+                            cursor: 'pointer',
+                            background: '#7c3aed',
+                            color: 'white',
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={() => setShowPresetSaveModal(true)}
+                style={{
+                  marginTop: '12px',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  borderRadius: '6px',
+                  border: '1px solid #16a34a',
+                  cursor: 'pointer',
+                  background: '#16a34a',
+                  color: 'white',
+                }}
+              >
+                + 現在の設定をプリセット保存
+              </button>
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {(['top', 'left', 'right', 'bottom'] as const).map((dir) => (
                 <div key={dir}>
@@ -1128,8 +1274,32 @@ const SealMaker = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
                   <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>プレビュー</h2>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '14px', color: '#6b7280' }}>表示サイズ:</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      {[
+                        { label: '30%', value: 0.3 },
+                        { label: '50%', value: 0.5 },
+                        { label: '75%', value: 0.75 },
+                        { label: '100%', value: 1 },
+                      ].map(preset => (
+                        <button
+                          key={preset.label}
+                          onClick={() => setPreviewScale(preset.value)}
+                          style={{
+                            padding: '4px 10px',
+                            fontSize: '12px',
+                            borderRadius: '4px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            background: Math.abs(previewScale - preset.value) < 0.01 ? '#4f46e5' : '#e5e7eb',
+                            color: Math.abs(previewScale - preset.value) < 0.01 ? 'white' : '#374151',
+                            fontWeight: '500'
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <button
                         onClick={() => setPreviewScale(Math.max(0.2, previewScale - 0.1))}
@@ -1154,7 +1324,7 @@ const SealMaker = () => {
                       step="5"
                       value={previewScale * 100}
                       onChange={(e) => setPreviewScale(parseInt(e.target.value) / 100)}
-                      style={{ width: '120px' }}
+                      style={{ width: '100px' }}
                     />
                   </div>
                 </div>
@@ -1383,6 +1553,60 @@ const SealMaker = () => {
             >
               閉じる
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* プリセット保存モーダル */}
+      {showPresetSaveModal && (
+        <div style={styles.modal} onClick={() => setShowPresetSaveModal(false)}>
+          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                📄 用紙プリセットを保存
+              </h2>
+              <button
+                onClick={() => setShowPresetSaveModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
+              現在のレイアウト（{layouts[layout].name}）と印刷位置設定を保存します。
+            </p>
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px', fontSize: '13px', color: '#6b7280' }}>
+              <div>上余白: {printOffset.top}mm</div>
+              <div>左余白: {printOffset.left}mm</div>
+              <div>右余白: {printOffset.right}mm</div>
+              <div>下余白: {printOffset.bottom}mm</div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={styles.label}>プリセット名</label>
+              <input
+                type="text"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                placeholder="例: 自宅プリンター用、会社プリンター用..."
+                style={styles.input}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setShowPresetSaveModal(false)}
+                style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={savePaperPreset}
+                style={{ ...styles.button, ...styles.greenButton, flex: 1 }}
+              >
+                <Save size={18} />
+                保存
+              </button>
+            </div>
           </div>
         </div>
       )}
