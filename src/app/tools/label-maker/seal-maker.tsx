@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X, FileDown } from 'lucide-react';
+import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X, FileDown, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
@@ -1073,6 +1074,18 @@ const SealMaker = () => {
             >
               🖨️ プリンタ
             </button>
+            <Link
+              href="/tools/label-maker/manual"
+              style={{
+                ...styles.button,
+                background: '#f59e0b',
+                color: 'white',
+                textDecoration: 'none'
+              }}
+            >
+              <HelpCircle size={18} />
+              使い方
+            </Link>
           </div>
         </div>
 
