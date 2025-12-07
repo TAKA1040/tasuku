@@ -1078,6 +1078,8 @@ const SealMaker = () => {
               href="/tools/label-maker/manual"
               style={{
                 ...styles.button,
+                display: 'inline-flex',
+                alignItems: 'center',
                 background: '#f59e0b',
                 color: 'white',
                 textDecoration: 'none'

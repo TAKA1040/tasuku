@@ -9,6 +9,7 @@ export default function LabelMakerManualPage() {
       id: 'basic',
       icon: <Grid3X3 size={24} />,
       title: '基本操作',
+      color: 'blue',
       content: [
         {
           subtitle: '用紙レイアウトを選ぶ',
@@ -28,6 +29,7 @@ export default function LabelMakerManualPage() {
       id: 'text',
       icon: <FileText size={24} />,
       title: 'テキスト設定',
+      color: 'green',
       content: [
         {
           subtitle: 'フォントとサイズ',
@@ -47,6 +49,7 @@ export default function LabelMakerManualPage() {
       id: 'image',
       icon: <Image size={24} />,
       title: '画像設定',
+      color: 'purple',
       content: [
         {
           subtitle: '画像のアップロード',
@@ -66,6 +69,7 @@ export default function LabelMakerManualPage() {
       id: 'qrcode',
       icon: <QrCode size={24} />,
       title: 'QRコード',
+      color: 'cyan',
       content: [
         {
           subtitle: 'QRコードの生成',
@@ -85,6 +89,7 @@ export default function LabelMakerManualPage() {
       id: 'variable',
       icon: <Copy size={24} />,
       title: '可変データ印刷',
+      color: 'orange',
       content: [
         {
           subtitle: 'CSVデータの読み込み',
@@ -104,6 +109,7 @@ export default function LabelMakerManualPage() {
       id: 'multipage',
       icon: <FileText size={24} />,
       title: '複数ページ・部数',
+      color: 'pink',
       content: [
         {
           subtitle: '部数指定',
@@ -123,6 +129,7 @@ export default function LabelMakerManualPage() {
       id: 'guide',
       icon: <Sliders size={24} />,
       title: 'ガイド出力',
+      color: 'teal',
       content: [
         {
           subtitle: 'カットマーク',
@@ -142,6 +149,7 @@ export default function LabelMakerManualPage() {
       id: 'printer',
       icon: <Printer size={24} />,
       title: 'プリンタ設定',
+      color: 'indigo',
       content: [
         {
           subtitle: '余白・オフセット調整',
@@ -161,6 +169,7 @@ export default function LabelMakerManualPage() {
       id: 'preset',
       icon: <Share2 size={24} />,
       title: 'プリセット・共有',
+      color: 'amber',
       content: [
         {
           subtitle: 'プリセットの保存',
@@ -180,6 +189,7 @@ export default function LabelMakerManualPage() {
       id: 'output',
       icon: <Download size={24} />,
       title: '出力',
+      color: 'red',
       content: [
         {
           subtitle: '印刷',
@@ -197,22 +207,41 @@ export default function LabelMakerManualPage() {
     }
   ];
 
+  const getColorStyle = (color: string) => {
+    const colors: Record<string, { bg: string; icon: string; border: string }> = {
+      blue: { bg: '#eff6ff', icon: '#3b82f6', border: '#bfdbfe' },
+      green: { bg: '#f0fdf4', icon: '#22c55e', border: '#bbf7d0' },
+      purple: { bg: '#faf5ff', icon: '#a855f7', border: '#e9d5ff' },
+      cyan: { bg: '#ecfeff', icon: '#06b6d4', border: '#a5f3fc' },
+      orange: { bg: '#fff7ed', icon: '#f97316', border: '#fed7aa' },
+      pink: { bg: '#fdf2f8', icon: '#ec4899', border: '#fbcfe8' },
+      teal: { bg: '#f0fdfa', icon: '#14b8a6', border: '#99f6e4' },
+      indigo: { bg: '#eef2ff', icon: '#6366f1', border: '#c7d2fe' },
+      amber: { bg: '#fffbeb', icon: '#f59e0b', border: '#fde68a' },
+      red: { bg: '#fef2f2', icon: '#ef4444', border: '#fecaca' }
+    };
+    return colors[color] || colors.blue;
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
+      background: 'linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)',
+      paddingBottom: '60px'
     }}>
       <div style={{
         maxWidth: '900px',
-        margin: '0 auto'
+        margin: '0 auto',
+        padding: '20px',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         {/* ヘッダー */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
-          marginBottom: '24px'
+          marginBottom: '32px'
         }}>
           <Link
             href="/tools/label-maker"
@@ -220,13 +249,14 @@ export default function LabelMakerManualPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              background: 'rgba(255,255,255,0.2)',
-              borderRadius: '10px',
-              color: 'white',
+              width: '44px',
+              height: '44px',
+              background: 'white',
+              borderRadius: '12px',
+              color: '#6b7280',
               textDecoration: 'none',
-              transition: 'background 0.2s'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              border: '1px solid #e5e7eb'
             }}
           >
             <ArrowLeft size={24} />
@@ -235,14 +265,14 @@ export default function LabelMakerManualPage() {
             <h1 style={{
               fontSize: '28px',
               fontWeight: 'bold',
-              color: 'white',
+              color: '#1f2937',
               margin: 0
             }}>
-              🏷️ シール職人 マニュアル
+              🏷️ シール職人 使い方ガイド
             </h1>
             <p style={{
               fontSize: '14px',
-              color: 'rgba(255,255,255,0.8)',
+              color: '#6b7280',
               margin: '4px 0 0 0'
             }}>
               A4シール用紙に印刷できるラベル作成ツール
@@ -250,218 +280,250 @@ export default function LabelMakerManualPage() {
           </div>
         </div>
 
+        {/* クイックスタート */}
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1px solid #e5e7eb'
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#1f2937',
+            margin: '0 0 16px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            🚀 クイックスタート
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px'
+          }}>
+            {[
+              { num: '1', text: '用紙を選ぶ', desc: 'シール用紙の型番を選択' },
+              { num: '2', text: 'シールを編集', desc: 'テキストや画像を入力' },
+              { num: '3', text: '全シールに適用', desc: '同じデザインをコピー' },
+              { num: '4', text: '印刷/PDF保存', desc: '完成したら出力' }
+            ].map((step, i) => (
+              <div key={i} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f8fafc',
+                borderRadius: '10px'
+              }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '16px'
+                }}>
+                  {step.num}
+                </div>
+                <div>
+                  <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>{step.text}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>{step.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            marginTop: '16px',
+            padding: '12px 16px',
+            background: '#fef3c7',
+            borderRadius: '8px',
+            fontSize: '14px',
+            color: '#92400e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            💡 <strong>ヒント:</strong> 初めての場合は、まず1枚テスト印刷して位置を確認することをおすすめします。
+          </div>
+        </div>
+
         {/* 目次 */}
         <div style={{
-          background: 'rgba(255,255,255,0.95)',
+          background: 'white',
           borderRadius: '16px',
           padding: '20px',
           marginBottom: '24px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1px solid #e5e7eb'
         }}>
           <h2 style={{
             fontSize: '18px',
             fontWeight: 'bold',
-            color: '#374151',
+            color: '#1f2937',
             margin: '0 0 16px 0'
           }}>
             📖 目次
           </h2>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
             gap: '8px'
           }}>
-            {sections.map(section => (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 12px',
-                  background: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#4b5563',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  transition: 'background 0.2s'
-                }}
-              >
-                <span style={{ color: '#6366f1' }}>{section.icon}</span>
-                {section.title}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* クイックスタート */}
-        <div style={{
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px',
-          color: 'white'
-        }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 'bold',
-            margin: '0 0 16px 0'
-          }}>
-            🚀 クイックスタート
-          </h2>
-          <ol style={{
-            margin: 0,
-            paddingLeft: '20px',
-            lineHeight: '2'
-          }}>
-            <li><strong>用紙を選ぶ</strong> - お使いのシール用紙の型番を選択</li>
-            <li><strong>シールを編集</strong> - テキストや画像を入力</li>
-            <li><strong>全シールに適用</strong> - 同じデザインを全シールにコピー（任意）</li>
-            <li><strong>印刷/PDF保存</strong> - 完成したら印刷またはPDF出力</li>
-          </ol>
-          <div style={{
-            marginTop: '16px',
-            padding: '12px',
-            background: 'rgba(255,255,255,0.2)',
-            borderRadius: '8px',
-            fontSize: '14px'
-          }}>
-            💡 <strong>ヒント:</strong> 初めての場合は、まず1枚テスト印刷して位置を確認することをおすすめします。
+            {sections.map(section => {
+              const colorStyle = getColorStyle(section.color);
+              return (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 14px',
+                    background: colorStyle.bg,
+                    borderRadius: '10px',
+                    color: '#374151',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    border: `1px solid ${colorStyle.border}`,
+                    transition: 'transform 0.2s'
+                  }}
+                >
+                  <span style={{ color: colorStyle.icon }}>{section.icon}</span>
+                  {section.title}
+                </a>
+              );
+            })}
           </div>
         </div>
 
         {/* 各セクション */}
-        {sections.map(section => (
-          <div
-            key={section.id}
-            id={section.id}
-            style={{
-              background: 'rgba(255,255,255,0.95)',
-              borderRadius: '16px',
-              padding: '24px',
-              marginBottom: '16px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '20px'
-            }}>
+        {sections.map(section => {
+          const colorStyle = getColorStyle(section.color);
+          return (
+            <div
+              key={section.id}
+              id={section.id}
+              style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '24px',
+                marginBottom: '16px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                border: '1px solid #e5e7eb'
+              }}
+            >
               <div style={{
-                width: '48px',
-                height: '48px',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white'
+                gap: '14px',
+                marginBottom: '20px'
               }}>
-                {section.icon}
-              </div>
-              <h2 style={{
-                fontSize: '22px',
-                fontWeight: 'bold',
-                color: '#1f2937',
-                margin: 0
-              }}>
-                {section.title}
-              </h2>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {section.content.map((item, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: '16px',
-                    background: '#f9fafb',
-                    borderRadius: '10px',
-                    borderLeft: '4px solid #6366f1'
-                  }}
-                >
-                  <h3 style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: '#374151',
-                    margin: '0 0 8px 0'
-                  }}>
-                    {item.subtitle}
-                  </h3>
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#6b7280',
-                    margin: 0,
-                    lineHeight: '1.7'
-                  }}>
-                    {item.description}
-                  </p>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: colorStyle.bg,
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: colorStyle.icon,
+                  border: `1px solid ${colorStyle.border}`
+                }}>
+                  {section.icon}
                 </div>
-              ))}
+                <h2 style={{
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  color: '#1f2937',
+                  margin: 0
+                }}>
+                  {section.title}
+                </h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {section.content.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '16px',
+                      background: '#f9fafb',
+                      borderRadius: '10px',
+                      borderLeft: `4px solid ${colorStyle.icon}`
+                    }}
+                  >
+                    <h3 style={{
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      margin: '0 0 6px 0'
+                    }}>
+                      {item.subtitle}
+                    </h3>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#6b7280',
+                      margin: 0,
+                      lineHeight: '1.7'
+                    }}>
+                      {item.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* FAQ */}
         <div style={{
-          background: 'rgba(255,255,255,0.95)',
+          background: 'white',
           borderRadius: '16px',
           padding: '24px',
-          marginBottom: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1px solid #e5e7eb'
         }}>
           <h2 style={{
-            fontSize: '22px',
+            fontSize: '20px',
             fontWeight: 'bold',
             color: '#1f2937',
             margin: '0 0 20px 0'
           }}>
             ❓ よくある質問
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ padding: '16px', background: '#fef3c7', borderRadius: '10px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#92400e', margin: '0 0 8px 0' }}>
-                Q: 印刷位置がずれます
-              </h3>
-              <p style={{ fontSize: '14px', color: '#78350f', margin: 0, lineHeight: '1.6' }}>
-                A: プリンタ設定の「余白・オフセット調整」でズレを補正してください。「較正ウィザード」を使うと、テストパターンから自動計算できます。
-              </p>
-            </div>
-            <div style={{ padding: '16px', background: '#dbeafe', borderRadius: '10px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e40af', margin: '0 0 8px 0' }}>
-                Q: 自分の用紙サイズがありません
-              </h3>
-              <p style={{ fontSize: '14px', color: '#1e3a8a', margin: 0, lineHeight: '1.6' }}>
-                A: 「カスタム」レイアウトを選択して、シールの幅・高さ・列数・行数・余白を手動で設定してください。設定はプリセットとして保存できます。
-              </p>
-            </div>
-            <div style={{ padding: '16px', background: '#dcfce7', borderRadius: '10px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#166534', margin: '0 0 8px 0' }}>
-                Q: CSVの文字化けが起きます
-              </h3>
-              <p style={{ fontSize: '14px', color: '#14532d', margin: 0, lineHeight: '1.6' }}>
-                A: CSVファイルをUTF-8形式で保存してください。Excelの場合は「CSV UTF-8（コンマ区切り）」を選択して保存します。
-              </p>
-            </div>
-            <div style={{ padding: '16px', background: '#f3e8ff', borderRadius: '10px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#6b21a8', margin: '0 0 8px 0' }}>
-                Q: 画像が粗く印刷されます
-              </h3>
-              <p style={{ fontSize: '14px', color: '#581c87', margin: 0, lineHeight: '1.6' }}>
-                A: 元画像の解像度が低い可能性があります。300dpi以上の画像を使用することをおすすめします。プリンタ設定でDPIを上げることもできます。
-              </p>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { q: '印刷位置がずれます', a: 'プリンタ設定の「余白・オフセット調整」でズレを補正してください。「較正ウィザード」を使うと、テストパターンから自動計算できます。', bg: '#fef3c7', color: '#92400e' },
+              { q: '自分の用紙サイズがありません', a: '「カスタム」レイアウトを選択して、シールの幅・高さ・列数・行数・余白を手動で設定してください。設定はプリセットとして保存できます。', bg: '#dbeafe', color: '#1e40af' },
+              { q: 'CSVの文字化けが起きます', a: 'CSVファイルをUTF-8形式で保存してください。Excelの場合は「CSV UTF-8（コンマ区切り）」を選択して保存します。', bg: '#dcfce7', color: '#166534' },
+              { q: '画像が粗く印刷されます', a: '元画像の解像度が低い可能性があります。300dpi以上の画像を使用することをおすすめします。プリンタ設定でDPIを上げることもできます。', bg: '#f3e8ff', color: '#6b21a8' }
+            ].map((faq, i) => (
+              <div key={i} style={{ padding: '16px', background: faq.bg, borderRadius: '10px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: '600', color: faq.color, margin: '0 0 8px 0' }}>
+                  Q: {faq.q}
+                </h3>
+                <p style={{ fontSize: '14px', color: faq.color, margin: 0, lineHeight: '1.6', opacity: 0.9 }}>
+                  A: {faq.a}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* フッター */}
         <div style={{
           textAlign: 'center',
-          padding: '20px',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '14px'
+          padding: '20px'
         }}>
           <Link
             href="/tools/label-maker"
@@ -469,18 +531,19 @@ export default function LabelMakerManualPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '12px 24px',
-              background: 'white',
-              color: '#6366f1',
-              borderRadius: '10px',
+              padding: '14px 28px',
+              background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
+              color: 'white',
+              borderRadius: '12px',
               textDecoration: 'none',
               fontWeight: '600',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              fontSize: '15px',
+              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
             }}
           >
             🏷️ シール職人を使う
           </Link>
-          <p style={{ marginTop: '16px' }}>
+          <p style={{ marginTop: '16px', color: '#9ca3af', fontSize: '13px' }}>
             © TASUKU - シール職人
           </p>
         </div>
