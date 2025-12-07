@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Printer, Plus, Trash2, Copy, Save, FolderOpen, X, FileDown } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import QRCode from 'qrcode';
 
 // 型定義
 interface SealData {
@@ -21,6 +22,9 @@ interface SealData {
   lineHeight?: number; // 行間 (1.0-2.5)
   letterSpacing?: number; // 字間 (-2 to 5)
   textIndent?: number; // 字下げ (0-20)
+  qrCode?: string; // QRコードの内容
+  qrSize?: number; // QRコードサイズ (%)
+  qrPosition?: 'top' | 'center' | 'bottom'; // QRコードの位置
 }
 
 interface LayoutConfig {
@@ -94,7 +98,10 @@ const createDefaultSeal = (fontSize: number = 11): SealData => ({
   richText: '',
   lineHeight: 1.4,
   letterSpacing: 0,
-  textIndent: 0
+  textIndent: 0,
+  qrCode: '',
+  qrSize: 60,
+  qrPosition: 'center'
 });
 
 // プリセットカラー
@@ -380,6 +387,9 @@ const SealMaker = () => {
   const [showImportPresetModal, setShowImportPresetModal] = useState(false);
   const [importPresetText, setImportPresetText] = useState('');
 
+  // QRコード生成用のキャッシュ
+  const [qrCodeImages, setQrCodeImages] = useState<Record<number, string>>({});
+
   const PRINTER_PROFILES_KEY = 'seal-maker-printer-profiles';
 
   // 初期化時に保存データと印刷設定を読み込み
@@ -570,6 +580,41 @@ const SealMaker = () => {
       alert('無効なプリセットコードです。正しい共有コードを入力してください。');
     }
   };
+
+  // QRコードを生成
+  const generateQRCode = async (index: number, text: string) => {
+    if (!text.trim()) {
+      setQrCodeImages(prev => {
+        const newImages = { ...prev };
+        delete newImages[index];
+        return newImages;
+      });
+      return;
+    }
+    try {
+      const dataUrl = await QRCode.toDataURL(text, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      });
+      setQrCodeImages(prev => ({ ...prev, [index]: dataUrl }));
+    } catch (err) {
+      console.error('QR code generation failed:', err);
+    }
+  };
+
+  // QRコード内容が変わったら再生成
+  useEffect(() => {
+    sealData.forEach((seal, index) => {
+      if (seal.qrCode) {
+        generateQRCode(index, seal.qrCode);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sealData.map(s => s.qrCode).join(',')]);
 
   // テンプレートを保存
   const saveTemplate = () => {
@@ -1808,6 +1853,73 @@ const SealMaker = () => {
                                 </div>
                               </div>
                             </div>
+
+                            {/* QRコード設定 */}
+                            <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                              <label style={{ ...styles.label, marginBottom: '12px', display: 'block' }}>📱 QRコード</label>
+                              <div style={{ marginBottom: '12px' }}>
+                                <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                  QRコードの内容（URL/テキスト）
+                                </label>
+                                <input
+                                  type="text"
+                                  value={seal.qrCode || ''}
+                                  onChange={(e) => handleSealChange(index, 'qrCode', e.target.value)}
+                                  placeholder="例: https://example.com"
+                                  style={{ ...styles.input, width: '100%' }}
+                                />
+                              </div>
+                              {seal.qrCode && (
+                                <>
+                                  <div style={{ marginBottom: '12px' }}>
+                                    <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                      QRサイズ: {seal.qrSize || 60}%
+                                    </label>
+                                    <input
+                                      type="range"
+                                      min="20"
+                                      max="100"
+                                      value={seal.qrSize || 60}
+                                      onChange={(e) => handleSealChange(index, 'qrSize', parseInt(e.target.value))}
+                                      style={{ width: '100%' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>QR位置</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                      {(['top', 'center', 'bottom'] as const).map(pos => (
+                                        <button
+                                          key={pos}
+                                          onClick={() => handleSealChange(index, 'qrPosition', pos)}
+                                          style={{
+                                            flex: 1,
+                                            padding: '6px',
+                                            fontSize: '11px',
+                                            borderRadius: '6px',
+                                            border: (seal.qrPosition || 'center') === pos ? 'none' : '1px solid #d1d5db',
+                                            cursor: 'pointer',
+                                            background: (seal.qrPosition || 'center') === pos ? '#4f46e5' : 'white',
+                                            color: (seal.qrPosition || 'center') === pos ? 'white' : '#374151'
+                                          }}
+                                        >
+                                          {pos === 'top' ? '上' : pos === 'center' ? '中央' : '下'}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  {qrCodeImages[index] && (
+                                    <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                                      <img
+                                        src={qrCodeImages[index]}
+                                        alt="QRプレビュー"
+                                        style={{ width: '60px', height: '60px', border: '1px solid #e5e7eb', borderRadius: '4px' }}
+                                      />
+                                      <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '4px' }}>プレビュー</p>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1965,7 +2077,29 @@ const SealMaker = () => {
                               <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.4}mm`, objectFit: 'contain' }} />
                             </div>
                           )}
-                          {!seal.text && !seal.image && (
+                          {/* QRコード表示 */}
+                          {seal.qrCode && qrCodeImages[index] && (
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: (seal.qrPosition || 'center') === 'top' ? 'flex-start' : (seal.qrPosition || 'center') === 'bottom' ? 'flex-end' : 'center',
+                              flex: (!seal.text && !seal.image) ? '1 1 auto' : '0 0 auto',
+                              marginTop: (seal.qrPosition || 'center') !== 'top' ? '1mm' : 0,
+                              marginBottom: (seal.qrPosition || 'center') !== 'bottom' ? '1mm' : 0
+                            }}>
+                              <img
+                                src={qrCodeImages[index]}
+                                alt="QR"
+                                style={{
+                                  width: `${seal.qrSize || 60}%`,
+                                  height: 'auto',
+                                  maxHeight: `${currentLayout.height * 0.7}mm`,
+                                  objectFit: 'contain'
+                                }}
+                              />
+                            </div>
+                          )}
+                          {!seal.text && !seal.image && !seal.qrCode && (
                             <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               <span style={{ color: '#ccc', fontSize: '10pt' }}>{index + 1}</span>
                             </div>
