@@ -25,6 +25,10 @@ interface SealData {
   qrCode?: string; // QRコードの内容
   qrSize?: number; // QRコードサイズ (%)
   qrPosition?: 'top' | 'center' | 'bottom'; // QRコードの位置
+  imageRotation?: number; // 画像回転 (0, 90, 180, 270)
+  imageZoom?: number; // 画像ズーム (50-200)
+  imageOffsetX?: number; // 画像X方向オフセット (-50 to 50)
+  imageOffsetY?: number; // 画像Y方向オフセット (-50 to 50)
 }
 
 interface LayoutConfig {
@@ -101,7 +105,11 @@ const createDefaultSeal = (fontSize: number = 11): SealData => ({
   textIndent: 0,
   qrCode: '',
   qrSize: 60,
-  qrPosition: 'center'
+  qrPosition: 'center',
+  imageRotation: 0,
+  imageZoom: 100,
+  imageOffsetX: 0,
+  imageOffsetY: 0
 });
 
 // プリセットカラー
@@ -1563,8 +1571,17 @@ const SealMaker = () => {
                               }}
                             >
                               {seal.image && seal.imagePosition === 'top' && (
-                                <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginBottom: '2px' }}>
-                                  <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.8}px`, objectFit: 'contain' }} />
+                                <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginBottom: '2px', overflow: 'hidden' }}>
+                                  <img src={seal.image} alt="" style={{
+                                    width: `${seal.imageSize}%`,
+                                    height: 'auto',
+                                    maxHeight: `${currentLayout.height * 0.8}px`,
+                                    objectFit: 'contain',
+                                    transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                    transformOrigin: 'center',
+                                    marginLeft: `${seal.imageOffsetX || 0}%`,
+                                    marginTop: `${seal.imageOffsetY || 0}%`
+                                  }} />
                                 </div>
                               )}
                               {seal.text && (
@@ -1586,13 +1603,31 @@ const SealMaker = () => {
                                 </div>
                               )}
                               {seal.image && seal.imagePosition === 'center' && !seal.text && (
-                                <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end' }}>
-                                  <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 1.6}px`, objectFit: 'contain' }} />
+                                <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', overflow: 'hidden' }}>
+                                  <img src={seal.image} alt="" style={{
+                                    width: `${seal.imageSize}%`,
+                                    height: 'auto',
+                                    maxHeight: `${currentLayout.height * 1.6}px`,
+                                    objectFit: 'contain',
+                                    transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                    transformOrigin: 'center',
+                                    marginLeft: `${seal.imageOffsetX || 0}%`,
+                                    marginTop: `${seal.imageOffsetY || 0}%`
+                                  }} />
                                 </div>
                               )}
                               {seal.image && seal.imagePosition === 'bottom' && (
-                                <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginTop: '2px' }}>
-                                  <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.8}px`, objectFit: 'contain' }} />
+                                <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginTop: '2px', overflow: 'hidden' }}>
+                                  <img src={seal.image} alt="" style={{
+                                    width: `${seal.imageSize}%`,
+                                    height: 'auto',
+                                    maxHeight: `${currentLayout.height * 0.8}px`,
+                                    objectFit: 'contain',
+                                    transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                    transformOrigin: 'center',
+                                    marginLeft: `${seal.imageOffsetX || 0}%`,
+                                    marginTop: `${seal.imageOffsetY || 0}%`
+                                  }} />
                                 </div>
                               )}
                               {!seal.text && !seal.image && (
@@ -1663,8 +1698,14 @@ const SealMaker = () => {
                                 </div>
                               ) : (
                                 <div>
-                                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center' }}>
-                                    <img src={seal.image} alt="" style={{ maxHeight: '80px', border: '1px solid #d1d5db', borderRadius: '4px' }} />
+                                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+                                    <img src={seal.image} alt="" style={{
+                                      maxHeight: '80px',
+                                      border: '1px solid #d1d5db',
+                                      borderRadius: '4px',
+                                      transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                      transformOrigin: 'center'
+                                    }} />
                                   </div>
                                   <button
                                     onClick={() => removeImage(index)}
@@ -1711,6 +1752,107 @@ const SealMaker = () => {
                                       onChange={(e) => handleSealChange(index, 'imageSize', parseInt(e.target.value))}
                                       style={{ width: '100%' }}
                                     />
+                                  </div>
+
+                                  {/* 画像調整オプション */}
+                                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                                    <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>✂️ 画像調整</label>
+
+                                    {/* 回転 */}
+                                    <div style={{ marginBottom: '12px' }}>
+                                      <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>回転</label>
+                                      <div style={{ display: 'flex', gap: '6px' }}>
+                                        {[0, 90, 180, 270].map(deg => (
+                                          <button
+                                            key={deg}
+                                            onClick={() => handleSealChange(index, 'imageRotation', deg)}
+                                            style={{
+                                              flex: 1,
+                                              padding: '6px',
+                                              fontSize: '11px',
+                                              borderRadius: '6px',
+                                              border: (seal.imageRotation || 0) === deg ? 'none' : '1px solid #d1d5db',
+                                              cursor: 'pointer',
+                                              background: (seal.imageRotation || 0) === deg ? '#4f46e5' : 'white',
+                                              color: (seal.imageRotation || 0) === deg ? 'white' : '#374151'
+                                            }}
+                                          >
+                                            {deg}°
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {/* ズーム */}
+                                    <div style={{ marginBottom: '12px' }}>
+                                      <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                        ズーム: {seal.imageZoom || 100}%
+                                      </label>
+                                      <input
+                                        type="range"
+                                        min="50"
+                                        max="200"
+                                        step="10"
+                                        value={seal.imageZoom || 100}
+                                        onChange={(e) => handleSealChange(index, 'imageZoom', parseInt(e.target.value))}
+                                        style={{ width: '100%' }}
+                                      />
+                                    </div>
+
+                                    {/* オフセット */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                      <div>
+                                        <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                          X移動: {seal.imageOffsetX || 0}%
+                                        </label>
+                                        <input
+                                          type="range"
+                                          min="-50"
+                                          max="50"
+                                          step="5"
+                                          value={seal.imageOffsetX || 0}
+                                          onChange={(e) => handleSealChange(index, 'imageOffsetX', parseInt(e.target.value))}
+                                          style={{ width: '100%' }}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                          Y移動: {seal.imageOffsetY || 0}%
+                                        </label>
+                                        <input
+                                          type="range"
+                                          min="-50"
+                                          max="50"
+                                          step="5"
+                                          value={seal.imageOffsetY || 0}
+                                          onChange={(e) => handleSealChange(index, 'imageOffsetY', parseInt(e.target.value))}
+                                          style={{ width: '100%' }}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* リセットボタン */}
+                                    <button
+                                      onClick={() => {
+                                        handleSealChange(index, 'imageRotation', 0);
+                                        handleSealChange(index, 'imageZoom', 100);
+                                        handleSealChange(index, 'imageOffsetX', 0);
+                                        handleSealChange(index, 'imageOffsetY', 0);
+                                      }}
+                                      style={{
+                                        marginTop: '8px',
+                                        padding: '6px 12px',
+                                        fontSize: '11px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d1d5db',
+                                        cursor: 'pointer',
+                                        background: '#f9fafb',
+                                        color: '#374151',
+                                        width: '100%'
+                                      }}
+                                    >
+                                      調整をリセット
+                                    </button>
                                   </div>
                                 </div>
                               )}
@@ -2041,8 +2183,21 @@ const SealMaker = () => {
                           ) : (
                             <>
                           {seal.image && seal.imagePosition === 'top' && (
-                            <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginBottom: '1mm' }}>
-                              <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.4}mm`, objectFit: 'contain' }} />
+                            <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginBottom: '1mm', overflow: 'hidden' }}>
+                              <img
+                                src={seal.image}
+                                alt=""
+                                style={{
+                                  width: `${seal.imageSize}%`,
+                                  height: 'auto',
+                                  maxHeight: `${currentLayout.height * 0.4}mm`,
+                                  objectFit: 'contain',
+                                  transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                  transformOrigin: 'center',
+                                  marginLeft: `${seal.imageOffsetX || 0}%`,
+                                  marginTop: `${seal.imageOffsetY || 0}%`
+                                }}
+                              />
                             </div>
                           )}
                           {seal.text && (
@@ -2068,13 +2223,39 @@ const SealMaker = () => {
                             </div>
                           )}
                           {seal.image && seal.imagePosition === 'center' && !seal.text && (
-                            <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end' }}>
-                              <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.8}mm`, objectFit: 'contain' }} />
+                            <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', overflow: 'hidden' }}>
+                              <img
+                                src={seal.image}
+                                alt=""
+                                style={{
+                                  width: `${seal.imageSize}%`,
+                                  height: 'auto',
+                                  maxHeight: `${currentLayout.height * 0.8}mm`,
+                                  objectFit: 'contain',
+                                  transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                  transformOrigin: 'center',
+                                  marginLeft: `${seal.imageOffsetX || 0}%`,
+                                  marginTop: `${seal.imageOffsetY || 0}%`
+                                }}
+                              />
                             </div>
                           )}
                           {seal.image && seal.imagePosition === 'bottom' && (
-                            <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginTop: '1mm' }}>
-                              <img src={seal.image} alt="" style={{ width: `${seal.imageSize}%`, height: 'auto', maxHeight: `${currentLayout.height * 0.4}mm`, objectFit: 'contain' }} />
+                            <div style={{ display: 'flex', justifyContent: seal.imageAlignHorizontal === 'center' ? 'center' : seal.imageAlignHorizontal === 'left' ? 'flex-start' : 'flex-end', marginTop: '1mm', overflow: 'hidden' }}>
+                              <img
+                                src={seal.image}
+                                alt=""
+                                style={{
+                                  width: `${seal.imageSize}%`,
+                                  height: 'auto',
+                                  maxHeight: `${currentLayout.height * 0.4}mm`,
+                                  objectFit: 'contain',
+                                  transform: `rotate(${seal.imageRotation || 0}deg) scale(${(seal.imageZoom || 100) / 100})`,
+                                  transformOrigin: 'center',
+                                  marginLeft: `${seal.imageOffsetX || 0}%`,
+                                  marginTop: `${seal.imageOffsetY || 0}%`
+                                }}
+                              />
                             </div>
                           )}
                           {/* QRコード表示 */}
