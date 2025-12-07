@@ -18,6 +18,9 @@ interface SealData {
   imagePosition: 'top' | 'center' | 'bottom';
   imageAlignHorizontal: 'left' | 'center' | 'right';
   richText?: string; // HTML形式のリッチテキスト
+  lineHeight?: number; // 行間 (1.0-2.5)
+  letterSpacing?: number; // 字間 (-2 to 5)
+  textIndent?: number; // 字下げ (0-20)
 }
 
 interface LayoutConfig {
@@ -88,7 +91,10 @@ const createDefaultSeal = (fontSize: number = 11): SealData => ({
   imageSize: 50,
   imagePosition: 'top',
   imageAlignHorizontal: 'center',
-  richText: ''
+  richText: '',
+  lineHeight: 1.4,
+  letterSpacing: 0,
+  textIndent: 0
 });
 
 // プリセットカラー
@@ -364,6 +370,16 @@ const SealMaker = () => {
     settings: typeof printerSettings;
   }>>([]);
 
+  // 自動較正用の状態
+  const [showCalibrationModal, setShowCalibrationModal] = useState(false);
+  const [calibrationStep, setCalibrationStep] = useState<1 | 2 | 3>(1);
+  const [calibrationOffset, setCalibrationOffset] = useState({ top: 0, left: 0, right: 0, bottom: 0 });
+  const [calibrationPresetName, setCalibrationPresetName] = useState('');
+
+  // プリセット共有/インポート用の状態
+  const [showImportPresetModal, setShowImportPresetModal] = useState(false);
+  const [importPresetText, setImportPresetText] = useState('');
+
   const PRINTER_PROFILES_KEY = 'seal-maker-printer-profiles';
 
   // 初期化時に保存データと印刷設定を読み込み
@@ -474,6 +490,85 @@ const SealMaker = () => {
     const updated = savedPrinterProfiles.filter(p => p.id !== id);
     setSavedPrinterProfiles(updated);
     localStorage.setItem(PRINTER_PROFILES_KEY, JSON.stringify(updated));
+  };
+
+  // プリセットをクリップボードにエクスポート
+  const exportPresetToClipboard = () => {
+    const presetData = {
+      version: 1,
+      type: 'seal-maker-preset',
+      layout,
+      offset: printOffset,
+      name: `${layouts[layout].name} カスタム設定`
+    };
+    const encoded = btoa(encodeURIComponent(JSON.stringify(presetData)));
+    const shareText = `SEAL:${encoded}`;
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert('プリセットをクリップボードにコピーしました！\n共有コードを他の人に送ってください。');
+    }).catch(() => {
+      // フォールバック：テキストエリアを使用
+      const textArea = document.createElement('textarea');
+      textArea.value = shareText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('プリセットをクリップボードにコピーしました！');
+    });
+  };
+
+  // プリセットをインポート
+  const importPreset = () => {
+    const text = importPresetText.trim();
+    if (!text) {
+      alert('共有コードを入力してください');
+      return;
+    }
+
+    try {
+      let decoded: string;
+      if (text.startsWith('SEAL:')) {
+        decoded = decodeURIComponent(atob(text.substring(5)));
+      } else {
+        // 生のJSONも受け付ける
+        decoded = text;
+      }
+
+      const presetData = JSON.parse(decoded);
+      if (presetData.type !== 'seal-maker-preset') {
+        throw new Error('無効なプリセット形式です');
+      }
+
+      // プリセットを適用
+      if (presetData.layout && layouts[presetData.layout]) {
+        handleLayoutChange(presetData.layout);
+      }
+      if (presetData.offset) {
+        setPrintOffset(presetData.offset);
+      }
+
+      // カスタムプリセットとして保存するか確認
+      const saveName = prompt('このプリセットに名前を付けて保存しますか？\n（キャンセルで適用のみ）', presetData.name || '');
+      if (saveName) {
+        const newPreset: PaperPreset = {
+          id: Date.now().toString(),
+          name: saveName,
+          layout: presetData.layout || layout,
+          offset: presetData.offset || printOffset
+        };
+        const updated = [...customPresets, newPreset];
+        setCustomPresets(updated);
+        localStorage.setItem(PAPER_PRESETS_KEY, JSON.stringify(updated));
+        alert('プリセットを保存しました！');
+      } else {
+        alert('プリセットを適用しました！');
+      }
+
+      setShowImportPresetModal(false);
+      setImportPresetText('');
+    } catch {
+      alert('無効なプリセットコードです。正しい共有コードを入力してください。');
+    }
   };
 
   // テンプレートを保存
@@ -1016,6 +1111,36 @@ const SealMaker = () => {
               >
                 + 現在の設定をプリセット保存
               </button>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <button
+                  onClick={exportPresetToClipboard}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #0891b2',
+                    cursor: 'pointer',
+                    background: '#0891b2',
+                    color: 'white',
+                  }}
+                >
+                  📤 現在設定を共有
+                </button>
+                <button
+                  onClick={() => setShowImportPresetModal(true)}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    borderRadius: '6px',
+                    border: '1px solid #7c3aed',
+                    cursor: 'pointer',
+                    background: '#7c3aed',
+                    color: 'white',
+                  }}
+                >
+                  📥 プリセット読込
+                </button>
+              </div>
             </div>
 
             {/* ガイド出力オプション */}
@@ -1053,6 +1178,25 @@ const SealMaker = () => {
               <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '8px', marginBottom: 0 }}>
                 印刷時にガイドを表示して位置合わせに使用できます
               </p>
+              <button
+                onClick={() => setShowCalibrationModal(true)}
+                style={{
+                  marginTop: '12px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                🎯 自動較正ウィザード
+              </button>
             </div>
 
             {/* 複数ページ印刷設定 */}
@@ -1601,7 +1745,7 @@ const SealMaker = () => {
                               </div>
                             </div>
 
-                            <div>
+                            <div style={{ marginBottom: '12px' }}>
                               <label style={styles.label}>横位置</label>
                               <div style={{ display: 'flex', gap: '8px' }}>
                                 {(['left', 'center', 'right'] as const).map(h => (
@@ -1613,6 +1757,55 @@ const SealMaker = () => {
                                     {h === 'left' ? '左' : h === 'center' ? '中央' : '右'}
                                   </button>
                                 ))}
+                              </div>
+                            </div>
+
+                            {/* テキスト調整オプション */}
+                            <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+                              <label style={{ ...styles.label, marginBottom: '12px', display: 'block' }}>📏 テキスト調整</label>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                                <div>
+                                  <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                    行間: {seal.lineHeight || 1.4}
+                                  </label>
+                                  <input
+                                    type="range"
+                                    min="1.0"
+                                    max="2.5"
+                                    step="0.1"
+                                    value={seal.lineHeight || 1.4}
+                                    onChange={(e) => handleSealChange(index, 'lineHeight', parseFloat(e.target.value))}
+                                    style={{ width: '100%' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                    字間: {seal.letterSpacing || 0}px
+                                  </label>
+                                  <input
+                                    type="range"
+                                    min="-2"
+                                    max="5"
+                                    step="0.5"
+                                    value={seal.letterSpacing || 0}
+                                    onChange={(e) => handleSealChange(index, 'letterSpacing', parseFloat(e.target.value))}
+                                    style={{ width: '100%' }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '10px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
+                                    字下げ: {seal.textIndent || 0}px
+                                  </label>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="20"
+                                    step="1"
+                                    value={seal.textIndent || 0}
+                                    onChange={(e) => handleSealChange(index, 'textIndent', parseFloat(e.target.value))}
+                                    style={{ width: '100%' }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1752,7 +1945,9 @@ const SealMaker = () => {
                                 fontFamily: seal.fontFamily,
                                 color: seal.textColor || '#000000',
                                 wordBreak: 'break-word',
-                                lineHeight: 1.4,
+                                lineHeight: seal.lineHeight || 1.4,
+                                letterSpacing: `${seal.letterSpacing || 0}px`,
+                                textIndent: `${seal.textIndent || 0}px`,
                                 whiteSpace: 'pre-wrap',
                                 width: '100%'
                               }}
@@ -2359,6 +2554,320 @@ const SealMaker = () => {
                 style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
               >
                 閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 自動較正モーダル */}
+      {showCalibrationModal && (
+        <div style={styles.modal} onClick={() => { setShowCalibrationModal(false); setCalibrationStep(1); }}>
+          <div style={{ ...styles.modalContent, maxWidth: '550px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                🎯 自動較正ウィザード
+              </h2>
+              <button
+                onClick={() => { setShowCalibrationModal(false); setCalibrationStep(1); }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+
+            {/* ステップインジケーター */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px' }}>
+              {[1, 2, 3].map(step => (
+                <div key={step} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: calibrationStep >= step ? '#4f46e5' : '#e5e7eb',
+                    color: calibrationStep >= step ? 'white' : '#9ca3af',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '14px'
+                  }}>
+                    {step}
+                  </div>
+                  <span style={{ fontSize: '13px', color: calibrationStep >= step ? '#374151' : '#9ca3af' }}>
+                    {step === 1 ? 'テスト印刷' : step === 2 ? 'ズレ量入力' : '保存'}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* ステップ1: テスト印刷 */}
+            {calibrationStep === 1 && (
+              <div>
+                <div style={{ padding: '20px', background: '#f0f9ff', borderRadius: '12px', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#0369a1', marginBottom: '12px' }}>
+                    ステップ1: テストパターンを印刷
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, marginBottom: '16px' }}>
+                    まず、シール用紙にテストパターンを印刷します。<br />
+                    印刷後、シールの枠線と用紙の切り取り線を比較して、どれだけズレているかを測定してください。
+                  </p>
+                  <div style={{ padding: '16px', background: 'white', borderRadius: '8px', border: '1px dashed #0284c7' }}>
+                    <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>テストパターンのイメージ:</p>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <div style={{
+                        width: '120px',
+                        height: '80px',
+                        border: '2px solid #0284c7',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '2px',
+                        padding: '4px'
+                      }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} style={{ border: '1px solid #93c5fd', background: '#f0f9ff', fontSize: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {i + 1}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      setShowGuides({ cutMarks: true, centerLine: true, testPattern: true });
+                      setShowCalibrationModal(false);
+                      setTimeout(() => window.print(), 100);
+                    }}
+                    style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
+                  >
+                    <Printer size={18} />
+                    テストパターンを印刷
+                  </button>
+                  <button
+                    onClick={() => setCalibrationStep(2)}
+                    style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+                  >
+                    印刷済み→次へ
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ステップ2: ズレ量入力 */}
+            {calibrationStep === 2 && (
+              <div>
+                <div style={{ padding: '20px', background: '#fefce8', borderRadius: '12px', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#a16207', marginBottom: '12px' }}>
+                    ステップ2: ズレ量を入力
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, marginBottom: '8px' }}>
+                    印刷結果を確認して、シールがどの方向にズレているか入力してください。<br />
+                    <strong>例:</strong> シールが用紙の上に2mm寄っている → 上: +2mm
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                  {(['top', 'left', 'right', 'bottom'] as const).map(dir => (
+                    <div key={dir} style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+                        {dir === 'top' ? '↑ 上方向' : dir === 'left' ? '← 左方向' : dir === 'right' ? '→ 右方向' : '↓ 下方向'} (mm)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={calibrationOffset[dir]}
+                        onChange={(e) => setCalibrationOffset({ ...calibrationOffset, [dir]: parseFloat(e.target.value) || 0 })}
+                        style={{ ...styles.input, width: '100%' }}
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ padding: '12px', background: '#f0fdf4', borderRadius: '8px', marginBottom: '16px' }}>
+                  <p style={{ fontSize: '13px', color: '#166534', margin: 0 }}>
+                    💡 <strong>ヒント:</strong> 正の値 = その方向にシールが寄っている → 反対方向に補正します
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => setCalibrationStep(1)}
+                    style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+                  >
+                    戻る
+                  </button>
+                  <button
+                    onClick={() => setCalibrationStep(3)}
+                    style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
+                  >
+                    次へ
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ステップ3: 保存 */}
+            {calibrationStep === 3 && (
+              <div>
+                <div style={{ padding: '20px', background: '#f0fdf4', borderRadius: '12px', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#166534', marginBottom: '12px' }}>
+                    ステップ3: プリセットとして保存
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, marginBottom: '16px' }}>
+                    計算した補正値をプリセットとして保存します。次回以降、同じ用紙を使う時に呼び出せます。
+                  </p>
+
+                  <div style={{ padding: '16px', background: 'white', borderRadius: '8px', border: '1px solid #bbf7d0', marginBottom: '16px' }}>
+                    <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>適用される補正値:</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', fontSize: '12px', color: '#6b7280' }}>
+                      <div>上: <span style={{ fontWeight: '600', color: '#374151' }}>{-calibrationOffset.top}mm</span></div>
+                      <div>左: <span style={{ fontWeight: '600', color: '#374151' }}>{-calibrationOffset.left}mm</span></div>
+                      <div>右: <span style={{ fontWeight: '600', color: '#374151' }}>{-calibrationOffset.right}mm</span></div>
+                      <div>下: <span style={{ fontWeight: '600', color: '#374151' }}>{-calibrationOffset.bottom}mm</span></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+                      プリセット名
+                    </label>
+                    <input
+                      type="text"
+                      value={calibrationPresetName}
+                      onChange={(e) => setCalibrationPresetName(e.target.value)}
+                      placeholder="例: Canon TS8330 + A-one 72224"
+                      style={{ ...styles.input, width: '100%' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => setCalibrationStep(2)}
+                    style={{ ...styles.button, ...styles.grayButton }}
+                  >
+                    戻る
+                  </button>
+                  <button
+                    onClick={() => {
+                      // 補正値を適用（入力されたズレの逆方向に補正）
+                      const newOffset = {
+                        top: -calibrationOffset.top,
+                        left: -calibrationOffset.left,
+                        right: -calibrationOffset.right,
+                        bottom: -calibrationOffset.bottom
+                      };
+                      setPrintOffset(newOffset);
+                      setShowCalibrationModal(false);
+                      setCalibrationStep(1);
+                      setCalibrationOffset({ top: 0, left: 0, right: 0, bottom: 0 });
+                      alert('補正値を適用しました！');
+                    }}
+                    style={{ ...styles.button, ...styles.blueButton, flex: 1 }}
+                  >
+                    補正値を適用
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!calibrationPresetName.trim()) {
+                        alert('プリセット名を入力してください');
+                        return;
+                      }
+                      // 補正値を適用して保存
+                      const newOffset = {
+                        top: -calibrationOffset.top,
+                        left: -calibrationOffset.left,
+                        right: -calibrationOffset.right,
+                        bottom: -calibrationOffset.bottom
+                      };
+                      setPrintOffset(newOffset);
+
+                      const newPreset: PaperPreset = {
+                        id: Date.now().toString(),
+                        name: calibrationPresetName.trim(),
+                        layout,
+                        offset: newOffset
+                      };
+                      const updated = [...customPresets, newPreset];
+                      setCustomPresets(updated);
+                      localStorage.setItem(PAPER_PRESETS_KEY, JSON.stringify(updated));
+
+                      setShowCalibrationModal(false);
+                      setCalibrationStep(1);
+                      setCalibrationOffset({ top: 0, left: 0, right: 0, bottom: 0 });
+                      setCalibrationPresetName('');
+                      alert('補正値を適用してプリセットに保存しました！');
+                    }}
+                    style={{ ...styles.button, ...styles.greenButton, flex: 1 }}
+                  >
+                    <Save size={16} />
+                    保存して適用
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* プリセットインポートモーダル */}
+      {showImportPresetModal && (
+        <div style={styles.modal} onClick={() => setShowImportPresetModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                📥 プリセット読込
+              </h2>
+              <button
+                onClick={() => setShowImportPresetModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
+              他の人から共有された用紙プリセットコードを貼り付けて読み込みます。
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ ...styles.label, marginBottom: '6px', display: 'block' }}>共有コード</label>
+              <textarea
+                value={importPresetText}
+                onChange={(e) => setImportPresetText(e.target.value)}
+                placeholder="SEAL:xxxxx... 形式のコードを貼り付け"
+                style={{
+                  ...styles.textarea,
+                  width: '100%',
+                  height: '100px',
+                  fontFamily: 'monospace',
+                  fontSize: '12px'
+                }}
+              />
+            </div>
+
+            <div style={{ padding: '12px', background: '#f0f9ff', borderRadius: '8px', marginBottom: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#0369a1', margin: 0 }}>
+                💡 <strong>ヒント:</strong> 共有コードは「SEAL:」で始まる文字列です。<br />
+                用紙メーカーや他のユーザーから受け取ったコードを貼り付けてください。
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setShowImportPresetModal(false)}
+                style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={importPreset}
+                style={{ ...styles.button, ...styles.primaryButton, flex: 1 }}
+              >
+                読み込む
               </button>
             </div>
           </div>
