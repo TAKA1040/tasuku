@@ -336,6 +336,19 @@ const SealMaker = () => {
   // PDF生成中フラグ
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  // 可変データ印刷用の状態
+  const [variableDataMode, setVariableDataMode] = useState(false);
+  const [csvData, setCsvData] = useState<string[][]>([]);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [showVariableDataModal, setShowVariableDataModal] = useState(false);
+  const [serialNumberSettings, setSerialNumberSettings] = useState({
+    enabled: false,
+    prefix: '',
+    startNumber: 1,
+    digits: 3,
+    suffix: ''
+  });
+
   // 初期化時に保存データと印刷設定を読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -647,6 +660,111 @@ const SealMaker = () => {
     }
   };
 
+  // CSVをパースする関数
+  const parseCSV = (text: string): { headers: string[]; data: string[][] } => {
+    const lines = text.split(/\r?\n/).filter(line => line.trim());
+    if (lines.length === 0) return { headers: [], data: [] };
+
+    // 簡易CSVパーサー（カンマ区切り、ダブルクォート対応）
+    const parseLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseLine(lines[0]);
+    const data = lines.slice(1).map(parseLine);
+
+    return { headers, data };
+  };
+
+  // CSVファイルを読み込み
+  const handleCSVUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const { headers, data } = parseCSV(text);
+      setCsvHeaders(headers);
+      setCsvData(data);
+      setVariableDataMode(true);
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+
+  // 通番を生成
+  const generateSerialNumber = (index: number): string => {
+    if (!serialNumberSettings.enabled) return '';
+    const num = serialNumberSettings.startNumber + index;
+    const paddedNum = String(num).padStart(serialNumberSettings.digits, '0');
+    return `${serialNumberSettings.prefix}${paddedNum}${serialNumberSettings.suffix}`;
+  };
+
+  // CSVデータを各シールに適用（テンプレートにプレースホルダーを使用）
+  const applyCSVData = () => {
+    if (csvData.length === 0) return;
+
+    const newSealData = sealData.map((seal, index) => {
+      if (index >= csvData.length) return seal;
+
+      let newText = seal.text;
+      // ヘッダー名でプレースホルダーを置換 {{列名}}
+      csvHeaders.forEach((header, colIndex) => {
+        const placeholder = `{{${header}}}`;
+        const value = csvData[index]?.[colIndex] || '';
+        newText = newText.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
+      });
+
+      // 通番プレースホルダー {{通番}}
+      if (serialNumberSettings.enabled) {
+        newText = newText.replace(/\{\{通番\}\}/g, generateSerialNumber(index));
+      }
+
+      return { ...seal, text: newText };
+    });
+
+    setSealData(newSealData);
+    setShowVariableDataModal(false);
+    alert(`${Math.min(csvData.length, totalSeals)}件のデータを適用しました`);
+  };
+
+  // 通番だけを適用
+  const applySerialNumbers = () => {
+    const newSealData = sealData.map((seal, index) => {
+      const newText = seal.text.replace(/\{\{通番\}\}/g, generateSerialNumber(index));
+      return { ...seal, text: newText };
+    });
+    setSealData(newSealData);
+    alert('通番を適用しました');
+  };
+
+  // 可変データモードをクリア
+  const clearVariableData = () => {
+    setCsvData([]);
+    setCsvHeaders([]);
+    setVariableDataMode(false);
+    setSerialNumberSettings({
+      enabled: false,
+      prefix: '',
+      startNumber: 1,
+      digits: 3,
+      suffix: ''
+    });
+  };
+
   // フォントオプション
   const fontOptions = [
     { group: '日本語ゴシック体', options: [
@@ -729,6 +847,16 @@ const SealMaker = () => {
             >
               <FileDown size={20} />
               {isGeneratingPDF ? 'PDF生成中...' : 'PDF'}
+            </button>
+            <button
+              onClick={() => setShowVariableDataModal(true)}
+              style={{
+                ...styles.button,
+                background: variableDataMode ? '#16a34a' : '#6b7280',
+                color: 'white'
+              }}
+            >
+              📊 差込
             </button>
           </div>
         </div>
@@ -1817,6 +1945,151 @@ const SealMaker = () => {
                 <Save size={18} />
                 保存
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 可変データ印刷モーダル */}
+      {showVariableDataModal && (
+        <div style={styles.modal} onClick={() => setShowVariableDataModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#374151', margin: 0 }}>
+                📊 可変データ印刷
+              </h2>
+              <button
+                onClick={() => setShowVariableDataModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+              CSVファイルを読み込んで、各シールに異なるデータを差し込みます。<br />
+              テンプレートのテキストに <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '4px' }}>{'{{列名}}'}</code> を入力してください。
+            </p>
+
+            {/* CSV読み込み */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+              <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>CSVファイル</label>
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    handleCSVUpload(e.target.files[0]);
+                  }
+                }}
+                style={{ marginBottom: '8px' }}
+              />
+              {csvHeaders.length > 0 && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#16a34a' }}>
+                  ✓ {csvData.length}件のデータ、列: {csvHeaders.join(', ')}
+                </div>
+              )}
+            </div>
+
+            {/* 通番設定 */}
+            <div style={{ marginBottom: '16px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={serialNumberSettings.enabled}
+                  onChange={(e) => setSerialNumberSettings({ ...serialNumberSettings, enabled: e.target.checked })}
+                  style={{ width: '16px', height: '16px' }}
+                />
+                <span style={{ fontWeight: '600', color: '#374151' }}>通番を使用する</span>
+              </label>
+
+              {serialNumberSettings.enabled && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>接頭辞</label>
+                    <input
+                      type="text"
+                      value={serialNumberSettings.prefix}
+                      onChange={(e) => setSerialNumberSettings({ ...serialNumberSettings, prefix: e.target.value })}
+                      placeholder="例: No."
+                      style={{ ...styles.input, width: '100%' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>開始番号</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={serialNumberSettings.startNumber}
+                      onChange={(e) => setSerialNumberSettings({ ...serialNumberSettings, startNumber: parseInt(e.target.value) || 0 })}
+                      style={{ ...styles.input, width: '100%' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>桁数</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={serialNumberSettings.digits}
+                      onChange={(e) => setSerialNumberSettings({ ...serialNumberSettings, digits: Math.max(1, parseInt(e.target.value) || 1) })}
+                      style={{ ...styles.input, width: '100%' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>接尾辞</label>
+                    <input
+                      type="text"
+                      value={serialNumberSettings.suffix}
+                      onChange={(e) => setSerialNumberSettings({ ...serialNumberSettings, suffix: e.target.value })}
+                      placeholder="例: 号"
+                      style={{ ...styles.input, width: '100%' }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {serialNumberSettings.enabled && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
+                  プレビュー: {generateSerialNumber(0)}, {generateSerialNumber(1)}, {generateSerialNumber(2)}...
+                  <br />
+                  テンプレートに <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '4px' }}>{'{{通番}}'}</code> を入力してください。
+                </div>
+              )}
+            </div>
+
+            {/* ボタン */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setShowVariableDataModal(false)}
+                style={{ ...styles.button, ...styles.grayButton, flex: 1 }}
+              >
+                閉じる
+              </button>
+              {(csvData.length > 0 || serialNumberSettings.enabled) && (
+                <button
+                  onClick={applyCSVData}
+                  style={{ ...styles.button, ...styles.greenButton, flex: 1 }}
+                >
+                  データを適用
+                </button>
+              )}
+              {serialNumberSettings.enabled && csvData.length === 0 && (
+                <button
+                  onClick={applySerialNumbers}
+                  style={{ ...styles.button, ...styles.blueButton, flex: 1 }}
+                >
+                  通番のみ適用
+                </button>
+              )}
+              {variableDataMode && (
+                <button
+                  onClick={clearVariableData}
+                  style={{ ...styles.button, ...styles.redButton, flex: 1 }}
+                >
+                  クリア
+                </button>
+              )}
             </div>
           </div>
         </div>
