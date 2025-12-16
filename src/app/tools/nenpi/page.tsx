@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Edit, Trash2, TrendingUp } from 'lucide-react'
+import { Plus, Edit, Trash2, TrendingUp, Pencil, Check, X } from 'lucide-react'
 
 interface FuelRecord {
   id: string
@@ -16,6 +16,7 @@ interface FuelRecord {
   cost: number
   mileage: number
   station: string
+  vehicle_id: number
   created_at?: string
   updated_at?: string
 }
@@ -25,12 +26,20 @@ interface User {
   email?: string
 }
 
+const DEFAULT_VEHICLE_NAMES = ['車両1', '車両2']
+
 export default function NenpiPage() {
   const [records, setRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null)
   const [stationList, setStationList] = useState<string[]>([])
   const [user, setUser] = useState<User | null>(null)
+
+  // 車両管理
+  const [activeVehicle, setActiveVehicle] = useState<number>(1)
+  const [vehicleNames, setVehicleNames] = useState<string[]>(DEFAULT_VEHICLE_NAMES)
+  const [editingVehicleName, setEditingVehicleName] = useState<number | null>(null)
+  const [tempVehicleName, setTempVehicleName] = useState('')
 
   // デフォルトで今日の日付を設定
   const getTodayDate = () => {
@@ -48,35 +57,26 @@ export default function NenpiPage() {
 
   const supabase = createClient()
 
+  // 車両名をlocalStorageから読み込み
+  useEffect(() => {
+    const savedNames = localStorage.getItem('nenpi_vehicle_names')
+    if (savedNames) {
+      try {
+        setVehicleNames(JSON.parse(savedNames))
+      } catch {
+        setVehicleNames(DEFAULT_VEHICLE_NAMES)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
 
       if (user) {
-        // デバッグ情報
         console.log('🔍 ログイン中のユーザー:', user.email, 'ID:', user.id)
-
-        // ユーザーが存在する場合、直接データを取得
-        try {
-          const { data, error } = await supabase
-            .from('fuel_records')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('date', { ascending: false })
-
-          if (error) {
-            console.error('Error fetching records:', error)
-          } else {
-            console.log('📊 取得したレコード数:', data.length)
-            setRecords(data as FuelRecord[])
-            // スタンド名リストを作成（重複を除去）
-            const stations = Array.from(new Set(data.map(r => r.station)))
-            setStationList(stations)
-          }
-        } catch (error) {
-          console.error('Error in fetchRecords:', error)
-        }
+        await fetchRecordsForVehicle(user.id, activeVehicle)
       } else {
         console.log('⚠️ ユーザーがログインしていません')
       }
@@ -87,32 +87,42 @@ export default function NenpiPage() {
     checkUser()
   }, [])
 
-  const handleLogin = () => {
-    window.location.href = '/login?redirect=/tools/nenpi'
-  }
+  // 車両切替時にデータを再取得
+  useEffect(() => {
+    if (user) {
+      fetchRecordsForVehicle(user.id, activeVehicle)
+    }
+  }, [activeVehicle, user])
 
-  const fetchRecords = async () => {
-    if (!user) return
-
+  const fetchRecordsForVehicle = async (userId: string, vehicleId: number) => {
     try {
       const { data, error } = await supabase
         .from('fuel_records')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
+        .eq('vehicle_id', vehicleId)
         .order('date', { ascending: false })
 
       if (error) {
         console.error('Error fetching records:', error)
       } else {
+        console.log(`📊 車両${vehicleId}のレコード数:`, data.length)
         setRecords(data as FuelRecord[])
-
-        // スタンド名リストを作成（重複を除去）
         const stations = Array.from(new Set(data.map(r => r.station)))
         setStationList(stations)
       }
     } catch (error) {
       console.error('Error in fetchRecords:', error)
     }
+  }
+
+  const handleLogin = () => {
+    window.location.href = '/login?redirect=/tools/nenpi'
+  }
+
+  const fetchRecords = async () => {
+    if (!user) return
+    await fetchRecordsForVehicle(user.id, activeVehicle)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +135,8 @@ export default function NenpiPage() {
       amount: parseFloat(formData.amount),
       cost: parseInt(formData.cost, 10),
       mileage: parseFloat(formData.mileage),
-      station: formData.station
+      station: formData.station,
+      vehicle_id: activeVehicle
     }
 
     if (editingRecord) {
@@ -199,6 +210,27 @@ export default function NenpiPage() {
     const distance = current.mileage - previous.mileage
     if (distance <= 0) return null
     return distance / current.amount
+  }
+
+  // 車両名の編集
+  const startEditVehicleName = (vehicleIndex: number) => {
+    setEditingVehicleName(vehicleIndex)
+    setTempVehicleName(vehicleNames[vehicleIndex])
+  }
+
+  const saveVehicleName = () => {
+    if (editingVehicleName === null) return
+    const newNames = [...vehicleNames]
+    newNames[editingVehicleName] = tempVehicleName.trim() || DEFAULT_VEHICLE_NAMES[editingVehicleName]
+    setVehicleNames(newNames)
+    localStorage.setItem('nenpi_vehicle_names', JSON.stringify(newNames))
+    setEditingVehicleName(null)
+    setTempVehicleName('')
+  }
+
+  const cancelEditVehicleName = () => {
+    setEditingVehicleName(null)
+    setTempVehicleName('')
   }
 
   if (loading) {
@@ -278,7 +310,7 @@ export default function NenpiPage() {
     }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -309,6 +341,101 @@ export default function NenpiPage() {
           </p>
         </div>
 
+        {/* Vehicle Tabs */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '8px',
+          marginBottom: '24px'
+        }}>
+          {[1, 2].map((vehicleId) => {
+            const isActive = activeVehicle === vehicleId
+            const isEditing = editingVehicleName === vehicleId - 1
+
+            return (
+              <div
+                key={vehicleId}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: isEditing ? '8px 12px' : '12px 24px',
+                  background: isActive ? '#3b82f6' : 'white',
+                  color: isActive ? 'white' : '#4b5563',
+                  borderRadius: '12px',
+                  cursor: isEditing ? 'default' : 'pointer',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  border: isActive ? 'none' : '2px solid #e5e7eb',
+                  boxShadow: isActive ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+                onClick={() => !isEditing && setActiveVehicle(vehicleId)}
+              >
+                {isEditing ? (
+                  <>
+                    <Input
+                      value={tempVehicleName}
+                      onChange={(e) => setTempVehicleName(e.target.value)}
+                      style={{
+                        width: '120px',
+                        height: '32px',
+                        fontSize: '0.875rem'
+                      }}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveVehicleName()
+                        if (e.key === 'Escape') cancelEditVehicleName()
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        saveVehicleName()
+                      }}
+                      style={{ padding: '4px', minWidth: 'auto' }}
+                    >
+                      <Check className="w-4 h-4" style={{ color: isActive ? 'white' : '#16a34a' }} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        cancelEditVehicleName()
+                      }}
+                      style={{ padding: '4px', minWidth: 'auto' }}
+                    >
+                      <X className="w-4 h-4" style={{ color: isActive ? 'white' : '#dc2626' }} />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <span>🚗 {vehicleNames[vehicleId - 1]}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        startEditVehicleName(vehicleId - 1)
+                      }}
+                      style={{
+                        padding: '4px',
+                        minWidth: 'auto',
+                        opacity: 0.7
+                      }}
+                    >
+                      <Pencil className="w-3 h-3" style={{ color: isActive ? 'white' : '#6b7280' }} />
+                    </Button>
+                  </>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
         {/* Input Form */}
         <Card className="shadow-lg border overflow-hidden" style={{ marginBottom: '24px', backgroundColor: 'white' }}>
           <CardHeader style={{
@@ -323,7 +450,7 @@ export default function NenpiPage() {
               alignItems: 'center',
               gap: '8px'
             }}>
-              {editingRecord ? '✏️ 記録の編集' : '➕ 新しい給油記録'}
+              {editingRecord ? '✏️ 記録の編集' : `➕ ${vehicleNames[activeVehicle - 1]}の給油記録`}
             </CardTitle>
           </CardHeader>
           <CardContent style={{
@@ -424,7 +551,7 @@ export default function NenpiPage() {
               alignItems: 'center',
               gap: '8px'
             }}>
-              📋 給油履歴 <span style={{ opacity: 0.9, fontSize: '1rem', fontWeight: 500 }}>({records.length}件)</span>
+              📋 {vehicleNames[activeVehicle - 1]}の給油履歴 <span style={{ opacity: 0.9, fontSize: '1rem', fontWeight: 500 }}>({records.length}件)</span>
             </CardTitle>
           </CardHeader>
           <CardContent style={{
@@ -617,7 +744,7 @@ export default function NenpiPage() {
                 fontSize: '1.25rem',
                 fontWeight: '600'
               }}>
-                📊 統計情報
+                📊 {vehicleNames[activeVehicle - 1]}の統計情報
               </CardTitle>
             </CardHeader>
             <CardContent style={{
