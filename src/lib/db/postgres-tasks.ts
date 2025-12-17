@@ -3,6 +3,7 @@
 
 import { query, queryOne } from './postgres-client'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
+import type { RecurringTemplate } from '@/lib/types/recurring-template'
 import { getTodayJST, getNowJST, addDays, parseDateJST, formatDateJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
 import { logger } from '@/lib/utils/logger'
@@ -533,6 +534,304 @@ export class PostgresTasksService {
     } catch (error) {
       logger.error('PostgresTasksService.updateSubtask error:', error)
       throw error
+    }
+  }
+
+  // ===================================
+  // TEMPLATES Operations
+  // ===================================
+
+  // アクティブなテンプレートをパターン別に取得
+  static async getTemplatesByPattern(userId: string, pattern: string): Promise<RecurringTemplate[]> {
+    try {
+      return await query<RecurringTemplate>(
+        `SELECT * FROM recurring_templates
+         WHERE user_id = $1 AND pattern = $2 AND active = true
+         ORDER BY created_at DESC`,
+        [userId, pattern]
+      )
+    } catch (error) {
+      logger.error('getTemplatesByPattern error:', error)
+      throw error
+    }
+  }
+
+  // 全テンプレートを取得
+  static async getAllTemplates(userId: string, filters?: {
+    pattern?: string
+    category?: string
+    active?: boolean
+  }): Promise<RecurringTemplate[]> {
+    try {
+      let sql = `SELECT * FROM recurring_templates WHERE user_id = $1`
+      const params: unknown[] = [userId]
+      let paramIndex = 2
+
+      if (filters?.pattern) {
+        sql += ` AND pattern = $${paramIndex}`
+        params.push(filters.pattern)
+        paramIndex++
+      }
+      if (filters?.category) {
+        sql += ` AND category = $${paramIndex}`
+        params.push(filters.category)
+        paramIndex++
+      }
+      if (filters?.active !== undefined) {
+        sql += ` AND active = $${paramIndex}`
+        params.push(filters.active)
+        paramIndex++
+      }
+
+      sql += ` ORDER BY created_at DESC`
+
+      return await query<RecurringTemplate>(sql, params)
+    } catch (error) {
+      logger.error('getAllTemplates error:', error)
+      throw error
+    }
+  }
+
+  // テンプレートを取得（ID指定）
+  static async getTemplateById(userId: string, id: string): Promise<RecurringTemplate | null> {
+    try {
+      return await queryOne<RecurringTemplate>(
+        `SELECT * FROM recurring_templates WHERE id = $1 AND user_id = $2`,
+        [id, userId]
+      )
+    } catch (error) {
+      logger.error('getTemplateById error:', error)
+      throw error
+    }
+  }
+
+  // テンプレートを更新
+  static async updateTemplate(userId: string, id: string, updates: Partial<RecurringTemplate>): Promise<RecurringTemplate> {
+    try {
+      const setClauses: string[] = []
+      const params: unknown[] = []
+      let paramIndex = 1
+
+      const allowedFields = [
+        'title', 'memo', 'category', 'importance', 'pattern', 'weekdays',
+        'day_of_month', 'month_of_year', 'day_of_year', 'active', 'urls',
+        'start_time', 'end_time', 'last_activated_at'
+      ]
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (allowedFields.includes(key)) {
+          setClauses.push(`${key} = $${paramIndex}`)
+          params.push(value)
+          paramIndex++
+        }
+      }
+
+      setClauses.push(`updated_at = $${paramIndex}`)
+      params.push(new Date().toISOString())
+      paramIndex++
+
+      params.push(id)
+      params.push(userId)
+
+      const result = await queryOne<RecurringTemplate>(
+        `UPDATE recurring_templates SET ${setClauses.join(', ')}
+         WHERE id = $${paramIndex - 1} AND user_id = $${paramIndex}
+         RETURNING *`,
+        params
+      )
+
+      if (!result) {
+        throw new Error('Template not found')
+      }
+
+      return result
+    } catch (error) {
+      logger.error('updateTemplate error:', error)
+      throw error
+    }
+  }
+
+  // テンプレートを削除
+  static async deleteTemplate(userId: string, id: string): Promise<void> {
+    try {
+      await query(
+        `DELETE FROM recurring_templates WHERE id = $1 AND user_id = $2`,
+        [id, userId]
+      )
+    } catch (error) {
+      logger.error('deleteTemplate error:', error)
+      throw error
+    }
+  }
+
+  // テンプレートを作成
+  static async createTemplate(userId: string, template: Partial<RecurringTemplate>): Promise<RecurringTemplate> {
+    try {
+      const now = new Date().toISOString()
+      const result = await queryOne<RecurringTemplate>(
+        `INSERT INTO recurring_templates (
+          title, memo, category, importance, pattern, weekdays,
+          day_of_month, month_of_year, day_of_year, user_id, active,
+          urls, start_time, end_time, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING *`,
+        [
+          template.title,
+          template.memo || null,
+          template.category || null,
+          template.importance || 1,
+          template.pattern,
+          template.weekdays || null,
+          template.day_of_month || null,
+          template.month_of_year || null,
+          template.day_of_year || null,
+          userId,
+          template.active !== false,
+          template.urls || null,
+          template.start_time || null,
+          template.end_time || null,
+          now,
+          now
+        ]
+      )
+
+      if (!result) {
+        throw new Error('Failed to create template')
+      }
+
+      return result
+    } catch (error) {
+      logger.error('createTemplate error:', error)
+      throw error
+    }
+  }
+
+  // ===================================
+  // USER METADATA Operations
+  // ===================================
+
+  // メタデータを取得
+  static async getMetadata(userId: string, key: string): Promise<string | null> {
+    try {
+      const result = await queryOne<{ value: string }>(
+        `SELECT value FROM user_metadata WHERE user_id = $1 AND key = $2`,
+        [userId, key]
+      )
+      return result?.value || null
+    } catch (error) {
+      logger.error('getMetadata error:', error)
+      return null
+    }
+  }
+
+  // メタデータを設定
+  static async setMetadata(userId: string, key: string, value: string): Promise<void> {
+    try {
+      await query(
+        `INSERT INTO user_metadata (user_id, key, value, updated_at)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (user_id, key) DO UPDATE SET value = $3, updated_at = $4`,
+        [userId, key, value, new Date().toISOString()]
+      )
+    } catch (error) {
+      logger.error('setMetadata error:', error)
+      throw error
+    }
+  }
+
+  // メタデータを削除
+  static async deleteMetadata(userId: string, key: string): Promise<void> {
+    try {
+      await query(
+        `DELETE FROM user_metadata WHERE user_id = $1 AND key = $2`,
+        [userId, key]
+      )
+    } catch (error) {
+      logger.error('deleteMetadata error:', error)
+    }
+  }
+
+  // メタデータ取得（updated_at付き）
+  static async getMetadataWithTimestamp(userId: string, key: string): Promise<{ value: string; updated_at: string } | null> {
+    try {
+      return await queryOne<{ value: string; updated_at: string }>(
+        `SELECT value, updated_at FROM user_metadata WHERE user_id = $1 AND key = $2`,
+        [userId, key]
+      )
+    } catch (error) {
+      logger.error('getMetadataWithTimestamp error:', error)
+      return null
+    }
+  }
+
+  // ===================================
+  // TASK GENERATION Operations
+  // ===================================
+
+  // テンプレートIDと日付でタスク存在チェック
+  static async getTaskByTemplateAndDate(
+    userId: string,
+    templateId: string,
+    dueDate: string
+  ): Promise<UnifiedTask | null> {
+    try {
+      return await queryOne<UnifiedTask>(
+        `SELECT * FROM unified_tasks
+         WHERE user_id = $1 AND recurring_template_id = $2 AND due_date = $3
+         LIMIT 1`,
+        [userId, templateId, dueDate]
+      )
+    } catch (error) {
+      logger.error('getTaskByTemplateAndDate error:', error)
+      throw error
+    }
+  }
+
+  // 繰り返しタスクの一括削除（パターン・期限条件）
+  static async deleteRecurringTasksByCondition(
+    userId: string,
+    pattern: string,
+    dateCondition: 'gt' | 'lte',
+    threshold: string
+  ): Promise<number> {
+    try {
+      const op = dateCondition === 'gt' ? '>' : '<='
+      const result = await query<{ id: string }>(
+        `DELETE FROM unified_tasks
+         WHERE user_id = $1
+         AND completed = false
+         AND recurring_pattern = $2
+         AND recurring_template_id IS NOT NULL
+         AND due_date ${op} $3
+         RETURNING id`,
+        [userId, pattern, threshold]
+      )
+      return result.length
+    } catch (error) {
+      logger.error('deleteRecurringTasksByCondition error:', error)
+      return 0
+    }
+  }
+
+  // 完了済み買い物タスク取得
+  static async getCompletedShoppingTasks(
+    userId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<UnifiedTask[]> {
+    try {
+      return await query<UnifiedTask>(
+        `SELECT * FROM unified_tasks
+         WHERE user_id = $1
+         AND category = '買い物'
+         AND completed = true
+         AND completed_at >= $2
+         AND completed_at <= $3`,
+        [userId, startDate, endDate]
+      )
+    } catch (error) {
+      logger.error('getCompletedShoppingTasks error:', error)
+      return []
     }
   }
 }

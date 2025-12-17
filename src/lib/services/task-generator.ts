@@ -1,5 +1,5 @@
-// Task Generation Service - Phase 3: Background Generation System
-// Based on RECURRING_REDESIGN_LOG.md specification
+// Task Generation Service - manarieDB (PostgreSQL) 対応版
+// PostgresTasksServiceを使用してデータベース操作を行う
 //
 // 【重要】生成期間ルール:
 // - DAILY: 過去3日〜今日（アクセス頻度: 毎日想定）
@@ -9,31 +9,17 @@
 // - 未来タスク: 明日以降のタスクは毎回削除（事前生成しない）
 // - 重複防止: createTaskFromTemplate内で実装済み（template_id + due_dateで判定）
 
-import { createClient } from '@/lib/supabase/client'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
-import { UnifiedTasksService } from '@/lib/db/unified-tasks'
+import { PostgresTasksService } from '@/lib/db/postgres-tasks'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
 import type { UnifiedTask } from '@/lib/types/unified-task'
 import { getTodayJST, addDays, subtractDays, getStartOfWeek, getStartOfMonth } from '@/lib/utils/date-jst'
 import { logger } from '@/lib/utils/logger'
 
 export class TaskGeneratorService {
-  private supabase: SupabaseClient
-  private templatesService: RecurringTemplatesService
+  private userId: string
 
-  constructor(supabase?: SupabaseClient) {
-    // サーバー側から呼ばれる場合はsupabaseを受け取り、クライアント側は自動生成
-    this.supabase = supabase || createClient()
-    this.templatesService = new RecurringTemplatesService(this.supabase)
-  }
-
-  async getCurrentUserId(): Promise<string> {
-    const { data: { user } } = await this.supabase.auth.getUser()
-    if (!user?.id) {
-      throw new Error('User not authenticated')
-    }
-    return user.id
+  constructor(userId: string) {
+    this.userId = userId
   }
 
   // メイン処理: 不足分のタスクを生成
@@ -43,18 +29,10 @@ export class TaskGeneratorService {
     // 既存データから最終処理日を取得
     const lastProcessed = await this.getLastGenerationDate()
     logger.production(`🚀 タスク生成開始: 今日=${today}, 前回=${lastProcessed}`)
-
-    let userId: string
-    try {
-      userId = await this.getCurrentUserId()
-      logger.production('👤 ユーザーID:', userId)
-    } catch (error) {
-      logger.error('❌ ユーザー認証エラー:', error)
-      return
-    }
+    logger.production('👤 ユーザーID:', this.userId)
 
     // 🔒 グローバルロック機構: 複数タブ/ページからの同時実行を防止
-    const lockAcquired = await this.acquireGenerationLock(userId)
+    const lockAcquired = await this.acquireGenerationLock()
     if (!lockAcquired) {
       logger.production('⏭️  他のプロセスが日次処理実行中のためスキップ')
       return
@@ -127,7 +105,7 @@ export class TaskGeneratorService {
       throw error
     } finally {
       // 🔓 ロック解放（必ず実行）
-      await this.releaseGenerationLock(userId)
+      await this.releaseGenerationLock()
     }
   }
 
@@ -140,20 +118,10 @@ export class TaskGeneratorService {
 
       logger.production(`🛒 買い物タスク処理: ${startDate}〜${today}に完了したタスクをチェック (last_shopping: ${lastShoppingProcessed})`)
 
-      // startDate翌日から今日までに完了した買い物タスクを取得
-      // completed_atは日付のみ or 日時の可能性があるため、両方に対応
-      const { data: completedShoppingTasks, error } = await this.supabase
-        .from('unified_tasks')
-        .select('*')
-        .eq('category', '買い物')
-        .eq('completed', true)
-        .gte('completed_at', startDate)
-        .lte('completed_at', today)
-
-      if (error) {
-        logger.error('❌ 完了買い物タスク取得エラー:', error)
-        return
-      }
+      // 完了した買い物タスクを取得
+      const completedShoppingTasks = await PostgresTasksService.getCompletedShoppingTasks(
+        this.userId, startDate, today
+      )
 
       if (!completedShoppingTasks || completedShoppingTasks.length === 0) {
         logger.production('✅ 期間内に完了した買い物タスクなし')
@@ -179,62 +147,49 @@ export class TaskGeneratorService {
           }
 
           // 未完了サブタスクの存在チェック
-          const { data: subtasks, error: subtasksError } = await this.supabase
-            .from('subtasks')
-            .select('*')
-            .eq('parent_task_id', task.id)
-
-          if (subtasksError) {
-            logger.error(`❌ サブタスク取得エラー (${task.title}):`, subtasksError)
-            errorCount++
-            continue
-          }
-
+          const subtasks = await PostgresTasksService.getSubtasks(this.userId, task.id)
           const uncompletedSubtasks = subtasks?.filter(st => !st.completed) || []
 
           if (uncompletedSubtasks.length === 0) {
             logger.production(`⏭️  スキップ: 未完了サブタスクなし`)
             // 処理済みマーカーを追加（空処理でも記録）
-            const { error: updateError } = await this.supabase
-              .from('unified_tasks')
-              .update({
-                memo: (task.memo || '') + '\n[繰り越し処理済み]'
-              })
-              .eq('id', task.id)
-
-            if (updateError) {
-              logger.error(`❌ 処理済みマーカー追加エラー (${task.title}):`, updateError)
-              errorCount++
-            } else {
-              skippedCount++
-            }
+            await PostgresTasksService.updateUnifiedTask(this.userId, task.id, {
+              memo: (task.memo || '') + '\n[繰り越し処理済み]'
+            })
+            skippedCount++
             continue
           }
 
           logger.production(`🛒 ${uncompletedSubtasks.length}個の未完了アイテムを繰り越します`)
 
-          // 繰り越し処理実行
-          await UnifiedTasksService.handleShoppingTaskCompletion(task as UnifiedTask)
+          // 新しい買い物タスクを作成（期日なし）
+          const displayNumber = await PostgresTasksService.generateDisplayNumber(this.userId)
+          const newTask = await PostgresTasksService.createUnifiedTask(this.userId, {
+            title: task.title,
+            memo: task.memo || '',
+            due_date: '2999-12-31',
+            category: '買い物',
+            importance: task.importance || 1,
+            task_type: 'NORMAL',
+            display_number: displayNumber,
+            completed: false
+          })
+
+          // 未完了サブタスクを新タスクにコピー
+          for (const subtask of uncompletedSubtasks) {
+            await PostgresTasksService.createSubtask(this.userId, newTask.id, subtask.title)
+          }
 
           // 処理済みマーカーを追加
-          const { error: markError } = await this.supabase
-            .from('unified_tasks')
-            .update({
-              memo: (task.memo || '') + '\n[繰り越し処理済み]'
-            })
-            .eq('id', task.id)
+          await PostgresTasksService.updateUnifiedTask(this.userId, task.id, {
+            memo: (task.memo || '') + '\n[繰り越し処理済み]'
+          })
 
-          if (markError) {
-            logger.error(`❌ 処理済みマーカー追加エラー (${task.title}):`, markError)
-            errorCount++
-          } else {
-            logger.production(`✅ 繰り越し完了`)
-            processedCount++
-          }
+          logger.production(`✅ 繰り越し完了`)
+          processedCount++
         } catch (taskError) {
           logger.error(`❌ タスク処理エラー (${task.title}):`, taskError)
           errorCount++
-          // エラーが起きても次のタスクに進む
         }
       }
 
@@ -245,141 +200,56 @@ export class TaskGeneratorService {
       logger.production(`✅ 買い物タスク処理完了 (last_shopping_processed: ${today})`)
     } catch (error) {
       logger.error('❌ 買い物タスク処理エラー:', error)
-      // エラーでも throw しない（他の処理を継続）
     }
   }
 
   // 買い物処理の最終処理日取得
   private async getLastShoppingProcessedDate(): Promise<string> {
-    try {
-      const userId = await this.getCurrentUserId()
-
-      const { data, error } = await this.supabase
-        .from('user_metadata')
-        .select('value')
-        .eq('user_id', userId)
-        .eq('key', 'last_shopping_processed')
-        .single()
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          logger.production('初回買い物処理（user_metadataにレコードなし）')
-          return '1970-01-01'
-        }
-        logger.warn('買い物処理日取得エラー:', error)
-        return '1970-01-01'
-      }
-
-      if (!data || !data.value) {
-        return '1970-01-01'
-      }
-
-      logger.production(`📅 last_shopping_processed: ${data.value}`)
-      return data.value
-    } catch (error) {
-      logger.error('買い物処理日取得エラー:', error)
+    const value = await PostgresTasksService.getMetadata(this.userId, 'last_shopping_processed')
+    if (!value) {
+      logger.production('初回買い物処理（メタデータなし）')
       return '1970-01-01'
     }
+    logger.production(`📅 last_shopping_processed: ${value}`)
+    return value
   }
 
   // 買い物処理の最終処理日を更新
   private async updateLastShoppingProcessedDate(date: string): Promise<void> {
-    const userId = await this.getCurrentUserId()
-
-    const { error } = await this.supabase
-      .from('user_metadata')
-      .upsert({
-        user_id: userId,
-        key: 'last_shopping_processed',
-        value: date
-      }, {
-        onConflict: 'user_id,key'
-      })
-
-    if (error) {
-      logger.error('❌ last_shopping_processed更新エラー:', error)
-      throw error
-    }
+    await PostgresTasksService.setMetadata(this.userId, 'last_shopping_processed', date)
   }
 
-  // 最終処理日取得（user_metadataから取得）
+  // 最終処理日取得
   private async getLastGenerationDate(): Promise<string> {
-    try {
-      const userId = await this.getCurrentUserId()
-
-      const { data, error } = await this.supabase
-        .from('user_metadata')
-        .select('value')
-        .eq('user_id', userId)
-        .eq('key', 'last_task_generation')
-        .single()
-
-      if (error) {
-        // レコードが存在しない場合は初回実行
-        if (error.code === 'PGRST116') {
-          logger.production('初回タスク生成（user_metadataにレコードなし）')
-          return '1970-01-01'
-        }
-        logger.warn('最終処理日取得エラー:', error)
-        return '1970-01-01'
-      }
-
-      if (!data || !data.value) {
-        logger.production('user_metadataに値なし、初期値を返す')
-        return '1970-01-01'
-      }
-
-      logger.production(`user_metadataから取得: last_task_generation = ${data.value}`)
-      return data.value
-    } catch (error) {
-      logger.error('最終処理日取得エラー:', error)
+    const value = await PostgresTasksService.getMetadata(this.userId, 'last_task_generation')
+    if (!value) {
+      logger.production('初回タスク生成（メタデータなし）')
       return '1970-01-01'
     }
+    logger.production(`user_metadataから取得: last_task_generation = ${value}`)
+    return value
   }
 
-  // 最終更新日を更新（メタデータテーブルに記録）
+  // 最終更新日を更新
   private async updateLastGenerationDate(date: string): Promise<void> {
-    const userId = await this.getCurrentUserId()
-
-    // user_metadataテーブルに記録（upsert）
-    const { error } = await this.supabase
-      .from('user_metadata')
-      .upsert({
-        user_id: userId,
-        key: 'last_task_generation',
-        value: date
-      }, {
-        onConflict: 'user_id,key'
-      })
-
-    if (error) {
-      logger.error('❌ last_task_generation更新エラー:', error)
-      throw error
-    }
+    await PostgresTasksService.setMetadata(this.userId, 'last_task_generation', date)
     logger.production(`✅ last_task_generation更新: ${date}`)
   }
 
-  // 🔒 ロック取得: 複数プロセスからの同時実行を防止
-  private async acquireGenerationLock(userId: string): Promise<boolean> {
+  // 🔒 ロック取得
+  private async acquireGenerationLock(): Promise<boolean> {
     try {
       const lockKey = 'generation_lock'
-      const lockTimeout = 5 * 60 * 1000 // 5分（ミリ秒）
+      const lockTimeout = 5 * 60 * 1000 // 5分
       const now = new Date().toISOString()
 
       // 既存のロックを確認
-      const { data: existingLock } = await this.supabase
-        .from('user_metadata')
-        .select('value, updated_at')
-        .eq('user_id', userId)
-        .eq('key', lockKey)
-        .maybeSingle()
+      const existingLock = await PostgresTasksService.getMetadataWithTimestamp(this.userId, lockKey)
 
       if (existingLock) {
-        // ロックのタイムスタンプをチェック
         const lockTime = new Date(existingLock.updated_at).getTime()
         const currentTime = new Date().getTime()
 
-        // ロックが5分以上古い場合は無効とみなす（デッドロック防止）
         if (currentTime - lockTime < lockTimeout) {
           logger.production('⏳ ロック取得失敗: 他のプロセスが実行中')
           return false
@@ -387,54 +257,29 @@ export class TaskGeneratorService {
         logger.production('⚠️  古いロックを検出、上書きします')
       }
 
-      // ロックを取得（upsert）
-      const { error } = await this.supabase
-        .from('user_metadata')
-        .upsert({
-          user_id: userId,
-          key: lockKey,
-          value: now
-        }, {
-          onConflict: 'user_id,key'
-        })
-
-      if (error) {
-        logger.error('❌ ロック取得エラー:', error)
-        return false
-      }
-
+      await PostgresTasksService.setMetadata(this.userId, lockKey, now)
       logger.production('🔒 ロック取得成功')
       return true
     } catch (error) {
-      logger.error('❌ ロック取得処理エラー:', error)
+      logger.error('❌ ロック取得エラー:', error)
       return false
     }
   }
 
   // 🔓 ロック解放
-  private async releaseGenerationLock(userId: string): Promise<void> {
+  private async releaseGenerationLock(): Promise<void> {
     try {
-      const { error } = await this.supabase
-        .from('user_metadata')
-        .delete()
-        .eq('user_id', userId)
-        .eq('key', 'generation_lock')
-
-      if (error) {
-        logger.error('❌ ロック解放エラー:', error)
-      } else {
-        logger.production('🔓 ロック解放完了')
-      }
+      await PostgresTasksService.deleteMetadata(this.userId, 'generation_lock')
+      logger.production('🔓 ロック解放完了')
     } catch (error) {
-      logger.error('❌ ロック解放処理エラー:', error)
+      logger.error('❌ ロック解放エラー:', error)
     }
   }
 
   // 日次タスク生成
   async generateDailyTasks(startDate: string, endDate: string): Promise<void> {
-    const templates = await this.templatesService.getTemplatesByPattern('DAILY')
+    const templates = await PostgresTasksService.getTemplatesByPattern(this.userId, 'DAILY')
     logger.production(`🔄 日次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
-    logger.production('🔄 日次テンプレート一覧:', templates.map(t => ({ id: t.id, title: t.title, active: t.active })))
 
     for (const template of templates) {
       let currentDate = startDate
@@ -445,34 +290,16 @@ export class TaskGeneratorService {
     }
   }
 
-  // 週次タスク生成（今日のみ・安全版）
-  async generateWeeklyTasksForToday(today: string): Promise<void> {
-    const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
-    logger.production(`週次タスク生成（今日のみ）: ${today}, テンプレート数: ${templates.length}`)
-
-    const todayWeekday = new Date(today).getDay()
-    const todayIsoWeekday = todayWeekday === 0 ? 7 : todayWeekday // 日曜=7に変換
-
-    for (const template of templates) {
-      // 今日が指定された曜日かチェック
-      if (template.weekdays?.includes(todayIsoWeekday)) {
-        logger.production(`今日用タスク作成: ${template.title} (${today})`)
-        await this.createTaskFromTemplate(template, today)
-      }
-    }
-  }
-
-  // 週次タスク生成（範囲指定版）
+  // 週次タスク生成
   async generateWeeklyTasks(startDate: string, endDate: string): Promise<void> {
-    const templates = await this.templatesService.getTemplatesByPattern('WEEKLY')
+    const templates = await PostgresTasksService.getTemplatesByPattern(this.userId, 'WEEKLY')
     logger.production(`週次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
       while (currentDate <= endDate) {
-        // 指定された曜日かチェック
         const weekday = new Date(currentDate).getDay()
-        const isoWeekday = weekday === 0 ? 7 : weekday // 日曜=7に変換
+        const isoWeekday = weekday === 0 ? 7 : weekday
 
         if (template.weekdays?.includes(isoWeekday)) {
           await this.createTaskFromTemplate(template, currentDate)
@@ -485,13 +312,12 @@ export class TaskGeneratorService {
 
   // 月次タスク生成
   async generateMonthlyTasks(startDate: string, endDate: string): Promise<void> {
-    const templates = await this.templatesService.getTemplatesByPattern('MONTHLY')
+    const templates = await PostgresTasksService.getTemplatesByPattern(this.userId, 'MONTHLY')
     logger.production(`月次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
       while (currentDate <= endDate) {
-        // 指定された日かチェック
         const day = new Date(currentDate).getDate()
 
         if (template.day_of_month === day) {
@@ -505,17 +331,16 @@ export class TaskGeneratorService {
 
   // 年次タスク生成
   async generateYearlyTasks(startDate: string, endDate: string): Promise<void> {
-    const templates = await this.templatesService.getTemplatesByPattern('YEARLY')
+    const templates = await PostgresTasksService.getTemplatesByPattern(this.userId, 'YEARLY')
     logger.production(`年次タスク生成: ${startDate} - ${endDate}, テンプレート数: ${templates.length}`)
 
     for (const template of templates) {
       let currentDate = startDate
       while (currentDate <= endDate) {
         const date = new Date(currentDate)
-        const month = date.getMonth() + 1 // 0-11 → 1-12
+        const month = date.getMonth() + 1
         const day = date.getDate()
 
-        // 指定された月日かチェック
         if (template.month_of_year === month && template.day_of_year === day) {
           await this.createTaskFromTemplate(template, currentDate)
         }
@@ -527,8 +352,6 @@ export class TaskGeneratorService {
 
   // テンプレートからタスクを作成
   private async createTaskFromTemplate(template: RecurringTemplate, dueDate: string): Promise<void> {
-    const userId = await this.getCurrentUserId()
-
     // テンプレート作成日より前の期限のタスクは生成しない
     const templateCreatedDate = template.created_at.split('T')[0]
     if (dueDate < templateCreatedDate) {
@@ -536,166 +359,75 @@ export class TaskGeneratorService {
       return
     }
 
-    // テンプレート最終アクティブ化日チェック（OFF→ON切替対策）
-    // last_activated_at: テンプレートが最後に active=true になった日時
-    // 理由: テンプレートがOFFだった期間のタスクは生成しない
-    // 例: 10/12作成→10/15 OFF→10/18 ON の場合、10/18以降のみ生成
+    // テンプレート最終アクティブ化日チェック
     const lastActivatedDate = template.last_activated_at?.split('T')[0]
     if (lastActivatedDate && dueDate < lastActivatedDate) {
       logger.production(`⏭️ スキップ: アクティブ化日(${lastActivatedDate})より前の期限(${dueDate}) - ${template.title}`)
-      logger.production(`   理由: このテンプレートは${lastActivatedDate}にONになったため、それより前の期間はOFFだった`)
       return
     }
 
-    // 既に同じテンプレート&日付のタスクが存在するかチェック
-    // 注意: completed の条件は付けない（完了済みタスクも重複防止の対象）
-    const { data: existing } = await this.supabase
-      .from('unified_tasks')
-      .select('id, urls, start_time, end_time, completed')
-      .eq('user_id', userId)
-      .eq('recurring_template_id', template.id)
-      .eq('due_date', dueDate)
-      .limit(1)
+    // 既存タスクチェック
+    const existing = await PostgresTasksService.getTaskByTemplateAndDate(this.userId, template.id, dueDate)
 
-    if (existing && existing.length > 0) {
-      // 既存タスクが存在する場合
-      const existingTask = existing[0]
-
-      logger.production(`🔍 既存タスクチェック: ${template.title} (${dueDate})`)
-      logger.production(`   既存タスクID: ${existingTask.id}, 完了: ${existingTask.completed}`)
-
-      // 完了済みタスクの場合は、更新せずに重複生成を防止
-      if (existingTask.completed) {
-        logger.production(`⏭️  スキップ: 既に完了済み - 重複生成を防止`)
+    if (existing) {
+      if (existing.completed) {
+        logger.production(`⏭️  スキップ: 既に完了済み - ${template.title}`)
         return
       }
 
-      // 未完了タスクの場合、テンプレートから最新のURLsと時刻を同期
-      logger.production(`   既存タスク urls:`, existingTask.urls, `(${typeof existingTask.urls})`)
-      logger.production(`   テンプレート urls:`, template.urls, `(${typeof template.urls})`)
-      logger.production(`   既存 JSON:`, JSON.stringify(existingTask.urls))
-      logger.production(`   テンプレ JSON:`, JSON.stringify(template.urls))
-      logger.production(`   JSON一致:`, JSON.stringify(existingTask.urls) === JSON.stringify(template.urls))
-
+      // 未完了タスクの同期更新
       const needsUpdate =
-        JSON.stringify(existingTask.urls) !== JSON.stringify(template.urls) ||
-        existingTask.start_time !== template.start_time ||
-        existingTask.end_time !== template.end_time
+        JSON.stringify(existing.urls) !== JSON.stringify(template.urls) ||
+        existing.start_time !== template.start_time ||
+        existing.end_time !== template.end_time
 
       if (needsUpdate) {
         logger.production(`🔄 既存タスクを同期更新: ${template.title} (${dueDate})`)
-        const { error: updateError } = await this.supabase
-          .from('unified_tasks')
-          .update({
-            urls: template.urls,
-            start_time: template.start_time,
-            end_time: template.end_time,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingTask.id)
-
-        if (updateError) {
-          logger.error(`❌ タスク同期エラー: ${template.title}`, updateError)
-        } else {
-          logger.production(`✅ タスク同期完了: ${template.title} (${dueDate})`)
-        }
-      } else {
-        logger.production(`⏭️  同期不要: ${template.title} (${dueDate}) - データが一致しています`)
+        await PostgresTasksService.updateUnifiedTask(this.userId, existing.id, {
+          urls: template.urls,
+          start_time: template.start_time,
+          end_time: template.end_time
+        })
       }
-      // 重複生成防止
       return
     }
 
-    // 統一番号を生成（UnifiedTasksServiceの公式メソッドを使用）
-    const displayNumber = await UnifiedTasksService.generateDisplayNumber()
+    // 新規タスク作成
+    const displayNumber = await PostgresTasksService.generateDisplayNumber(this.userId)
 
-    // デバッグ: テンプレートの情報をログ出力
     logger.production('📝 テンプレートからタスク生成:', {
       templateId: template.id,
       title: template.title,
-      dueDate: dueDate,
-      hasUrls: !!template.urls,
-      urlsCount: template.urls?.length || 0,
-      urls: template.urls,
-      urlsType: typeof template.urls,
-      urlsIsArray: Array.isArray(template.urls),
-      urlsJson: JSON.stringify(template.urls),
-      hasStartTime: !!template.start_time,
-      hasEndTime: !!template.end_time,
-      hasAttachment: !!template.attachment_file_name
+      dueDate: dueDate
     })
 
-    // タスク作成（テンプレートのすべてのフィールドを引き継ぐ）
-    const taskData: Record<string, unknown> = {
+    const newTask = await PostgresTasksService.createUnifiedTask(this.userId, {
       title: template.title,
       memo: template.memo,
       due_date: dueDate,
       category: template.category,
       importance: template.importance,
-      urls: template.urls || [], // テンプレートのURLsを引き継ぎ（null/undefinedの場合は空配列）
-      start_time: template.start_time, // 開始時刻を引き継ぎ
-      end_time: template.end_time, // 終了時刻を引き継ぎ
+      urls: template.urls || [],
+      start_time: template.start_time,
+      end_time: template.end_time,
       task_type: 'RECURRING',
       recurring_pattern: template.pattern,
       recurring_weekdays: template.weekdays,
       recurring_template_id: template.id,
       display_number: displayNumber,
-      completed: false,
-      user_id: userId
-    }
-
-    // 添付ファイルがあれば引き継ぎ
-    if (template.attachment_file_name) {
-      taskData.attachment_file_name = template.attachment_file_name
-      taskData.attachment_file_type = template.attachment_file_type
-      taskData.attachment_file_size = template.attachment_file_size
-      taskData.attachment_file_data = template.attachment_file_data
-    }
-
-    const { data: newTask, error } = await this.supabase
-      .from('unified_tasks')
-      .insert(taskData)
-      .select()
-      .single()
-
-    if (error) {
-      logger.error(`❌ タスク作成エラー: ${template.title} (${dueDate})`, error)
-      throw error
-    }
-
-    logger.production(`✅ タスク作成成功: ${template.title} (${dueDate})`, {
-      newTaskId: newTask.id,
-      hasUrls: !!newTask.urls,
-      urlsCount: Array.isArray(newTask.urls) ? newTask.urls.length : 0,
-      urls: newTask.urls
+      completed: false
     })
 
-    // 買い物リストがある場合、subtasksもコピー
+    logger.production(`✅ タスク作成成功: ${template.title} (${dueDate})`)
+
+    // 買い物タスクのサブタスクコピー
     if (template.category === '買い物') {
-      const { data: templateSubtasks } = await this.supabase
-        .from('subtasks')
-        .select('*')
-        .eq('parent_task_id', template.id)
-        .order('sort_order', { ascending: true })
-
+      const templateSubtasks = await PostgresTasksService.getSubtasks(this.userId, template.id)
       if (templateSubtasks && templateSubtasks.length > 0) {
-        const newSubtasks = templateSubtasks.map(sub => ({
-          parent_task_id: newTask.id, // 新しいタスクのIDに変更
-          title: sub.title,
-          completed: false, // 初期状態は未完了
-          sort_order: sub.sort_order,
-          user_id: userId
-        }))
-
-        const { error: subtasksError } = await this.supabase
-          .from('subtasks')
-          .insert(newSubtasks)
-
-        if (subtasksError) {
-          logger.error(`買い物リストコピーエラー: ${template.title}`, subtasksError)
-        } else {
-          logger.production(`✅ 買い物リストコピー完了: ${newSubtasks.length}件`)
+        for (const sub of templateSubtasks) {
+          await PostgresTasksService.createSubtask(this.userId, newTask.id, sub.title)
         }
+        logger.production(`✅ 買い物リストコピー完了: ${templateSubtasks.length}件`)
       }
     }
   }
@@ -714,84 +446,52 @@ export class TaskGeneratorService {
     return lastMonth !== currentMonth
   }
 
-  // 未来の繰り返しタスクの削除（パターン別の適切な期間を超えたタスクのみ削除）
+  // 未来の繰り返しタスクの削除
   private async deleteFutureRecurringTasks(today: string): Promise<void> {
     try {
-      const userId = await this.getCurrentUserId()
       let totalDeleted = 0
 
-      // DAILY: 明日以降を削除（生成範囲: 過去3日〜今日）
-      const dailyThreshold = today
-      const { data: dailyDeleted } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'DAILY')
-        .not('recurring_template_id', 'is', null)
-        .gt('due_date', dailyThreshold)
-        .select('id, title')
-
-      if (dailyDeleted && dailyDeleted.length > 0) {
-        logger.production(`🗑️  DAILY 未来タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}より後)`)
-        totalDeleted += dailyDeleted.length
+      // DAILY: 明日以降を削除
+      const dailyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'DAILY', 'gt', today
+      )
+      if (dailyDeleted > 0) {
+        logger.production(`🗑️  DAILY 未来タスク削除: ${dailyDeleted}件`)
+        totalDeleted += dailyDeleted
       }
 
-      // WEEKLY: 15日以降を削除（生成範囲: 過去14日〜今日）
+      // WEEKLY: 15日以降を削除
       const weeklyThreshold = addDays(today, 14)
-      const { data: weeklyDeleted } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'WEEKLY')
-        .not('recurring_template_id', 'is', null)
-        .gt('due_date', weeklyThreshold)
-        .select('id, title')
-
-      if (weeklyDeleted && weeklyDeleted.length > 0) {
-        logger.production(`🗑️  WEEKLY 未来タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}より後)`)
-        totalDeleted += weeklyDeleted.length
+      const weeklyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'WEEKLY', 'gt', weeklyThreshold
+      )
+      if (weeklyDeleted > 0) {
+        logger.production(`🗑️  WEEKLY 未来タスク削除: ${weeklyDeleted}件`)
+        totalDeleted += weeklyDeleted
       }
 
-      // MONTHLY: 61日以降を削除（生成範囲: 過去60日〜今日）
+      // MONTHLY: 61日以降を削除
       const monthlyThreshold = addDays(today, 60)
-      const { data: monthlyDeleted } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'MONTHLY')
-        .not('recurring_template_id', 'is', null)
-        .gt('due_date', monthlyThreshold)
-        .select('id, title')
-
-      if (monthlyDeleted && monthlyDeleted.length > 0) {
-        logger.production(`🗑️  MONTHLY 未来タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}より後)`)
-        totalDeleted += monthlyDeleted.length
+      const monthlyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'MONTHLY', 'gt', monthlyThreshold
+      )
+      if (monthlyDeleted > 0) {
+        logger.production(`🗑️  MONTHLY 未来タスク削除: ${monthlyDeleted}件`)
+        totalDeleted += monthlyDeleted
       }
 
-      // YEARLY: 731日以降を削除（生成範囲: 過去730日〜今日）
+      // YEARLY: 731日以降を削除
       const yearlyThreshold = addDays(today, 730)
-      const { data: yearlyDeleted } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'YEARLY')
-        .not('recurring_template_id', 'is', null)
-        .gt('due_date', yearlyThreshold)
-        .select('id, title')
-
-      if (yearlyDeleted && yearlyDeleted.length > 0) {
-        logger.production(`🗑️  YEARLY 未来タスク削除: ${yearlyDeleted.length}件 (${yearlyThreshold}より後)`)
-        totalDeleted += yearlyDeleted.length
+      const yearlyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'YEARLY', 'gt', yearlyThreshold
+      )
+      if (yearlyDeleted > 0) {
+        logger.production(`🗑️  YEARLY 未来タスク削除: ${yearlyDeleted}件`)
+        totalDeleted += yearlyDeleted
       }
 
       if (totalDeleted > 0) {
         logger.production(`✅ 未来タスク削除完了: 合計${totalDeleted}件`)
-      } else {
-        logger.production('✅ 削除対象の未来タスクなし')
       }
     } catch (error) {
       logger.error('❌ 未来タスク削除処理エラー:', error)
@@ -799,84 +499,41 @@ export class TaskGeneratorService {
   }
 
   // 期限切れ繰り返しタスクの自動削除
-  // 動作: 今日を基準に過去N日間を保持、それより古い未完了タスクを削除
-  // 日次: 期限から3日経過で削除（過去3日間保持）, 週次: 7日経過で削除（過去7日間保持）, 月次: 365日経過で削除（過去365日間保持）
-  // 例: 今日が10/12の場合、10/06のタスクは10/13に削除（7日経過）
   private async deleteExpiredRecurringTasks(today: string): Promise<void> {
     try {
-      const userId = await this.getCurrentUserId()
-
-      // 日次タスク: 期限から3日経過で削除（過去3日間を保持）
+      // 日次: 3日経過で削除
       const dailyThreshold = subtractDays(today, 3)
-      const { data: dailyDeleted, error: dailyError } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'DAILY')
-        .not('recurring_template_id', 'is', null)
-        .lte('due_date', dailyThreshold)
-        .select('id')
-
-      if (dailyError) {
-        logger.error('❌ 日次タスク削除エラー:', dailyError)
-      } else if (dailyDeleted && dailyDeleted.length > 0) {
-        logger.production(`🗑️  期限切れ日次タスク削除: ${dailyDeleted.length}件 (${dailyThreshold}以前)`)
+      const dailyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'DAILY', 'lte', dailyThreshold
+      )
+      if (dailyDeleted > 0) {
+        logger.production(`🗑️  期限切れ日次タスク削除: ${dailyDeleted}件`)
       }
 
-      // 週次タスク: 期限から7日経過で削除（過去7日間を保持）
+      // 週次: 7日経過で削除
       const weeklyThreshold = subtractDays(today, 7)
-      const { data: weeklyDeleted, error: weeklyError } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'WEEKLY')
-        .not('recurring_template_id', 'is', null)
-        .lte('due_date', weeklyThreshold)
-        .select('id')
-
-      if (weeklyError) {
-        logger.error('❌ 週次タスク削除エラー:', weeklyError)
-      } else if (weeklyDeleted && weeklyDeleted.length > 0) {
-        logger.production(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted.length}件 (${weeklyThreshold}以前)`)
+      const weeklyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'WEEKLY', 'lte', weeklyThreshold
+      )
+      if (weeklyDeleted > 0) {
+        logger.production(`🗑️  期限切れ週次タスク削除: ${weeklyDeleted}件`)
       }
 
-      // 月次タスク: 期限から365日経過で削除（過去365日間を保持）
+      // 月次: 365日経過で削除
       const monthlyThreshold = subtractDays(today, 365)
-      const { data: monthlyDeleted, error: monthlyError } = await this.supabase
-        .from('unified_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .eq('recurring_pattern', 'MONTHLY')
-        .not('recurring_template_id', 'is', null)
-        .lte('due_date', monthlyThreshold)
-        .select('id')
-
-      if (monthlyError) {
-        logger.error('❌ 月次タスク削除エラー:', monthlyError)
-      } else if (monthlyDeleted && monthlyDeleted.length > 0) {
-        logger.production(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted.length}件 (${monthlyThreshold}以前)`)
+      const monthlyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'MONTHLY', 'lte', monthlyThreshold
+      )
+      if (monthlyDeleted > 0) {
+        logger.production(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted}件`)
       }
 
-      const totalDeleted = (dailyDeleted?.length || 0) + (weeklyDeleted?.length || 0) + (monthlyDeleted?.length || 0)
+      const totalDeleted = dailyDeleted + weeklyDeleted + monthlyDeleted
       if (totalDeleted > 0) {
-        logger.production(`✅ 期限切れ繰り返しタスク削除完了: 合計${totalDeleted}件`)
-      } else {
-        logger.production('✅ 削除対象の期限切れ繰り返しタスクなし')
+        logger.production(`✅ 期限切れタスク削除完了: 合計${totalDeleted}件`)
       }
     } catch (error) {
       logger.error('❌ 期限切れタスク削除処理エラー:', error)
     }
-  }
-
-  // 日付ユーティリティ
-  private parseDate(dateString: string): number {
-    return new Date(dateString).getTime()
-  }
-
-  private formatDate(timestamp: number): string {
-    return new Date(timestamp).toISOString().split('T')[0]
   }
 }

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
-    // 認証確認
+    // 認証確認（Supabase Authを使用）
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -19,8 +19,8 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const forceToday = body.forceToday === true
 
-    // タスク生成実行（サーバー用クライアントを渡す）
-    const generator = new TaskGeneratorService(supabase)
+    // タスク生成実行（ユーザーIDを渡す）
+    const generator = new TaskGeneratorService(user.id)
     await generator.generateMissingTasks(forceToday)
 
     return NextResponse.json({
@@ -55,8 +55,8 @@ export async function GET() {
       )
     }
 
-    // タスク生成実行（サーバー用クライアントを渡す）
-    const generator = new TaskGeneratorService(supabase)
+    // タスク生成実行（ユーザーIDを渡す）
+    const generator = new TaskGeneratorService(user.id)
     await generator.generateMissingTasks(false)
 
     return NextResponse.json({
