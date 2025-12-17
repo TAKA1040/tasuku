@@ -19,8 +19,8 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const forceToday = body.forceToday === true
 
-    // タスク生成実行
-    const generator = new TaskGeneratorService()
+    // タスク生成実行（サーバー用クライアントを渡す）
+    const generator = new TaskGeneratorService(supabase)
     await generator.generateMissingTasks(forceToday)
 
     return NextResponse.json({
@@ -55,8 +55,8 @@ export async function GET() {
       )
     }
 
-    // タスク生成実行
-    const generator = new TaskGeneratorService()
+    // タスク生成実行（サーバー用クライアントを渡す）
+    const generator = new TaskGeneratorService(supabase)
     await generator.generateMissingTasks(false)
 
     return NextResponse.json({

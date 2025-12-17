@@ -10,6 +10,7 @@
 // - 重複防止: createTaskFromTemplate内で実装済み（template_id + due_dateで判定）
 
 import { createClient } from '@/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { RecurringTemplatesService } from '@/lib/db/recurring-templates'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
@@ -18,8 +19,14 @@ import { getTodayJST, addDays, subtractDays, getStartOfWeek, getStartOfMonth } f
 import { logger } from '@/lib/utils/logger'
 
 export class TaskGeneratorService {
-  private supabase = createClient()
-  private templatesService = new RecurringTemplatesService()
+  private supabase: SupabaseClient
+  private templatesService: RecurringTemplatesService
+
+  constructor(supabase?: SupabaseClient) {
+    // サーバー側から呼ばれる場合はsupabaseを受け取り、クライアント側は自動生成
+    this.supabase = supabase || createClient()
+    this.templatesService = new RecurringTemplatesService(this.supabase)
+  }
 
   async getCurrentUserId(): Promise<string> {
     const { data: { user } } = await this.supabase.auth.getUser()

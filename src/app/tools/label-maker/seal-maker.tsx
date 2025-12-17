@@ -355,6 +355,10 @@ const SealMaker = () => {
     startLabel: 1  // 開始ラベル位置（部分印刷用）
   });
 
+  // 複数ページ用データ（CSV差し込み時に複数ページ分のデータを保持）
+  const [allPagesData, setAllPagesData] = useState<SealData[][]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
   // PDF生成中フラグ
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -466,6 +470,13 @@ const SealMaker = () => {
   const applyPaperPreset = (preset: PaperPreset) => {
     if (preset.layout !== layout) {
       handleLayoutChange(preset.layout);
+    } else {
+      // 同じレイアウトでもstartLabelをクランプ
+      const total = layouts[preset.layout].cols * layouts[preset.layout].rows;
+      setPrintSettings(prev => ({
+        ...prev,
+        startLabel: Math.min(Math.max(1, prev.startLabel), total)
+      }));
     }
     setPrintOffset(preset.offset);
   };
@@ -671,6 +682,16 @@ const SealMaker = () => {
     setSaveName(template.name);
     setShowLoadModal(false);
     setEditingIndex(null);
+    // 複数ページデータをクリアし、startLabelをクランプ
+    setAllPagesData([]);
+    setCurrentPage(1);
+    const newTotal = layouts[template.layout]?.cols * layouts[template.layout]?.rows || template.sealData.length;
+    setPrintSettings(prev => ({
+      ...prev,
+      startLabel: Math.min(prev.startLabel, newTotal),
+      startPage: 1,
+      endPage: 1
+    }));
   };
 
   // テンプレートを削除
@@ -697,6 +718,15 @@ const SealMaker = () => {
     setCurrentTemplateId(null);
     setSaveName('');
     setEditingIndex(null);
+    // 複数ページデータとprintSettingsをリセット
+    setAllPagesData([]);
+    setCurrentPage(1);
+    setPrintSettings(prev => ({
+      ...prev,
+      startLabel: 1,
+      startPage: 1,
+      endPage: 1
+    }));
   };
 
   const layouts: Record<string, LayoutConfig> = {
@@ -715,6 +745,15 @@ const SealMaker = () => {
     const newTotal = layouts[newLayout].cols * layouts[newLayout].rows;
     setSealData(Array(newTotal).fill(null).map(() => createDefaultSeal(layouts[newLayout].fontSize)));
     setEditingIndex(null);
+    // 複数ページデータをクリアし、startLabelをクランプ
+    setAllPagesData([]);
+    setCurrentPage(1);
+    setPrintSettings(prev => ({
+      ...prev,
+      startLabel: Math.min(prev.startLabel, newTotal),
+      startPage: 1,
+      endPage: 1
+    }));
   };
 
   const handleSealChange = (index: number, property: keyof SealData, value: string | number | null) => {
@@ -813,10 +852,38 @@ const SealMaker = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    // 複数ページがある場合はPDF出力を推奨
+    if (allPagesData.length > 1) {
+      if (confirm(`${allPagesData.length}ページあります。\n\n直接印刷は現在のページのみ印刷されます。\n全ページを印刷するにはPDF出力をお勧めします。\n\n現在のページのみ印刷しますか？`)) {
+        window.print();
+      }
+    } else {
+      window.print();
+    }
   };
 
-  // PDF書き出し
+  // QRコードを一括生成（PDF出力前の事前生成用）
+  const generateAllQRCodes = async (pageData: SealData[]): Promise<Record<number, string>> => {
+    const qrImages: Record<number, string> = {};
+    const promises = pageData.map(async (seal, index) => {
+      if (seal.qrCode?.trim()) {
+        try {
+          const dataUrl = await QRCode.toDataURL(seal.qrCode, {
+            width: 200,
+            margin: 1,
+            color: { dark: '#000000', light: '#ffffff' }
+          });
+          qrImages[index] = dataUrl;
+        } catch (err) {
+          console.error('QR code generation failed:', err);
+        }
+      }
+    });
+    await Promise.all(promises);
+    return qrImages;
+  };
+
+  // PDF書き出し（複数ページ対応）
   const handleExportPDF = async () => {
     const printArea = document.getElementById('print-area');
     if (!printArea) return;
@@ -824,20 +891,6 @@ const SealMaker = () => {
     setIsGeneratingPDF(true);
 
     try {
-      // 一時的にスケールを100%に設定してキャプチャ
-      const originalTransform = printArea.style.transform;
-      printArea.style.transform = 'none';
-
-      const canvas = await html2canvas(printArea, {
-        scale: 2, // 高解像度でキャプチャ
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-
-      // 元のスケールに戻す
-      printArea.style.transform = originalTransform;
-
       // A4サイズのPDFを作成（210mm x 297mm）
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -845,16 +898,103 @@ const SealMaker = () => {
         format: 'a4'
       });
 
-      // キャンバスをPDFに追加
-      const imgData = canvas.toDataURL('image/png');
       const pdfWidth = 210;
       const pdfHeight = 297;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // 複数ページがある場合は全ページを処理
+      const pagesToProcess = allPagesData.length > 0 ? allPagesData : [sealData];
+      const startPage = Math.max(1, printSettings.startPage);
+      const endPage = Math.min(pagesToProcess.length, printSettings.endPage || pagesToProcess.length);
+
+      // 部数分のコピーを含めた全ページ画像を保持
+      const pageImages: string[] = [];
+
+      // 元のページ番号を保存
+      const originalPage = currentPage;
+
+      for (let pageIdx = startPage - 1; pageIdx < endPage; pageIdx++) {
+        // ページデータを一時的に設定
+        const pageData = pagesToProcess[pageIdx];
+
+        // 現在のページデータを一時的に更新（DOMに反映させるため）
+        // 注意: この処理はReactの状態更新を待つ必要がある
+        if (allPagesData.length > 0) {
+          // 直接DOMを操作する代わりに、現在のsealDataを保存
+          const originalSealData = sealData;
+
+          // QRコードを事前に生成
+          const pageQRCodes = await generateAllQRCodes(pageData);
+          setQrCodeImages(pageQRCodes);
+
+          // currentPageを更新（isFirstPage判定のため）
+          setCurrentPage(pageIdx + 1);
+          setSealData(pageData);
+
+          // DOMの更新とQRコード反映を待つ（QR生成に十分な時間を確保）
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          // キャプチャ後に復元
+          try {
+            const originalTransform = printArea.style.transform;
+            printArea.style.transform = 'none';
+
+            const canvas = await html2canvas(printArea, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            });
+
+            printArea.style.transform = originalTransform;
+
+            const imgData = canvas.toDataURL('image/png');
+            pageImages.push(imgData);
+          } finally {
+            // 現在のページに戻す
+            setCurrentPage(originalPage);
+            setSealData(allPagesData[originalPage - 1] || originalSealData);
+            // QRコードも元に戻す
+            const originalQRCodes = await generateAllQRCodes(allPagesData[originalPage - 1] || originalSealData);
+            setQrCodeImages(originalQRCodes);
+          }
+        } else {
+          // 単一ページの場合
+          const originalTransform = printArea.style.transform;
+          printArea.style.transform = 'none';
+
+          const canvas = await html2canvas(printArea, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          });
+
+          printArea.style.transform = originalTransform;
+
+          const imgData = canvas.toDataURL('image/png');
+          pageImages.push(imgData);
+        }
+      }
+
+      // 部数分のコピーを含めてPDFに追加
+      const copies = Math.max(1, printSettings.copies);
+      let isFirstPage = true;
+
+      for (let copy = 0; copy < copies; copy++) {
+        for (const imgData of pageImages) {
+          if (!isFirstPage) {
+            pdf.addPage();
+          }
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          isFirstPage = false;
+        }
+      }
 
       // ファイル名を生成
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      const filename = `シール_${layouts[layout].name}_${timestamp}.pdf`;
+      const pageInfo = allPagesData.length > 1 ? `_${startPage}-${endPage}ページ` : '';
+      const copyInfo = copies > 1 ? `_${copies}部` : '';
+      const filename = `シール_${layouts[layout].name}${pageInfo}${copyInfo}_${timestamp}.pdf`;
 
       // ダウンロード
       pdf.save(filename);
@@ -920,31 +1060,65 @@ const SealMaker = () => {
   };
 
   // CSVデータを各シールに適用（テンプレートにプレースホルダーを使用）
+  // 複数ページ対応: CSVの行数がシール数を超える場合、複数ページを生成
+  // 各セルのデザインを保持: sealData[i]をベースに使用
   const applyCSVData = () => {
     if (csvData.length === 0) return;
 
-    const newSealData = sealData.map((seal, index) => {
-      if (index >= csvData.length) return seal;
+    // テンプレートとして現在の全シールデータを保持
+    const templateSeals = [...sealData];
+    const totalPages = Math.ceil(csvData.length / totalSeals);
+    const pages: SealData[][] = [];
 
-      let newText = seal.text;
-      // ヘッダー名でプレースホルダーを置換 {{列名}}
-      csvHeaders.forEach((header, colIndex) => {
-        const placeholder = `{{${header}}}`;
-        const value = csvData[index]?.[colIndex] || '';
-        newText = newText.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
-      });
+    for (let page = 0; page < totalPages; page++) {
+      const pageData: SealData[] = [];
+      for (let i = 0; i < totalSeals; i++) {
+        const dataIndex = page * totalSeals + i;
+        // 該当セルのテンプレートを使用（セルごとのデザインを保持）
+        const templateSeal = templateSeals[i];
 
-      // 通番プレースホルダー {{通番}}
-      if (serialNumberSettings.enabled) {
-        newText = newText.replace(/\{\{通番\}\}/g, generateSerialNumber(index));
+        if (dataIndex >= csvData.length) {
+          // データがない場合は空のシール
+          pageData.push(createDefaultSeal(currentLayout.fontSize));
+        } else {
+          let newText = templateSeal.text;
+          // ヘッダー名でプレースホルダーを置換 {{列名}}
+          csvHeaders.forEach((header, colIndex) => {
+            const placeholder = `{{${header}}}`;
+            const value = csvData[dataIndex]?.[colIndex] || '';
+            newText = newText.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
+          });
+
+          // 通番プレースホルダー {{通番}}
+          if (serialNumberSettings.enabled) {
+            newText = newText.replace(/\{\{通番\}\}/g, generateSerialNumber(dataIndex));
+          }
+
+          // QRコードのプレースホルダーも置換
+          let newQrCode = templateSeal.qrCode || '';
+          csvHeaders.forEach((header, colIndex) => {
+            const placeholder = `{{${header}}}`;
+            const value = csvData[dataIndex]?.[colIndex] || '';
+            newQrCode = newQrCode.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value);
+          });
+
+          pageData.push({ ...templateSeal, text: newText, qrCode: newQrCode });
+        }
       }
+      pages.push(pageData);
+    }
 
-      return { ...seal, text: newText };
-    });
-
-    setSealData(newSealData);
+    // 複数ページデータを保存
+    setAllPagesData(pages);
+    setCurrentPage(1);
+    setSealData(pages[0]);
+    setPrintSettings(prev => ({
+      ...prev,
+      startPage: 1,
+      endPage: totalPages
+    }));
     setShowVariableDataModal(false);
-    alert(`${Math.min(csvData.length, totalSeals)}件のデータを適用しました`);
+    alert(`${csvData.length}件のデータを${totalPages}ページに適用しました`);
   };
 
   // 通番だけを適用
@@ -969,6 +1143,14 @@ const SealMaker = () => {
       digits: 3,
       suffix: ''
     });
+    // 複数ページデータをリセット
+    setAllPagesData([]);
+    setCurrentPage(1);
+    setPrintSettings(prev => ({
+      ...prev,
+      startPage: 1,
+      endPage: 1
+    }));
   };
 
   // フォントオプション
@@ -2144,6 +2326,56 @@ const SealMaker = () => {
                       style={{ width: '100px' }}
                     />
                   </div>
+                  {/* ページナビゲーション（複数ページがある場合のみ表示） */}
+                  {allPagesData.length > 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => {
+                          if (currentPage > 1) {
+                            const newPage = currentPage - 1;
+                            setCurrentPage(newPage);
+                            setSealData(allPagesData[newPage - 1]);
+                          }
+                        }}
+                        disabled={currentPage <= 1}
+                        style={{
+                          padding: '4px 12px',
+                          background: currentPage <= 1 ? '#e5e7eb' : '#4f46e5',
+                          color: currentPage <= 1 ? '#9ca3af' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '13px'
+                        }}
+                      >
+                        ← 前
+                      </button>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                        {currentPage} / {allPagesData.length} ページ
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (currentPage < allPagesData.length) {
+                            const newPage = currentPage + 1;
+                            setCurrentPage(newPage);
+                            setSealData(allPagesData[newPage - 1]);
+                          }
+                        }}
+                        disabled={currentPage >= allPagesData.length}
+                        style={{
+                          padding: '4px 12px',
+                          background: currentPage >= allPagesData.length ? '#e5e7eb' : '#4f46e5',
+                          color: currentPage >= allPagesData.length ? '#9ca3af' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage >= allPagesData.length ? 'not-allowed' : 'pointer',
+                          fontSize: '13px'
+                        }}
+                      >
+                        次 →
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div style={{ border: '2px solid #d1d5db', borderRadius: '8px', padding: '16px', background: '#f9fafb', overflow: 'auto' }}>
                   <div style={{ width: `calc(210mm * ${previewScale})`, height: `calc(297mm * ${previewScale})`, margin: '0 auto' }}>
@@ -2173,7 +2405,9 @@ const SealMaker = () => {
                     >
                       {sealData.map((seal, index) => {
                         // 開始ラベル番号より前は空白で表示（印刷時のスキップ用）
-                        const isSkipped = index < (printSettings.startLabel - 1);
+                        // 先頭ページのみに適用し、2ページ目以降はスキップなし
+                        const isFirstPage = currentPage === 1 || allPagesData.length === 0;
+                        const isSkipped = isFirstPage && index < (printSettings.startLabel - 1);
 
                         return (
                         <div

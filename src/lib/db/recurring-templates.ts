@@ -2,6 +2,7 @@
 // Based on RECURRING_REDESIGN_LOG.md specification
 
 import { createClient } from '@/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   RecurringTemplate,
   RecurringTemplateCreate,
@@ -11,7 +12,12 @@ import type {
 import { logger } from '@/lib/utils/logger'
 
 export class RecurringTemplatesService {
-  private supabase = createClient()
+  private supabase: SupabaseClient
+
+  constructor(supabase?: SupabaseClient) {
+    // サーバー側から呼ばれる場合はsupabaseを受け取り、クライアント側は自動生成
+    this.supabase = supabase || createClient()
+  }
 
   async getCurrentUserId(): Promise<string> {
     const { data: { user } } = await this.supabase.auth.getUser()
