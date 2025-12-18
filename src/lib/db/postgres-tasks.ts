@@ -834,6 +834,77 @@ export class PostgresTasksService {
       return []
     }
   }
+
+  // 未関連付け繰り返しタスクを取得（テンプレート管理画面用）
+  static async getOrphanRecurringTasks(userId: string): Promise<UnifiedTask[]> {
+    try {
+      return await query<UnifiedTask>(
+        `SELECT * FROM unified_tasks
+         WHERE user_id = $1
+         AND task_type = 'RECURRING'
+         AND recurring_template_id IS NULL
+         ORDER BY created_at DESC`,
+        [userId]
+      )
+    } catch (error) {
+      logger.error('getOrphanRecurringTasks error:', error)
+      throw error
+    }
+  }
+
+  // テンプレートIDに基づく未完了タスクの一括更新
+  static async updateTasksByTemplate(
+    userId: string,
+    templateId: string,
+    updates: { urls?: string[] | null; start_time?: string | null; end_time?: string | null }
+  ): Promise<number> {
+    try {
+      const setClauses: string[] = []
+      const params: unknown[] = []
+      let paramIndex = 1
+
+      if (updates.urls !== undefined) {
+        setClauses.push(`urls = $${paramIndex}`)
+        params.push(updates.urls)
+        paramIndex++
+      }
+      if (updates.start_time !== undefined) {
+        setClauses.push(`start_time = $${paramIndex}`)
+        params.push(updates.start_time)
+        paramIndex++
+      }
+      if (updates.end_time !== undefined) {
+        setClauses.push(`end_time = $${paramIndex}`)
+        params.push(updates.end_time)
+        paramIndex++
+      }
+
+      if (setClauses.length === 0) {
+        return 0
+      }
+
+      setClauses.push(`updated_at = $${paramIndex}`)
+      params.push(new Date().toISOString())
+      paramIndex++
+
+      params.push(templateId)
+      params.push(userId)
+
+      const result = await query<{ id: string }>(
+        `UPDATE unified_tasks SET ${setClauses.join(', ')}
+         WHERE recurring_template_id = $${paramIndex - 1}
+         AND user_id = $${paramIndex}
+         AND completed = false
+         RETURNING id`,
+        params
+      )
+
+      return result.length
+    } catch (error) {
+      logger.error('updateTasksByTemplate error:', error)
+      throw error
+    }
+  }
 }
 
 export default PostgresTasksService

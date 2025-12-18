@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { TimeInput } from '@/components/TimeInput'
 import { logger } from '@/lib/utils/logger'
@@ -58,8 +57,6 @@ export default function TemplatesPage() {
   const [status, setStatus] = useState('')
   const [editingTemplate, setEditingTemplate] = useState<RecurringTemplate | null>(null)
   const [newUrl, setNewUrl] = useState('')
-
-  const supabase = createClient()
 
   // URL管理ヘルパー関数
   const handleAddUrl = () => {
@@ -149,26 +146,18 @@ export default function TemplatesPage() {
     try {
       setLoading(true)
 
-      // 現在のユーザーを取得
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user?.id) {
-        setStatus('認証が必要です')
+      // テンプレートをAPIから取得
+      const templatesResponse = await fetch('/api/templates')
+      const templatesResult = await templatesResponse.json()
+
+      if (!templatesResponse.ok || !templatesResult.success) {
+        setStatus(`テンプレート取得エラー: ${templatesResult.error || 'Unknown error'}`)
         return
       }
 
-      // テンプレートを取得
-      const { data: templatesData, error: templatesError } = await supabase
-        .from('recurring_templates')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+      const templatesData = templatesResult.data || []
 
-      if (templatesError) {
-        setStatus(`テンプレート取得エラー: ${templatesError.message}`)
-        return
-      }
-
-      logger.info('📋 テンプレート読み込み結果:', templatesData?.map(t => ({
+      logger.info('📋 テンプレート読み込み結果:', templatesData?.map((t: RecurringTemplate) => ({
         id: t.id,
         title: t.title,
         urls: t.urls,
@@ -181,8 +170,8 @@ export default function TemplatesPage() {
       logger.info('📋 生データ全体:', templatesData)
 
       // URLsフィールドを正規化（文字列を配列に変換）
-      const normalizedTemplates = templatesData?.map(template => {
-        let normalizedUrls = []
+      const normalizedTemplates = templatesData?.map((template: RecurringTemplate) => {
+        let normalizedUrls: string[] = []
 
         if (template.urls) {
           if (Array.isArray(template.urls)) {
@@ -194,7 +183,7 @@ export default function TemplatesPage() {
               normalizedUrls = Array.isArray(parsed) ? parsed : [template.urls]
             } catch {
               // JSONパースに失敗した場合、単一の文字列として扱う
-              normalizedUrls = template.urls.trim() ? [template.urls] : []
+              normalizedUrls = (template.urls as string).trim() ? [template.urls as string] : []
             }
           }
         }
@@ -205,7 +194,7 @@ export default function TemplatesPage() {
         }
       }) || []
 
-      logger.info('📋 正規化後:', normalizedTemplates.map(t => ({
+      logger.info('📋 正規化後:', normalizedTemplates.map((t: RecurringTemplate) => ({
         id: t.id,
         title: t.title,
         urls: t.urls,
@@ -215,67 +204,65 @@ export default function TemplatesPage() {
 
       setTemplates(normalizedTemplates)
 
-      // テンプレートIDがnullの繰り返しタスクを取得
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('unified_tasks')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('task_type', 'RECURRING')
-        .is('recurring_template_id', null)
+      // 未関連付けタスクをAPIから取得
+      const orphanResponse = await fetch('/api/tasks?orphan_recurring=true')
+      const orphanResult = await orphanResponse.json()
 
-      if (tasksError) {
-        setStatus(`タスク取得エラー: ${tasksError.message}`)
-        return
+      if (orphanResponse.ok && orphanResult.success) {
+        setOrphanTasks(orphanResult.data || [])
+        setStatus(`テンプレート: ${templatesData?.length || 0}件, 未関連付けタスク: ${orphanResult.data?.length || 0}件`)
+      } else {
+        // 未関連付けタスク取得失敗は警告のみ
+        setOrphanTasks([])
+        setStatus(`テンプレート: ${templatesData?.length || 0}件`)
       }
-
-      setOrphanTasks(tasksData || [])
-      setStatus(`テンプレート: ${templatesData?.length || 0}件, 未関連付けタスク: ${tasksData?.length || 0}件`)
 
     } catch (error) {
       setStatus(`エラー: ${error}`)
     } finally {
       setLoading(false)
     }
-  }, [supabase])
+  }, [])
 
   const createTemplateFromTask = useCallback(async (task: UnifiedTask) => {
     try {
       setStatus(`${task.title}のテンプレートを作成中...`)
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user?.id) {
-        setStatus('認証が必要です')
-        return
-      }
-
-      // テンプレートを作成
-      const { data: templateData, error: templateError } = await supabase
-        .from('recurring_templates')
-        .insert({
+      // テンプレートをAPIで作成
+      const templateResponse = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           title: task.title,
           memo: task.memo,
           category: task.category,
           importance: task.importance || 1,
           pattern: task.recurring_pattern,
-          user_id: user.id,
           active: true
-        })
-        .select()
-        .single()
+        }),
+      })
 
-      if (templateError) {
-        setStatus(`テンプレート作成エラー: ${templateError.message}`)
+      const templateResult = await templateResponse.json()
+
+      if (!templateResponse.ok || !templateResult.success) {
+        setStatus(`テンプレート作成エラー: ${templateResult.error || 'Unknown error'}`)
         return
       }
 
       // タスクにテンプレートIDを設定
-      const { error: updateError } = await supabase
-        .from('unified_tasks')
-        .update({ recurring_template_id: templateData.id })
-        .eq('id', task.id)
+      const updateResponse = await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: task.id,
+          recurring_template_id: templateResult.data.id
+        }),
+      })
 
-      if (updateError) {
-        setStatus(`タスク更新エラー: ${updateError.message}`)
+      const updateResult = await updateResponse.json()
+
+      if (!updateResponse.ok || !updateResult.success) {
+        setStatus(`タスク更新エラー: ${updateResult.error || 'Unknown error'}`)
         return
       }
 
@@ -285,7 +272,7 @@ export default function TemplatesPage() {
     } catch (error) {
       setStatus(`エラー: ${error}`)
     }
-  }, [supabase, loadData])
+  }, [loadData])
 
   const updateTemplate = async (template: RecurringTemplate) => {
     try {
@@ -303,9 +290,12 @@ export default function TemplatesPage() {
         urlsLength: normalizedUrls.length
       })
 
-      const { error } = await supabase
-        .from('recurring_templates')
-        .update({
+      // テンプレートをAPIで更新
+      const updateResponse = await fetch('/api/templates', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: template.id,
           title: template.title,
           memo: template.memo,
           category: template.category,
@@ -318,50 +308,45 @@ export default function TemplatesPage() {
           month_of_year: template.month_of_year,
           day_of_year: template.day_of_year,
           active: template.active,
-          urls: normalizedUrls,  // 正規化されたURLsを保存
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', template.id)
+          urls: normalizedUrls
+        }),
+      })
 
-      if (error) {
-        logger.error('❌ テンプレート更新エラー:', error)
-        setStatus(`更新エラー: ${error.message}`)
+      const updateResult = await updateResponse.json()
+
+      if (!updateResponse.ok || !updateResult.success) {
+        logger.error('❌ テンプレート更新エラー:', updateResult.error)
+        setStatus(`更新エラー: ${updateResult.error || 'Unknown error'}`)
         return
       }
 
       logger.info('✅ テンプレート更新成功')
 
-      // 関連タスクのURLsも更新
-      const { data: relatedTasks, error: tasksError } = await supabase
-        .from('unified_tasks')
-        .select('id, title')
-        .eq('recurring_template_id', template.id)
-        .eq('completed', false) // 未完了タスクのみ
+      // 関連タスクのURLsも更新（APIで一括更新）
+      const relatedTasksResponse = await fetch('/api/tasks/update-by-template', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template_id: template.id,
+          urls: normalizedUrls,
+          start_time: template.start_time,
+          end_time: template.end_time
+        }),
+      })
 
-      if (tasksError) {
-        logger.warn('関連タスク取得エラー:', tasksError)
-      } else if (relatedTasks && relatedTasks.length > 0) {
-        logger.info(`🔄 関連タスク ${relatedTasks.length}件のURLsを更新中...`)
+      const relatedResult = await relatedTasksResponse.json()
 
-        const { error: updateTasksError } = await supabase
-          .from('unified_tasks')
-          .update({
-            urls: normalizedUrls,
-            start_time: template.start_time,
-            end_time: template.end_time
-          })
-          .eq('recurring_template_id', template.id)
-          .eq('completed', false)
-
-        if (updateTasksError) {
-          logger.error('関連タスク更新エラー:', updateTasksError)
-          setStatus(`テンプレート更新成功、但し関連タスク更新失敗: ${updateTasksError.message}`)
+      if (relatedTasksResponse.ok && relatedResult.success) {
+        const count = relatedResult.data?.count || 0
+        if (count > 0) {
+          logger.info(`✅ 関連タスク ${count}件のURLsを更新完了`)
+          setStatus(`✅ ${template.title}と関連タスク${count}件を更新しました`)
         } else {
-          logger.info(`✅ 関連タスク ${relatedTasks.length}件のURLsを更新完了`)
-          setStatus(`✅ ${template.title}と関連タスク${relatedTasks.length}件を更新しました`)
+          setStatus(`✅ ${template.title}を更新しました`)
         }
       } else {
-        setStatus(`✅ ${template.title}を更新しました`)
+        logger.warn('関連タスク更新エラー:', relatedResult.error)
+        setStatus(`✅ ${template.title}を更新しました（関連タスク更新はスキップ）`)
       }
 
       setEditingTemplate(null)
@@ -387,12 +372,12 @@ export default function TemplatesPage() {
       // OFF→ON切替時のみ last_activated_at を更新
       // ON→OFF切替時は last_activated_at を保持（次にONになる時まで）
       const updateData: {
+        id: string
         active: boolean
-        updated_at: string
         last_activated_at?: string
       } = {
-        active: newActiveState,
-        updated_at: new Date().toISOString()
+        id: template.id,
+        active: newActiveState
       }
 
       if (newActiveState) {
@@ -401,17 +386,20 @@ export default function TemplatesPage() {
       }
       // newActiveState === false の場合: last_activated_at は更新しない（保持）
 
-      const { error } = await supabase
-        .from('recurring_templates')
-        .update(updateData)
-        .eq('id', template.id)
+      const response = await fetch('/api/templates', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData),
+      })
 
-      if (error) {
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
         // エラー時はロールバック
         setTemplates(prev => prev.map(t =>
           t.id === template.id ? { ...t, active: !newActiveState } : t
         ))
-        setStatus(`更新エラー: ${error.message}`)
+        setStatus(`更新エラー: ${result.error || 'Unknown error'}`)
         return
       }
 
@@ -434,13 +422,14 @@ export default function TemplatesPage() {
     try {
       setStatus(`${template.title}を削除中...`)
 
-      const { error } = await supabase
-        .from('recurring_templates')
-        .delete()
-        .eq('id', template.id)
+      const response = await fetch(`/api/templates?id=${template.id}`, {
+        method: 'DELETE',
+      })
 
-      if (error) {
-        setStatus(`削除エラー: ${error.message}`)
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        setStatus(`削除エラー: ${result.error || 'Unknown error'}`)
         return
       }
 

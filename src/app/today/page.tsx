@@ -15,14 +15,12 @@ import { AuthStatus } from '@/components/AuthStatus'
 import { UnifiedTasksTable } from '@/components/UnifiedTasksTable'
 import { SubTask } from '@/lib/types/unified-task'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
-import { createClient } from '@/lib/supabase/client'
 import { TaskTabNavigation } from '@/components/TaskTabNavigation'
 import { logger } from '@/lib/utils/logger'
 import { TimeFrameSection } from './components/TimeFrameSection'
 
 export default function TodayPage() {
   const { isInitialized, error } = useDatabase()
-  const supabase = createClient()
 
   // 統一データベースフック
   const unifiedTasks = useUnifiedTasks(isInitialized)
@@ -479,11 +477,7 @@ export default function TodayPage() {
     try {
       logger.info('✨ 繰り返しタスクテンプレート作成開始:', { title, memo, settings, importance, urls, category, attachment, shoppingItems, startTime, endTime })
 
-      // 1. recurring_templatesにテンプレートを保存
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('ユーザー認証エラー')
-
+      // 1. recurring_templatesにテンプレートを保存（API経由、認証はAPI側で処理）
       const templateData: Record<string, unknown> = {
         title: title.trim(),
         memo: memo.trim() || null,
@@ -493,8 +487,7 @@ export default function TodayPage() {
         start_time: startTime || null,
         end_time: endTime || null,
         urls: urls && urls.length > 0 ? urls : [],
-        active: true,
-        user_id: user.id
+        active: true
       }
 
       // パターン別の設定
@@ -515,17 +508,20 @@ export default function TodayPage() {
         templateData.attachment_file_data = attachment.file_data
       }
 
-      const { data: template, error: templateError } = await supabase
-        .from('recurring_templates')
-        .insert(templateData)
-        .select()
-        .single()
+      // API経由でテンプレート作成
+      const templateResponse = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateData),
+      })
+      const templateResult = await templateResponse.json()
 
-      if (templateError) {
-        logger.error('❌ テンプレート保存エラー:', templateError)
-        throw templateError
+      if (!templateResponse.ok || !templateResult.success) {
+        logger.error('❌ テンプレート保存エラー:', templateResult.error)
+        throw new Error(templateResult.error || 'テンプレート保存に失敗')
       }
 
+      const template = templateResult.data
       logger.info('✅ テンプレート保存完了:', template.id)
 
       // 2. 買い物リストがあればsubtasksに保存（parent_task_id = template.id）
@@ -565,20 +561,23 @@ export default function TodayPage() {
       logger.info(`🔄 繰り返しタスク ${editingTask.title} の編集→テンプレート ${editingTask.recurring_template_id} も更新`)
 
       try {
-        const { error: templateError } = await supabase
-          .from('recurring_templates')
-          .update({
+        // API経由でテンプレート更新
+        const updateResponse = await fetch('/api/templates', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingTask.recurring_template_id,
             title,
             memo,
             category,
             importance,
             urls: urls || [],
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', editingTask.recurring_template_id)
+          }),
+        })
+        const updateResult = await updateResponse.json()
 
-        if (templateError) {
-          logger.error('❌ テンプレート更新エラー:', templateError)
+        if (!updateResponse.ok || !updateResult.success) {
+          logger.error('❌ テンプレート更新エラー:', updateResult.error)
         } else {
           logger.info('✅ テンプレートも更新しました')
         }

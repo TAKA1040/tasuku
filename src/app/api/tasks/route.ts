@@ -33,6 +33,15 @@ export async function GET(request: NextRequest) {
     const userId = await requireUserId()
     const { searchParams } = new URL(request.url)
 
+    // 未関連付け繰り返しタスクの取得（テンプレート管理画面用）
+    const orphanRecurring = searchParams.get('orphan_recurring')
+    if (orphanRecurring === 'true') {
+      logger.info('🎯 API: Getting orphan recurring tasks')
+      const orphanTasks = await PostgresTasksService.getOrphanRecurringTasks(userId)
+      logger.info('✅ API: Retrieved orphan tasks:', orphanTasks.length)
+      return NextResponse.json({ success: true, data: orphanTasks })
+    }
+
     // フィルターパラメータを取得
     const filters: {
       completed?: boolean
