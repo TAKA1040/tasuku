@@ -352,22 +352,24 @@ export default function TodayPage() {
   const [showCategoryFilter, setShowCategoryFilter] = useState(false)
 
   // 時間枠セクション表示切り替え状態（localStorage保存）
-  const [showMorningTasks, setShowMorningTasks] = useState(() => {
-    const saved = localStorage.getItem('tasuku_showMorningTasks')
-    return saved !== null ? saved === 'true' : true
-  })
-  const [showMiddayTasks, setShowMiddayTasks] = useState(() => {
-    const saved = localStorage.getItem('tasuku_showMiddayTasks')
-    return saved !== null ? saved === 'true' : true
-  })
-  const [showAfternoonTasks, setShowAfternoonTasks] = useState(() => {
-    const saved = localStorage.getItem('tasuku_showAfternoonTasks')
-    return saved !== null ? saved === 'true' : true
-  })
-  const [showEveningTasks, setShowEveningTasks] = useState(() => {
-    const saved = localStorage.getItem('tasuku_showEveningTasks')
-    return saved !== null ? saved === 'true' : true
-  })
+  // 注意: SSR時はlocalStorageが存在しないため、デフォルト値で初期化してuseEffectで読み込む
+  const [showMorningTasks, setShowMorningTasks] = useState(true)
+  const [showMiddayTasks, setShowMiddayTasks] = useState(true)
+  const [showAfternoonTasks, setShowAfternoonTasks] = useState(true)
+  const [showEveningTasks, setShowEveningTasks] = useState(true)
+
+  // 時間枠セクション開閉状態をlocalStorageから読み込み（クライアントサイドのみ）
+  useEffect(() => {
+    const savedMorning = localStorage.getItem('tasuku_showMorningTasks')
+    const savedMidday = localStorage.getItem('tasuku_showMiddayTasks')
+    const savedAfternoon = localStorage.getItem('tasuku_showAfternoonTasks')
+    const savedEvening = localStorage.getItem('tasuku_showEveningTasks')
+
+    if (savedMorning !== null) setShowMorningTasks(savedMorning === 'true')
+    if (savedMidday !== null) setShowMiddayTasks(savedMidday === 'true')
+    if (savedAfternoon !== null) setShowAfternoonTasks(savedAfternoon === 'true')
+    if (savedEvening !== null) setShowEveningTasks(savedEvening === 'true')
+  }, [])
 
   // 時間枠セクション開閉状態をlocalStorageに保存
   useEffect(() => {
