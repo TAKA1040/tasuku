@@ -94,21 +94,17 @@ export default function NenpiPage() {
     }
   }, [activeVehicle, user])
 
-  const fetchRecordsForVehicle = async (userId: string, vehicleId: number) => {
+  const fetchRecordsForVehicle = async (_userId: string, vehicleId: number) => {
     try {
-      const { data, error } = await supabase
-        .from('fuel_records')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('vehicle_id', vehicleId)
-        .order('date', { ascending: false })
+      const response = await fetch(`/api/fuel-records?vehicle_id=${vehicleId}`)
+      const result = await response.json()
 
-      if (error) {
-        console.error('Error fetching records:', error)
+      if (!response.ok || !result.success) {
+        console.error('Error fetching records:', result.error)
       } else {
-        console.log(`📊 車両${vehicleId}のレコード数:`, data.length)
-        setRecords(data as FuelRecord[])
-        const stations = Array.from(new Set(data.map(r => r.station)))
+        console.log(`📊 車両${vehicleId}のレコード数:`, result.data.length)
+        setRecords(result.data as FuelRecord[])
+        const stations = Array.from(new Set(result.data.map((r: FuelRecord) => r.station)))
         setStationList(stations)
       }
     } catch (error) {
@@ -130,7 +126,6 @@ export default function NenpiPage() {
     if (!user) return
 
     const payload = {
-      user_id: user.id,
       date: formData.date,
       amount: parseFloat(formData.amount),
       cost: parseInt(formData.cost, 10),
@@ -140,25 +135,30 @@ export default function NenpiPage() {
     }
 
     if (editingRecord) {
-      const { error } = await supabase
-        .from('fuel_records')
-        .update(payload)
-        .eq('id', editingRecord.id)
+      const response = await fetch('/api/fuel-records', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingRecord.id, ...payload }),
+      })
+      const result = await response.json()
 
-      if (error) {
-        alert(`エラー: ${error.message}`)
+      if (!response.ok || !result.success) {
+        alert(`エラー: ${result.error || 'Unknown error'}`)
       } else {
         setEditingRecord(null)
         resetForm()
         fetchRecords()
       }
     } else {
-      const { error } = await supabase
-        .from('fuel_records')
-        .insert(payload)
+      const response = await fetch('/api/fuel-records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const result = await response.json()
 
-      if (error) {
-        alert(`エラー: ${error.message}`)
+      if (!response.ok || !result.success) {
+        alert(`エラー: ${result.error || 'Unknown error'}`)
       } else {
         resetForm()
         fetchRecords()
@@ -180,13 +180,13 @@ export default function NenpiPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm('この記録を削除しますか？')) return
 
-    const { error } = await supabase
-      .from('fuel_records')
-      .delete()
-      .eq('id', id)
+    const response = await fetch(`/api/fuel-records?id=${id}`, {
+      method: 'DELETE',
+    })
+    const result = await response.json()
 
-    if (error) {
-      alert(`エラー: ${error.message}`)
+    if (!response.ok || !result.success) {
+      alert(`エラー: ${result.error || 'Unknown error'}`)
     } else {
       fetchRecords()
     }
