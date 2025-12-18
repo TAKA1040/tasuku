@@ -1,5 +1,12 @@
 // PostgreSQL クライアント（manariedb用）
-import { Pool, PoolClient } from 'pg'
+import { Pool, PoolClient, types } from 'pg'
+
+// DATE型を文字列（YYYY-MM-DD）として返す設定
+// pgドライバーはデフォルトでDateオブジェクトに変換するため、
+// JSON化すると「2025-12-07T00:00:00.000Z」になってしまう
+types.setTypeParser(types.builtins.DATE, (val: string) => val) // DATE → 文字列のまま
+types.setTypeParser(types.builtins.TIMESTAMP, (val: string) => val) // TIMESTAMP → 文字列のまま
+types.setTypeParser(types.builtins.TIMESTAMPTZ, (val: string) => val) // TIMESTAMPTZ → 文字列のまま
 
 // 接続プール（サーバーサイドのみ）
 let pool: Pool | null = null
