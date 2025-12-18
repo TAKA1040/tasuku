@@ -66,14 +66,17 @@ export function parseDateJST(dateString: string): Date {
     throw new Error(`Invalid date string: expected string, got ${typeof dateString}`)
   }
 
-  // YYYY-MM-DD フォーマットチェック
+  // YYYY-MM-DD または TIMESTAMP形式から日付部分を抽出
+  // 例: "2025-10-05" または "2025-10-05 21:57:49.212+09" または "2025-10-05T21:57:49.212Z"
+  const dateOnly = dateString.split(/[T ]/)[0] // 日付部分のみ抽出
+
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!dateRegex.test(dateString)) {
+  if (!dateRegex.test(dateOnly)) {
     throw new Error(`Invalid date format: expected YYYY-MM-DD, got "${dateString}"`)
   }
 
   // YYYY-MM-DD を JST の日付として解釈
-  const [year, month, day] = dateString.split('-').map(Number)
+  const [year, month, day] = dateOnly.split('-').map(Number)
 
   // 数値バリデーション
   if (isNaN(year) || isNaN(month) || isNaN(day)) {
