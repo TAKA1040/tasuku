@@ -16,24 +16,29 @@ declare module 'next-auth' {
 }
 
 // emailからDBのuser_idを取得（なければ新規作成）
-async function getOrCreateUser(email: string, name?: string | null, image?: string | null): Promise<string> {
-  // 既存ユーザーを検索
-  const existing = await queryOne<{ id: string }>(
-    'SELECT id FROM users WHERE email = $1',
-    [email]
-  );
+async function getOrCreateUser(email: string, name?: string | null, image?: string | null): Promise<string | null> {
+  try {
+    // 既存ユーザーを検索
+    const existing = await queryOne<{ id: string }>(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
 
-  if (existing) {
-    return existing.id;
+    if (existing) {
+      return existing.id;
+    }
+
+    // 新規ユーザーを作成
+    const result = await queryOne<{ id: string }>(
+      'INSERT INTO users (email, name, image) VALUES ($1, $2, $3) RETURNING id',
+      [email, name, image]
+    );
+
+    return result?.id || null;
+  } catch (error) {
+    console.error('getOrCreateUser error:', error);
+    return null;
   }
-
-  // 新規ユーザーを作成
-  const result = await queryOne<{ id: string }>(
-    'INSERT INTO users (email, name, image) VALUES ($1, $2, $3) RETURNING id',
-    [email, name, image]
-  );
-
-  return result!.id;
 }
 
 const config: NextAuthConfig = {
@@ -54,8 +59,13 @@ const config: NextAuthConfig = {
     async jwt({ token, user, account }) {
       // 初回ログイン時のみDBからuser_idを取得
       if (account && user?.email) {
-        const dbUserId = await getOrCreateUser(user.email, user.name, user.image);
-        token.id = dbUserId;
+        try {
+          const dbUserId = await getOrCreateUser(user.email, user.name, user.image);
+          token.id = dbUserId || user.id; // DBエラー時はGoogleのIDを使用
+        } catch (error) {
+          console.error('JWT callback error:', error);
+          token.id = user.id; // エラー時はGoogleのIDを使用
+        }
       }
       return token;
     },
