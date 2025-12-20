@@ -24,6 +24,7 @@ export const viewport = 'width=device-width, initial-scale=1'
 export const dynamic = 'force-dynamic'
 
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { Providers } from '@/components/Providers'
 import './globals.css'
 
 export default function RootLayout({
@@ -38,9 +39,11 @@ export default function RootLayout({
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         overflowX: 'hidden'
       }}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )

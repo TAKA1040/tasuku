@@ -1,14 +1,70 @@
-Application error: a client-side exception has occurred while loading tasuku.apaf.me (see the browser console for more information).
+# NextAuth移行 進捗状況（2025-12-19）
 
+## 完了した作業
 
-9380-6ed30edab5b2da38.js:1 Uncaught Error: Invalid date format: expected YYYY-MM-DD, got "2025-10-05 21:57:49.212+09"
-    at c (9380-6ed30edab5b2da38.js:1:683)
-    at u (9380-6ed30edab5b2da38.js:1:1543)
-    at c (page-9b4f822e09eb14bd.js:1:4123)
-    at l9 (4bd1b696-182b6b13bdad92e3.js:1:51130)
-    at o_ (4bd1b696-182b6b13bdad92e3.js:1:70990)
-    at oq (4bd1b696-182b6b13bdad92e3.js:1:82020)
-    at ik (4bd1b696-182b6b13bdad92e3.js:1:114682)
-    at 4bd1b696-182b6b13bdad92e3.js:1:114527
-    at ib (4bd1b696-182b6b13bdad92e3.js:1:114535)
-    at iu (4bd1b696-182b6b13bdad92e3.js:1:111618)
+1. **NextAuth.js導入**
+   - `npm install next-auth@beta`
+   - `src/auth.ts` 作成
+   - `src/app/api/auth/[...nextauth]/route.ts` 作成
+
+2. **認証関連ファイル変更**
+   - `src/app/login/page.tsx` → NextAuth signIn使用
+   - `src/lib/auth/get-user-id.ts` → NextAuthセッションから取得
+   - `middleware.ts` → NextAuth auth()使用
+   - `src/components/Providers.tsx` → SessionProvider追加
+   - `src/app/layout.tsx` → Providers追加
+
+3. **フロントエンド変更**
+   - `src/app/tools/nenpi/page.tsx` → useSession使用
+   - `src/hooks/useUnifiedTasks.ts` → Supabase認証削除
+
+4. **環境変数設定** (`.env.local`)
+   - AUTH_SECRET 設定済み
+   - AUTH_GOOGLE_ID 設定済み
+   - AUTH_GOOGLE_SECRET 設定済み
+
+5. **削除したファイル**
+   - `src/app/auth/callback/route.ts`
+
+## 残りの作業
+
+### 必須: GCP設定
+Google Cloud Console でAuthorized redirect URIsを追加:
+- `https://tasuku.apaf.me/api/auth/callback/google`
+- `http://localhost:3000/api/auth/callback/google`
+
+### 必須: Vercel環境変数
+Vercelダッシュボードで追加:
+```
+AUTH_SECRET=B57I7RwwjXbkcPNJa80GKWKuxASNbMXUH64vpuR34J8=
+AUTH_GOOGLE_ID=1012505741218-00ap1f6fds0nu42enav4gkdh97faju72.apps.googleusercontent.com
+AUTH_GOOGLE_SECRET=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
+```
+
+### 後で対応: Supabase認証の完全削除
+以下のファイルにまだSupabase認証が残っている:
+- `src/app/debug/page.tsx`
+- `src/app/restore/page.tsx`
+- `src/app/test/page.tsx`
+- `src/components/AuthStatus.tsx`
+- `src/hooks/useDatabase.ts`
+- `src/lib/db/seed.ts`
+- `src/lib/db/supabase-database.ts`
+- `src/lib/services/completion-tracker.ts`
+- `src/app/api/debug-templates/route.ts`
+- `src/app/api/check-morning-jump/route.ts`
+- `src/app/api/check-overdue/route.ts`
+- `src/app/api/restore/route.ts`
+- `src/app/api/check-future-recurring/route.ts`
+- `src/app/api/generate-tasks/route.ts`
+- `src/app/api/force-delete-expired/route.ts`
+
+これらは主要機能ではないので、後で対応可能。
+
+### 後で対応: fuel_recordsのuser_id更新
+NextAuthでログインすると新しいuser_idになるため、既存データのuser_idを更新する必要がある。
+
+## 備考
+- ビルド成功確認済み
+- Supabase環境変数はまだ残しているが、認証には使用しない
+- doneテーブルの完了履歴機能は一時的に簡略化（TODO: API作成後に復活）

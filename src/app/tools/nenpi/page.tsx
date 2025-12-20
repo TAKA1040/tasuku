@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,19 +21,14 @@ interface FuelRecord {
   updated_at?: string
 }
 
-interface User {
-  id: string
-  email?: string
-}
-
 const DEFAULT_VEHICLE_NAMES = ['車両1', '車両2']
 
 export default function NenpiPage() {
+  const { data: session, status } = useSession()
   const [records, setRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null)
   const [stationList, setStationList] = useState<string[]>([])
-  const [user, setUser] = useState<User | null>(null)
 
   // 車両管理
   const [activeVehicle, setActiveVehicle] = useState<number>(1)
@@ -55,46 +50,41 @@ export default function NenpiPage() {
     station: ''
   })
 
-  const supabase = createClient()
-
   // 車両名をlocalStorageから読み込み
   useEffect(() => {
-    const savedNames = localStorage.getItem('nenpi_vehicle_names')
-    if (savedNames) {
-      try {
-        setVehicleNames(JSON.parse(savedNames))
-      } catch {
-        setVehicleNames(DEFAULT_VEHICLE_NAMES)
+    if (typeof window !== 'undefined') {
+      const savedNames = localStorage.getItem('nenpi_vehicle_names')
+      if (savedNames) {
+        try {
+          setVehicleNames(JSON.parse(savedNames))
+        } catch {
+          setVehicleNames(DEFAULT_VEHICLE_NAMES)
+        }
       }
     }
   }, [])
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+    if (status === 'loading') return
 
-      if (user) {
-        console.log('🔍 ログイン中のユーザー:', user.email, 'ID:', user.id)
-        await fetchRecordsForVehicle(user.id, activeVehicle)
-      } else {
-        console.log('⚠️ ユーザーがログインしていません')
-      }
-
-      setLoading(false)
+    if (session?.user) {
+      console.log('🔍 ログイン中のユーザー:', session.user.email, 'ID:', session.user.id)
+      fetchRecordsForVehicle(activeVehicle)
+    } else {
+      console.log('⚠️ ユーザーがログインしていません')
     }
 
-    checkUser()
-  }, [])
+    setLoading(false)
+  }, [status, session])
 
   // 車両切替時にデータを再取得
   useEffect(() => {
-    if (user) {
-      fetchRecordsForVehicle(user.id, activeVehicle)
+    if (session?.user) {
+      fetchRecordsForVehicle(activeVehicle)
     }
-  }, [activeVehicle, user])
+  }, [activeVehicle, session])
 
-  const fetchRecordsForVehicle = async (_userId: string, vehicleId: number) => {
+  const fetchRecordsForVehicle = async (vehicleId: number) => {
     try {
       const response = await fetch(`/api/fuel-records?vehicle_id=${vehicleId}`)
       const result = await response.json()
@@ -104,7 +94,7 @@ export default function NenpiPage() {
       } else {
         console.log(`📊 車両${vehicleId}のレコード数:`, result.data.length)
         setRecords(result.data as FuelRecord[])
-        const stations = Array.from(new Set(result.data.map((r: FuelRecord) => r.station)))
+        const stations: string[] = Array.from(new Set(result.data.map((r: FuelRecord) => r.station)))
         setStationList(stations)
       }
     } catch (error) {
@@ -113,17 +103,17 @@ export default function NenpiPage() {
   }
 
   const handleLogin = () => {
-    window.location.href = '/login?redirect=/tools/nenpi'
+    window.location.href = '/login?callbackUrl=/tools/nenpi'
   }
 
   const fetchRecords = async () => {
-    if (!user) return
-    await fetchRecordsForVehicle(user.id, activeVehicle)
+    if (!session?.user) return
+    await fetchRecordsForVehicle(activeVehicle)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!session?.user) return
 
     const payload = {
       date: formData.date,
@@ -233,7 +223,7 @@ export default function NenpiPage() {
     setTempVehicleName('')
   }
 
-  if (loading) {
+  if (loading || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
         <div className="max-w-7xl mx-auto">
@@ -244,7 +234,7 @@ export default function NenpiPage() {
   }
 
   // 未ログイン時の表示
-  if (!user) {
+  if (!session?.user) {
     return (
       <div style={{
         minHeight: '100vh',

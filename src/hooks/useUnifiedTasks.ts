@@ -7,7 +7,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { UnifiedTasksService } from '@/lib/db/unified-tasks'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import { withErrorHandling } from '@/lib/utils/error-handler'
-import { createClient } from '@/lib/supabase/client'
 import { getTodayJST, getNowJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
 import { logger } from '@/lib/utils/logger'
@@ -68,10 +67,8 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
 
   // 全タスクを読み込み
   const loadTasks = useCallback(async (forceRefresh = false) => {
-    // ユーザーIDを取得してキャッシュバージョンとして使用
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const currentVersion = user?.id || 'anonymous'
+    // キャッシュバージョンは固定（認証はサーバー側で処理）
+    const currentVersion = 'session'
 
     // キャッシュチェック（強制更新でない場合 & バージョン一致）
     if (
@@ -206,92 +203,24 @@ export function useUnifiedTasks(autoLoad: boolean = true, isInitialized?: boolea
   }, [tasks])
 
   // doneテーブルの完了履歴も含む完了タスク取得
+  // TODO: doneテーブルのAPIを作成後、履歴取得を追加
   const getCompletedTasksWithHistory = useCallback(async (): Promise<UnifiedTask[]> => {
-    return await withErrorHandling(
-      async () => {
-        const supabase = createClient()
-
-        // 1. 通常の完了済みタスク (unified_tasks.completed = true)
-        const completedTasks = tasks.filter(task => task.completed)
-
-        // 2. doneテーブルから完了履歴を取得
-        const { data: doneRecords, error: doneError } = await supabase
-          .from('done')
-          .select('*')
-          .order('completed_at', { ascending: false })
-
-        if (doneError) {
-          logger.error('Failed to fetch done records:', doneError)
-          return completedTasks
-        }
-
-        // 3. doneレコードから仮想的な完了タスクを構築
-        const historyTasks: UnifiedTask[] = doneRecords?.map(record => ({
-          id: record.original_task_id,
-          user_id: record.user_id,
-          title: record.original_title || '(不明なタスク)',
-          memo: record.original_memo,
-          display_number: record.original_display_number || '',
-          due_date: record.original_due_date || '2999-12-31',
-          task_type: 'NORMAL',
-          category: record.original_category,
-          importance: record.original_importance ? parseInt(record.original_importance) : 3,
-          urls: [],
-          attachment: null,
-          completed: true,
-          completed_at: record.completed_at,
-          created_at: record.created_at || new Date().toISOString(),
-          updated_at: record.updated_at || new Date().toISOString(),
-          archived: false,
-          snoozed_until: null,
-          duration_min: null,
-          start_time: null,
-          end_time: null,
-          recurring_pattern: record.original_recurring_pattern,
-          recurring_interval: null,
-          recurring_weekdays: null,
-          recurring_day: null,
-          recurring_template_id: null,
-          _isHistory: true
-        })) || []
-
-        // 4. 重複を除去（同一タスクの複数完了履歴は最新のみ保持）
-        const uniqueHistoryTasks = historyTasks.filter((historyTask, index, array) => {
-          return array.findIndex(t => t.id === historyTask.id) === index
-        })
-
-        // 5. 結合して並び替え
-        const allCompletedTasks = [...completedTasks, ...uniqueHistoryTasks]
-
-        return allCompletedTasks.sort((a, b) => {
-          // 完了日時で降順（新しい順）
-          const dateA = a.completed_at || a.updated_at || ''
-          const dateB = b.completed_at || b.updated_at || ''
-          return dateB.localeCompare(dateA)
-        })
-      },
-      'useUnifiedTasks.getCompletedTasksWithHistory',
-      setError
-    ) || []
+    // 現在は通常の完了済みタスクのみ返す
+    const completedTasks = tasks.filter(task => task.completed)
+    return completedTasks.sort((a, b) => {
+      // 完了日時で降順（新しい順）
+      const dateA = a.completed_at || a.updated_at || ''
+      const dateB = b.completed_at || b.updated_at || ''
+      return dateB.localeCompare(dateA)
+    })
   }, [tasks])
 
   // タスク操作関数
   const createTask = useCallback(async (task: Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<UnifiedTask> => {
     const result = await withErrorHandling(
       async () => {
-        // user_idを自動で取得してタスクを作成
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user?.id) {
-          throw new Error('User not authenticated')
-        }
-
-        const taskWithUserId = {
-          ...task,
-          user_id: user.id
-        }
-
-        const createdTask = await UnifiedTasksService.createUnifiedTask(taskWithUserId)
+        // user_idはサーバー側で自動設定
+        const createdTask = await UnifiedTasksService.createUnifiedTask(task as Omit<UnifiedTask, 'id' | 'created_at' | 'updated_at'>)
 
         // 作成されたタスクをローカル状態に追加（全タスク再取得を回避）
         setTasks(prevTasks => [...prevTasks, createdTask])

@@ -1,18 +1,15 @@
 // APIルート用の認証ヘルパー
-// Supabaseの認証からuser_idを取得
+// NextAuthのセッションからuser_idを取得
 
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/auth'
 
 export async function getUserId(): Promise<string | null> {
   try {
-    const supabase = await createClient()
-    const { data: { user }, error } = await supabase.auth.getUser()
-
-    if (error || !user) {
+    const session = await auth()
+    if (!session?.user?.id) {
       return null
     }
-
-    return user.id
+    return session.user.id
   } catch {
     return null
   }

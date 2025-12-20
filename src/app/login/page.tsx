@@ -1,75 +1,22 @@
 'use client'
-import { createClient } from '@/lib/supabase/client'
+import { signIn } from 'next-auth/react'
 import { useState } from 'react'
-import { logger } from '@/lib/utils/logger'
-
-// Dynamic import to prevent static generation
-export const dynamic = 'force-dynamic'
 
 export default function LoginPage() {
-  const supabase = createClient()
-  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleGoogleLogin = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (process.env.NODE_ENV === 'development') {
-        logger.info('Starting Google OAuth...')
-        logger.info('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-        logger.info('Redirect URL:', `${window.location.origin}/auth/callback`)
-      }
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        },
-      })
-
-      if (error) {
-        if (process.env.NODE_ENV === 'development') {
-          logger.error('OAuth error:', error)
-        }
-        setError(`ログインエラー: ${error.message}`)
-        setLoading(false)
-      }
-      // 成功時はリダイレクトが発生するのでloadingは自動でfalseになる
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        logger.error('Unexpected error:', err)
-      }
-      setError(`予期しないエラー: ${err instanceof Error ? err.message : 'Unknown error'}`)
-      setLoading(false)
-    }
+    setLoading(true)
+    await signIn('google', { callbackUrl: '/today' })
   }
 
   return (
     <div style={{display:'flex',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
       <div style={{textAlign:'center',maxWidth:'400px'}}>
         <h1 style={{marginBottom:'20px'}}>Tasuku Login</h1>
-        
-        {error && (
-          <div style={{
-            background:'#fef2f2',
-            color:'#dc2626',
-            padding:'12px',
-            borderRadius:'6px',
-            marginBottom:'16px',
-            fontSize:'14px'
-          }}>
-            エラー: {error}
-          </div>
-        )}
-        
-        <button 
-          onClick={handleGoogleLogin} 
+
+        <button
+          onClick={handleGoogleLogin}
           disabled={loading}
           style={{
             display:'flex',
@@ -111,7 +58,7 @@ export default function LoginPage() {
           )}
           {loading ? 'Google認証中...' : 'Googleでログイン'}
         </button>
-        
+
         <div style={{fontSize:'12px',color:'#6b7280',marginTop:'16px'}}>
           Googleアカウントでセキュアにログイン
         </div>
