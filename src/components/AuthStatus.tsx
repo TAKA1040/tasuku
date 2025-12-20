@@ -1,32 +1,10 @@
 'use client'
-import { createClient } from '@/lib/supabase/client'
-import { useState, useEffect } from 'react'
-import type { User } from '@supabase/supabase-js'
+import { useSession } from 'next-auth/react'
 
 export function AuthStatus() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const { data: session, status } = useSession()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [supabase])
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div style={{
         padding: '8px 12px',
@@ -40,7 +18,7 @@ export function AuthStatus() {
     )
   }
 
-  if (!user) {
+  if (!session?.user) {
     return (
       <div style={{
         padding: '8px 12px',
@@ -75,7 +53,7 @@ export function AuthStatus() {
       borderRadius: '6px',
       fontSize: '12px'
     }}>
-      ✅ {user.email}でログイン中
+      ✅ {session.user.email}でログイン中
     </div>
   )
 }
