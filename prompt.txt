@@ -1,70 +1,86 @@
-# NextAuth移行 進捗状況（2025-12-19）
+# NextAuth.js Google OAuth ログインエラー解決記録
 
-## 完了した作業
+## 発生したエラー
 
-1. **NextAuth.js導入**
-   - `npm install next-auth@beta`
-   - `src/auth.ts` 作成
-   - `src/app/api/auth/[...nextauth]/route.ts` 作成
+```
+エラー 401: invalid_client
+リクエストの詳細: flowName=GeneralOAuthFlow
+The OAuth client was not found.
+```
 
-2. **認証関連ファイル変更**
-   - `src/app/login/page.tsx` → NextAuth signIn使用
-   - `src/lib/auth/get-user-id.ts` → NextAuthセッションから取得
-   - `middleware.ts` → NextAuth auth()使用
-   - `src/components/Providers.tsx` → SessionProvider追加
-   - `src/app/layout.tsx` → Providers追加
+## 原因（2つ）
 
-3. **フロントエンド変更**
-   - `src/app/tools/nenpi/page.tsx` → useSession使用
-   - `src/hooks/useUnifiedTasks.ts` → Supabase認証削除
+### 1. 間違ったGoogle OAuth Credentials
 
-4. **環境変数設定** (`.env.local`)
-   - AUTH_SECRET 設定済み
-   - AUTH_GOOGLE_ID 設定済み
-   - AUTH_GOOGLE_SECRET 設定済み
+**問題**: 別プロジェクト（manarieDB）のGoogle OAuth Client ID/Secretを使用していた
 
-5. **削除したファイル**
-   - `src/app/auth/callback/route.ts`
+- 誤: `1012505741218-00ap1f6fds0nu42enav4gkdh97faju72.apps.googleusercontent.com`（manarieDB用）
+- 正: `769162526023-5geuq9tbbn01mvcl5bldsh20sjun0mkc.apps.googleusercontent.com`（tasuku用）
 
-## 残りの作業
+**教訓**: プロジェクトごとにGCP OAuth Clientが異なる場合がある。必ず該当プロジェクトの `.env` を確認すること。
 
-### 必須: GCP設定
-Google Cloud Console でAuthorized redirect URIsを追加:
+### 2. Vercel環境変数に改行が混入
+
+**問題**: `echo` コマンドでVercel環境変数を設定すると、末尾に改行 `\n` が含まれる
+
+```bash
+# NG: 改行が含まれる
+echo "YOUR_VALUE" | vercel env add VAR_NAME production
+
+# 結果: AUTH_GOOGLE_ID="769162526023-...apps.googleusercontent.com\n"  ← \n が入る
+```
+
+**解決策**: `printf` を使用して改行なしで設定
+
+```bash
+# OK: 改行なし
+printf "YOUR_VALUE" | vercel env add VAR_NAME production
+```
+
+**確認方法**:
+```bash
+vercel env pull .env.vercel --environment production -y
+grep "AUTH_GOOGLE" .env.vercel
+# 末尾に \n があれば問題
+```
+
+## 正しい設定手順
+
+### 1. 環境変数の確認
+```bash
+# プロジェクトの.envを確認（マスター台帳）
+grep "GOOGLE" /c/Windsurf/tasuku/.env
+```
+
+### 2. Vercel環境変数の設定（printf使用）
+```bash
+printf "YOUR_CLIENT_ID" | vercel env add AUTH_GOOGLE_ID production
+printf "YOUR_CLIENT_SECRET" | vercel env add AUTH_GOOGLE_SECRET production
+printf "YOUR_AUTH_SECRET" | vercel env add AUTH_SECRET production
+```
+
+### 3. 設定確認
+```bash
+vercel env pull .env.vercel --environment production -y
+cat .env.vercel | grep AUTH
+# 値の末尾に \n がないことを確認
+```
+
+### 4. 再デプロイ
+```bash
+vercel --prod --yes
+```
+
+## GCP Redirect URI設定
+
+NextAuthは `/api/auth/callback/google` を使用する（Supabaseの `/auth/callback` とは異なる）
+
+**必要なRedirect URI:**
 - `https://tasuku.apaf.me/api/auth/callback/google`
 - `http://localhost:3000/api/auth/callback/google`
 
-### 必須: Vercel環境変数
-Vercelダッシュボードで追加:
-```
-AUTH_SECRET=B57I7RwwjXbkcPNJa80GKWKuxASNbMXUH64vpuR34J8=
-AUTH_GOOGLE_ID=1012505741218-00ap1f6fds0nu42enav4gkdh97faju72.apps.googleusercontent.com
-AUTH_GOOGLE_SECRET=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
-```
+## 関連ファイル
 
-### 後で対応: Supabase認証の完全削除
-以下のファイルにまだSupabase認証が残っている:
-- `src/app/debug/page.tsx`
-- `src/app/restore/page.tsx`
-- `src/app/test/page.tsx`
-- `src/components/AuthStatus.tsx`
-- `src/hooks/useDatabase.ts`
-- `src/lib/db/seed.ts`
-- `src/lib/db/supabase-database.ts`
-- `src/lib/services/completion-tracker.ts`
-- `src/app/api/debug-templates/route.ts`
-- `src/app/api/check-morning-jump/route.ts`
-- `src/app/api/check-overdue/route.ts`
-- `src/app/api/restore/route.ts`
-- `src/app/api/check-future-recurring/route.ts`
-- `src/app/api/generate-tasks/route.ts`
-- `src/app/api/force-delete-expired/route.ts`
-
-これらは主要機能ではないので、後で対応可能。
-
-### 後で対応: fuel_recordsのuser_id更新
-NextAuthでログインすると新しいuser_idになるため、既存データのuser_idを更新する必要がある。
-
-## 備考
-- ビルド成功確認済み
-- Supabase環境変数はまだ残しているが、認証には使用しない
-- doneテーブルの完了履歴機能は一時的に簡略化（TODO: API作成後に復活）
+- `.env` - マスター台帳（Google OAuth credentials含む）
+- `.env.local` - ローカル開発用
+- `src/auth.ts` - NextAuth設定（AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET使用）
