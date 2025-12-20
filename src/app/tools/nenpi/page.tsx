@@ -197,9 +197,9 @@ export default function NenpiPage() {
     if (index === records.length - 1) return null
     const current = records[index]
     const previous = records[index + 1]
-    const distance = current.mileage - previous.mileage
+    const distance = Number(current.mileage) - Number(previous.mileage)
     if (distance <= 0) return null
-    return distance / current.amount
+    return distance / Number(current.amount)
   }
 
   // 車両名の編集
@@ -556,7 +556,7 @@ export default function NenpiPage() {
               <div className="space-y-3">
                 {records.map((record, index) => {
                   const efficiency = calculateFuelEfficiency(index)
-                  const pricePerLiter = record.cost / record.amount
+                  const pricePerLiter = Number(record.cost) / Number(record.amount)
 
                   return (
                     <div
@@ -622,7 +622,7 @@ export default function NenpiPage() {
                                 fontSize: '0.875rem'
                               }}>
                                 <span style={{ color: '#6b7280' }}>給油量</span>
-                                <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.amount.toFixed(2)} L</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>{Number(record.amount).toFixed(2)} L</span>
                               </div>
                             </div>
 
@@ -638,7 +638,7 @@ export default function NenpiPage() {
                                 fontSize: '0.875rem'
                               }}>
                                 <span style={{ color: '#6b7280' }}>金額</span>
-                                <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{record.cost.toLocaleString()}</span>
+                                <span style={{ fontWeight: '600', color: '#1f2937' }}>¥{Number(record.cost).toLocaleString()}</span>
                               </div>
                               <div style={{
                                 flex: '1',
@@ -664,7 +664,7 @@ export default function NenpiPage() {
                               fontSize: '0.875rem'
                             }}>
                               <span style={{ color: '#6b7280' }}>走行距離</span>
-                              <span style={{ fontWeight: '600', color: '#1f2937' }}>{record.mileage.toFixed(1)} km</span>
+                              <span style={{ fontWeight: '600', color: '#1f2937' }}>{Number(record.mileage).toFixed(1)} km</span>
                             </div>
                           </div>
                           </div>
@@ -778,7 +778,7 @@ export default function NenpiPage() {
                     fontWeight: '700',
                     color: '#1f2937'
                   }}>
-                    {records.reduce((sum, r) => sum + r.amount, 0).toFixed(0)}
+                    {records.reduce((sum, r) => sum + Number(r.amount), 0).toFixed(0)}
                   </div>
                   <div style={{
                     fontSize: '0.875rem',
@@ -798,7 +798,7 @@ export default function NenpiPage() {
                     fontWeight: '700',
                     color: '#1f2937'
                   }}>
-                    ¥{records.reduce((sum, r) => sum + r.cost, 0).toLocaleString()}
+                    ¥{records.reduce((sum, r) => sum + Number(r.cost), 0).toLocaleString()}
                   </div>
                   <div style={{
                     fontSize: '0.875rem',
