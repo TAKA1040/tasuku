@@ -487,3 +487,37 @@ const allTasks = await TasksApi.getAllTasks()
 - `fcf287a` - useTasks.ts型エラー修正
 - `6ed4916` - useDatabaseをNextAuth対応に変更
 - `6c3c0cb` - generate-tasks APIをNextAuth対応に変更
+- `891ac86` - urls NOT NULL制約エラーを修正（空配列をデフォルトに）
+
+---
+
+# タスク追加時のDB制約エラー（2025-12-21）
+
+## 症状
+
+タスク追加しても何も起きない（サイレントに失敗）
+
+## 原因
+
+```
+"error": "null value in column \"urls\" of relation \"unified_tasks\" violates not-null constraint"
+```
+
+`urls`カラムにNOT NULL制約があるのに、`null`を渡していた。
+
+## 修正
+
+**postgres-tasks.ts:**
+```tsx
+// 修正前
+task.urls || null,
+
+// 修正後
+task.urls || [],  // NOT NULL制約があるため空配列をデフォルトに
+```
+
+## 教訓
+
+- DBのNOT NULL制約を確認する
+- サイレントに失敗する場合は、ブラウザのNetworkタブでAPIレスポンスを確認
+- `|| null` を使う前に、カラムの制約を確認する
