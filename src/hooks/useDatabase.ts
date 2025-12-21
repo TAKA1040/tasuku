@@ -1,55 +1,49 @@
 'use client'
 
 // React Hook for database initialization
+// NextAuth認証対応版
 import { useState, useEffect } from 'react'
-import { supabaseDb as db } from '@/lib/db/supabase-database'
+import { useSession } from 'next-auth/react'
 import { initializeDevFeatures } from '@/lib/features'
 import { setupDevTools } from '@/lib/db/reset'
 import { setupRecurringDevTools } from '@/lib/utils/recurring-test'
-import { UI_CONSTANTS } from '@/lib/constants'
 import { logger } from '@/lib/utils/logger'
 
 export function useDatabase() {
+  const { data: session, status } = useSession()
   const [isInitialized, setIsInitialized] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   useEffect(() => {
-    // Ensure we're on the client side before attempting Supabase operations
+    // Ensure we're on the client side
     if (typeof window === 'undefined') {
       if (process.env.NODE_ENV === 'development') {
-        logger.info('Server side rendering detected, skipping database initialization')
+        logger.info('Server side rendering detected, skipping initialization')
       }
       return
     }
 
+    // Wait for session status to be determined
+    if (status === 'loading') {
+      return
+    }
+
+    // Check if user is authenticated via NextAuth
+    if (!session?.user) {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('No authenticated user found (NextAuth), skipping initialization')
+      }
+      setIsInitialized(false)
+      setError(null)
+      return
+    }
+
     let mounted = true
-    
+
     async function init() {
       try {
         if (process.env.NODE_ENV === 'development') {
-          logger.info('Starting database initialization...')
-        }
-
-        // Check if user is authenticated before initializing database
-        const { createClient } = await import('@/lib/supabase/client')
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-          if (process.env.NODE_ENV === 'development') {
-            logger.info('No authenticated user found, skipping database initialization')
-          }
-          if (mounted) {
-            setIsInitialized(false)
-            setError(null) // Clear any previous errors
-          }
-          return
-        }
-
-        // Initialize Supabase connection
-        await db.init()
-        if (process.env.NODE_ENV === 'development') {
-          logger.info('Supabase Database initialized')
+          logger.info('Starting initialization for user:', session?.user?.email)
         }
 
         await initializeDevFeatures()
@@ -63,56 +57,27 @@ export function useDatabase() {
           logger.info('Dev tools setup')
         }
 
-        // Development: Add dummy data if no tasks exist
-        // Note: Auto-seeding disabled to prevent unwanted data regeneration
-        // To manually add dummy data, use: window.seedDummyData() in console
-        if (process.env.NODE_ENV === 'development') {
-          if (process.env.NODE_ENV === 'development') {
-            logger.info('Checking for dummy data... (auto-seeding disabled)')
-          }
-          const { checkDatabaseState, seedDummyData } = await import('@/lib/db/seed')
-          const state = await checkDatabaseState()
-          if (process.env.NODE_ENV === 'development') {
-            logger.info('Database state:', state)
-          }
-
-          // Auto-seeding disabled - users can manually seed via console
-          // if (state.tasks === 0) {
-          //   await seedDummyData()
-          //   if (process.env.NODE_ENV === 'development') {
-          //     logger.info('Seeded dummy data for development')
-          //   }
-          // }
-
-          // Make seedDummyData available globally for manual use
-          if (typeof window !== 'undefined') {
-            (window as Window & { seedDummyData?: typeof seedDummyData }).seedDummyData = seedDummyData
-          }
-        }
-
         if (mounted) {
           setIsInitialized(true)
           if (process.env.NODE_ENV === 'development') {
-            logger.info('Database initialization completed successfully')
+            logger.info('Initialization completed successfully')
           }
         }
       } catch (err) {
-        logger.error('Database initialization failed:', err)
+        logger.error('Initialization failed:', err)
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Unknown error')
           setIsInitialized(false)
         }
       }
     }
-    
-    // Add a small delay to ensure the DOM is fully loaded
-    const timeoutId = setTimeout(init, UI_CONSTANTS.DATABASE_INIT_RETRY_DELAY)
-    
+
+    init()
+
     return () => {
       mounted = false
-      clearTimeout(timeoutId)
     }
-  }, [])
-  
-  return { isInitialized, error, db }
+  }, [session, status])
+
+  return { isInitialized, error }
 }
