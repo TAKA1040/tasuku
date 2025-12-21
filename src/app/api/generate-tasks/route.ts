@@ -1,26 +1,18 @@
 import { NextResponse } from 'next/server'
 import { TaskGeneratorService } from '@/lib/services/task-generator'
-import { createClient } from '@/lib/supabase/server'
+import { requireUserId } from '@/lib/auth/get-user-id'
 
 export async function POST(request: Request) {
   try {
-    // 認証確認（Supabase Authを使用）
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized', details: authError?.message },
-        { status: 401 }
-      )
-    }
+    // NextAuth認証確認
+    const userId = await requireUserId()
 
     // リクエストボディから forceToday フラグを取得
     const body = await request.json().catch(() => ({}))
     const forceToday = body.forceToday === true
 
     // タスク生成実行（ユーザーIDを渡す）
-    const generator = new TaskGeneratorService(user.id)
+    const generator = new TaskGeneratorService(userId)
     await generator.generateMissingTasks(forceToday)
 
     return NextResponse.json({
@@ -30,13 +22,14 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('Task generation error:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    const status = message.includes('Unauthorized') ? 401 : 500
     return NextResponse.json(
       {
-        error: 'Task generation failed',
-        details: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        error: status === 401 ? 'Unauthorized' : 'Task generation failed',
+        details: message
       },
-      { status: 500 }
+      { status }
     )
   }
 }
@@ -44,19 +37,11 @@ export async function POST(request: Request) {
 // GETリクエストでも実行可能にする（ブラウザから簡単にテストできるように）
 export async function GET() {
   try {
-    // 認証確認
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized', details: authError?.message },
-        { status: 401 }
-      )
-    }
+    // NextAuth認証確認
+    const userId = await requireUserId()
 
     // タスク生成実行（ユーザーIDを渡す）
-    const generator = new TaskGeneratorService(user.id)
+    const generator = new TaskGeneratorService(userId)
     await generator.generateMissingTasks(false)
 
     return NextResponse.json({
@@ -65,13 +50,14 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Task generation error:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    const status = message.includes('Unauthorized') ? 401 : 500
     return NextResponse.json(
       {
-        error: 'Task generation failed',
-        details: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        error: status === 401 ? 'Unauthorized' : 'Task generation failed',
+        details: message
       },
-      { status: 500 }
+      { status }
     )
   }
 }
