@@ -84,3 +84,151 @@ NextAuthは `/api/auth/callback/google` を使用する（Supabaseの `/auth/cal
 - `.env` - マスター台帳（Google OAuth credentials含む）
 - `.env.local` - ローカル開発用
 - `src/auth.ts` - NextAuth設定（AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET使用）
+
+---
+
+# NextAuth ログイン成功なのに「ログインが必要」と表示される問題（2025-12-21）
+
+## 症状
+
+- Googleログインは成功する（エラーなし）
+- `/api/auth/session` にアクセスするとユーザー情報が表示される（セッションは有効）
+- しかしTASUKUの画面では「ログインが必要です」と表示される
+
+## 原因
+
+**`AuthStatus.tsx` がSupabase認証をチェックしていた**
+
+```
+NextAuthでログイン成功
+     ↓
+セッション作成される（/api/auth/session で確認可能）
+     ↓
+AuthStatus.tsx が supabase.auth.getUser() をチェック ← ここが問題
+     ↓
+Supabaseにはログインしてない → 「ログインが必要」表示
+```
+
+NextAuthに移行したのに、UIコンポーネント（AuthStatus.tsx）がまだSupabaseの認証状態を見ていたため、常に「未ログイン」と判定されていた。
+
+## 修正内容
+
+### AuthStatus.tsx の変更
+
+**修正前（Supabase）:**
+```tsx
+import { createClient } from '@/lib/supabase/client'
+import { useState, useEffect } from 'react'
+
+export function AuthStatus() {
+  const [user, setUser] = useState<User | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [supabase])
+
+  if (!user) {
+    return <div>ログインが必要です</div>
+  }
+}
+```
+
+**修正後（NextAuth）:**
+```tsx
+import { useSession } from 'next-auth/react'
+
+export function AuthStatus() {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') {
+    return <div>読み込み中...</div>
+  }
+
+  if (!session?.user) {
+    return <div>ログインが必要です</div>
+  }
+
+  return <div>✅ {session.user.email}でログイン中</div>
+}
+```
+
+### auth.ts のDB連携
+
+セッションにDBのuser_idを含めるための変更:
+
+```tsx
+// emailからDBのuser_idを取得
+async function getOrCreateDbUserId(email: string, name?: string | null, image?: string | null) {
+  const existing = await queryOne<{ id: string }>(
+    'SELECT id FROM users WHERE email = $1',
+    [email]
+  );
+  if (existing) return existing.id;
+  // 新規作成...
+}
+
+// JWTコールバックでDBのuser_idを設定
+callbacks: {
+  async jwt({ token, user, account }) {
+    if (account && user?.email) {
+      const dbUserId = await getOrCreateDbUserId(user.email, user.name, user.image);
+      token.dbUserId = dbUserId || user.id;
+    }
+    return token;
+  },
+  async session({ session, token }) {
+    if (session.user) {
+      session.user.id = (token.dbUserId as string) || (token.sub as string);
+    }
+    return session;
+  },
+}
+```
+
+## デバッグ方法
+
+### 1. セッションの確認
+```
+ブラウザで直接アクセス: https://tasuku.apaf.me/api/auth/session
+
+成功例: {"user":{"name":"...","email":"...","id":"93d599a3-..."}}
+失敗例: {} または null
+```
+
+### 2. DBのuser_idが正しく取得されているか
+```bash
+# DBのusersテーブルを確認
+DATABASE_URL="..." node -e "
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
+pool.query('SELECT id, email FROM users').then(r => console.log(r.rows));
+"
+```
+
+### 3. ログアウト→再ログインが必要
+JWTは初回ログイン時に設定されるため、auth.tsを変更した後は:
+1. ログアウト
+2. Cookieクリア（念のため）
+3. 再度Googleログイン
+
+## 教訓
+
+- **認証方式を変更したら、全てのUIコンポーネントを確認する**
+- Supabase → NextAuth 移行時、以下をチェック:
+  - `supabase.auth.getUser()` を使っている箇所
+  - `@/lib/supabase/client` をimportしている箇所
+  - `onAuthStateChange` を使っている箇所
+- `grep -r "supabase.auth" src/` で残存箇所を検索できる
+
+## 関連コミット
+
+- `0974d69` - auth.tsにエラーハンドリング追加
+- `0e88cb0` - auth.tsをシンプル化（DBクエリ削除）← デバッグ用
+- `a10e07c` - AuthStatusをNextAuthに変更 ← **これが主要な修正**
+- `f50ce4e` - auth.tsにDB連携追加（emailからuser_id取得）
+- `2ca59be` - PostgreSQLのdecimal型を数値に変換（燃費ページ用）

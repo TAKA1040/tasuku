@@ -1,10 +1,12 @@
 'use client'
 
 // Tasks data management hook
+// API経由でmanariedbにアクセス（NextAuth認証対応）
 import { useState, useEffect, useCallback } from 'react'
-import { supabaseDb as db } from '@/lib/db/supabase-database'
+import { TasksApi } from '@/lib/api/tasks-api'
 import { getTodayJST, getDaysFromToday, getUrgencyLevel } from '@/lib/utils/date-jst'
 import type { Task, TaskWithUrgency } from '@/lib/db/schema'
+import type { UnifiedTask } from '@/lib/types/unified-task'
 import { TIME_CONSTANTS } from '@/lib/constants'
 import { withErrorHandling } from '@/lib/utils/error-handler'
 import { logger } from '@/lib/utils/logger'
@@ -13,21 +15,37 @@ import { logger } from '@/lib/utils/logger'
 let taskCache: { data: Task[]; timestamp: number } | null = null
 const CACHE_DURATION = 30000 // 30秒
 
-export function useTasks(isDbInitialized: boolean = false) {
+// UnifiedTask → Task 変換ヘルパー
+function toTask(u: UnifiedTask): Task {
+  return {
+    id: u.id,
+    display_number: u.display_number || '',
+    title: u.title,
+    memo: u.memo || undefined,
+    due_date: u.due_date || undefined,
+    category: u.category || undefined,
+    importance: u.importance as 1 | 2 | 3 | 4 | 5 | undefined,
+    duration_min: u.duration_min || undefined,
+    urls: u.urls || undefined,
+    attachment: undefined,
+    completed: u.completed,
+    archived: u.archived,
+    completed_at: u.completed_at || undefined,
+    snoozed_until: u.snoozed_until || undefined,
+    start_time: u.start_time || undefined,
+    end_time: u.end_time || undefined,
+    created_at: u.created_at,
+    updated_at: u.updated_at,
+  }
+}
+
+export function useTasks(_isDbInitialized: boolean = false) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Load tasks from database
+  // Load tasks from API
   const loadTasks = useCallback(async (forceRefresh = false) => {
-    if (!isDbInitialized) {
-      if (process.env.NODE_ENV === 'development') {
-        logger.info('Database not yet initialized, skipping task loading')
-      }
-      setLoading(false) // Important: Set loading to false even when not initialized
-      return
-    }
-
     // キャッシュチェック（強制更新でない場合）
     if (!forceRefresh && taskCache && Date.now() - taskCache.timestamp < CACHE_DURATION) {
       if (process.env.NODE_ENV === 'development') {
@@ -41,7 +59,8 @@ export function useTasks(isDbInitialized: boolean = false) {
     await withErrorHandling(
       async () => {
         setLoading(true)
-        const allTasks = await db.getAllTasks()
+        const allUnifiedTasks = await TasksApi.getAllTasks()
+        const allTasks = allUnifiedTasks.map(toTask)
 
         // キャッシュを更新
         taskCache = {
@@ -58,7 +77,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     )
 
     setLoading(false)
-  }, [isDbInitialized])
+  }, [])
 
   // Get today's tasks with urgency
   const getTodayTasks = (): TaskWithUrgency[] => {
@@ -205,7 +224,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         const task = tasks.find(t => t.id === taskId)
         if (!task) throw new Error('タスクが見つかりません')
 
-        await db.updateTask(taskId, { completed: true, completed_at: getTodayJST() })
+        await TasksApi.completeTask(taskId)
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.completeTask',
@@ -220,10 +239,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         const task = tasks.find(t => t.id === taskId)
         if (!task) throw new Error('タスクが見つかりません')
 
-        await db.updateTask(taskId, {
-          completed: false,
-          completed_at: undefined
-        })
+        await TasksApi.uncompleteTask(taskId)
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.uncompleteTask',
@@ -238,7 +254,7 @@ export function useTasks(isDbInitialized: boolean = false) {
         const task = tasks.find(t => t.id === taskId)
         if (!task) throw new Error('タスクが見つかりません')
 
-        await db.updateTask(taskId, { due_date: newDueDate })
+        await TasksApi.updateTask(taskId, { due_date: newDueDate })
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.quickMoveTask',
@@ -255,7 +271,7 @@ export function useTasks(isDbInitialized: boolean = false) {
     importance?: number,
     durationMin?: number,
     urls?: string[],
-    attachment?: {
+    _attachment?: {
       file_name: string
       file_type: string
       file_size: number
@@ -264,25 +280,18 @@ export function useTasks(isDbInitialized: boolean = false) {
   ) => {
     await withErrorHandling(
       async () => {
-        const newTask: Task = {
-          id: crypto.randomUUID(),
+        await TasksApi.createTask({
           title: title.trim(),
-          memo: memo?.trim() || undefined,
+          memo: memo?.trim() || null,
           due_date: dueDate || getTodayJST(),
-          category: category?.trim() || undefined,
-          importance: (importance as 1 | 2 | 3 | 4 | 5) || undefined,
-          duration_min: durationMin || undefined,
-          urls: urls || undefined,
-          attachment: attachment || undefined,
+          category: category?.trim() || null,
+          importance: importance || null,
+          duration_min: durationMin || null,
+          urls: urls || [],
+          task_type: 'NORMAL',
           completed: false,
           archived: false,
-          completed_at: undefined,
-          snoozed_until: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-
-        await db.createTask(newTask)
+        })
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.createTask',
@@ -304,7 +313,7 @@ export function useTasks(isDbInitialized: boolean = false) {
           category: updates.category?.trim()
         }
 
-        await db.updateTask(taskId, cleanedUpdates)
+        await TasksApi.updateTask(taskId, cleanedUpdates)
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.updateTask',
@@ -321,7 +330,7 @@ export function useTasks(isDbInitialized: boolean = false) {
           throw new Error('タスクが見つかりません')
         }
 
-        await db.deleteTask(taskId)
+        await TasksApi.deleteTask(taskId)
         await loadTasks(true) // 強制リフレッシュ
       },
       'useTasks.deleteTask',
@@ -329,10 +338,10 @@ export function useTasks(isDbInitialized: boolean = false) {
     )
   }
 
-  // Load tasks when database is initialized or component mounts
+  // Load tasks on component mount
   useEffect(() => {
     loadTasks()
-  }, [isDbInitialized, loadTasks])
+  }, [loadTasks])
 
   return {
     tasks,
