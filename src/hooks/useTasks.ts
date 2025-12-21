@@ -28,14 +28,12 @@ function toTask(u: UnifiedTask): Task {
     duration_min: u.duration_min || undefined,
     urls: u.urls || undefined,
     attachment: undefined,
-    completed: u.completed,
-    archived: u.archived,
+    completed: u.completed ?? false,
+    archived: u.archived ?? false,
     completed_at: u.completed_at || undefined,
     snoozed_until: u.snoozed_until || undefined,
-    start_time: u.start_time || undefined,
-    end_time: u.end_time || undefined,
-    created_at: u.created_at,
-    updated_at: u.updated_at,
+    created_at: u.created_at || new Date().toISOString(),
+    updated_at: u.updated_at || new Date().toISOString(),
   }
 }
 
@@ -291,6 +289,7 @@ export function useTasks(_isDbInitialized: boolean = false) {
           task_type: 'NORMAL',
           completed: false,
           archived: false,
+          display_number: '',
         })
         await loadTasks(true) // 強制リフレッシュ
       },
