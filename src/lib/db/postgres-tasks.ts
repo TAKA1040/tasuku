@@ -175,7 +175,7 @@ export class PostgresTasksService {
           task.recurring_template_id || null,
           task.start_time || null,
           task.end_time || null,
-          task.urls || null,
+          task.urls || [],  // NOT NULL制約があるため空配列をデフォルトに
           now,
           now
         ]
@@ -687,7 +687,7 @@ export class PostgresTasksService {
           template.day_of_year || null,
           userId,
           template.active !== false,
-          template.urls || null,
+          template.urls || [],  // NOT NULL制約があるため空配列をデフォルトに
           template.start_time || null,
           template.end_time || null,
           now,

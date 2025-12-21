@@ -232,3 +232,258 @@ JWTは初回ログイン時に設定されるため、auth.tsを変更した後�
 - `a10e07c` - AuthStatusをNextAuthに変更 ← **これが主要な修正**
 - `f50ce4e` - auth.tsにDB連携追加（emailからuser_id取得）
 - `2ca59be` - PostgreSQLのdecimal型を数値に変換（燃費ページ用）
+
+---
+
+# Supabase Auth → NextAuth 完全移行マニュアル（2025-12-21）
+
+## 概要
+
+Supabase認証からNextAuth（Google OAuth）への移行で必要な変更箇所をまとめる。
+認証方式を変更すると、複数の箇所で「認証チェック」が残存し、動作しなくなる。
+
+## 移行が必要な箇所一覧
+
+### 1. UIコンポーネント（クライアントサイド）
+
+| ファイル | 修正前 | 修正後 |
+|---------|-------|-------|
+| `AuthStatus.tsx` | `supabase.auth.getUser()` | `useSession()` |
+| `useDatabase.ts` | `supabase.auth.getUser()` | `useSession()` |
+
+**検索コマンド:**
+```bash
+grep -r "supabase.auth" src/
+grep -r "createClient.*supabase" src/hooks/
+grep -r "createClient.*supabase" src/components/
+```
+
+### 2. APIルート（サーバーサイド）
+
+| ファイル | 修正前 | 修正後 |
+|---------|-------|-------|
+| `/api/tasks/route.ts` | - | `requireUserId()` ✅ 既にNextAuth対応 |
+| `/api/generate-tasks/route.ts` | `supabase.auth.getUser()` | `requireUserId()` |
+| `/api/templates/route.ts` | - | `requireUserId()` ✅ 既にNextAuth対応 |
+
+**検索コマンド:**
+```bash
+grep -r "createClient.*supabase/server" src/app/api/
+grep -r "supabase.auth.getUser" src/app/api/
+```
+
+### 3. データ取得フック
+
+| ファイル | 修正前 | 修正後 |
+|---------|-------|-------|
+| `useTasks.ts` | `supabaseDb` 直接アクセス | `TasksApi` 経由 |
+| `useUnifiedTasks.ts` | - | `UnifiedTasksService` ✅ 既にAPI経由 |
+
+**ポイント:**
+- APIは認証済みだが、フックがSupabaseを直接使っていると動かない
+- フック → API → DB の流れにする
+
+## 修正手順
+
+### Step 1: auth.ts にDB連携を追加
+
+```tsx
+// src/auth.ts
+import { queryOne } from '@/lib/db/postgres-client'
+
+async function getOrCreateDbUserId(email: string, name?: string | null, image?: string | null) {
+  const existing = await queryOne<{ id: string }>(
+    'SELECT id FROM users WHERE email = $1',
+    [email]
+  );
+  if (existing) return existing.id;
+
+  const result = await queryOne<{ id: string }>(
+    'INSERT INTO users (email, name, image) VALUES ($1, $2, $3) RETURNING id',
+    [email, name, image]
+  );
+  return result?.id || null;
+}
+
+// callbacks内
+callbacks: {
+  async jwt({ token, user, account }) {
+    if (account && user?.email) {
+      const dbUserId = await getOrCreateDbUserId(user.email, user.name, user.image);
+      token.dbUserId = dbUserId || user.id;
+    }
+    return token;
+  },
+  async session({ session, token }) {
+    if (session.user) {
+      session.user.id = (token.dbUserId as string) || (token.sub as string);
+    }
+    return session;
+  },
+}
+```
+
+### Step 2: API用認証ヘルパー作成
+
+```tsx
+// src/lib/auth/get-user-id.ts
+import { auth } from '@/auth'
+
+export async function getUserId(): Promise<string | null> {
+  const session = await auth()
+  return session?.user?.id || null
+}
+
+export async function requireUserId(): Promise<string> {
+  const userId = await getUserId()
+  if (!userId) {
+    throw new Error('Unauthorized: User not authenticated')
+  }
+  return userId
+}
+```
+
+### Step 3: UIコンポーネントの修正
+
+**AuthStatus.tsx:**
+```tsx
+'use client'
+import { useSession } from 'next-auth/react'
+
+export function AuthStatus() {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') {
+    return <div>読み込み中...</div>
+  }
+
+  if (!session?.user) {
+    return <div>ログインが必要です</div>
+  }
+
+  return <div>✅ {session.user.email}でログイン中</div>
+}
+```
+
+**useDatabase.ts:**
+```tsx
+'use client'
+import { useSession } from 'next-auth/react'
+
+export function useDatabase() {
+  const { data: session, status } = useSession()
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session?.user) {
+      setIsInitialized(false)
+      return
+    }
+
+    // 初期化処理...
+    setIsInitialized(true)
+  }, [session, status])
+
+  return { isInitialized, error }
+}
+```
+
+### Step 4: APIルートの修正
+
+**修正前（Supabase）:**
+```tsx
+import { createClient } from '@/lib/supabase/server'
+
+export async function POST(request: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // user.id を使用...
+}
+```
+
+**修正後（NextAuth）:**
+```tsx
+import { requireUserId } from '@/lib/auth/get-user-id'
+
+export async function POST(request: Request) {
+  try {
+    const userId = await requireUserId()
+
+    // userId を使用...
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const status = message.includes('Unauthorized') ? 401 : 500
+    return NextResponse.json({ error: message }, { status })
+  }
+}
+```
+
+### Step 5: データ取得フックの修正
+
+**useTasks.ts:**
+```tsx
+// 修正前
+import { supabaseDb as db } from '@/lib/db/supabase-database'
+const allTasks = await db.getAllTasks()
+
+// 修正後
+import { TasksApi } from '@/lib/api/tasks-api'
+const allTasks = await TasksApi.getAllTasks()
+```
+
+## 確認手順
+
+### 1. セッション確認
+```
+ブラウザ: https://tasuku.apaf.me/api/auth/session
+期待値: {"user":{"name":"...","email":"...","id":"DB_USER_ID"}}
+```
+
+### 2. API確認
+```
+ブラウザ: https://tasuku.apaf.me/api/tasks
+期待値: {"success":true,"data":[...タスク配列...]}
+```
+
+### 3. UI確認
+- /today でタスクが表示される
+- タスクの完了/未完了が動作する
+- タスクの追加・編集・削除が動作する
+
+## トラブルシューティング
+
+### 「認証状態確認中...」で止まる
+→ `useDatabase.ts` がSupabase認証を使っている
+
+### タスクが0件表示
+→ データ取得フックがSupabase直接アクセスを使っている
+
+### タスク生成エラー
+→ `/api/generate-tasks` がSupabase認証を使っている
+
+### 「Auth session missing!」エラー
+→ APIがSupabase認証を使っている
+
+## 残存Supabase認証API（デバッグ用、通常使用に影響なし）
+
+以下のAPIはまだSupabase認証を使用（必要に応じて修正）:
+- `force-delete-expired` - 期限切れタスク強制削除
+- `check-morning-jump` - 朝ジャンプチェック
+- `check-overdue` - 期限切れチェック
+- `debug-templates` - テンプレートデバッグ
+- `restore` - 復元
+- `check-future-recurring` - 将来の繰り返しチェック
+
+## 関連コミット（移行作業）
+
+- `16d2d25` - useTasks.tsをAPI経由に変更（NextAuth対応）
+- `fcf287a` - useTasks.ts型エラー修正
+- `6ed4916` - useDatabaseをNextAuth対応に変更
+- `6c3c0cb` - generate-tasks APIをNextAuth対応に変更
