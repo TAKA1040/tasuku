@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 const pool = new pg.Pool({
-  connectionString: 'postgresql://manarie_app:Apud284700@210.131.221.42:5432/manariedb?options=-csearch_path%3Dtasuku_5f7d'
+  connectionString: process.env.DATABASE_URL
 });
 
 async function fix() {
