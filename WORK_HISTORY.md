@@ -57,7 +57,20 @@
 
 - TypeScriptエラー: 0件
 - ESLintエラー: 0件
-- ESLint警告: 18件（Chrome拡張、テスト、Canvas用img）
+- ESLint警告: **0件**（全て修正完了）
+
+### 追加修正（18件→0件）
+
+- `chrome-extension/background.js`: 未使用パラメータ `_tabId`
+- `e2e/basic.spec.ts`: 未使用変数 `_authStatus`
+- `scripts/generate-icons.mjs`: 未使用インポート削除
+- `scripts/manariedb-cli.js`: 三項演算子をif文に変更
+- `label-maker/manual/page.tsx`: `Image` → `ImageIcon`（Lucideアイコン）
+- `seal-maker.tsx`: eslint-disable追加（Canvas用img要素）
+- `nenpi/page.tsx`: eslint-disable追加（画像表示用）
+- `tools/page.tsx`: eslint-disable追加（アイコン表示用）
+
+**コミット**: `033549b`
 
 ---
 
