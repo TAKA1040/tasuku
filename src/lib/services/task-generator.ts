@@ -11,9 +11,9 @@
 
 import { PostgresTasksService } from '@/lib/db/postgres-tasks'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
-import type { UnifiedTask } from '@/lib/types/unified-task'
 import { getTodayJST, addDays, subtractDays, getStartOfWeek, getStartOfMonth } from '@/lib/utils/date-jst'
 import { logger } from '@/lib/utils/logger'
+import { SPECIAL_DATES } from '@/lib/constants'
 
 export class TaskGeneratorService {
   private userId: string
@@ -167,7 +167,7 @@ export class TaskGeneratorService {
           const newTask = await PostgresTasksService.createUnifiedTask(this.userId, {
             title: task.title,
             memo: task.memo || '',
-            due_date: '2999-12-31',
+            due_date: SPECIAL_DATES.NO_DUE_DATE,
             category: '買い物',
             importance: task.importance || 1,
             task_type: 'NORMAL',
@@ -528,7 +528,16 @@ export class TaskGeneratorService {
         logger.production(`🗑️  期限切れ月次タスク削除: ${monthlyDeleted}件`)
       }
 
-      const totalDeleted = dailyDeleted + weeklyDeleted + monthlyDeleted
+      // 年次: 365日経過で削除
+      const yearlyThreshold = subtractDays(today, 365)
+      const yearlyDeleted = await PostgresTasksService.deleteRecurringTasksByCondition(
+        this.userId, 'YEARLY', 'lte', yearlyThreshold
+      )
+      if (yearlyDeleted > 0) {
+        logger.production(`🗑️  期限切れ年次タスク削除: ${yearlyDeleted}件`)
+      }
+
+      const totalDeleted = dailyDeleted + weeklyDeleted + monthlyDeleted + yearlyDeleted
       if (totalDeleted > 0) {
         logger.production(`✅ 期限切れタスク削除完了: 合計${totalDeleted}件`)
       }

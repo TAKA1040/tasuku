@@ -1,523 +1,86 @@
-# NextAuth.js Google OAuth ログインエラー解決記録
+# tasuku 徹底チェックレポート (2026-01-09)
 
-## 発生したエラー
+## ✅ 修正完了
 
-```
-エラー 401: invalid_client
-リクエストの詳細: flowName=GeneralOAuthFlow
-The OAuth client was not found.
-```
+### 1. `users` テーブルのマイグレーション作成
+- **ファイル**: `supabase/migrations/20260109000001_create_users_table.sql`
+- **内容**: NextAuth用のusersテーブル（id, email, name, image）を作成
+- **状態**: ✅ 完了
 
-## 原因（2つ）
+### 2. デバッグAPIの本番環境保護
+- **対象ファイル**:
+  - `src/app/api/check-overdue/route.ts`
+  - `src/app/api/check-future-recurring/route.ts`
+  - `src/app/api/check-morning-jump/route.ts`
+  - `src/app/api/db-test/route.ts`
+  - `src/app/api/debug-templates/route.ts`
+  - `src/app/api/fix-profiles/route.ts`
+  - `src/app/api/restore/route.ts`
+- **修正**: `NODE_ENV === 'production'` で403を返すガードを追加
+- **状態**: ✅ 完了
 
-### 1. 間違ったGoogle OAuth Credentials
+### 3. 年次タスク期限切れ削除処理の追加
+- **ファイル**: `src/lib/services/task-generator.ts`
+- **修正**: `deleteExpiredRecurringTasks()` にYEARLY処理（365日経過で削除）を追加
+- **状態**: ✅ 完了
 
-**問題**: 別プロジェクト（manarieDB）のGoogle OAuth Client ID/Secretを使用していた
+### 4. subtasksにupdated_atカラム追加
+- **ファイル**: `supabase/migrations/20260109000002_add_updated_at_to_subtasks.sql`
+- **内容**: subtasksテーブルにupdated_atカラムとトリガーを追加
+- **状態**: ✅ 完了
 
-- 誤: `1012505741218-00ap1f6fds0nu42enav4gkdh97faju72.apps.googleusercontent.com`（manarieDB用）
-- 正: `769162526023-5geuq9tbbn01mvcl5bldsh20sjun0mkc.apps.googleusercontent.com`（tasuku用）
+### 5. task-generator.tsのバグ修正
+- **修正内容**:
+  - 買い物タスクの期日ハードコード `'2999-12-31'` → `SPECIAL_DATES.NO_DUE_DATE`
+  - 未使用インポート `UnifiedTask` を削除
+- **状態**: ✅ 完了
 
-**教訓**: プロジェクトごとにGCP OAuth Clientが異なる場合がある。必ず該当プロジェクトの `.env` を確認すること。
-
-### 2. Vercel環境変数に改行が混入
-
-**問題**: `echo` コマンドでVercel環境変数を設定すると、末尾に改行 `\n` が含まれる
-
-```bash
-# NG: 改行が含まれる
-echo "YOUR_VALUE" | vercel env add VAR_NAME production
-
-# 結果: AUTH_GOOGLE_ID="769162526023-...apps.googleusercontent.com\n"  ← \n が入る
-```
-
-**解決策**: `printf` を使用して改行なしで設定
-
-```bash
-# OK: 改行なし
-printf "YOUR_VALUE" | vercel env add VAR_NAME production
-```
-
-**確認方法**:
-```bash
-vercel env pull .env.vercel --environment production -y
-grep "AUTH_GOOGLE" .env.vercel
-# 末尾に \n があれば問題
-```
-
-## 正しい設定手順
-
-### 1. 環境変数の確認
-```bash
-# プロジェクトの.envを確認（マスター台帳）
-grep "GOOGLE" /c/Windsurf/tasuku/.env
-```
-
-### 2. Vercel環境変数の設定（printf使用）
-```bash
-printf "YOUR_CLIENT_ID" | vercel env add AUTH_GOOGLE_ID production
-printf "YOUR_CLIENT_SECRET" | vercel env add AUTH_GOOGLE_SECRET production
-printf "YOUR_AUTH_SECRET" | vercel env add AUTH_SECRET production
-```
-
-### 3. 設定確認
-```bash
-vercel env pull .env.vercel --environment production -y
-cat .env.vercel | grep AUTH
-# 値の末尾に \n がないことを確認
-```
-
-### 4. 再デプロイ
-```bash
-vercel --prod --yes
-```
-
-## GCP Redirect URI設定
-
-NextAuthは `/api/auth/callback/google` を使用する（Supabaseの `/auth/callback` とは異なる）
-
-**必要なRedirect URI:**
-- `https://tasuku.apaf.me/api/auth/callback/google`
-- `http://localhost:3000/api/auth/callback/google`
-
-## 関連ファイル
-
-- `.env` - マスター台帳（Google OAuth credentials含む）
-- `.env.local` - ローカル開発用
-- `src/auth.ts` - NextAuth設定（AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET使用）
+### 6. ESLintエラー修正
+- **修正内容**:
+  - `scripts/manariedb-cli.js` に `eslint-disable @typescript-eslint/no-require-imports` 追加
+- **結果**: ESLintエラー 4件 → 0件
+- **状態**: ✅ 完了
 
 ---
 
-# NextAuth ログイン成功なのに「ログインが必要」と表示される問題（2025-12-21）
-
-## 症状
-
-- Googleログインは成功する（エラーなし）
-- `/api/auth/session` にアクセスするとユーザー情報が表示される（セッションは有効）
-- しかしTASUKUの画面では「ログインが必要です」と表示される
-
-## 原因
-
-**`AuthStatus.tsx` がSupabase認証をチェックしていた**
+## ビルド結果
 
 ```
-NextAuthでログイン成功
-     ↓
-セッション作成される（/api/auth/session で確認可能）
-     ↓
-AuthStatus.tsx が supabase.auth.getUser() をチェック ← ここが問題
-     ↓
-Supabaseにはログインしてない → 「ログインが必要」表示
+✓ Compiled successfully in 17.3s
+✓ Generating static pages (15/15)
 ```
 
-NextAuthに移行したのに、UIコンポーネント（AuthStatus.tsx）がまだSupabaseの認証状態を見ていたため、常に「未ログイン」と判定されていた。
-
-## 修正内容
-
-### AuthStatus.tsx の変更
-
-**修正前（Supabase）:**
-```tsx
-import { createClient } from '@/lib/supabase/client'
-import { useState, useEffect } from 'react'
-
-export function AuthStatus() {
-  const [user, setUser] = useState<User | null>(null)
-  const supabase = createClient()
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    getUser()
-  }, [supabase])
-
-  if (!user) {
-    return <div>ログインが必要です</div>
-  }
-}
-```
-
-**修正後（NextAuth）:**
-```tsx
-import { useSession } from 'next-auth/react'
-
-export function AuthStatus() {
-  const { data: session, status } = useSession()
-
-  if (status === 'loading') {
-    return <div>読み込み中...</div>
-  }
-
-  if (!session?.user) {
-    return <div>ログインが必要です</div>
-  }
-
-  return <div>✅ {session.user.email}でログイン中</div>
-}
-```
-
-### auth.ts のDB連携
-
-セッションにDBのuser_idを含めるための変更:
-
-```tsx
-// emailからDBのuser_idを取得
-async function getOrCreateDbUserId(email: string, name?: string | null, image?: string | null) {
-  const existing = await queryOne<{ id: string }>(
-    'SELECT id FROM users WHERE email = $1',
-    [email]
-  );
-  if (existing) return existing.id;
-  // 新規作成...
-}
-
-// JWTコールバックでDBのuser_idを設定
-callbacks: {
-  async jwt({ token, user, account }) {
-    if (account && user?.email) {
-      const dbUserId = await getOrCreateDbUserId(user.email, user.name, user.image);
-      token.dbUserId = dbUserId || user.id;
-    }
-    return token;
-  },
-  async session({ session, token }) {
-    if (session.user) {
-      session.user.id = (token.dbUserId as string) || (token.sub as string);
-    }
-    return session;
-  },
-}
-```
-
-## デバッグ方法
-
-### 1. セッションの確認
-```
-ブラウザで直接アクセス: https://tasuku.apaf.me/api/auth/session
-
-成功例: {"user":{"name":"...","email":"...","id":"93d599a3-..."}}
-失敗例: {} または null
-```
-
-### 2. DBのuser_idが正しく取得されているか
-```bash
-# DBのusersテーブルを確認
-DATABASE_URL="..." node -e "
-const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
-pool.query('SELECT id, email FROM users').then(r => console.log(r.rows));
-"
-```
-
-### 3. ログアウト→再ログインが必要
-JWTは初回ログイン時に設定されるため、auth.tsを変更した後は:
-1. ログアウト
-2. Cookieクリア（念のため）
-3. 再度Googleログイン
-
-## 教訓
-
-- **認証方式を変更したら、全てのUIコンポーネントを確認する**
-- Supabase → NextAuth 移行時、以下をチェック:
-  - `supabase.auth.getUser()` を使っている箇所
-  - `@/lib/supabase/client` をimportしている箇所
-  - `onAuthStateChange` を使っている箇所
-- `grep -r "supabase.auth" src/` で残存箇所を検索できる
-
-## 関連コミット
-
-- `0974d69` - auth.tsにエラーハンドリング追加
-- `0e88cb0` - auth.tsをシンプル化（DBクエリ削除）← デバッグ用
-- `a10e07c` - AuthStatusをNextAuthに変更 ← **これが主要な修正**
-- `f50ce4e` - auth.tsにDB連携追加（emailからuser_id取得）
-- `2ca59be` - PostgreSQLのdecimal型を数値に変換（燃費ページ用）
+- TypeScriptエラー: 0件
+- ESLintエラー: 0件
+- ESLint警告: 26件（未使用変数、React Hooks依存、img要素最適化等）
 
 ---
 
-# Supabase Auth → NextAuth 完全移行マニュアル（2025-12-21）
+## 残存する警告（機能には影響なし）
 
-## 概要
+### 未使用変数
+- `tabId` (chrome-extension/background.js)
+- `authStatus` (e2e/basic.spec.ts)
+- `deadline` (TimeFrameSection.tsx)
+- `hasSubTasks` (UnifiedTasksTable.tsx)
+- `addDays`, `parseDateJST`, `formatDateJST` (postgres-tasks.ts)
+- `getColorClasses` (tools/page.tsx)
 
-Supabase認証からNextAuth（Google OAuth）への移行で必要な変更箇所をまとめる。
-認証方式を変更すると、複数の箇所で「認証チェック」が残存し、動作しなくなる。
+### React Hooks依存配列
+- `timeFrameTasks` (today/page.tsx:213)
+- `activeVehicle` (nenpi/page.tsx:78)
 
-## 移行が必要な箇所一覧
-
-### 1. UIコンポーネント（クライアントサイド）
-
-| ファイル | 修正前 | 修正後 |
-|---------|-------|-------|
-| `AuthStatus.tsx` | `supabase.auth.getUser()` | `useSession()` |
-| `useDatabase.ts` | `supabase.auth.getUser()` | `useSession()` |
-
-**検索コマンド:**
-```bash
-grep -r "supabase.auth" src/
-grep -r "createClient.*supabase" src/hooks/
-grep -r "createClient.*supabase" src/components/
-```
-
-### 2. APIルート（サーバーサイド）
-
-| ファイル | 修正前 | 修正後 |
-|---------|-------|-------|
-| `/api/tasks/route.ts` | - | `requireUserId()` ✅ 既にNextAuth対応 |
-| `/api/generate-tasks/route.ts` | `supabase.auth.getUser()` | `requireUserId()` |
-| `/api/templates/route.ts` | - | `requireUserId()` ✅ 既にNextAuth対応 |
-
-**検索コマンド:**
-```bash
-grep -r "createClient.*supabase/server" src/app/api/
-grep -r "supabase.auth.getUser" src/app/api/
-```
-
-### 3. データ取得フック
-
-| ファイル | 修正前 | 修正後 |
-|---------|-------|-------|
-| `useTasks.ts` | `supabaseDb` 直接アクセス | `TasksApi` 経由 |
-| `useUnifiedTasks.ts` | - | `UnifiedTasksService` ✅ 既にAPI経由 |
-
-**ポイント:**
-- APIは認証済みだが、フックがSupabaseを直接使っていると動かない
-- フック → API → DB の流れにする
-
-## 修正手順
-
-### Step 1: auth.ts にDB連携を追加
-
-```tsx
-// src/auth.ts
-import { queryOne } from '@/lib/db/postgres-client'
-
-async function getOrCreateDbUserId(email: string, name?: string | null, image?: string | null) {
-  const existing = await queryOne<{ id: string }>(
-    'SELECT id FROM users WHERE email = $1',
-    [email]
-  );
-  if (existing) return existing.id;
-
-  const result = await queryOne<{ id: string }>(
-    'INSERT INTO users (email, name, image) VALUES ($1, $2, $3) RETURNING id',
-    [email, name, image]
-  );
-  return result?.id || null;
-}
-
-// callbacks内
-callbacks: {
-  async jwt({ token, user, account }) {
-    if (account && user?.email) {
-      const dbUserId = await getOrCreateDbUserId(user.email, user.name, user.image);
-      token.dbUserId = dbUserId || user.id;
-    }
-    return token;
-  },
-  async session({ session, token }) {
-    if (session.user) {
-      session.user.id = (token.dbUserId as string) || (token.sub as string);
-    }
-    return session;
-  },
-}
-```
-
-### Step 2: API用認証ヘルパー作成
-
-```tsx
-// src/lib/auth/get-user-id.ts
-import { auth } from '@/auth'
-
-export async function getUserId(): Promise<string | null> {
-  const session = await auth()
-  return session?.user?.id || null
-}
-
-export async function requireUserId(): Promise<string> {
-  const userId = await getUserId()
-  if (!userId) {
-    throw new Error('Unauthorized: User not authenticated')
-  }
-  return userId
-}
-```
-
-### Step 3: UIコンポーネントの修正
-
-**AuthStatus.tsx:**
-```tsx
-'use client'
-import { useSession } from 'next-auth/react'
-
-export function AuthStatus() {
-  const { data: session, status } = useSession()
-
-  if (status === 'loading') {
-    return <div>読み込み中...</div>
-  }
-
-  if (!session?.user) {
-    return <div>ログインが必要です</div>
-  }
-
-  return <div>✅ {session.user.email}でログイン中</div>
-}
-```
-
-**useDatabase.ts:**
-```tsx
-'use client'
-import { useSession } from 'next-auth/react'
-
-export function useDatabase() {
-  const { data: session, status } = useSession()
-  const [isInitialized, setIsInitialized] = useState(false)
-
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session?.user) {
-      setIsInitialized(false)
-      return
-    }
-
-    // 初期化処理...
-    setIsInitialized(true)
-  }, [session, status])
-
-  return { isInitialized, error }
-}
-```
-
-### Step 4: APIルートの修正
-
-**修正前（Supabase）:**
-```tsx
-import { createClient } from '@/lib/supabase/server'
-
-export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  // user.id を使用...
-}
-```
-
-**修正後（NextAuth）:**
-```tsx
-import { requireUserId } from '@/lib/auth/get-user-id'
-
-export async function POST(request: Request) {
-  try {
-    const userId = await requireUserId()
-
-    // userId を使用...
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    const status = message.includes('Unauthorized') ? 401 : 500
-    return NextResponse.json({ error: message }, { status })
-  }
-}
-```
-
-### Step 5: データ取得フックの修正
-
-**useTasks.ts:**
-```tsx
-// 修正前
-import { supabaseDb as db } from '@/lib/db/supabase-database'
-const allTasks = await db.getAllTasks()
-
-// 修正後
-import { TasksApi } from '@/lib/api/tasks-api'
-const allTasks = await TasksApi.getAllTasks()
-```
-
-## 確認手順
-
-### 1. セッション確認
-```
-ブラウザ: https://tasuku.apaf.me/api/auth/session
-期待値: {"user":{"name":"...","email":"...","id":"DB_USER_ID"}}
-```
-
-### 2. API確認
-```
-ブラウザ: https://tasuku.apaf.me/api/tasks
-期待値: {"success":true,"data":[...タスク配列...]}
-```
-
-### 3. UI確認
-- /today でタスクが表示される
-- タスクの完了/未完了が動作する
-- タスクの追加・編集・削除が動作する
-
-## トラブルシューティング
-
-### 「認証状態確認中...」で止まる
-→ `useDatabase.ts` がSupabase認証を使っている
-
-### タスクが0件表示
-→ データ取得フックがSupabase直接アクセスを使っている
-
-### タスク生成エラー
-→ `/api/generate-tasks` がSupabase認証を使っている
-
-### 「Auth session missing!」エラー
-→ APIがSupabase認証を使っている
-
-## 残存Supabase認証API（デバッグ用、通常使用に影響なし）
-
-以下のAPIはまだSupabase認証を使用（必要に応じて修正）:
-- `force-delete-expired` - 期限切れタスク強制削除
-- `check-morning-jump` - 朝ジャンプチェック
-- `check-overdue` - 期限切れチェック
-- `debug-templates` - テンプレートデバッグ
-- `restore` - 復元
-- `check-future-recurring` - 将来の繰り返しチェック
-
-## 関連コミット（移行作業）
-
-- `16d2d25` - useTasks.tsをAPI経由に変更（NextAuth対応）
-- `fcf287a` - useTasks.ts型エラー修正
-- `6ed4916` - useDatabaseをNextAuth対応に変更
-- `6c3c0cb` - generate-tasks APIをNextAuth対応に変更
-- `891ac86` - urls NOT NULL制約エラーを修正（空配列をデフォルトに）
+### Next.js Image最適化
+- seal-maker.tsx、nenpi/page.tsx等で`<img>`タグ使用（Canvas処理のため必要）
 
 ---
 
-# タスク追加時のDB制約エラー（2025-12-21）
+## 次回作業時の確認事項
 
-## 症状
+1. **マイグレーション適用**: manarieDBに以下を適用する必要あり
+   - `20260109000001_create_users_table.sql`
+   - `20260109000002_add_updated_at_to_subtasks.sql`
 
-タスク追加しても何も起きない（サイレントに失敗）
-
-## 原因
-
-```
-"error": "null value in column \"urls\" of relation \"unified_tasks\" violates not-null constraint"
-```
-
-`urls`カラムにNOT NULL制約があるのに、`null`を渡していた。
-
-## 修正
-
-**postgres-tasks.ts:**
-```tsx
-// 修正前
-task.urls || null,
-
-// 修正後
-task.urls || [],  // NOT NULL制約があるため空配列をデフォルトに
-```
-
-## 教訓
-
-- DBのNOT NULL制約を確認する
-- サイレントに失敗する場合は、ブラウザのNetworkタブでAPIレスポンスを確認
-- `|| null` を使う前に、カラムの制約を確認する
+2. **本番デプロイ後の確認**:
+   - デバッグAPI（/api/check-overdue等）が403を返すこと
+   - 認証フローが正常に動作すること

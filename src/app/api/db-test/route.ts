@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { testConnection, query } from '@/lib/db/postgres-client'
 
-// DB接続テスト（認証不要）
+// DB接続テスト - 本番環境では無効
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'This endpoint is disabled in production' }, { status: 403 })
+  }
+
   try {
     // 接続テスト
     const connected = await testConnection()
