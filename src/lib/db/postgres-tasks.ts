@@ -4,7 +4,7 @@
 import { query, queryOne } from './postgres-client'
 import type { UnifiedTask, SubTask } from '@/lib/types/unified-task'
 import type { RecurringTemplate } from '@/lib/types/recurring-template'
-import { getTodayJST, getNowJST, addDays, parseDateJST, formatDateJST } from '@/lib/utils/date-jst'
+import { getTodayJST, getNowJST } from '@/lib/utils/date-jst'
 import { SPECIAL_DATES } from '@/lib/constants'
 import { logger } from '@/lib/utils/logger'
 

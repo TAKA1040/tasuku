@@ -75,6 +75,9 @@ export default function NenpiPage() {
     }
 
     setLoading(false)
+    // Note: activeVehicle intentionally excluded - initial fetch uses current value,
+    // subsequent vehicle changes handled by separate useEffect below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session])
 
   // 車両切替時にデータを再取得

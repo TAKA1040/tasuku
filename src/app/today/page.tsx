@@ -206,7 +206,7 @@ export default function TodayPage() {
   }, [allUnifiedData, selectedCategories, applyCategoryFilter])
 
   // 時間枠が期限切れで未完了タスクがあるかチェック
-  const isTimeFrameOverdue = useCallback((deadline: string, tasks: typeof timeFrameTasks.morning) => {
+  const isTimeFrameOverdue = useCallback((deadline: string, tasks: UnifiedTask[]) => {
     const currentTime = getCurrentTime()
     const hasIncompleteTasks = tasks.some(task => !task.completed)
     return currentTime >= deadline && hasIncompleteTasks

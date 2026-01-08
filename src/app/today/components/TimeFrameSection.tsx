@@ -27,7 +27,7 @@ export function TimeFrameSection({
   emoji,
   title,
   tasks,
-  deadline,
+  deadline: _deadline,
   isOverdue,
   isExpanded,
   onToggleExpanded,

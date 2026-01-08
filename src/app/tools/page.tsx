@@ -42,7 +42,8 @@ const toolItems = [
   // },
 ]
 
-const getColorClasses = (color: string) => {
+// 将来のツール拡張用にカラークラス取得関数を定義（現在未使用）
+const _getColorClasses = (color: string) => {
   const colors = {
     blue: {
       bg: 'bg-blue-50 dark:bg-blue-950/30',

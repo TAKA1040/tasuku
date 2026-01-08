@@ -771,7 +771,6 @@ export function UnifiedTasksTable({
             {tasks.map((item, index) => {
               const dataType = getTaskDataType(item)
               const subTasks = shoppingSubTasks?.[item.id] || []
-              const hasSubTasks = subTasks.length > 0
               const isExpanded = expandedShoppingLists ? expandedShoppingLists[item.id] === true : false
 
               return (
