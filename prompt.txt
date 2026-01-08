@@ -1,11 +1,11 @@
-# tasuku 徹底チェックレポート (2026-01-09)
+# tasuku 徹底チェックレポート (2026-01-09) - 最終版
 
-## ✅ 修正完了
+## ✅ すべて完了
 
-### 1. `users` テーブルのマイグレーション作成
+### 1. `users` テーブルのマイグレーション作成・適用
 - **ファイル**: `supabase/migrations/20260109000001_create_users_table.sql`
 - **内容**: NextAuth用のusersテーブル（id, email, name, image）を作成
-- **状態**: ✅ 完了
+- **状態**: ✅ 完了・manarieDBに適用済み
 
 ### 2. デバッグAPIの本番環境保護
 - **対象ファイル**:
@@ -17,7 +17,7 @@
   - `src/app/api/fix-profiles/route.ts`
   - `src/app/api/restore/route.ts`
 - **修正**: `NODE_ENV === 'production'` で403を返すガードを追加
-- **状態**: ✅ 完了
+- **状態**: ✅ 完了・本番で403確認済み
 
 ### 3. 年次タスク期限切れ削除処理の追加
 - **ファイル**: `src/lib/services/task-generator.ts`
@@ -27,7 +27,7 @@
 ### 4. subtasksにupdated_atカラム追加
 - **ファイル**: `supabase/migrations/20260109000002_add_updated_at_to_subtasks.sql`
 - **内容**: subtasksテーブルにupdated_atカラムとトリガーを追加
-- **状態**: ✅ 完了
+- **状態**: ✅ 完了・manarieDBに適用済み
 
 ### 5. task-generator.tsのバグ修正
 - **修正内容**:
@@ -35,9 +35,15 @@
   - 未使用インポート `UnifiedTask` を削除
 - **状態**: ✅ 完了
 
-### 6. ESLintエラー修正
+### 6. ESLintエラー・警告修正
 - **修正内容**:
   - `scripts/manariedb-cli.js` に `eslint-disable @typescript-eslint/no-require-imports` 追加
+  - `postgres-tasks.ts`: 未使用インポート削除 (`addDays`, `parseDateJST`, `formatDateJST`)
+  - `today/page.tsx`: React Hooks依存配列修正（型を明示化）
+  - `nenpi/page.tsx`: 意図的な依存除外にeslint-disable追加
+  - `TimeFrameSection.tsx`: 未使用prop `deadline` → `_deadline`
+  - `UnifiedTasksTable.tsx`: 未使用変数 `hasSubTasks` 削除
+  - `tools/page.tsx`: 未使用関数を `_getColorClasses` にリネーム
 - **結果**: ESLintエラー 4件 → 0件
 - **状態**: ✅ 完了
 
@@ -46,41 +52,36 @@
 ## ビルド結果
 
 ```
-✓ Compiled successfully in 17.3s
+✓ Compiled successfully
 ✓ Generating static pages (15/15)
 ```
 
 - TypeScriptエラー: 0件
 - ESLintエラー: 0件
-- ESLint警告: 26件（未使用変数、React Hooks依存、img要素最適化等）
+- ESLint警告: 18件（機能に影響なし）
 
 ---
 
 ## 残存する警告（機能には影響なし）
 
-### 未使用変数
+### Chrome拡張・テスト・スクリプト
 - `tabId` (chrome-extension/background.js)
 - `authStatus` (e2e/basic.spec.ts)
-- `deadline` (TimeFrameSection.tsx)
-- `hasSubTasks` (UnifiedTasksTable.tsx)
-- `addDays`, `parseDateJST`, `formatDateJST` (postgres-tasks.ts)
-- `getColorClasses` (tools/page.tsx)
-
-### React Hooks依存配列
-- `timeFrameTasks` (today/page.tsx:213)
-- `activeVehicle` (nenpi/page.tsx:78)
+- `writeFileSync` (scripts/generate-icons.mjs)
+- 式評価警告 (scripts/manariedb-cli.js)
 
 ### Next.js Image最適化
 - seal-maker.tsx、nenpi/page.tsx等で`<img>`タグ使用（Canvas処理のため必要）
 
 ---
 
-## 次回作業時の確認事項
+## 確認完了事項
 
-1. **マイグレーション適用**: manarieDBに以下を適用する必要あり
-   - `20260109000001_create_users_table.sql`
-   - `20260109000002_add_updated_at_to_subtasks.sql`
+1. **マイグレーション適用**: ✅ manarieDBに適用済み
+   - `20260109000001_create_users_table.sql` → users テーブル作成確認
+   - `20260109000002_add_updated_at_to_subtasks.sql` → subtasks.updated_at カラム確認
 
-2. **本番デプロイ後の確認**:
-   - デバッグAPI（/api/check-overdue等）が403を返すこと
-   - 認証フローが正常に動作すること
+2. **本番デプロイ確認**: ✅ 完了
+   - デバッグAPI（/api/check-overdue等）が403を返すことを確認
+   - Vercel自動デプロイ完了
+

@@ -12,6 +12,55 @@
 
 ---
 
+## ✅ 完了: 徹底チェック＆ESLint修正 (2026-01-09)
+
+### 実施内容
+
+**ユーザーからの要求**: 徹底的なコードチェックとバグ修正
+
+### 修正項目
+
+#### 1. データベース関連
+- **usersテーブル作成**: NextAuth用のusersテーブルマイグレーション追加・適用
+- **subtasks.updated_at追加**: 型定義との整合性確保
+
+#### 2. セキュリティ
+- **デバッグAPI保護**: 7つのデバッグAPIに本番環境ガード追加（403返却確認済み）
+  - `/api/check-overdue`, `/api/check-future-recurring`, `/api/check-morning-jump`
+  - `/api/db-test`, `/api/debug-templates`, `/api/fix-profiles`, `/api/restore`
+
+#### 3. ロジック修正
+- **年次タスク削除**: `deleteExpiredRecurringTasks()` にYEARLY処理追加
+- **ハードコード修正**: `'2999-12-31'` → `SPECIAL_DATES.NO_DUE_DATE`
+
+#### 4. ESLint修正
+- **エラー**: 4件 → 0件
+- **警告**: 26件 → 18件
+- 修正ファイル:
+  - `postgres-tasks.ts`: 未使用インポート削除
+  - `today/page.tsx`: React Hooks依存配列修正
+  - `nenpi/page.tsx`: eslint-disable追加
+  - `TimeFrameSection.tsx`: 未使用prop修正
+  - `UnifiedTasksTable.tsx`: 未使用変数削除
+  - `tools/page.tsx`: 未使用関数リネーム
+  - `manariedb-cli.js`: eslint-disable追加
+
+### デプロイ情報
+
+- **コミット**:
+  - `fb8f331` - 主要修正（マイグレーション、セキュリティ、ロジック）
+  - `434e1b2` - ESLint警告修正
+- **本番URL**: https://tasuku.apaf.me
+- **検証**: デバッグAPIが403を返すことを確認
+
+### ビルド結果
+
+- TypeScriptエラー: 0件
+- ESLintエラー: 0件
+- ESLint警告: 18件（Chrome拡張、テスト、Canvas用img）
+
+---
+
 ## ✅ 完了: モバイル画面でのテンプレート表示改善 (2025-10-12)
 
 ### 実装内容
