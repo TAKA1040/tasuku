@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+// グラフ・画像表示にネイティブimg要素を使用
 'use client'
 
 import { useState, useEffect } from 'react'

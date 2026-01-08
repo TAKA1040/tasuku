@@ -30,7 +30,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 })
 
 // Background Scriptから保存
-async function saveToInboxFromBackground(title, url, tabId) {
+async function saveToInboxFromBackground(title, url, _tabId) {
   try {
     const SUPABASE_URL = 'https://wgtrffjwdtytqgqybjwx.supabase.co'
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndHJmZmp3ZHR5dHFncXlianciLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcyNjMyNzk2MywiZXhwIjoyMDQxOTAzOTYzfQ.fE-gJDGCnPv3pD71KRKP3vaNOG8yGNBH7Efi7TfV-Fs'

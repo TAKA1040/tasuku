@@ -164,7 +164,7 @@ async function backupRestore(file) {
         ? `INSERT INTO ${tableName} (${columns}) VALUES (${values}) ON CONFLICT (id) DO UPDATE SET ${Object.keys(row).filter(k => k !== 'id').map(k => `${k} = EXCLUDED.${k}`).join(', ')}`
         : `INSERT INTO ${tableName} (${columns}) VALUES (${values})`;
       const result = await executeSQL(sql);
-      result.success ? success++ : error++;
+      if (result.success) { success++; } else { error++; }
     }
     console.log(`  ${tableName}: 成功 ${success} / エラー ${error}`);
   }
@@ -204,7 +204,7 @@ async function importCSV(file) {
     const values = row.split(',').map(v => formatValue(v.trim()));
     const sql = `INSERT INTO ${tableName} (${headers.join(', ')}) VALUES (${values.join(', ')})`;
     const result = await executeSQL(sql);
-    result.success ? success++ : error++;
+    if (result.success) { success++; } else { error++; }
   }
   console.log(`\nインポート完了: 成功 ${success} / エラー ${error}`);
 }

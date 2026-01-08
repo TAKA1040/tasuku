@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+// Canvas/PDF生成にはネイティブのimg要素が必要（Next.js Imageは使用不可）
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';

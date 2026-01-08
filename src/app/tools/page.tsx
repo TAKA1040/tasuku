@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+// ツールアイコン表示にネイティブimg要素を使用
 'use client'
 
 import Link from 'next/link'

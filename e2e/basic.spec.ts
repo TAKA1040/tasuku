@@ -44,7 +44,7 @@ test.describe('認証状態の確認', () => {
     await page.goto('/today');
 
     // 認証状態コンポーネントが存在することを確認
-    const authStatus = page.locator('[class*="auth"]');
+    const _authStatus = page.locator('[class*="auth"]');
 
     // ページが正常に読み込まれることを確認
     await expect(page).toHaveTitle(/TASUKU/);

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Printer, FileText, Image, QrCode, Share2, Sliders, Grid3X3, Copy, Download } from 'lucide-react';
+import { ArrowLeft, Printer, FileText, Image as ImageIcon, QrCode, Share2, Sliders, Grid3X3, Copy, Download } from 'lucide-react';
 
 export default function LabelMakerManualPage() {
   const sections = [
@@ -47,7 +47,7 @@ export default function LabelMakerManualPage() {
     },
     {
       id: 'image',
-      icon: <Image size={24} />,
+      icon: <ImageIcon size={24} />,
       title: '画像設定',
       color: 'purple',
       content: [
